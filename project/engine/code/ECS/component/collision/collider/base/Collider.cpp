@@ -34,35 +34,6 @@ void OriGine::ICollider::Edit(Scene* /*_scene*/, EntityHandle /*_handle*/, [[may
         ImGui::EndCombo();
     }
 
-    // マスク編集（チェックボックス）
-    if (ImGui::TreeNode(("Collision Mask##" + _parentLabel).c_str())) {
-        for (const auto& [name, category] : categories) {
-            bool isChecked = collisionMask_.CanCollideWith(category.GetBits());
-            if (ImGui::Checkbox((name + "##mask_" + _parentLabel).c_str(), &isChecked)) {
-                if (isChecked) {
-                    collisionMask_.SetBits(category.GetBits());
-                } else {
-                    collisionMask_.ClearBits(category.GetBits());
-                }
-            }
-        }
-        ImGui::TreePop();
-    }
-
-    // 新規カテゴリ追加
-    if (ImGui::TreeNode(("Add Category##" + _parentLabel).c_str())) {
-        static char newCategoryName[64] = "";
-        ImGui::InputText(("##newCategory_" + _parentLabel).c_str(), newCategoryName, sizeof(newCategoryName));
-        ImGui::SameLine();
-        if (ImGui::Button(("Add##addCategory_" + _parentLabel).c_str())) {
-            if (strlen(newCategoryName) > 0) {
-                manager->RegisterCategory(newCategoryName);
-                newCategoryName[0] = '\0';
-            }
-        }
-        ImGui::TreePop();
-    }
-
 #endif // _DEBUG
 }
 
@@ -85,13 +56,6 @@ void ICollider::EndCollision() {
 void OriGine::to_json(nlohmann::json& _j, const ICollider& _c) {
     _j["isActive"]          = _c.isActive_;
     _j["collisionCategory"] = _c.collisionCategory_.GetName();
-
-    nlohmann::json maskArray          = nlohmann::json::array();
-    CollisionCategoryManager* manager = CollisionCategoryManager::GetInstance();
-    manager->ForEachCategoryInMask(_c.collisionMask_.GetRaw(), [&](const std::string& name) {
-        maskArray.push_back(name);
-    });
-    _j["collisionMask"] = maskArray;
 }
 
 void OriGine::from_json(const nlohmann::json& _j, ICollider& _c) {
@@ -104,12 +68,8 @@ void OriGine::from_json(const nlohmann::json& _j, ICollider& _c) {
         CollisionCategoryManager* manager = CollisionCategoryManager::GetInstance();
         _c.collisionCategory_             = manager->GetCategory(categoryName);
     }
+}
 
-    if (_j.contains("collisionMask")) {
-        _c.collisionMask_.Reset();
-        CollisionCategoryManager* manager = CollisionCategoryManager::GetInstance();
-        for (const auto& name : _j["collisionMask"]) {
-            _c.collisionMask_.Set(name.get<std::string>());
-        }
-    }
+bool ICollider::CanCollideWith(const ICollider& _other) const {
+    return collisionCategory_.CanCollideWith(_other.collisionCategory_.GetBits());
 }

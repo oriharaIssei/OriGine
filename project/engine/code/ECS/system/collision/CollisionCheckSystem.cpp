@@ -5,7 +5,7 @@
 
 /// ECS
 // component
-#include "component/collision/collider/Collider.h"
+#include "component/collision/collider/base/Collider.h"
 #include "component/collision/CollisionPushBackInfo.h"
 #include "component/transform/Transform.h"
 // shape
@@ -177,6 +177,9 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
             }
             for (auto& colliderB : listB) {
                 if (!colliderB.IsActive()) {
+                    continue;
+                }
+                if (!colliderA.CanCollideWith(colliderB)) {
                     continue;
                 }
                 if (CheckCollisionPair<>(currentScene, aEntity, bEntity, colliderA.GetWorldShape(), colliderB.GetWorldShape(), _aInfo, _bInfo)) {

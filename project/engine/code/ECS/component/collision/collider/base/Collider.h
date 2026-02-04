@@ -10,7 +10,6 @@
 /// ECS
 // component
 #include "component/collision/collider/base/CollisionCategory.h"
-#include "component/collision/collider/base/CollisionMask.h"
 #include "component/transform/Transform.h"
 
 /// math
@@ -27,7 +26,8 @@ namespace OriGine {
 /// <summary>
 /// 衝突状態
 /// </summary>
-enum class CollisionState { None, // 衝突していない
+enum class CollisionState {
+    None, // 衝突していない
     Stay, // 衝突中
     Enter, // 衝突開始時
     Exit // 衝突終了時
@@ -56,18 +56,15 @@ public:
     virtual void EndCollision();
 
     /// <summary>
-    /// 衝突可能か判定
+    /// 衝突可能か判定（Manager経由でマトリクス参照）
     /// </summary>
     /// <param name="_other">相手のコライダー</param>
-    bool CanCollideWith(const ICollider& _other) const {
-        return collisionMask_.CanCollideWith(_other.collisionCategory_.GetBits());
-    }
+    bool CanCollideWith(const ICollider& _other) const;
 
 protected:
     bool isActive_ = true;
 
     CollisionCategory collisionCategory_ = CollisionCategory();
-    CollisionMask collisionMask_         = CollisionMask();
 
     Transform transform_;
     std::unordered_map<EntityHandle, CollisionState> collisionStateMap_;
@@ -82,8 +79,6 @@ public: // accessor
 
     const CollisionCategory& GetCollisionCategory() const { return collisionCategory_; }
     void SetCollisionCategory(const CollisionCategory& _category) { collisionCategory_ = _category; }
-    const CollisionMask& GetCollisionMask() const { return collisionMask_; }
-    void SetCollisionMask(const CollisionMask& _mask) { collisionMask_ = _mask; }
 
     // 衝突状態の操作
     void SetCollisionState(EntityHandle _otherHandle) {

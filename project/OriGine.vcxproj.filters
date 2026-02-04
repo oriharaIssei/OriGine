@@ -40,6 +40,9 @@
     <Filter Include="engine\code\ECS\component\collision\collider">
       <UniqueIdentifier>{69905061-55A3-50BA-FE8C-2DA7EA7EED07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\ECS\component\collision\collider\base">
+      <UniqueIdentifier>{B322A292-1FE9-FEAE-6844-8D11D4496D13}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\ECS\component\effect">
       <UniqueIdentifier>{4D648BCF-39B5-7611-6219-65D34EC9097B}</UniqueIdentifier>
     </Filter>
@@ -315,9 +318,6 @@
     <ClInclude Include="engine\code\ECS\component\collision\collider\CapsuleCollider.h">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h">
-      <Filter>engine\code\ECS\component\collision\collider</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClInclude>
@@ -329,6 +329,18 @@
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\Collider.h">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionCategory.h">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionCategoryManager.h">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionMask.h">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h">
       <Filter>engine\code\ECS\component\effect</Filter>
@@ -1016,9 +1028,6 @@
     <ClCompile Include="engine\code\ECS\component\collision\collider\CapsuleCollider.cpp">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp">
-      <Filter>engine\code\ECS\component\collision\collider</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClCompile>
@@ -1030,6 +1039,15 @@
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp">
       <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\Collider.cpp">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\CollisionCategoryManager.cpp">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\CollisionMask.cpp">
+      <Filter>engine\code\ECS\component\collision\collider\base</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp">
       <Filter>engine\code\ECS\component\effect</Filter>
@@ -1491,9 +1509,6 @@
       <Filter>util\myGui</Filter>
     </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp">
-      <Filter>util\timeline</Filter>
-    </ClCompile>
-    <ClCompile Include="util\timeline\Timeline_New.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp">

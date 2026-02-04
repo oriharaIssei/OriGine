@@ -9,6 +9,9 @@
 // util
 #include "util/nameof.h"
 
+// collision
+#include "component/collision/collider/base/CollisionCategoryManager.h"
+
 using namespace OriGine;
 
 const std::string SettingWindow::kGlobalVariablesSceneName       = "Settings";
@@ -26,6 +29,7 @@ void SettingWindow::Initialize() {
 
     AddArea(std::make_shared<SettingWindowArea>());
     AddArea(std::make_shared<ProjectSettingArea>());
+    AddArea(std::make_shared<CollisionSettingArea>());
 
     OriGine::EditorController::GetInstance()->AddMainMenu(
         std::make_unique<SettingsMenu>());
@@ -245,6 +249,98 @@ void SettingsWindowOpen::DrawGui() {
 }
 
 void SettingsWindowOpen::Finalize() {}
+
+#pragma endregion
+
+#pragma region "CollisionSetting"
+
+CollisionSettingArea::CollisionSettingArea()
+    : Editor::Area(nameof<CollisionSettingArea>()) {}
+CollisionSettingArea::~CollisionSettingArea() {}
+
+void CollisionSettingArea::Initialize() {
+    AddRegion(std::make_shared<CollisionSettingRegion>());
+}
+
+void CollisionSettingArea::Finalize() {}
+
+CollisionSettingRegion::CollisionSettingRegion()
+    : Editor::Region(nameof<CollisionSettingRegion>()) {}
+
+CollisionSettingRegion::~CollisionSettingRegion() {}
+
+void CollisionSettingRegion::Initialize() {
+    newCategoryName_[0] = '\0';
+    // カテゴリの読み込みはアプリケーション起動時に行うため、ここでは何もしない
+}
+
+void CollisionSettingRegion::DrawGui() {
+    auto* manager          = OriGine::CollisionCategoryManager::GetInstance();
+    const auto& categories = manager->GetCategories();
+
+    ImGui::Text("Collision Categories (%zu / 32)", categories.size());
+    ImGui::Separator();
+
+    // 登録済みカテゴリ一覧
+    for (const auto& [name, category] : categories) {
+        ImGui::BulletText("%s (bit: 0x%08X)", name.c_str(), category.GetBits());
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // 新規カテゴリ追加
+    ImGui::Text("Add New Category:");
+    ImGui::InputText("##newCategoryName", newCategoryName_, sizeof(newCategoryName_));
+    ImGui::SameLine();
+    if (ImGui::Button("Add")) {
+        if (strlen(newCategoryName_) > 0) {
+            if (manager->RegisterCategory(newCategoryName_)) {
+                newCategoryName_[0] = '\0';
+            }
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // 衝突マトリクス編集
+    ImGui::Text("Collision Matrix:");
+    ImGui::Spacing();
+
+    // 各カテゴリのマスクをチェックボックスで編集
+    for (const auto& [rowName, rowCategory] : categories) {
+        if (ImGui::TreeNode(rowName.c_str())) {
+            uint32_t currentMask = manager->GetCategoryMask(rowName);
+
+            for (const auto& [colName, colCategory] : categories) {
+                bool canCollide = (currentMask & colCategory.GetBits()) != 0;
+                if (ImGui::Checkbox((colName + "##mask_" + rowName).c_str(), &canCollide)) {
+                    if (canCollide) {
+                        currentMask |= colCategory.GetBits();
+                    } else {
+                        currentMask &= ~colCategory.GetBits();
+                    }
+                    manager->SetCategoryMask(rowName, currentMask);
+                }
+            }
+            ImGui::TreePop();
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // 保存ボタン
+    if (ImGui::Button("Save Categories")) {
+        manager->SaveToGlobalVariables();
+    }
+}
+
+void CollisionSettingRegion::Finalize() {}
 
 #pragma endregion
 

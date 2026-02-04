@@ -80,8 +80,8 @@ public:
     void Finalize() override;
 
 private:
-    std::string windowTitle_ = "OriGine"; // ウィンドウのタイトル
-    OriGine::Vec2f windowSize_        = OriGine::Vec2f(1280.f, 720.f); // ウィンドウのサイズ
+    std::string windowTitle_   = "OriGine"; // ウィンドウのタイトル
+    OriGine::Vec2f windowSize_ = OriGine::Vec2f(1280.f, 720.f); // ウィンドウのサイズ
 };
 
 /// <summary>
@@ -113,5 +113,33 @@ private:
 
     // ↓ 本当は 別の場所に保存したいけど項目が少なすぎるため一旦ここ
     float gravity_ = 9.8f; // 重力の値
+};
+
+/// <summary>
+/// 衝突カテゴリ設定エリア
+/// </summary>
+class CollisionSettingArea
+    : public Editor::Area {
+public:
+    CollisionSettingArea();
+    ~CollisionSettingArea() override;
+    void Initialize() override;
+    void Finalize() override;
+};
+
+/// <summary>
+/// 衝突カテゴリ設定リージョン
+/// </summary>
+class CollisionSettingRegion
+    : public Editor::Region {
+public:
+    CollisionSettingRegion();
+    ~CollisionSettingRegion() override;
+    void Initialize() override;
+    void DrawGui() override;
+    void Finalize() override;
+
+private:
+    char newCategoryName_[64] = "";
 };
 #endif // _DEBUG

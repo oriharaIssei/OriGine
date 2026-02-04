@@ -2,6 +2,7 @@
 
 /// stl
 #include <array>
+#include <bit>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -68,7 +69,38 @@ public:
     /// <summary>
     /// マスクに含まれるカテゴリ名をすべて列挙してコールバックを呼ぶ
     /// </summary>
-    void ForEachCategoryInMask(uint32_t _mask, auto&& _callback) const;
+    void ForEachCategoryInMask(uint32_t _mask, auto&& _callback) const {
+        while (_mask != 0) {
+            uint32_t index = std::countr_zero(_mask); // C++20: 最下位ビット位置
+            _callback(indexToName_[index]);
+            _mask &= (_mask - 1); // 最下位ビットをクリア
+        }
+    }
+
+    /// <summary>
+    /// カテゴリの衝突マスクを設定する
+    /// </summary>
+    void SetCategoryMask(const std::string& _category, uint32_t _mask);
+
+    /// <summary>
+    /// カテゴリの衝突マスクを取得する
+    /// </summary>
+    uint32_t GetCategoryMask(const std::string& _category) const;
+
+    /// <summary>
+    /// 2つのカテゴリが衝突可能か判定する
+    /// </summary>
+    bool CanCollide(const std::string& _categoryA, const std::string& _categoryB) const;
+
+    /// <summary>
+    /// GlobalVariablesからカテゴリを読み込む
+    /// </summary>
+    void LoadFromGlobalVariables();
+
+    /// <summary>
+    /// GlobalVariablesにカテゴリを保存する
+    /// </summary>
+    void SaveToGlobalVariables();
 
 private:
     CollisionCategoryManager();
@@ -80,6 +112,7 @@ private:
     CollisionCategory defaultCategory_;
     std::array<std::string, kMaxCategories> indexToName_;
     std::unordered_map<std::string, CollisionCategory> categories_;
+    std::unordered_map<std::string, uint32_t> categoryMasks_; // カテゴリごとの衝突マスク
 };
 
 } // namespace OriGine
