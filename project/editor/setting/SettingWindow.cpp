@@ -274,7 +274,7 @@ void CollisionSettingRegion::Initialize() {
     // カテゴリの読み込みはアプリケーション起動時に行うため、ここでは何もしない
 
     // CellSizeをGlobalVariablesから読み込み
-    GlobalVariables* gv = GlobalVariables::GetInstance();
+    GlobalVariables* gv  = GlobalVariables::GetInstance();
     spatialHashCellSize_ = gv->GetValue<float>(
         SettingWindow::kGlobalVariablesSceneName,
         "Collision",

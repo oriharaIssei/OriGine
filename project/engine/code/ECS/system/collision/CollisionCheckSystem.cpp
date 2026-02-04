@@ -45,7 +45,7 @@ void CollisionCheckSystem::Initialize() {
 
     // GlobalVariablesからCellSizeを読み込み
     GlobalVariables* gv = GlobalVariables::GetInstance();
-    float cellSize      = gv->GetValue<float>("Settings", "Collision", "SpatialHashCellSize");
+    float cellSize      = *gv->AddValue<float>("Settings", "Collision", "SpatialHashCellSize");
     if (cellSize > 0.0f) {
         spatialHash_.SetCellSize(cellSize);
     }

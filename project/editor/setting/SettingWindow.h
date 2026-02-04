@@ -140,7 +140,7 @@ public:
     void Finalize() override;
 
 private:
-    char newCategoryName_[64] = "";
+    char newCategoryName_[64]  = "";
     float spatialHashCellSize_ = 100.0f;
 };
 #endif // _DEBUG
