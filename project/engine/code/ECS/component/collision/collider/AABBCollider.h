@@ -23,6 +23,8 @@ public:
 
     void CalculateWorldShape() override;
 
+    Bounds::AABB ToWorldAABB() const override;
+
 public: // accessor
 };
 

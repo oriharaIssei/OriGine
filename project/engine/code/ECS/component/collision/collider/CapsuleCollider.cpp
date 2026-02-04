@@ -57,4 +57,20 @@ void CapsuleCollider::CalculateWorldShape() {
     this->worldShape_.radius = shape_.radius * maxScale;
 }
 
+Bounds::AABB CapsuleCollider::ToWorldAABB() const {
+    Vec3f minPt, maxPt;
+    const Vec3f& start = worldShape_.segment.start;
+    const Vec3f& end   = worldShape_.segment.end;
+    float r            = worldShape_.radius;
+
+    for (int i = 0; i < 3; ++i) {
+        minPt[i] = std::min(start[i], end[i]) - r;
+        maxPt[i] = std::max(start[i], end[i]) + r;
+    }
+
+    Vec3f center   = (minPt + maxPt) * 0.5f;
+    Vec3f halfSize = (maxPt - minPt) * 0.5f;
+    return Bounds::AABB(center, halfSize);
+}
+
 } // namespace OriGine

@@ -48,4 +48,27 @@ void SegmentCollider::CalculateWorldShape() {
     this->worldShape_.end   = shape_.end * transform_.worldMat;
 }
 
+Bounds::AABB SegmentCollider::ToWorldAABB() const {
+    Vec3f minPt, maxPt;
+    const Vec3f& start = worldShape_.start;
+    const Vec3f& end   = worldShape_.end;
+
+    for (int i = 0; i < 3; ++i) {
+        minPt[i] = std::min(start[i], end[i]);
+        maxPt[i] = std::max(start[i], end[i]);
+    }
+
+    Vec3f center   = (minPt + maxPt) * 0.5f;
+    Vec3f halfSize = (maxPt - minPt) * 0.5f;
+
+    // 線分は厚みがないので最小サイズを保証
+    const float kMinSize = 0.001f;
+    for (int i = 0; i < 3; ++i) {
+        if (halfSize[i] < kMinSize)
+            halfSize[i] = kMinSize;
+    }
+
+    return Bounds::AABB(center, halfSize);
+}
+
 } // namespace OriGine

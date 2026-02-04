@@ -47,3 +47,8 @@ void SphereCollider::CalculateWorldShape() {
     this->worldShape_.center_ = Vec3f(transform_.worldMat[3]) + shape_.center_;
     this->worldShape_.radius_ = shape_.radius_;
 }
+
+Bounds::AABB SphereCollider::ToWorldAABB() const {
+    Vec3f halfSize(worldShape_.radius_, worldShape_.radius_, worldShape_.radius_);
+    return Bounds::AABB(worldShape_.center_, halfSize);
+}

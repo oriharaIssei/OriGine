@@ -22,6 +22,8 @@ public:
 
     void CalculateWorldShape() override;
 
+    Bounds::AABB ToWorldAABB() const override;
+
 public: // accessor
     const Vec3f& GetLocalOrigin() const { return shape_.origin; }
     void SetLocalOrigin(const Vec3f& _origin) { shape_.origin = _origin; }

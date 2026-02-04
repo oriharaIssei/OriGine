@@ -14,6 +14,7 @@
 
 /// math
 #include "bounds/base/IBounds.h"
+#include "bounds/AABB.h"
 
 // external
 #ifdef _DEBUG
@@ -61,6 +62,10 @@ public:
     /// <param name="_other">相手のコライダー</param>
     bool CanCollideWith(const ICollider& _other) const;
 
+    /// <summary>
+    /// ワールドAABBを形状から生成、取得
+    /// </summary>
+   virtual Bounds::AABB ToWorldAABB() const = 0;
 protected:
     bool isActive_ = true;
 
@@ -105,6 +110,8 @@ public:
     virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
+
+    virtual Bounds::AABB ToWorldAABB() const = 0;
 
 protected:
     BoundsClass shape_;

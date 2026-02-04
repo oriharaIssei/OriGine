@@ -21,6 +21,8 @@ public:
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void CalculateWorldShape() override;
 
+    Bounds::AABB ToWorldAABB() const override;
+
 public: // accessor
     const Vec3f& GetLocalCenter() const { return shape_.center_; }
     void SetLocalCenter(const Vec3f& _center) { shape_.center_ = _center; }

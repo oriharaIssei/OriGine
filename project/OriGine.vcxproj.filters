@@ -927,6 +927,7 @@
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h">
       <Filter>util\uuidGenerator</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\collision\SpatialHash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1514,5 +1515,6 @@
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp">
       <Filter>util\uuidGenerator</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\collision\SpatialHash.cpp" />
   </ItemGroup>
 </Project>

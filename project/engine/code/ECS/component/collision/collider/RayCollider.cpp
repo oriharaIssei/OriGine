@@ -48,4 +48,27 @@ void RayCollider::CalculateWorldShape() {
     this->worldShape_.direction = (shape_.direction * MakeMatrix4x4::RotateQuaternion(transform_.CalculateWorldRotate())).normalize();
 }
 
+Bounds::AABB RayCollider::ToWorldAABB() const {
+    // Rayは無限なので、実用的な範囲でAABBを計算
+    const float kMaxDistance = 1000.0f;
+    Vec3f endPoint           = worldShape_.origin + worldShape_.direction * kMaxDistance;
+
+    Vec3f minPt, maxPt;
+    for (int i = 0; i < 3; ++i) {
+        minPt[i] = std::min(worldShape_.origin[i], endPoint[i]);
+        maxPt[i] = std::max(worldShape_.origin[i], endPoint[i]);
+    }
+
+    Vec3f center   = (minPt + maxPt) * 0.5f;
+    Vec3f halfSize = (maxPt - minPt) * 0.5f;
+
+    const float kMinSize = 0.001f;
+    for (int i = 0; i < 3; ++i) {
+        if (halfSize[i] < kMinSize)
+            halfSize[i] = kMinSize;
+    }
+
+    return Bounds::AABB(center, halfSize);
+}
+
 } // namespace OriGine

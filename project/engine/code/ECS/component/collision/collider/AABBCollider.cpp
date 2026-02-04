@@ -46,4 +46,8 @@ void AABBCollider::CalculateWorldShape() {
     this->worldShape_.halfSize = shape_.halfSize * transform_.GetWorldScale();
 }
 
+Bounds::AABB AABBCollider::ToWorldAABB() const {
+    return worldShape_;
+}
+
 } // namespace OriGine

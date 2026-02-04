@@ -179,6 +179,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\system\collision\SpatialHash.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\HandleAssignMode.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
@@ -489,6 +490,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\SpatialHash.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />

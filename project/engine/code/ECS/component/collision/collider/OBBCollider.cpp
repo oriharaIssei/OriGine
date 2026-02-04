@@ -65,3 +65,16 @@ void OBBCollider::CalculateWorldShape() {
     this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
     this->worldShape_.orientations_.UpdateAxes();
 }
+
+Bounds::AABB OBBCollider::ToWorldAABB() const {
+    // OBBの各軸に沿った投影からAABBを計算
+    const auto& axes = worldShape_.orientations_.axis;
+    const auto& half = worldShape_.halfSize_;
+
+    Vec3f extent;
+    for (int i = 0; i < 3; ++i) {
+        extent[i] = std::abs(axes[X][i]) * half[X] + std::abs(axes[Y][i]) * half[Y] + std::abs(axes[Z][i]) * half[Z];
+    }
+
+    return Bounds::AABB(worldShape_.center_, extent);
+}

@@ -17,6 +17,17 @@ struct EntityHandle {
     bool operator==(const EntityHandle& _rhs) const {
         return uuid == _rhs.uuid;
     }
+    bool operator!=(const EntityHandle& _rhs) const {
+        return !(*this == _rhs);
+    }
+
+    bool operator<(const EntityHandle& _rhs) const {
+        return uuid < _rhs.uuid;
+    }
+    bool operator<=(const EntityHandle& _rhs) const {
+        return (*this < _rhs) || (*this == _rhs);
+    }
+
     /// <summary>
     /// 有効なハンドルかどうか
     /// </summary>
