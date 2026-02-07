@@ -13,8 +13,8 @@
 #include "component/transform/Transform.h"
 
 /// math
-#include "bounds/base/IBounds.h"
 #include "bounds/AABB.h"
+#include "bounds/base/IBounds.h"
 
 // external
 #ifdef _DEBUG
@@ -65,7 +65,8 @@ public:
     /// <summary>
     /// ワールドAABBを形状から生成、取得
     /// </summary>
-   virtual Bounds::AABB ToWorldAABB() const = 0;
+    virtual Bounds::AABB ToWorldAABB() const = 0;
+
 protected:
     bool isActive_ = true;
 

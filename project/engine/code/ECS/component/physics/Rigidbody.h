@@ -28,6 +28,8 @@ public:
     virtual void Finalize();
 
 private:
+    bool isActive_ = true;
+
     Vec3f acceleration_ = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f velocity_     = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f realVelocity_ = Vec3f(0.0f, 0.0f, 0.0f); // DeltaTimer をかけた実際の速度
@@ -41,6 +43,9 @@ private:
     std::string localDeltaTimeName_ = "";
 
 public: // accsessor
+    bool IsActive() const { return isActive_; }
+    void SetIsActive(const bool _isActive) { isActive_ = _isActive; }
+
     const Vec3f& GetAcceleration() const { return acceleration_; }
     float GetAcceleration(int32_t _index) const { return acceleration_[_index]; }
     void SetAcceleration(const Vec3f& _acceleration) { acceleration_ = _acceleration; }

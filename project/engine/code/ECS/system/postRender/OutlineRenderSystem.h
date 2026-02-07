@@ -13,7 +13,7 @@
 /// ECS
 // component
 #include "component/effect/post/OutlineComponent.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 
 namespace OriGine {

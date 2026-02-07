@@ -21,7 +21,7 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/ComponentRepository.h"
 
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 #include "component/renderer/primitive/BoxRenderer.h"
 #include "component/renderer/primitive/CylinderRenderer.h"
 #include "component/renderer/primitive/PlaneRenderer.h"

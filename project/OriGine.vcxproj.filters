@@ -231,6 +231,9 @@
     <ClInclude Include="editor\sceneEditor\EntityInspector.h">
       <Filter>editor\sceneEditor</Filter>
     </ClInclude>
+    <ClInclude Include="editor\sceneEditor\EntityInspectorCommands.h">
+      <Filter>editor\sceneEditor</Filter>
+    </ClInclude>
     <ClInclude Include="editor\sceneEditor\HierarchyArea.h">
       <Filter>editor\sceneEditor</Filter>
     </ClInclude>
@@ -277,6 +280,9 @@
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\IComponent.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\IComponentArray.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\SubScene.h">
@@ -597,6 +603,9 @@
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\ColliderMeshBuilder.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
@@ -903,6 +912,12 @@
     <ClInclude Include="util\myGui\MyGui.h">
       <Filter>util\myGui</Filter>
     </ClInclude>
+    <ClInclude Include="util\myGui\MyGuiBase.h">
+      <Filter>util\myGui</Filter>
+    </ClInclude>
+    <ClInclude Include="util\myGui\MyGuiCommand.h">
+      <Filter>util\myGui</Filter>
+    </ClInclude>
     <ClInclude Include="util\myRandom\MyRandom.h">
       <Filter>util\myRandom</Filter>
     </ClInclude>
@@ -930,6 +945,8 @@
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h">
       <Filter>util\uuidGenerator</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\ModelMeshRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\LineRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -951,6 +968,9 @@
       <Filter>editor\sceneEditor</Filter>
     </ClCompile>
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp">
+      <Filter>editor\sceneEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\sceneEditor\EntityInspectorCommands.cpp">
       <Filter>editor\sceneEditor</Filter>
     </ClCompile>
     <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp">
@@ -1118,7 +1138,10 @@
     <ClCompile Include="engine\code\ECS\component\physics\Rigidbody.cpp">
       <Filter>engine\code\ECS\component\physics</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\renderer\MeshRenderer.cpp">
+    <ClCompile Include="engine\code\ECS\component\renderer\LineRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\ModelMeshRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\SkyBoxRenderer.cpp">

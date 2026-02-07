@@ -20,7 +20,18 @@ using namespace OriGine;
 
 DevelopControlArea::DevelopControlArea(SceneEditorWindow* _parentWindow)
     : Editor::Area(nameof<DevelopControlArea>()), parentWindow_(_parentWindow) {}
-DevelopControlArea::~DevelopControlArea() {}
+DevelopControlArea::~DevelopControlArea() {
+    // ビルドスレッドが完了するまで待機
+    WaitForBuildThread();
+}
+
+void DevelopControlArea::WaitForBuildThread() {
+    shouldCancelBuild_ = true;
+    if (buildThread_.joinable()) {
+        buildThread_.join();
+    }
+    shouldCancelBuild_ = false;
+}
 
 void DevelopControlArea::Initialize() {
     AddRegion(std::make_shared<ControlRegion>(this));
@@ -53,11 +64,16 @@ void DevelopControlArea::ControlRegion::DrawGui() {
         LOG_DEBUG("Executing build command: {}", buildCommand);
 
         // buildThread を立てる(Build中もエディターを操作できるように)
-        parentArea_->isBuilding_ = true;
-        std::thread([this, cmd = std::move(buildCommand)]() {
+        // 前のビルドスレッドが完了している場合は join
+        if (parentArea_->buildThread_.joinable()) {
+            parentArea_->buildThread_.join();
+        }
+        parentArea_->isBuilding_        = true;
+        parentArea_->shouldCancelBuild_ = false;
+        parentArea_->buildThread_       = std::thread([this, cmd = std::move(buildCommand)]() {
             RunProcessAndWait(cmd);
             parentArea_->isBuilding_ = false;
-        }).detach();
+        });
     }
 
     ImGui::SameLine();

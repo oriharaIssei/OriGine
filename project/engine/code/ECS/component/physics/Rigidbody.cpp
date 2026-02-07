@@ -17,6 +17,7 @@ void Rigidbody::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
 void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
+    CheckBoxCommand("isActive##" + _parentLabel, isActive_);
 
     DragGuiVectorCommand("acceleration##" + _parentLabel, acceleration_);
     DragGuiVectorCommand("velocity##" + _parentLabel, velocity_);
@@ -56,6 +57,7 @@ void Rigidbody::Debug() {
 void Rigidbody::Finalize() {}
 
 void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
+    _j["isActive"]     = _comp.isActive_;
     _j["acceleration"] = _comp.acceleration_;
     _j["velocity"]     = _comp.velocity_;
     _j["maxXZSpeed"]   = _comp.maxXZSpeed_;
@@ -67,6 +69,9 @@ void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
     _j["localDeltaTimeName"]    = _comp.localDeltaTimeName_;
 }
 void OriGine::from_json(const nlohmann::json& _j, Rigidbody& _comp) {
+    if (_j.contains("isActive")) {
+        _j.at("isActive").get_to(_comp.isActive_);
+    }
     _j.at("acceleration").get_to(_comp.acceleration_);
     _j.at("velocity").get_to(_comp.velocity_);
     if (_j.contains("maxXZSpeed")) {

@@ -7,14 +7,14 @@
 #include <array>
 #include <memory>
 
-/// component
-#include "component/renderer/MeshRenderer.h"
-
 /// engine
 // directX12Object
 #include "directX12/BlendMode.h"
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
+
+/// component
+#include "component/renderer/LineRenderer.h"
 
 namespace OriGine {
 

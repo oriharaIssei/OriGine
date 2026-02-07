@@ -8,7 +8,7 @@
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 // component
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/LineRenderer.h"
 // Rigidbody / Transform
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"

@@ -15,6 +15,7 @@
 
 /// editor
 #include "EntityInspector.h"
+#include "EntityInspectorCommands.h"
 
 /// util
 #include "myGui/MyGui.h"
@@ -97,7 +98,7 @@ void SceneViewArea::DrawGui() {
                     if (entityInspectorArea) {
                         EntityHandle currentHandle = entityInspectorArea->GetEditEntityHandle();
                         if (currentHandle != handle) {
-                            auto command = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, handle, currentHandle);
+                            auto command = std::make_unique<ChangeEditEntityCommand>(entityInspectorArea, handle, currentHandle);
                             EditorController::GetInstance()->PushCommand(std::move(command));
                         }
                     }

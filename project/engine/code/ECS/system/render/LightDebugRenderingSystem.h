@@ -13,7 +13,7 @@
 // component
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/LineRenderer.h"
 
 namespace OriGine {
 

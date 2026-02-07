@@ -11,7 +11,7 @@
 /// ECS
 // component
 #include "component/material/light/LightManager.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/renderer/SkyboxRenderer.h"
 // primitives

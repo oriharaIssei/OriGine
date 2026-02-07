@@ -26,19 +26,19 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -176,6 +176,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h" />
     <ClInclude Include="editor\sceneEditor\DevelopControlArea.h" />
     <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
+    <ClInclude Include="editor\sceneEditor\EntityInspectorCommands.h" />
     <ClInclude Include="editor\sceneEditor\HierarchyArea.h" />
     <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="editor\sceneEditor\SceneEditorMenus.h" />
@@ -184,6 +185,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\LineRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\ModelMeshRenderer.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\HandleAssignMode.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
@@ -192,6 +195,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\ComponentRepository.h" />
     <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\code\ECS\component\IComponent.h" />
+    <ClInclude Include="engine\code\ECS\component\IComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\SubScene.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationData.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h" />
@@ -298,6 +302,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\ColliderMeshBuilder.h" />
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h" />
@@ -400,6 +405,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\globalVariables\SerializedField.h" />
     <ClInclude Include="util\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="util\myGui\MyGui.h" />
+    <ClInclude Include="util\myGui\MyGuiBase.h" />
+    <ClInclude Include="util\myGui\MyGuiCommand.h" />
     <ClInclude Include="util\myRandom\MyRandom.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
@@ -418,6 +425,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp" />
     <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp" />
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
+    <ClCompile Include="editor\sceneEditor\EntityInspectorCommands.cpp" />
     <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp" />
     <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\SceneEditorMenus.cpp" />
@@ -473,7 +481,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\material\light\PointLight.cpp" />
     <ClCompile Include="engine\code\ECS\component\material\light\SpotLight.cpp" />
     <ClCompile Include="engine\code\ECS\component\physics\Rigidbody.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\MeshRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\LineRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\ModelMeshRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\SkyBoxRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\Sprite.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.cpp" />

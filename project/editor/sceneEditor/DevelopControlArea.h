@@ -2,6 +2,10 @@
 
 #ifdef _DEBUG
 
+/// stl
+#include <atomic>
+#include <thread>
+
 /// editor
 #include "editor/IEditor.h"
 class SceneEditorWindow;
@@ -36,9 +40,16 @@ public:
     };
 
 private:
+    /// <summary>
+    /// ビルドスレッドの完了を待機する
+    /// </summary>
+    void WaitForBuildThread();
+
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
-    ::std::atomic<bool> isBuilding_ = false;
+    ::std::thread buildThread_; // ビルド用スレッド
+    ::std::atomic<bool> isBuilding_        = false; // ビルド中フラグ
+    ::std::atomic<bool> shouldCancelBuild_ = false; // キャンセル要求フラグ
 
     const ::std::string buildTool_        = "msbuild"; // ビルドツールの名前
     const ::std::string projectDirectory_ = "project";

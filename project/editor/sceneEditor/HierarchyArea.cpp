@@ -12,6 +12,7 @@
 
 /// util
 #include "EntityInspector.h"
+#include "EntityInspectorCommands.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "myGui/MyGui.h"
 
@@ -140,7 +141,8 @@ void EntityHierarchyRegion::DrawGui() {
                         ImGui::PopStyleColor(3);
                         return;
                     }
-                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
+                    auto changedEditEntity = std::make_unique<ChangeEditEntityCommand>(
+                        entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }
@@ -193,7 +195,8 @@ void EntityHierarchyRegion::DrawGui() {
                         ImGui::PopStyleColor(3);
                         return;
                     }
-                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
+                    auto changedEditEntity = std::make_unique<ChangeEditEntityCommand>(
+                        entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }

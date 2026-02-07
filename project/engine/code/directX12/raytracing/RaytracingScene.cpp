@@ -6,7 +6,7 @@
 /// ECS
 // component
 #include "component/animation/SkinningAnimationComponent.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 
 using namespace OriGine;
 

@@ -13,7 +13,7 @@
 /// ECS
 #include "entity/Entity.h"
 // component
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 /// util
 #include "myFileSystem/MyFileSystem.h"
 /// externals

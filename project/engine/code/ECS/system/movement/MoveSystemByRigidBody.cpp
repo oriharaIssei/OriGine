@@ -40,13 +40,8 @@ void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
     Transform* transform = GetComponent<Transform>(_handle);
 
     Rigidbody* rigidbody = GetComponent<Rigidbody>(_handle);
-    if (rigidbody->IsUsingLocalDeltaTime()) {
-        deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime(rigidbody->GetLocalDeltaTimeName());
-    } else {
-        deltaTime = Engine::GetInstance()->GetDeltaTime();
-    }
+    bool resourceCheck   = (transform != nullptr) && (rigidbody != nullptr);
 
-    bool resourceCheck = (transform != nullptr) && (rigidbody != nullptr);
     if (!resourceCheck) {
         Entity* entity = GetScene()->GetEntity(_handle);
         if (!transform) {
@@ -56,6 +51,15 @@ void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
             LOG_ERROR("{} doesn't have Rigidbody", entity->GetUniqueID());
         }
         return;
+    }
+    if (!rigidbody->IsActive()) {
+        return;
+    }
+
+    if (rigidbody->IsUsingLocalDeltaTime()) {
+        deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime(rigidbody->GetLocalDeltaTimeName());
+    } else {
+        deltaTime = Engine::GetInstance()->GetDeltaTime();
     }
 
     /// --------------------------------------- 速度の更新 --------------------------------------- ///

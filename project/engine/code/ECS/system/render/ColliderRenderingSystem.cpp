@@ -1,4 +1,5 @@
 #include "ColliderRenderingSystem.h"
+#include "ColliderMeshBuilder.h"
 
 /// engine
 #include "Engine.h"
@@ -20,328 +21,9 @@
 #include <numbers>
 
 using namespace OriGine;
+using namespace OriGine::ColliderMesh;
 
 const int32_t ColliderRenderingSystem::kDefaultMeshCount_ = 1000;
-namespace {
-// ** AABB **//
-static const uint32_t kAabbVertexSize = 8;
-static const uint32_t kAabbIndexSize  = 24;
-
-//** OBB **//
-static const uint32_t kObbVertexSize = 8;
-static const uint32_t kObbIndexSize  = 24;
-
-//** Sphere **//
-static const uint32_t kSphereDivision  = 8;
-static const float kSphereDivisionReal = static_cast<float>(kSphereDivision);
-
-static const uint32_t kSphereVertexSize = 4 * kSphereDivision * kSphereDivision;
-static const uint32_t kSphereIndexSize  = 4 * kSphereDivision * kSphereDivision;
-
-//** Ray **//
-static const float kRayLength        = 100.0f; // 描画用の仮想長さ
-static const uint32_t kRayVertexSize = 2;
-static const uint32_t kRayIndexSize  = 2;
-
-//** Segment **//
-static const uint32_t kSegmentVertexSize = 2;
-static const uint32_t kSegmentIndexSize  = 2;
-
-//** Capsule **//
-static const uint32_t kCapsuleDivision   = 8;
-static const float kCapsuleDivisionReal  = static_cast<float>(kCapsuleDivision);
-static const uint32_t kCapsuleVertexSize = 2 + 4 * kCapsuleDivision * 2; // 軸 + 両端の球
-static const uint32_t kCapsuleIndexSize  = 2 + 4 * kCapsuleDivision * 2;
-} // namespace
-
-#pragma region "CreateLineMesh"
-/// <summary>
-/// Bounds形状からラインメッシュを作成
-/// </summary>
-/// <typeparam name="ShapeType">形状クラス</typeparam>
-/// <param name="_mesh">出力先</param>
-/// <param name="_shape">形状情報</param>
-/// <param name="_color">メッシュの色</param>
-template <Bounds::IsBounds ShapeType>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const ShapeType& _shape,
-    const Vec4f& _color = kWhite) {
-    _mesh;
-    _shape;
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::AABB& _shape,
-    const Vec4f& _color) {
-    Vec3f shapeMin = _shape.Min();
-    Vec3f shapeMax = _shape.Max();
-
-    // AABBVertex
-    Vector3f vertexes[kAabbVertexSize]{
-        {shapeMin},
-        {shapeMin[X], shapeMin[Y], shapeMax[Z]},
-        {shapeMax[X], shapeMin[Y], shapeMax[Z]},
-        {shapeMax[X], shapeMin[Y], shapeMin[Z]},
-        {shapeMin[X], shapeMax[Y], shapeMin[Z]},
-        {shapeMin[X], shapeMax[Y], shapeMax[Z]},
-        {shapeMax},
-        {shapeMax[X], shapeMax[Y], shapeMin[Z]}};
-
-    // AABBIndex
-    uint32_t indices[kAabbIndexSize]{
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 0,
-        4, 5,
-        5, 6,
-        6, 7,
-        7, 4,
-        0, 4,
-        1, 5,
-        2, 6,
-        3, 7};
-
-    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
-
-    // 頂点バッファにデータを格納
-    for (uint32_t vi = 0; vi < kAabbVertexSize; ++vi) {
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(vertexes[vi], 1.f), _color});
-    }
-    for (uint32_t ii = 0; ii < kAabbIndexSize; ++ii) {
-        _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
-    }
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::OBB& _shape,
-    const Vec4f& _color) {
-    // OBBの8頂点を計算
-    Vector3f halfSizes  = _shape.halfSize_;
-    Vector3f corners[8] = {
-        {-halfSizes[X], -halfSizes[Y], -halfSizes[Z]},
-        {halfSizes[X], -halfSizes[Y], -halfSizes[Z]},
-        {halfSizes[X], halfSizes[Y], -halfSizes[Z]},
-        {-halfSizes[X], halfSizes[Y], -halfSizes[Z]},
-        {-halfSizes[X], -halfSizes[Y], halfSizes[Z]},
-        {halfSizes[X], -halfSizes[Y], halfSizes[Z]},
-        {halfSizes[X], halfSizes[Y], halfSizes[Z]},
-        {-halfSizes[X], halfSizes[Y], halfSizes[Z]}};
-
-    // 回転と位置を適用
-    Matrix4x4 rotationMatrix = MakeMatrix4x4::RotateQuaternion(_shape.orientations_.rot);
-    for (auto& corner : corners) {
-        corner = corner * rotationMatrix + _shape.center_;
-    }
-    // OBBIndex
-    uint32_t indices[kObbIndexSize]{
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 0,
-        4, 5,
-        5, 6,
-        6, 7,
-        7, 4,
-        0, 4,
-        1, 5,
-        2, 6,
-        3, 7};
-    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
-    // 頂点バッファにデータを格納
-    for (uint32_t vi = 0; vi < kObbVertexSize; ++vi) {
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(corners[vi], 1.f), _color});
-    }
-    for (uint32_t ii = 0; ii < kObbIndexSize; ++ii) {
-        _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
-    }
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::Sphere& _shape,
-    const Vec4f& _color) {
-
-    const float kLatEvery = std::numbers::pi_v<float> / kSphereDivisionReal; //* 緯度
-    const float kLonEvery = 2.0f * std::numbers::pi_v<float> / kSphereDivisionReal; //* 経度
-
-    auto calculatePoint = [&](float lat, float lon) -> Vector3f {
-        return {
-            _shape.center_[X] + _shape.radius_ * std::cos(lat) * std::cos(lon),
-            _shape.center_[Y] + _shape.radius_ * std::sin(lat),
-            _shape.center_[Z] + _shape.radius_ * std::cos(lat) * std::sin(lon)};
-    };
-
-    // 緯線（緯度方向の円）を描画
-    for (uint32_t latIndex = 1; latIndex < kSphereDivision; ++latIndex) {
-        float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
-        for (uint32_t lonIndex = 0; lonIndex < kSphereDivision; ++lonIndex) {
-            float lonA = lonIndex * kLonEvery;
-            float lonB = (lonIndex + 1) % kSphereDivision * kLonEvery;
-
-            Vector3f pointA = calculatePoint(lat, lonA);
-            Vector3f pointB = calculatePoint(lat, lonB);
-
-            // 頂点バッファにデータを格納
-            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointA, 1.f), _color});
-            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointB, 1.f), _color});
-
-            // インデックスバッファにデータを格納
-            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-        }
-    }
-
-    // 経線（経度方向の円）を描画
-    for (uint32_t lonIndex = 0; lonIndex < kSphereDivision; ++lonIndex) {
-        float lon = lonIndex * kLonEvery;
-        for (uint32_t latIndex = 0; latIndex < kSphereDivision; ++latIndex) {
-            float latA = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
-            float latB = -std::numbers::pi_v<float> / 2.0f + kLatEvery * (latIndex + 1);
-
-            Vector3f pointA = calculatePoint(latA, lon);
-            Vector3f pointB = calculatePoint(latB, lon);
-
-            // 頂点バッファにデータを格納
-            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointA, 1.f), _color});
-            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointB, 1.f), _color});
-
-            // インデックスバッファにデータを格納
-            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-        }
-    }
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::Ray& _shape,
-    const Vec4f& _color) {
-    // Rayは始点から方向に向かって一定の長さまで描画
-    Vector3f origin   = _shape.origin;
-    Vector3f endPoint = origin + _shape.direction * kRayLength;
-
-    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
-
-    // 頂点バッファにデータを格納
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(origin, 1.f), _color});
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(endPoint, 1.f), _color});
-
-    // インデックスバッファにデータを格納
-    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
-    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::Segment& _shape,
-    const Vec4f& _color) {
-    Vector3f start = _shape.start;
-    Vector3f end   = _shape.end;
-
-    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
-
-    // 頂点バッファにデータを格納
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(start, 1.f), _color});
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(end, 1.f), _color});
-
-    // インデックスバッファにデータを格納
-    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
-    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
-}
-
-template <>
-void CreateLineMeshByShape(
-    Mesh<ColorVertexData>* _mesh,
-    const Bounds::Capsule& _shape,
-    const Vec4f& _color) {
-    Vector3f start = _shape.segment.start;
-    Vector3f end   = _shape.segment.end;
-    float radius   = _shape.radius;
-
-    // カプセルの軸方向
-    Vector3f axis    = Vec3f(end - start);
-    float axisLength = axis.length();
-
-    // 軸が0の場合は球として描画
-    if (axisLength < 0.0001f) {
-        Bounds::Sphere sphere;
-        sphere.center_ = start;
-        sphere.radius_ = radius;
-        CreateLineMeshByShape(_mesh, sphere, _color);
-        return;
-    }
-
-    Vector3f axisNorm = axis.normalize();
-
-    // 軸に垂直なベクトルを求める
-    Vector3f perpendicular;
-    if (std::abs(axisNorm[Y]) < 0.99f) {
-        perpendicular = Vec3f::Cross({0.f, 1.f, 0.f}, axisNorm).normalize();
-    } else {
-        perpendicular = Vec3f::Cross({1.f, 0.f, 0.f}, axisNorm).normalize();
-    }
-    Vector3f perpendicular2 = Vec3f::Cross(axisNorm, perpendicular).normalize();
-
-    const float kAngleStep = 2.0f * std::numbers::pi_v<float> / kCapsuleDivisionReal;
-
-    // 中心軸を描画
-    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(start, 1.f), _color});
-    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(end, 1.f), _color});
-    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
-    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
-
-    // 始点側の円を描画
-    for (uint32_t i = 0; i < kCapsuleDivision; ++i) {
-        float angle1 = i * kAngleStep;
-        float angle2 = (i + 1) % kCapsuleDivision * kAngleStep;
-
-        Vector3f p1 = start + perpendicular * (radius * std::cos(angle1)) + perpendicular2 * (radius * std::sin(angle1));
-        Vector3f p2 = start + perpendicular * (radius * std::cos(angle2)) + perpendicular2 * (radius * std::sin(angle2));
-
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-    }
-
-    // 終点側の円を描画
-    for (uint32_t i = 0; i < kCapsuleDivision; ++i) {
-        float angle1 = i * kAngleStep;
-        float angle2 = (i + 1) % kCapsuleDivision * kAngleStep;
-
-        Vector3f p1 = end + perpendicular * (radius * std::cos(angle1)) + perpendicular2 * (radius * std::sin(angle1));
-        Vector3f p2 = end + perpendicular * (radius * std::cos(angle2)) + perpendicular2 * (radius * std::sin(angle2));
-
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-    }
-
-    // 両端を繋ぐ縦のラインを描画（4本）
-    for (uint32_t i = 0; i < 4; ++i) {
-        float angle     = i * (std::numbers::pi_v<float> / 2.0f);
-        Vector3f offset = perpendicular * (radius * std::cos(angle)) + perpendicular2 * (radius * std::sin(angle));
-        Vector3f p1     = start + offset;
-        Vector3f p2     = end + offset;
-
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
-        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
-    }
-}
-#pragma endregion
 
 ColliderRenderingSystem::ColliderRenderingSystem() : BaseRenderSystem() {}
 
@@ -572,7 +254,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 }
 
                 // メッシュ作成
-                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.GetWorldShape(), color);
+                CreateLineMesh(aabbMeshItr_._Ptr, aabb.GetWorldShape(), color);
             }
         }
     }
@@ -636,7 +318,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 }
 
                 // メッシュ作成
-                CreateLineMeshByShape<>(obbMeshItr_._Ptr, obb.GetWorldShape(), color);
+                CreateLineMesh(obbMeshItr_._Ptr, obb.GetWorldShape(), color);
             }
         }
     }
@@ -698,7 +380,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
                 // メッシュ作成
-                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.GetWorldShape(), color);
+                CreateLineMesh(sphereMeshItr_._Ptr, sphere.GetWorldShape(), color);
             }
         }
     }
@@ -757,7 +439,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
 
-                CreateLineMeshByShape<>(rayMeshItr_._Ptr, ray.GetWorldShape(), color);
+                CreateLineMesh(rayMeshItr_._Ptr, ray.GetWorldShape(), color);
             }
         }
     }
@@ -816,7 +498,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
 
-                CreateLineMeshByShape<>(segmentMeshItr_._Ptr, segment.GetWorldShape(), color);
+                CreateLineMesh(segmentMeshItr_._Ptr, segment.GetWorldShape(), color);
             }
         }
     }
@@ -875,7 +557,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
 
-                CreateLineMeshByShape<>(capsuleMeshItr_._Ptr, capsule.GetWorldShape(), color);
+                CreateLineMesh(capsuleMeshItr_._Ptr, capsule.GetWorldShape(), color);
             }
         }
     }

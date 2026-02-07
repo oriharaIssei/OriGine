@@ -13,7 +13,7 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/material/light/LightManager.h"
 #include "component/material/Material.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 #include "component/renderer/SkyBoxRenderer.h"
 
 using namespace OriGine;

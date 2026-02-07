@@ -13,7 +13,7 @@
 #include "directX12/ShaderManager.h"
 // component
 #include "component/collision/collider/base/Collider.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/LineRenderer.h"
 // colliderType
 #include "component/collision/collider/AABBCollider.h"
 #include "component/collision/collider/CapsuleCollider.h"

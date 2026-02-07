@@ -44,7 +44,7 @@ template <int Dimension, typename T>
 struct SeparatedAnimCurve {
     // 現在の次元数を取得する定数
     static constexpr int kDim = Dimension;
-    using CurveTrack = std::vector<Keyframe<T>>;
+    using CurveTrack          = std::vector<Keyframe<T>>;
 
     SeparatedAnimCurve()  = default;
     ~SeparatedAnimCurve() = default;
@@ -52,7 +52,6 @@ struct SeparatedAnimCurve {
     // 各軸ごとのキーフレームリスト
     // curves[0] = X軸, curves[1] = Y軸...
     CurveTrack curves[Dimension];
-
 };
 
 template <typename T>
@@ -121,27 +120,100 @@ struct AnimationData {
 };
 
 namespace CalculateValue {
-float Linear(
-    const std::vector<Keyframe<float>>& _keyframes, float _time);
-Vec2f Linear(
-    const std::vector<Keyframe<Vec2f>>& _keyframes, float _time);
-Vec3f Linear(
-    const std::vector<KeyframeVector3>& _keyframes, float _time);
-Vec4f Linear(
-    const std::vector<Keyframe<Vec4f>>& _keyframes, float _time);
-Quaternion Linear(
-    const std::vector<KeyframeQuaternion>& _keyframes, float _time);
 
-float Step(
-    const std::vector<Keyframe<float>>& _keyframes, float _time);
-Vec2f Step(
-    const std::vector<Keyframe<Vec2f>>& _keyframes, float _time);
-Vec3f Step(
-    const std::vector<KeyframeVector3>& _keyframes, float _time);
-Vec4f Step(
-    const std::vector<Keyframe<Vec4f>>& _keyframes, float _time);
-Quaternion Step(
-    const std::vector<KeyframeQuaternion>& _keyframes, float _time);
+/// <summary>
+/// 補間関数トレイト（デフォルト: Lerp）
+/// </summary>
+template <typename T>
+struct InterpolationTraits {
+    static T Interpolate(const T& a, const T& b, float t) {
+        return Lerp(a, b, t);
+    }
+};
+
+/// <summary>
+/// float用の特殊化（std::lerp使用）
+/// </summary>
+template <>
+struct InterpolationTraits<float> {
+    static float Interpolate(float a, float b, float t) {
+        return std::lerp(a, b, t);
+    }
+};
+
+/// <summary>
+/// Quaternion用の特殊化（Slerp使用）
+/// </summary>
+template <>
+struct InterpolationTraits<Quaternion> {
+    static Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float t) {
+        return Slerp(a, b, t);
+    }
+};
+
+/// <summary>
+/// デフォルト値トレイト
+/// </summary>
+template <typename T>
+struct DefaultValueTraits {
+    static T Default() { return T(); }
+};
+
+template <>
+struct DefaultValueTraits<float> {
+    static float Default() { return 0.f; }
+};
+
+/// <summary>
+/// 線形補間でキーフレーム値を計算
+/// </summary>
+template <typename T>
+T Linear(const std::vector<Keyframe<T>>& _keyframes, float _time) {
+    // 例外処理
+    if (_keyframes.empty()) {
+        return DefaultValueTraits<T>::Default();
+    }
+    if (_keyframes.size() == 1 || _time <= _keyframes[0].time) {
+        return _keyframes[0].value;
+    }
+
+    for (size_t index = 0; index < _keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        // index と nextIndex の 2つを取得して 現時刻が 範囲内か
+        if (_keyframes[index].time <= _time && _time <= _keyframes[nextIndex].time) {
+            // 範囲内 で 補間
+            float t = (_time - _keyframes[index].time) / (_keyframes[nextIndex].time - _keyframes[index].time);
+            return InterpolationTraits<T>::Interpolate(_keyframes[index].value, _keyframes[nextIndex].value, t);
+        }
+    }
+    // 登録されている時間より 後ろ -> 最後の値を返す
+    return _keyframes.back().value;
+}
+
+/// <summary>
+/// ステップ補間でキーフレーム値を計算（補間なし）
+/// </summary>
+template <typename T>
+T Step(const std::vector<Keyframe<T>>& _keyframes, float _time) {
+    // 例外処理
+    if (_keyframes.empty()) {
+        return DefaultValueTraits<T>::Default();
+    }
+    if (_keyframes.size() == 1 || _time <= _keyframes[0].time) {
+        return _keyframes[0].value;
+    }
+
+    for (size_t index = 0; index < _keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        // index と nextIndex の 2つを取得して 現時刻が 範囲内か
+        if (_keyframes[index].time <= _time && _time <= _keyframes[nextIndex].time) {
+            return _keyframes[index].value;
+        }
+    }
+    // 登録されている時間より 後ろ -> 最後の値を返す
+    return _keyframes.back().value;
+}
+
 } // namespace CalculateValue
 
 } // namespace OriGine

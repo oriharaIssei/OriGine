@@ -11,10 +11,12 @@
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
+
+/// ECS
 // component
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/ComponentArray.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/LineRenderer.h"
 
 namespace OriGine {
 

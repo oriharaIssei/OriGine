@@ -9,7 +9,7 @@
 #include "directX12/ShaderManager.h"
 // component
 #include "component/animation/SkinningAnimationComponent.h"
-#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/ModelMeshRenderer.h"
 
 /// externals
 #include "logger/Logger.h"
