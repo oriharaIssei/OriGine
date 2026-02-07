@@ -1015,9 +1015,6 @@
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp">
       <Filter>engine\code\ECS\component</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp">
-      <Filter>engine\code\ECS\component\animation</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>

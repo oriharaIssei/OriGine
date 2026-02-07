@@ -440,7 +440,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
-    <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
