@@ -115,6 +115,21 @@
     <Filter Include="engine\code\ECS\system\transition">
       <UniqueIdentifier>{DDF19EE4-4960-F463-9249-AF63FEF6E9FF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\asset">
+      <UniqueIdentifier>{F4D336BB-60EA-3451-A961-C07215B705D9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\asset\directoryMapper">
+      <UniqueIdentifier>{FDF8662B-6967-BCAA-B250-77AA1EFEB146}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\asset\directoryMapper\directoryMappingRule">
+      <UniqueIdentifier>{4527BE97-31D1-F3A6-1AA2-FBC106EB9395}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\asset\loader">
+      <UniqueIdentifier>{5A2C98D9-4651-E759-6F9C-CCE95B20E677}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\asset\manager">
+      <UniqueIdentifier>{3E5CD939-AA1E-0DC4-F3CE-9B505FD0E5A1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\audio">
       <UniqueIdentifier>{66AD37BB-D2C3-3551-1B3B-C172879006D9}</UniqueIdentifier>
     </Filter>
@@ -162,9 +177,6 @@
     </Filter>
     <Filter Include="engine\code\scene">
       <UniqueIdentifier>{828C73BC-EEA2-7152-371A-FD73A36F42DA}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\texture">
-      <UniqueIdentifier>{05B288FA-7113-6608-FA80-ACBA66E19CC7}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\winApp">
       <UniqueIdentifier>{2384AA54-0F68-6BAA-78C8-65FD64CB552C}</UniqueIdentifier>
@@ -414,7 +426,13 @@
     <ClInclude Include="engine\code\ECS\component\physics\Rigidbody.h">
       <Filter>engine\code\ECS\component\physics</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\LineRenderer.h">
+      <Filter>engine\code\ECS\component\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\MeshRenderer.h">
+      <Filter>engine\code\ECS\component\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\ModelMeshRenderer.h">
       <Filter>engine\code\ECS\component\renderer</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\SkyBoxRenderer.h">
@@ -657,6 +675,39 @@
     <ClInclude Include="engine\code\EngineConfig.h">
       <Filter>engine\code</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\asset\Asset.h">
+      <Filter>engine\code\asset</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\AssetSystem.h">
+      <Filter>engine\code\asset</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\TextureAsset.h">
+      <Filter>engine\code\asset</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\directoryMapper\DirectoryMapper.h">
+      <Filter>engine\code\asset\directoryMapper</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\directoryMapper\directoryMappingRule\AssetToCookedRootRule.h">
+      <Filter>engine\code\asset\directoryMapper\directoryMappingRule</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\directoryMapper\directoryMappingRule\ExtensionMappingRule.h">
+      <Filter>engine\code\asset\directoryMapper\directoryMappingRule</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\directoryMapper\directoryMappingRule\IDirectoryMappingRule.h">
+      <Filter>engine\code\asset\directoryMapper\directoryMappingRule</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\loader\IAssetLoader.h">
+      <Filter>engine\code\asset\loader</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\loader\TextureLoader.h">
+      <Filter>engine\code\asset\loader</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\manager\AssetManager.h">
+      <Filter>engine\code\asset\manager</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\asset\manager\TextureAssetManager.h">
+      <Filter>engine\code\asset\manager</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\audio\Audio.h">
       <Filter>engine\code\audio</Filter>
     </ClInclude>
@@ -807,9 +858,6 @@
     <ClInclude Include="engine\code\scene\SceneManager.h">
       <Filter>engine\code\scene</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\texture\TextureManager.h">
-      <Filter>engine\code\texture</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\winApp\WinApp.h">
       <Filter>engine\code\winApp</Filter>
     </ClInclude>
@@ -945,8 +993,6 @@
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h">
       <Filter>util\uuidGenerator</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\renderer\ModelMeshRenderer.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\LineRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1372,6 +1418,27 @@
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\asset\AssetSystem.cpp">
+      <Filter>engine\code\asset</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\directoryMapper\DirectoryMapper.cpp">
+      <Filter>engine\code\asset\directoryMapper</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\directoryMapper\directoryMappingRule\AssetToCookedRootRule.cpp">
+      <Filter>engine\code\asset\directoryMapper\directoryMappingRule</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\directoryMapper\directoryMappingRule\ExtensionMappingRule.cpp">
+      <Filter>engine\code\asset\directoryMapper\directoryMappingRule</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\loader\TextureLoader.cpp">
+      <Filter>engine\code\asset\loader</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\manager\AssetManager.cpp">
+      <Filter>engine\code\asset\manager</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\asset\manager\TextureAssetManager.cpp">
+      <Filter>engine\code\asset\manager</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\audio\Audio.cpp">
       <Filter>engine\code\audio</Filter>
     </ClCompile>
@@ -1476,9 +1543,6 @@
     </ClCompile>
     <ClCompile Include="engine\code\scene\SceneManager.cpp">
       <Filter>engine\code\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\texture\TextureManager.cpp">
-      <Filter>engine\code\texture</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\winApp\WinApp.cpp">
       <Filter>engine\code\winApp</Filter>

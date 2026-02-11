@@ -3,8 +3,10 @@
 /// engine
 #include "Engine.h"
 #include "scene/SceneManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 #include "winApp/WinApp.h"
+// asset
+#include "asset/TextureAsset.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
@@ -336,7 +338,7 @@ void DistortionEffect::DispatchComponent(EntityHandle _handle) {
             // 単一テクスチャを使用する場合
             RenderingData renderingData{};
             renderingData.effectParam = &effectParam;
-            renderingData.srvHandle   = TextureManager::GetDescriptorGpuHandle(effectParam.GetTextureIndex());
+            renderingData.srvHandle   = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(effectParam.GetTextureIndex()).srv.GetGpuHandle();
 
             // マテリアル情報の更新
             int32_t materialIndex = effectParam.GetMaterialIndex();

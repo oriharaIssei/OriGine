@@ -5,7 +5,7 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 #include "scene/Scene.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 // directX12
 #include "directX12/DxDevice.h"
 

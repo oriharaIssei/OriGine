@@ -1,12 +1,15 @@
 #include "Model.h"
 
-#include "texture/TextureManager.h"
+/// engine
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 
 namespace OriGine {
 
 void Model::LoadTexture(int32_t _part, const std::string& _texturePath) {
     materialData_[_part].texturePath   = _texturePath;
-    materialData_[_part].textureNumber = TextureManager::LoadTexture(_texturePath);
+    materialData_[_part].textureIndex= AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(_texturePath);
 }
 
 void Skeleton::Update() {

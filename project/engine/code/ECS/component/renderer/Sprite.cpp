@@ -7,11 +7,13 @@
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
 #include "Engine.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
 // assets
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 #include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
@@ -49,15 +51,14 @@ void SpriteRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
 
     // テクスチャの読み込みとサイズの適応
     if (!texturePath_.empty()) {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t _index) {
-            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_index);
-            if (textureSize_.lengthSq() == 0.0f) {
-                textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-            }
-            if (size_.lengthSq() == 0.0f) {
-                size_ = textureSize_;
-            }
-        });
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
+        const DirectX::TexMetadata& texData = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).metaData;
+        if (textureSize_.lengthSq() == 0.0f) {
+            textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+        }
+        if (size_.lengthSq() == 0.0f) {
+            size_ = textureSize_;
+        }
     }
 
     CalculateWindowRatioPosAndSize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
@@ -81,7 +82,7 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_un
         askLoad |= ImGui::Button(label.c_str());
         static ImVec2 textureButtonSize = {32.f, 32.f};
         askLoad |= ImGui::ImageButton(
-            reinterpret_cast<ImTextureID>(TextureManager::GetDescriptorGpuHandle(textureNumber_).ptr),
+            reinterpret_cast<ImTextureID>(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetGpuHandle().ptr),
             textureButtonSize,
             {0, 0}, {1, 1},
             8);
@@ -99,11 +100,10 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_un
                 kApplicationResourceDirectory + "/" + directory + "/" + fileName,
                 [this](std::string* _fileName) {
                     // テクスチャの読み込み
-                    textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t _loadIndex) {
-                        const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_loadIndex);
-                        textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-                        size_                               = textureSize_;
-                    });
+                    textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(*_fileName);
+                    const DirectX::TexMetadata& texData = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).metaData;
+                    textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+                    size_                               = textureSize_;
                 });
 
             OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
@@ -224,13 +224,16 @@ void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyText
     texturePath_ = _texturePath;
     // テクスチャの読み込みとサイズの適応
     if (_applyTextureSize) {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t _loadIndex) {
-            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_loadIndex);
-            textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-            size_                               = textureSize_;
-        });
+        textureIndex_                      = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
+        const DirectX::TexMetadata& texData = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).metaData;
+        if (textureSize_.lengthSq() == 0.0f) {
+            textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+        }
+        if (size_.lengthSq() == 0.0f) {
+            size_ = textureSize_;
+        }
     } else {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
     }
 }
 

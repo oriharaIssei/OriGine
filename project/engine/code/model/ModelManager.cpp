@@ -8,12 +8,13 @@
 /// engine
 #include "Engine.h"
 #include "winApp/WinApp.h"
-// asSetes
+// asset
+#include "asset/TextureAsset.h"
 #include "Model.h"
 // dx12Object
 #include "directX12/DxDevice.h"
 #include "directX12/ShaderManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 #include "logger/Logger.h"
 
@@ -274,14 +275,14 @@ static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryP
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
-        uint32_t textureIndex     = 0;
+        size_t textureIndex     = 0;
         ::std::string texturePath = "";
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             texturePath = textureFilePath.C_Str();
             if ((texturePath.find("/") == ::std::string::npos)) {
                 texturePath = _directoryPath + "/" + texturePath;
             }
-            textureIndex = TextureManager::LoadTexture(texturePath);
+            textureIndex = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath);
         }
 
         ModelManager::GetInstance()->pushBackDefaultMaterial(_data, {texturePath, textureIndex, IConstantBuffer<Material>()});

@@ -1,0 +1,38 @@
+# 1. 画像からDDSへの変換ルール
+# Engine ver.
+[[ Rule ]]
+Name  = "Engine Texture Conversion"
+InputFilters = [
+  { Repo = "Engine", PathPattern = "*.png" }
+]
+CommandLine  = '{ Repo:Tools }TextureConverter.exe { Repo:Engine }{ Path } -o { Repo:EngineOutput }{ Dir }{ File }.dds'
+OutputPaths  = [ '{ Repo:EngineOutput }{ Dir }{ File }.dds' ]
+
+# Application ver.
+[[ Rule ]]
+Name  = "Application Texture Conversion"
+InputFilters = [
+  { Repo = "Application", PathPattern = "*.png" }
+]
+CommandLine  = '{ Repo:Tools }TextureConverter.exe { Repo:Application }{ Path } -o { Repo:ApplicationOutput }{ Dir }{ File }.dds'
+OutputPaths  = [ '{ Repo:ApplicationOutput }{ Dir }{ File }.dds' ]
+
+# 2. DDSファイルをそのままコピーするルール
+# Engine ver.
+[[ Rule ]]
+Name        = "Copy Engine DDS"
+CommandType = "CopyFile"
+InputFilters = [
+  { Repo = "Engine", PathPattern = "*.dds" }
+]
+OutputPaths  = [ '{ Repo:EngineOutput }{ Dir }{ File }{ Ext }' ]
+
+# Application ver.
+[[ Rule ]]
+Name        = "Copy Application DDS"
+CommandType = "CopyFile"
+InputFilters = [
+  { Repo = "Application", PathPattern = "*.dds" }
+]
+# ApplicationOutput リポジトリの同じ階層にコピー
+OutputPaths  = [ '{ Repo:ApplicationOutput }{ Dir }{ File }{ Ext }' ]

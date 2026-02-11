@@ -69,12 +69,12 @@ private:
     IConstantBuffer<SpeedlineBufferParamData> cBuffer_;
 
     std::string radialTextureFilePath_ = "";
-    uint32_t radialTextureIndex_       = 0;
+    size_t radialTextureIndex_         = 0;
 
 public:
     bool IsActive() const { return isActive_; }
 
-    uint32_t GetRadialTextureIndex() const { return radialTextureIndex_; }
+    size_t GetRadialTextureIndex() const { return radialTextureIndex_; }
     const std::string& GetRadialTextureFilePath() const { return radialTextureFilePath_; }
 
     const IConstantBuffer<SpeedlineBufferParamData>& GetBuffer() const { return cBuffer_; }

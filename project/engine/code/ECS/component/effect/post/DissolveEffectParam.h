@@ -79,7 +79,7 @@ private:
     IConstantBuffer<DissolveParamData> paramBuffer_;
 
     std::string textureFilePath_ = ""; // テクスチャのファイルパス
-    uint32_t textureIndex_       = 0;
+    size_t textureIndex_       = 0;
 
     int32_t materialIndex_ = -1; // マテリアルコンポーネントのインデックス
     SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
@@ -126,7 +126,7 @@ public:
         paramBuffer_->outLineColor = _color;
     }
 
-    uint32_t GetTextureIndex() const {
+    size_t GetTextureIndex() const {
         return textureIndex_;
     }
 };

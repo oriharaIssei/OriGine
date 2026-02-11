@@ -2,10 +2,12 @@
 
 /// engine
 #include "Engine.h"
-
 #include "camera/CameraManager.h"
 #include "scene/SceneManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
+
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -259,7 +261,7 @@ void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCullin
 
         commandList->SetGraphicsRootDescriptorTable(
             3,
-            TextureManager::GetDescriptorGpuHandle(emitter->GetTextureIndex()));
+            AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(emitter->GetTextureIndex()).srv.GetGpuHandle());
 
         const auto& particleMesh = emitter->GetMesh();
         commandList->IASetVertexBuffers(0, 1, &particleMesh.GetVBView());

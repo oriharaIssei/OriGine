@@ -54,13 +54,13 @@ private:
     IConstantBuffer<Transform> transformBuff_;
     IConstantBuffer<SkyboxMaterial> materialBuff_;
 
-    int32_t textureIndex_ = 0;
+    size_t textureIndex_ = 0;
 
 public:
-    void SetTextureIndex(int32_t _textureIndex) {
+    void SetTextureIndex(size_t _textureIndex) {
         textureIndex_ = _textureIndex;
     }
-    int32_t GetTextureIndex() const {
+    size_t GetTextureIndex() const {
         return textureIndex_;
     }
     void SetFilePath(const std::string& _filePath) {

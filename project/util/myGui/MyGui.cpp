@@ -3,7 +3,9 @@
 #ifdef _DEBUG
 
 /// engine
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 /// util
 #include "myFileSystem/MyFileSystem.h"
 
@@ -66,14 +68,13 @@ Vec2f ConvertMouseToSceneView(const Vec2f& _mousePos, const ImVec2& _sceneViewPo
     return gamePos;
 }
 
-bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel) {
+bool AskLoadTextureButton(size_t _texIndex, const std::string& _parentLabel) {
     bool ask          = false;
     std::string label = "Load Texture##" + _parentLabel;
-    _texIndex         = (std::max)(_texIndex, 0);
     ask               = ImGui::Button(label.c_str());
 
     ask |= ImGui::ImageButton(
-        ImTextureID(TextureManager::GetDescriptorGpuHandle(_texIndex).ptr),
+        ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_texIndex).srv.GetGpuHandle().ptr),
         ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
     return ask;
 }

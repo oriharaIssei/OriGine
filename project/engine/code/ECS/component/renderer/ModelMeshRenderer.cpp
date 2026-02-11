@@ -3,7 +3,9 @@
 /// engine
 #include "Engine.h"
 #include "scene/Scene.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
@@ -105,7 +107,7 @@ void ModelMeshRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
         if (textureFilePath_[i].empty()) {
             continue;
         }
-        meshTextureNumbers_[i] = TextureManager::LoadTexture(textureFilePath_[i]);
+        meshTextureNumbers_[i] = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_[i]);
     }
 }
 
@@ -305,7 +307,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 if (OpenFileDialog(kApplicationResourceDirectory, outputPath, {"png"})) {
                     auto SetPathCommand = std::make_unique<SetterCommand<std::string>>(&textureFilePath_[i], outputPath,
                         [this, i](std::string* _path) {
-                            meshTextureNumbers_[i] = TextureManager::LoadTexture(*_path);
+                            meshTextureNumbers_[i] = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(*_path);
                         });
 
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(SetPathCommand));

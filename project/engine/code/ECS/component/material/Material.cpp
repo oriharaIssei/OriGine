@@ -2,7 +2,9 @@
 
 /// engine
 #include "Engine.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
@@ -118,12 +120,12 @@ void Material::CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData) 
 
 void Material::CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename) {
     // metadataの取得
-    int32_t textureId = TextureManager::LoadTexture(_directory + _filename);
+    size_t textureId = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(_directory + _filename);
     CreateCustomTextureFromTextureFile(textureId);
 }
 
-void Material::CreateCustomTextureFromTextureFile(int32_t _textureIndex) {
-    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(_textureIndex);
+void Material::CreateCustomTextureFromTextureFile(size_t _textureIndex) {
+    DirectX::TexMetadata metaData = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_textureIndex).metaData;
     CreateCustomTextureFromMetaData(metaData);
 }
 

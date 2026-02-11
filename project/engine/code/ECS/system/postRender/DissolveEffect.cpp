@@ -1,8 +1,9 @@
 #include "DissolveEffect.h"
 
 /// engine
+#include "asset/AssetSystem.h"
+#include "asset/TextureAsset.h"
 #include "Engine.h"
-#include "texture/TextureManager.h"
 
 // component
 #include "component/effect/post/DissolveEffectParam.h"
@@ -203,7 +204,7 @@ void DissolveEffect::DispatchComponent(EntityHandle _handle) {
         }
 
         DissolveEffect::RenderingData renderingData{};
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::GetDescriptorGpuHandle(param.GetTextureIndex());
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(static_cast<size_t>(param.GetTextureIndex())).srv.GetGpuHandle();
 
         int32_t materialIndex = param.GetMaterialIndex();
         auto& materialBuff    = param.GetMaterialBuffer();

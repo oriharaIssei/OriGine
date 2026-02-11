@@ -42,7 +42,7 @@ protected:
     SimpleConstantBuffer<Material> materialBuff_;
 
     std::string textureFilePath_;
-    uint32_t textureIndex_ = 0;
+    size_t textureIndex_ = 0;
 
 public:
     Transform& GetTransform() {
@@ -75,7 +75,7 @@ public:
         return textureFilePath_;
     }
 
-    uint32_t GetTextureIndex() const {
+    size_t GetTextureIndex() const {
         return textureIndex_;
     }
 };

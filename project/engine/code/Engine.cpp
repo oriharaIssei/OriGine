@@ -1,5 +1,8 @@
 #include "Engine.h"
+
 /// engine
+#include "asset/AssetSystem.h"
+
 // directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
@@ -7,6 +10,7 @@
 #include "directX12/DxSwapChain.h"
 
 // module
+#include "asset/AssetSystem.h"
 #include "camera/CameraManager.h"
 #include "component/animation/AnimationManager.h"
 #include "component/collision/collider/base/CollisionCategoryManager.h"
@@ -15,7 +19,6 @@
 #include "input/InputManager.h"
 #include "model/ModelManager.h"
 #include "scene/SceneManager.h"
-#include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 
 // assets
@@ -129,7 +132,6 @@ void Engine::Initialize() {
     // 各種エンジンスシステムの初期化
     ShaderManager::GetInstance()->Initialize();
     ImGuiManager::GetInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
-    TextureManager::Initialize();
 
     lightManager_ = LightManager::GetInstance();
     lightManager_->Initialize();
@@ -143,12 +145,16 @@ void Engine::Initialize() {
     AnimationManager::GetInstance()->Initialize();
     CameraManager::GetInstance()->Initialize();
 
+    AssetSystem::GetInstance()->Initialize();
+
     auto* manager = OriGine::CollisionCategoryManager::GetInstance();
     manager->LoadFromGlobalVariables();
 }
 
 /// <summary> エンジンの終了処理. 各システムの Finalize を逆順に呼び出し、DX12 リソースを安全に解放する. </summary>
 void Engine::Finalize() {
+
+    AssetSystem::GetInstance()->Finalize();
 
     AnimationManager::GetInstance()->Finalize();
     CameraManager::GetInstance()->Finalize();
@@ -159,7 +165,6 @@ void Engine::Finalize() {
 #endif // _DEBUG
     ShaderManager::GetInstance()->Finalize();
     ModelManager::GetInstance()->Finalize();
-    TextureManager::Finalize();
 
     dsvResource_.Finalize();
     dsvHeap_->ReleaseDescriptor(dxDsv_);

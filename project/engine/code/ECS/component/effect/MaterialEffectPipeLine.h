@@ -70,7 +70,7 @@ private:
     int32_t priority_      = 0;
     bool isActive_         = true;
     int32_t materialIndex_ = -1;
-    int32_t baseTextureId_ = 0;
+    size_t baseTextureId_ = 0;
     std::string baseTexturePath_;
 
 public:
@@ -82,7 +82,7 @@ public:
     int32_t GetMaterialIndex() const { return materialIndex_; }
     void SetMaterialIndex(int32_t _index) { materialIndex_ = _index; }
 
-    int32_t GetBaseTextureId() const { return baseTextureId_; }
+    size_t GetBaseTextureId() const { return baseTextureId_; }
     const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityData_; }
 };
 

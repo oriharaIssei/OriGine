@@ -4,6 +4,8 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12
 #include "directX12/DxDevice.h"
 // module
@@ -39,7 +41,7 @@ void BoxRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
 
     // loadTexture
     if (!textureFilePath_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_);
     }
 }
 
@@ -99,7 +101,7 @@ void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHa
         if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto commandCombo = std::make_unique<CommandCombo>();
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName));
-            commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureFilePath_); }, true);
+            commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_); }, true);
             OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }

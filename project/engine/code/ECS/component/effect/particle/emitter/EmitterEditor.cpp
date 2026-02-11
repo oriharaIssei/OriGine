@@ -9,12 +9,14 @@
 #define RESOURCE_DIRECTORY
 #include "directX12/DxDevice.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/TextureAsset.h"
 // component
 #include "component/material/Material.h"
 // module
 #include "myFileSystem/MyFileSystem.h"
 #include "myGui/MyGui.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 #include "util/timeline/Timeline.h"
 // assets
 #include "../Particle.h"
@@ -68,7 +70,7 @@ void EmitterEditor::Draw(Emitter& _emitter, Scene* _scene, EntityHandle _entity,
                 commandCombo->AddCommand(
                     std::make_shared<SetterCommand<std::string>>(&_emitter.textureFileName_, filePath));
                 commandCombo->AddCommand(
-                    std::make_shared<SetterCommand<int32_t>>(&_emitter.textureIndex_, TextureManager::LoadTexture(filePath)));
+                    std::make_shared<SetterCommand<size_t>>(&_emitter.textureIndex_, AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(filePath)));
                 OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
             }
         }

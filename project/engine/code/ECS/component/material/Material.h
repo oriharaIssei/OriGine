@@ -88,7 +88,7 @@ public:
     /// CustomTextureを指定したテクスチャから作成する
     /// </summary>
     /// <param name="_textureIndex">TextureManagerが持っているテクスチャのインデックス</param>
-    void CreateCustomTextureFromTextureFile(int32_t _textureIndex);
+    void CreateCustomTextureFromTextureFile(size_t _textureIndex);
 
     void DeleteCustomTexture();
 

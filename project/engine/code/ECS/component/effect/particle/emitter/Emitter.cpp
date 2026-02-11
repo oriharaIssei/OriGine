@@ -10,17 +10,19 @@
 #include "directX12/DxDevice.h"
 #include "EngineInclude.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/TextureAsset.h"
 // component
 #include "component/material/Material.h"
 #include "component/renderer/primitive/shape/Plane.h"
 // module
+#include "asset/AssetSystem.h"
 #include "camera/CameraManager.h"
 #include "directX12/ShaderManager.h"
 #include "globalVariables/GlobalVariables.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "myRandom/MyRandom.h"
-#include "texture/TextureManager.h"
 // assets
 #include "EmitterShape.h"
 #include "model/Model.h"
@@ -61,7 +63,7 @@ void Emitter::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     }
 
     if (!textureFileName_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(textureFileName_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFileName_);
     }
 
     if (!particleKeyFrames_) {
@@ -334,7 +336,7 @@ void Emitter::Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12Graph
     materialBuffer_.SetForRootParameter(_commandList, 2);
     _commandList->SetGraphicsRootDescriptorTable(
         3,
-        TextureManager::GetDescriptorGpuHandle(textureIndex_));
+        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetGpuHandle());
 
     // 頂点バッファの設定
     _commandList->IASetVertexBuffers(0, 1, &mesh_.GetVBView());

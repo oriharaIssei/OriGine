@@ -6,7 +6,7 @@
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 /// ECS
 // component
@@ -444,7 +444,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::StartRender() {
     SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
-        TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
+        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
 }
 
 void TexturedMeshRenderSystemWithoutRaytracing::RenderingMesh(
@@ -510,7 +510,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderModelMesh(Microsoft::WRL::
 
     auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_renderer->GetTextureIndex(index)).srv.GetGpuHandle();
         const IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                              = _renderer->GetMaterialBuff(index);
         Material* material                              = nullptr;
@@ -554,7 +554,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderPrimitiveMesh(
     PrimitiveMeshRendererBase* _renderer) {
 
     for (const auto& mesh : *_renderer->GetMeshGroup()) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureIndex());
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_renderer->GetTextureIndex()).srv.GetGpuHandle();
 
         auto& materialBuff    = _renderer->GetMaterialBuff();
         Material* material    = nullptr;

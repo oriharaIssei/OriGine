@@ -219,7 +219,7 @@ private:
     IConstantBuffer<GpuParticleEmitSphere> shapeBuffer_;
 
     std::string texturePath_ = "";
-    uint32_t textureIndex_   = 0;
+    size_t textureIndex_   = 0;
 
 public:
     bool IsActive() const { return isActive_; }
@@ -260,7 +260,7 @@ public:
     }
 
     const std::string& GetTexturePath() const { return texturePath_; }
-    uint32_t GetTextureIndex() const { return textureIndex_; }
+    size_t GetTextureIndex() const { return textureIndex_; }
 };
 
 } // namespace OriGine

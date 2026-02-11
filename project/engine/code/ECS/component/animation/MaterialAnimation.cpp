@@ -332,8 +332,11 @@ void MaterialAnimation::RescaleDuration(float _newDuration) {
 }
 
 void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
+    if (!_material) {
+        return;
+    }
     if (animationState_.isLoop_) {
-        if (!animationState_.isPlay_) {
+        if (!GetAnimationIsPlay()) {
             return;
         }
     }

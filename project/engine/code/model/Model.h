@@ -32,7 +32,7 @@ struct TexturedMaterial {
     /// <summary>テクスチャの相対パス</summary>
     std::string texturePath = "";
     /// <summary> texturePath からロードされたテクスチャの管理番号</summary>
-    uint32_t textureNumber = 0;
+    size_t textureIndex= 0;
 
     /// <summary>マテリアルの定数バッファ</summary>
     IConstantBuffer<Material> material;
@@ -257,7 +257,7 @@ struct Model {
     /// <param name="_textureNumber">テクスチャ管理番号</param>
     void SetTexture(int32_t _part, uint32_t _textureNumber) {
         materialData_[_part].texturePath   = "";
-        materialData_[_part].textureNumber = _textureNumber;
+        materialData_[_part].textureIndex= _textureNumber;
     }
 };
 

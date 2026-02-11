@@ -48,7 +48,7 @@ OriGine::Vec2f ConvertMouseToSceneView(const OriGine::Vec2f& _mousePos, const Im
 /// <param name="_texIndex"></param>
 /// <param name="_parentLabel"></param>
 /// <returns></returns>
-bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel);
+bool AskLoadTextureButton(size_t _texIndex, const std::string& _parentLabel);
 
 /// <summary>
 /// dialogを開いてファイルを選択させる(directoryとfilenameを分ける)
