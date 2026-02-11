@@ -57,6 +57,11 @@ project "OriGine"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
         staticruntime "On"
+        prebuildcommands {
+            "\"%{wks.location}/externals/assetsCooker/AssetCooker.exe\" -no_ui -working_dir externals/assetsCooker"
+        }
+
+
     filter "configurations:Develop"
         defines { "DEVELOP", "_DEVELOP" }
         symbols "On"

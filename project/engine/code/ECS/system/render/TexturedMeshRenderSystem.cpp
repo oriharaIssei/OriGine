@@ -3,11 +3,13 @@
 /// engine
 #include "Engine.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 /// ECS
 // component
@@ -500,7 +502,7 @@ void TexturedMeshRenderSystem::StartRender() {
     SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
-        TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
+        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
 }
 
 void TexturedMeshRenderSystem::RenderingMesh(
@@ -566,7 +568,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
 
     auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_renderer->GetTextureIndex(index)).srv.GetGpuHandle();
         const IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                              = _renderer->GetMaterialBuff(index);
         Material* material                              = nullptr;
@@ -610,7 +612,7 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
     PrimitiveMeshRendererBase* _renderer) {
 
     for (const auto& mesh : *_renderer->GetMeshGroup()) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureIndex());
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_renderer->GetTextureIndex()).srv.GetGpuHandle();
 
         auto& materialBuff    = _renderer->GetMaterialBuff();
         Material* material    = nullptr;

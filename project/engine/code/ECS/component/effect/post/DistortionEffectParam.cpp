@@ -4,7 +4,9 @@
 #include "directX12/DxDevice.h"
 #include "Engine.h"
 #include "scene/Scene.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 // component
 #include "component/renderer/primitive/base/PrimitiveMeshFactory.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
@@ -44,7 +46,7 @@ void DistortionEffectParam::LoadTexture(const std::string& _path) {
         textureIndex_ = 0;
         return;
     }
-    textureIndex_ = TextureManager::LoadTexture(texturePath_);
+    textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
 }
 
 void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
@@ -152,7 +154,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
             std::string label = "Load Texture##" + _parentLabel;
             ask               = ImGui::Button(label.c_str());
             ask |= ImGui::ImageButton(
-                ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
+                ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetCpuHandle().ptr),
                 ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
             return ask;

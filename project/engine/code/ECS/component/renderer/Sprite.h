@@ -128,7 +128,7 @@ private:
     IConstantBuffer<SpritConstBuffer> spriteBuff_;
 
     std::string texturePath_;
-    uint32_t textureNumber_ = 0;
+    size_t textureIndex_ = 0;
 
     Vec2f textureLeftTop_ = {0.0f, 0.0f};
     Vec2f textureSize_    = {0.0f, 0.0f};
@@ -144,7 +144,7 @@ private:
     bool isFlipY_ = false;
 
 public:
-    uint32_t GetTextureNumber() const { return textureNumber_; }
+    size_t GetTextureIndex() const { return textureIndex_; }
     void SetTexture(const std::string& _texturePath, bool _applyTextureSize);
 
     int32_t GetRenderPriority() const { return renderPriority_; }

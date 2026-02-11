@@ -110,7 +110,7 @@ private:
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Texture ===============/
     std::string textureFileName_ = "";
-    int32_t textureIndex_        = 0;
+    size_t textureIndex_        = 0;
 
     //=============== エミッター設定項目 ===============//
     BlendMode blendMode_ = BlendMode::None;

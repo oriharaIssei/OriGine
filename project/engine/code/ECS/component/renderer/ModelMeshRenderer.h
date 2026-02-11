@@ -2,6 +2,10 @@
 
 #include "MeshRenderer.h"
 
+/// engine
+// asset
+#include "asset/TextureAsset.h"
+
 namespace OriGine {
 
 ///< summary>
@@ -57,7 +61,7 @@ private:
     std::vector<std::pair<ComponentHandle, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
 
     std::vector<std::string> textureFilePath_ = {};
-    std::vector<uint32_t> meshTextureNumbers_;
+    std::vector<size_t> meshTextureNumbers_;
 
 public:
     //------------------------------ File ------------------------------//
@@ -120,8 +124,8 @@ public:
         meshMaterialBuff_[_meshIndex].first = _materialHandle;
     }
 
-    //------------------------------ TextureNumber ------------------------------//
-    uint32_t GetTextureNumber(int32_t _meshIndex) const {
+    //------------------------------ textureIndex------------------------------//
+    size_t GetTextureIndex(int32_t _meshIndex) const {
         return meshTextureNumbers_[_meshIndex];
     }
     void SetTexture(int32_t _meshIndex, const std::string& _filename) {
@@ -130,7 +134,7 @@ public:
             meshTextureNumbers_[_meshIndex] = 0;
             return;
         }
-        meshTextureNumbers_[_meshIndex] = TextureManager::LoadTexture(textureFilePath_[_meshIndex]);
+        meshTextureNumbers_[_meshIndex] = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_[_meshIndex]);
     }
 };
 

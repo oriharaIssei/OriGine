@@ -4,7 +4,9 @@
 #define RESOURCE_DIRECTORY
 #include "Engine.h"
 #include "EngineInclude.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -47,7 +49,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
         ask               = ImGui::Button(label.c_str());
 
         ask |= ImGui::ImageButton(
-            ImTextureID(TextureManager::GetDescriptorGpuHandle(radialTextureIndex_).ptr),
+            ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(radialTextureIndex_).srv.GetGpuHandle().ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -87,7 +89,7 @@ void SpeedlineEffectParam::LoadRadialTexture(const std::string& _path) {
         radialTextureIndex_ = 0;
         return;
     }
-    radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_);
+    radialTextureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(radialTextureFilePath_);
 }
 
 void OriGine::to_json(nlohmann::json& _j, const SpeedlineEffectParam& _comp) {

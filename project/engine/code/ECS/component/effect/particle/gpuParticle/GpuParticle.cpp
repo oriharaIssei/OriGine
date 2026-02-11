@@ -2,7 +2,9 @@
 
 /// engine
 #include "Engine.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12 Object
 #include "directX12/DxDescriptor.h"
 #include "directX12/DxDevice.h"
@@ -22,7 +24,7 @@ void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unus
     plane.CreateMesh(&mesh_);
 
     if (!texturePath_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(texturePath_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
     }
 
     if (isActive_) {
@@ -68,7 +70,7 @@ void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] E
             std::string label = "Load Texture##" + _parentLabel;
             ask               = ImGui::Button(label.c_str());
             ask               = ImGui::ImageButton(
-                ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
+                ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetGpuHandle().ptr),
                 ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
             return ask;
@@ -83,7 +85,7 @@ void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] E
                 CommandCombo commandCombo;
                 commandCombo.AddCommand(std::move(SetPath));
                 commandCombo.SetFuncOnAfterCommand([this]() {
-                    textureIndex_ = TextureManager::LoadTexture(texturePath_);
+                    textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
                 },
                     true);
                 OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
@@ -322,7 +324,7 @@ void GpuParticleEmitter::LoadTexture(const std::string& _path) {
         return;
     }
     texturePath_  = _path;
-    textureIndex_ = TextureManager::LoadTexture(texturePath_);
+    textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath_);
 }
 
 void OriGine::to_json(nlohmann::json& _j, const GpuParticleEmitter& _comp) {

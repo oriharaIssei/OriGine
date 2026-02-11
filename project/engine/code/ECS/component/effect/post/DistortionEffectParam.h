@@ -65,7 +65,7 @@ private:
 
     int32_t materialIndex_ = -1;
 
-    int32_t textureIndex_    = 0;
+    size_t textureIndex_     = 0;
     std::string texturePath_ = "";
 
     IConstantBuffer<DistortionParamData> effectParamData_;
@@ -81,7 +81,7 @@ public:
     void SetUse3dObjectList(bool _use) { use3dObjectList_ = _use; }
 
     const std::string& GetTexturePath() const { return texturePath_; }
-    int32_t GetTextureIndex() const { return textureIndex_; }
+    size_t GetTextureIndex() const { return textureIndex_; }
 
     int32_t GetMaterialIndex() const { return materialIndex_; }
     void SetMaterialIndex(int32_t _index) { materialIndex_ = _index; }

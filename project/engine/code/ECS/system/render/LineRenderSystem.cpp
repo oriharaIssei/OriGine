@@ -6,7 +6,7 @@
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 // ECS
 // component

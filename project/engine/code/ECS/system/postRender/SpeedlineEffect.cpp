@@ -3,7 +3,9 @@
 /// engine
 #include "Engine.h"
 #include "scene/SceneManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -151,7 +153,7 @@ void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
 
     commandList->SetGraphicsRootDescriptorTable(
         2,
-        TextureManager::GetDescriptorGpuHandle(_param->GetRadialTextureIndex()));
+        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_param->GetRadialTextureIndex()).srv.GetGpuHandle());
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }

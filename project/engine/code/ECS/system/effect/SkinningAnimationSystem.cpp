@@ -6,6 +6,7 @@
 #include "model/ModelManager.h"
 // directX12Object
 #include "directX12/DxCommand.h"
+#include "directX12/DxFence.h"
 #include "directX12/ShaderManager.h"
 // component
 #include "component/animation/SkinningAnimationComponent.h"

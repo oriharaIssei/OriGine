@@ -4,8 +4,10 @@
 #define ENGINE_ECS
 #define ENGINE_EDITOR
 #define RESOURCE_DIRECTORY
+#include "asset/AssetSystem.h"
 #include "EngineInclude.h"
-#include "texture/TextureManager.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12
 #include "directX12/DxDevice.h"
 
@@ -87,7 +89,7 @@ void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     mesh.TransferData();
 
     if (!filePath_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(filePath_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(filePath_);
     }
 
     transformBuff_->Initialize(_scene, _hostEntity);
@@ -109,9 +111,8 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, EntityHandle /* _entity*/, [[maybe_
             commandCombo->AddCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));
             commandCombo->SetFuncOnAfterCommand(
                 [this]() {
-                    TextureManager::LoadTexture(filePath_, [this](uint32_t _newTextureIndex) {
-                        textureIndex_ = _newTextureIndex;
-                    });
+                    textureIndex_ =
+                        AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(filePath_);
                 },
                 true);
             OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));

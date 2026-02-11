@@ -3,6 +3,8 @@
 /// engine
 #include "camera/CameraManager.h"
 #include "Engine.h"
+// asset
+#include "asset/TextureAsset.h"
 // dx12
 #include "directX12/DxDevice.h"
 // ecs
@@ -92,7 +94,7 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
 
         commandList->SetGraphicsRootDescriptorTable(
             2,
-            TextureManager::GetDescriptorGpuHandle(renderer->GetTextureIndex()));
+            AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(renderer->GetTextureIndex()).srv.GetGpuHandle());
 
         // ============================= Viewのセット ============================= //
         commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());

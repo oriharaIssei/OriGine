@@ -2,11 +2,13 @@
 
 /// engine
 #include "Engine.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 
 // ECS
 // component
@@ -359,7 +361,7 @@ void SkinningMeshRenderSystem::StartRender() {
     SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntityHandle);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
-        TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
+        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
 }
 
 /// <summary>
@@ -383,7 +385,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
 
     auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_renderer->GetTextureIndex(index)).srv.GetGpuHandle();
         IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                        = _renderer->GetMaterialBuff(index);
         Material* material                        = nullptr;

@@ -1,9 +1,12 @@
 #include "MaterialEffect.h"
 
 /// engine
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12
 #include "directX12/DxDevice.h"
+#include "directX12/DxFence.h"
 
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
@@ -143,7 +146,7 @@ void MaterialEffect::DispatchComponents(EntityHandle _handle) {
             continue;
         }
         // baseTextureId が不正ならスルー
-        int32_t baseTextureId = pipeline.GetBaseTextureId();
+        size_t baseTextureId = pipeline.GetBaseTextureId();
         if (baseTextureId < 0) {
             continue;
         }
@@ -168,13 +171,13 @@ void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPi
     const Vec2f& tempTextureSize = tempRenderTexture->GetTextureSize();
 
     Material* material    = GetComponent<Material>(_handle, _pipeline->GetMaterialIndex());
-    int32_t baseTextureId = _pipeline->GetBaseTextureId();
+    size_t baseTextureId = _pipeline->GetBaseTextureId();
 
     // CustomTexture がなければ作成
     if (!material->hasCustomTexture()) {
         // baseTexture のメタデータを取得
         // フォーマットとmipLevelと width,height を固定
-        DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(baseTextureId);
+        DirectX::TexMetadata metaData = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(baseTextureId).metaData;
         metaData.width                = static_cast<size_t>(tempTextureSize[X]);
         metaData.height               = static_cast<size_t>(tempTextureSize[Y]);
         metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -185,7 +188,7 @@ void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPi
 
     // tempRenderTexture_ に baseTexture を描画
     tempRenderTexture->PreDraw();
-    tempRenderTexture->DrawTexture(TextureManager::GetDescriptorGpuHandle(baseTextureId));
+    tempRenderTexture->DrawTexture(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(baseTextureId).srv.GetGpuHandle());
     tempRenderTexture->PostDraw();
 
     // effectEntityDataList に登録されている Entity でエフェクトをかける

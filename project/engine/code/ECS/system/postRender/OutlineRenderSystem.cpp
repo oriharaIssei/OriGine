@@ -3,6 +3,8 @@
 /// engine
 #include "camera/CameraManager.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/TextureAsset.h"
 
 /// ECS
 // component
@@ -202,7 +204,7 @@ void OriGine::OutlineRenderSystem::Rendering() {
 
             auto& meshGroup = modelMesh->GetMeshGroup();
             for (auto& mesh : *meshGroup) {
-                D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::GetDescriptorGpuHandle(modelMesh->GetTextureNumber(index));
+                D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(modelMesh->GetTextureIndex(index)).srv.GetGpuHandle();
                 const IConstantBuffer<Transform>& meshTransform = modelMesh->GetTransformBuff(index);
                 auto& materialBuff                              = modelMesh->GetMaterialBuff(index);
                 Material* material                              = nullptr;
@@ -246,7 +248,7 @@ void OriGine::OutlineRenderSystem::Rendering() {
                 auto& transformBuff = primMesh->GetTransformBuff();
                 auto& materialBuff  = primMesh->GetMaterialBuff();
 
-                D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(primMesh->GetTextureIndex());
+                D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(primMesh->GetTextureIndex()).srv.GetGpuHandle();
 
                 Material* material    = nullptr;
                 int32_t materialIndex = primMesh->GetMaterialIndex();

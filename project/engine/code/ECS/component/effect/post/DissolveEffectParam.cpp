@@ -5,7 +5,9 @@
 #define RESOURCE_DIRECTORY
 #include "engine/EngineInclude.h"
 #include "scene/Scene.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12
 #include "directX12/DxDevice.h"
 
@@ -21,7 +23,7 @@ using namespace OriGine;
 void DissolveEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity) {
 
     if (!textureFilePath_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
+        textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_);
     }
 
     if (isActive_) {
@@ -43,7 +45,7 @@ void DissolveEffectParam::LoadTexture(const std::string& _filePath) {
         return;
     }
     textureFilePath_ = _filePath;
-    textureIndex_    = TextureManager::LoadTexture(textureFilePath_);
+    textureIndex_    = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_);
 }
 
 void DissolveEffectParam::Play() {
@@ -95,7 +97,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
         std::string label = "Load Texture##" + _label;
         ask               = ImGui::Button(label.c_str());
         ask               = ImGui::ImageButton(
-            ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
+            ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetGpuHandle().ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -110,7 +112,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
             CommandCombo commandCombo;
             commandCombo.AddCommand(std::move(SetPath));
             commandCombo.SetFuncOnAfterCommand([this]() {
-                textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
+                textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_);
             },
                 true);
             OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));

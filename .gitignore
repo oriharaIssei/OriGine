@@ -344,3 +344,7 @@ project/imgui.ini
 # AI/Task management files
 .github/skills/
 task/
+project/externals/assetsCooker/prefs.toml
+project/externals/assetsCooker/Cache/cache.bin
+*.ini
+/project/engine/cookedResource

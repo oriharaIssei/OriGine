@@ -2,11 +2,13 @@
 
 /// engine
 #include "Engine.h"
+// asset
+#include "asset/TextureAsset.h"
 // directX12Object
 // module
 #include "camera/CameraManager.h"
 #include "EngineConfig.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 #include "winApp/WinApp.h"
 /// ECS
 // component
@@ -91,7 +93,7 @@ void SpriteRenderSystem::Rendering() {
         // テクスチャの設定
         commandList->SetGraphicsRootDescriptorTable(
             1,
-            TextureManager::GetDescriptorGpuHandle(renderer->GetTextureNumber()));
+            AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(renderer->GetTextureIndex()).srv.GetGpuHandle());
 
         // meshの設定・描画
         SpriteMesh& mesh = renderer->GetMeshGroup()->at(0);

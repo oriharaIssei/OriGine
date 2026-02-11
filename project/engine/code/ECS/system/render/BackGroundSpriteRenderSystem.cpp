@@ -5,12 +5,15 @@
 
 /// engine
 #include "Engine.h"
+// asset
+#include "asset/TextureAsset.h"
+
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "EngineConfig.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 #include "winApp/WinApp.h"
 /// ECS
 // component
@@ -72,7 +75,7 @@ void BackGroundSpriteRenderSystem::Rendering() {
         // Textureの設定
         commandList->SetGraphicsRootDescriptorTable(
             1,
-            TextureManager::GetDescriptorGpuHandle(renderer->GetTextureNumber()));
+            AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(renderer->GetTextureIndex()).srv.GetGpuHandle());
 
         // mesh
         const OriGine::SpriteMesh& mesh = renderer->GetMeshGroup()->at(0);

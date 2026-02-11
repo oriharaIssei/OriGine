@@ -3,9 +3,10 @@
 /// engine
 #define ENGINE_INCLUDE
 #define RESOURCE_DIRECTORY
+#include "asset/AssetSystem.h"
+#include "asset/TextureAsset.h"
 #include "EngineInclude.h"
 #include "scene/Scene.h"
-#include "texture/TextureManager.h"
 
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
@@ -41,7 +42,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         std::string label = "Load Texture##" + _parentLabel;
         ask               = ImGui::Button(label.c_str());
         ask |= ImGui::ImageButton(
-            ImTextureID(TextureManager::GetDescriptorGpuHandle(baseTextureId_).ptr),
+            ImTextureID(AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(baseTextureId_).srv.GetGpuHandle().ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -55,7 +56,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
             CommandCombo commandCombo;
             commandCombo.AddCommand(std::move(setPath));
             commandCombo.SetFuncOnAfterCommand([this]() {
-                baseTextureId_ = TextureManager::LoadTexture(baseTexturePath_);
+                baseTextureId_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(baseTexturePath_);
             },
                 true);
             OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
@@ -182,7 +183,7 @@ void MaterialEffectPipeLine::Finalize() {}
 
 void MaterialEffectPipeLine::LoadBaseTexture(const std::string& _path) {
     baseTexturePath_ = _path;
-    baseTextureId_   = TextureManager::LoadTexture(baseTexturePath_);
+    baseTextureId_   = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(baseTexturePath_);
 }
 
 void OriGine::to_json(nlohmann::json& _j, const MaterialEffectPipeLine& _comp) {

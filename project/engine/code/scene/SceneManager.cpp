@@ -31,7 +31,7 @@
 // module
 #include "camera/CameraManager.h"
 #include "editor/EditorController.h"
-#include "texture/TextureManager.h"
+#include "asset/AssetSystem.h"
 // util
 #include "myFileSystem/MyFileSystem.h"
 
