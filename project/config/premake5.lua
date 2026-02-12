@@ -56,6 +56,14 @@ project "OriGine"
         staticruntime "On"
 
     filter { "configurations:Debug", "system:windows" }
+    if os.getenv("CI") then
+    -- CI環境下ではアセットの事前ビルドをスキップ
+    else
+    prebuildcommands {
+        "\"%{wks.location}\\externals\\assetsCooker\\AssetCooker.exe\" -no_ui"
+    }
+    end
+
     prebuildcommands {
         "\"%{wks.location}\\externals\\assetsCooker\\AssetCooker.exe\" -no_ui"
     }
