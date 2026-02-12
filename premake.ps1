@@ -1,37 +1,34 @@
-# Premake5 を実行するPowerShellスクリプト
+param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$RemainingArgs
+)
 
-# ワークスペースフォルダーを取得（スクリプトの場所）
-$workspaceFolder = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+$rootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$premakeDir = Join-Path $rootDir "project\config"
 
-# Premake5の設定ディレクトリに移動
-$configPath = Join-Path $workspaceFolder "project\config"
+$premakeExe = Join-Path $premakeDir "premake5.exe"
+$premakeLua = Join-Path $premakeDir "premake5.lua"
 
-# ディレクトリが存在するかチェック
-if (-Not (Test-Path $configPath)) {
-    Write-Error "設定ディレクトリが見つかりません: $configPath"
+# premake5.exe と premake5.lua の存在を確認
+if (-not (Test-Path $premakeExe)) {
+    Write-Host "Error: premake5.exe not found at $premakeExe" -ForegroundColor Red
     exit 1
 }
 
-try {
-    # 設定ディレクトリに移動してPremake5を実行
-    Set-Location $configPath
-    Write-Host "Premake5を実行中... (ディレクトリ: $configPath)"
-
-    & premake5 vs2026
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "Premake5の実行が完了しました。" -ForegroundColor Green
-    }
-    else {
-        Write-Error "Premake5の実行中にエラーが発生しました。終了コード: $LASTEXITCODE"
-        exit $LASTEXITCODE
-    }
-}
-catch {
-    Write-Error "エラーが発生しました: $($_.Exception.Message)"
+if (-not (Test-Path $premakeLua)) {
+    Write-Host "Error: premake5.lua not found at $premakeLua" -ForegroundColor Red
     exit 1
 }
-finally {
-    # 元のディレクトリに戻る
-    Set-Location $workspaceFolder
+# 引数が無ければ vs2026 をデフォルトにする
+if (-not $RemainingArgs -or $RemainingArgs.Count -eq 0) {
+    $RemainingArgs = @("vs2026")
 }
+
+& $premakeExe --file=$premakeLua @RemainingArgs
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Premake failed." -ForegroundColor Red
+    exit $LASTEXITCODE
+}
+
+Write-Host "Premake completed successfully." -ForegroundColor Green

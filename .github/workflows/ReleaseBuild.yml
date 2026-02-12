@@ -1,13 +1,12 @@
 name: ReleaseBuild
+
 on:
   push:
     branches:
       - main
 
 env:
-  # .sln ではなく .vcxproj を指定
   PROJECT_FILE_PATH: project/OriGine.vcxproj
-  # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Release
 
 jobs:
@@ -15,28 +14,59 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # リポジトリをクローン
+      # -------------------------
+      # Checkout
+      # -------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # MSBuild をセットアップ
+      # -------------------------
+      # MSBuild
+      # -------------------------
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: x64
 
-      # 必要なディレクトリを作成
-      - name: Create necessary directories
+      # -------------------------
+      # 生成物削除
+      # -------------------------
+      - name: Clean generated files
+        shell: pwsh
         run: |
-          mkdir -p generated/obj/OriGine/Release
-          mkdir -p generated/outputs/Release
-      # 環境変数のデバッグ (オプション)
-      - name: Debug Environment Variables
+          if (Test-Path project/*.vcxproj) {
+            Remove-Item project/*.vcxproj -Force
+          }
+
+          if (Test-Path project/*.vcxproj.filters) {
+            Remove-Item project/*.vcxproj.filters -Force
+          }
+
+      # -------------------------
+      # Premake 実行
+      # -------------------------
+      - name: Run Premake
+        shell: pwsh
         run: |
-          echo "Current Directory: $(pwd)"
-          echo "PROJECT_FILE_PATH=${{ env.PROJECT_FILE_PATH }}"
-          echo "CONFIGURATION=${{ env.CONFIGURATION }}"
+          ./premake5.ps1 vs2026
+
+      # -------------------------
+      # 生成確認
+      # -------------------------
+      - name: Verify Project Exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${{ env.PROJECT_FILE_PATH }}")) {
+            Write-Error "Project file not generated."
+            exit 1
+          }
+
+      # -------------------------
       # ビルド
+      # -------------------------
       - name: Build
         run: |
-          msbuild ${{ env.PROJECT_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }} /p:PlatformToolset=v143
+          msbuild ${{ env.PROJECT_FILE_PATH }} `
+            /p:Configuration=${{ env.CONFIGURATION }} `
+            /p:Platform=x64 `
+            /m

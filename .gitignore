@@ -348,3 +348,6 @@ project/externals/assetsCooker/prefs.toml
 project/externals/assetsCooker/Cache/cache.bin
 *.ini
 /project/engine/cookedResource
+*.slnx
+*.vcxproj
+*.filters

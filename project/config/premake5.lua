@@ -18,9 +18,6 @@ project "OriGine"
     files { "**.h", "**.cpp"}
     removefiles  { "externals/**", "application/**"}
 
-    -- Clang-Tidy 有効化
-    clangtidy "On"
-
     includedirs {
         "$(SolutionDir)math",
         "$(SolutionDir)util",
@@ -57,9 +54,11 @@ project "OriGine"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
         staticruntime "On"
-        prebuildcommands {
-            "\"%{wks.location}/externals/assetsCooker/AssetCooker.exe\" -no_ui -working_dir externals/assetsCooker"
-        }
+
+    filter { "configurations:Debug", "system:windows" }
+    prebuildcommands {
+        "\"%{wks.location}\\externals\\assetsCooker\\AssetCooker.exe\" -no_ui"
+    }
 
 
     filter "configurations:Develop"
