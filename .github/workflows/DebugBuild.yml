@@ -48,7 +48,7 @@ jobs:
       - name: Run Premake
         shell: pwsh
         run: |
-          ./premake5.ps1 vs2026
+          ./premake.ps1 vs2026
 
       # -------------------------
       # 生成確認
