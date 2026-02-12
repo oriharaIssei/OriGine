@@ -56,18 +56,11 @@ project "OriGine"
         staticruntime "On"
 
     filter { "configurations:Debug", "system:windows" }
-    if os.getenv("CI") then
-    -- CI環境下ではアセットの事前ビルドをスキップ
-    else
-    prebuildcommands {
-        "\"%{wks.location}\\externals\\assetsCooker\\AssetCooker.exe\" -no_ui"
-    }
+    if not os.getenv("CI") then
+        prebuildcommands {
+            'pushd "%{wks.location}\\externals\\assetCooker" && AssetCooker.exe -no_ui && popd'
+        }
     end
-
-    prebuildcommands {
-        "\"%{wks.location}\\externals\\assetsCooker\\AssetCooker.exe\" -no_ui"
-    }
-
 
     filter "configurations:Develop"
         defines { "DEVELOP", "_DEVELOP" }

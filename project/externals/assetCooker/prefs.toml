@@ -1,0 +1,12 @@
+DumpMode = 'Mini'
+EnableNotifOnCookingError = 'Always'
+EnableNotifOnCookingFinish = 'When Minimized'
+EnableNotifOnHideWindow = 'Always'
+EnableNotifSound = 'Always'
+HideWindowOnMinimize = true
+LogFSActivity = 'Normal'
+NumCookingThreads = 0
+SaveDumpOnCrash = 'Ask'
+StartMinimized = false
+StartPaused = true
+UIScale = 1.0
