@@ -24,7 +24,6 @@ Ensure-Directory $TargetFolder
 $AppFolder = Join-Path $TargetFolder "application"
 $EngineFolder = Join-Path $TargetFolder "engine"
 
-# ★変更: resource フォルダのパスを定義
 $AppResourceFolder = Join-Path $AppFolder "resource"
 $EngineResourceFolder = Join-Path $EngineFolder "resource"
 
@@ -36,7 +35,7 @@ Ensure-Directory $EngineResourceFolder
 Write-Host "msbuildを開始しています..." -ForegroundColor Yellow
 
 # 直接実行することで出力をリアルタイムで表示
-& msbuild.exe "project/OriGine.sln" /p:Configuration=Release /nr:false
+& msbuild.exe "project/OriGine.slnx" /p:Configuration=Release /nr:false
 
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "msbuildが失敗しました。終了コード: $LASTEXITCODE"

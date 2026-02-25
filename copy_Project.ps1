@@ -22,14 +22,15 @@ $ExcludeFolders = @(
     ".svn",
     ".vs",
     ".gradle",
-    ".idea"
+    ".idea",
+    ".log"
 )
 
 # ルート直下にある不要なファイル（Visual Studioのソリューションファイルなど）
-# ※ .meta ファイルは絶対に消さないように注意してください
 $ExcludeExtensions = @(
     ".csproj",
     ".sln",
+    ".slnx",
     ".suo",
     ".user",
     ".userprefs",
