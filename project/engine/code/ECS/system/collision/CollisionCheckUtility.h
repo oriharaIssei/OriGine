@@ -3,7 +3,7 @@
 /// math
 #include "math/bounds/AABB.h"
 #include "math/bounds/OBB.h"
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 #include "math/Vector3.h"
 
 namespace OriGine {

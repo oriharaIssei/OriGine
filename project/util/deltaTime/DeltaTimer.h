@@ -35,6 +35,8 @@ private:
     float totalHistoryTime_ = 0.0f;
 
 public:
+    const std::unordered_map<std::string, float>& GetDeltaTimeScaleMap() const { return deltaTimeScaleMap_; }
+
     /// <summary>
     /// 前フレームからの経過時間を取得(秒)
     /// </summary>
@@ -74,7 +76,7 @@ public:
     /// デルタタイムを直接設定
     /// </summary>
     /// <param name="dt">デルタタイム</param>
-    void SetDeltaTimer(float _dt) { deltaTime_ = _dt; }
+    void SetDeltaTime(float _dt) { deltaTime_ = _dt; }
     /// <summary>
     /// タイムスケールを設定
     /// </summary>

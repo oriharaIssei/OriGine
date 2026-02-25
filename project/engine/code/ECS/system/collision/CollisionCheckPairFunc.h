@@ -17,7 +17,7 @@
 #include "math/bounds/Ray.h"
 #include "math/bounds/Segment.h"
 #include "math/bounds/Sphere.h"
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 
 namespace OriGine {
 

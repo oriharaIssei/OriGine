@@ -15,6 +15,7 @@ namespace OriGine {
 template <typename valueType = float>
 struct Vector4 final
     : Vector<4, valueType> {
+    using Vector<4, valueType>::dim;
     using Vector<4, valueType>::v;
     using Vector<4, valueType>::operator[];
     using Vector<4, valueType>::operator+;
@@ -28,6 +29,14 @@ struct Vector4 final
     using Vector<4, valueType>::operator=;
     using Vector<4, valueType>::operator==;
     using Vector<4, valueType>::operator!=;
+    using Vector<4, valueType>::length;
+    using Vector<4, valueType>::Length;
+    using Vector<4, valueType>::lengthSq;
+    using Vector<4, valueType>::LengthSq;
+    using Vector<4, valueType>::dot;
+    using Vector<4, valueType>::Dot;
+    using Vector<4, valueType>::normalize;
+    using Vector<4, valueType>::Normalize;
 
     // コンストラクタ
     constexpr Vector4() : Vector<4, valueType>({0, 0, 0, 0}) {}
@@ -50,65 +59,56 @@ struct Vector4 final
     constexpr Vector4(const valueType* _ptr)
         : Vector<4, valueType>({_ptr[0], _ptr[1], _ptr[2], _ptr[3]}) {}
 
-    /// <summary>
-    /// ベクトルの長さを計算
-    /// </summary>
-    constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
-    /// <summary>
-    /// ベクトルの長さを計算 (static)
-    /// </summary>
-    /// <param name="_v">ベクトル</param>
-    /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector4& _v) { return std::sqrt(_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z] + _v.v[W] * _v.v[W]); }
-
-    /// <summary>
-    /// ベクトルの長さの二乗を計算
-    /// </summary>
-    /// <returns>長さの二乗</returns>
-    constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
-    /// <summary>
-    /// ベクトルの長さの二乗を計算 (static)
-    /// </summary>
-    /// <param name="_v">ベクトル</param>
-    /// <returns>長さの二乗</returns>
-    static constexpr valueType LengthSq(const Vector4& _v) { return (_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z] + _v.v[W] * _v.v[W]); }
-
-    /// <summary>
-    /// 内積を計算
-    /// </summary>
-    /// <param name="_another">対象ベクトル</param>
-    /// <returns>内積</returns>
-    constexpr valueType dot(const Vector4& _another) const { return (v[X] * _another.v[X]) + (v[Y] * _another.v[Y]) + (v[Z] * _another.v[Z]) + (v[W] * _another.v[W]); }
-    /// <summary>
-    /// 内積を計算 (static)
-    /// </summary>
-    /// <param name="_v">ベクトル1</param>
-    /// <param name="_another">ベクトル2</param>
-    /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector4& _v, const Vector4& _another) { return (_v.v[X] * _another.v[X]) + (_v.v[Y] * _another.v[Y]) + (_v.v[Z] * _another.v[Z]) + (_v.v[W] * _another.v[W]); }
-
-    /// <summary>
-    /// 正規化
-    /// </summary>
-    /// <returns>正規化後ベクトル</returns>
-    constexpr Vector4 normalize() const {
-        valueType len = length();
-        if (len == 0)
-            return *this;
-        return (*this / len);
-    }
-    /// <summary>
-    /// 正規化 (static)
-    /// </summary>
-    /// <param name="v">正規化前ベクトル</param>
-    /// <returns>正規化後ベクトル</returns>
-    static constexpr Vector4 Normalize(const Vector4& v) {
-        valueType len = v.length();
-        if (len == 0)
-            return v;
-        return (v / len);
-    }
 };
+
+template <int dim, typename valueType>
+inline Vector4<valueType> operator*(const valueType& scalar, const Vector4<valueType>& vec) {
+    Vector4<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * scalar;
+    }
+    return result;
+}
+
+template <int dim, typename valueType>
+inline Vector4<valueType> operator*(const Vector4<valueType>& vec, const Vector4<valueType>& another) {
+    Vector4<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * another[i];
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector4<valueType>* operator*=(Vector4<valueType>& vec, const Vector4<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        vec[i] *= another[i];
+    }
+    return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector4<valueType> operator/(const Vector4<valueType>& vec, const Vector4<valueType>& another) {
+    Vector4<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            result[i] = vec[i] / another[i];
+        } else {
+            result[i] = 0;
+        }
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector4<valueType>* operator/=(Vector4<valueType>& vec, const Vector4<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            vec[i] /= another[i];
+        } else {
+            vec[i] = 0;
+        }
+    }
+    return &vec;
+}
 
 //=========== using ===========//
 template <typename valueType>

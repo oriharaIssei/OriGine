@@ -5,7 +5,7 @@
 
 /// math
 #include <cmath>
-#include <mathEnv.h>
+#include <MathEnv.h>
 
 namespace OriGine {
 

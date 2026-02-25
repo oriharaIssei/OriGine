@@ -247,9 +247,7 @@ public:
     /// テンプレート引数で指定した型のコンポーネントをエンティティに追加する.
     /// </summary>
     template <IsComponent ComponentType>
-    bool AddComponent(EntityHandle _handle) {
-        return componentRepository_->AddComponent<ComponentType>(this, _handle);
-    }
+    bool AddComponent(EntityHandle _handle);
 
     /// <summary>
     /// エンティティから指定したコンポーネントを削除する.
@@ -313,5 +311,15 @@ inline ComponentType* Scene::GetComponent(ComponentHandle _handle) const {
         return nullptr;
     }
     return componentRepository_->GetComponent<ComponentType>(_handle);
+}
+
+template <IsComponent ComponentType>
+inline bool Scene::AddComponent(EntityHandle _handle) {
+    if (!_handle.IsValid()) {
+        LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
+        return false;
+    }
+    componentRepository_->AddComponent<ComponentType>(this, _handle);
+    return true;
 }
 } // namespace OriGine

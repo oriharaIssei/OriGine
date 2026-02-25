@@ -196,7 +196,7 @@ void Engine::BeginFrame() {
     deltaTimer_->Update();
     // デルタタイムが大きすぎる場合はキャップをかける（スパイク対策）
     if (deltaTimer_->GetDeltaTime() > Config::Time::kMaxDeltaTime) {
-        deltaTimer_->SetDeltaTimer(Config::Time::kMaxDeltaTime);
+        deltaTimer_->SetDeltaTime(Config::Time::kMaxDeltaTime);
     }
 
     window_->UpdateActivity();

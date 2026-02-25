@@ -50,7 +50,7 @@ void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
 
             // 衝突時に反射する
             // 反射ベクトルを計算
-            Vec3f reflectDir = Reflect(rigidbody->GetVelocity(), info.collVec.normalize());
+            Vec3f reflectDir = Reflect(rigidbody->GetVelocity(), static_cast<Vec3f>(info.collVec.normalize()));
             // 反射後の速度を設定
             if (rigidbody) {
                 rigidbody->SetVelocity(reflectDir);

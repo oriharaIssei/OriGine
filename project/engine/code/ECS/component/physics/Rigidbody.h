@@ -30,6 +30,7 @@ public:
 private:
     bool isActive_ = true;
 
+    Vec3f prePos_       = Vec3f(0.0f, 0.0f, 0.0f); // 前フレームの位置
     Vec3f acceleration_ = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f velocity_     = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f realVelocity_ = Vec3f(0.0f, 0.0f, 0.0f); // DeltaTimer をかけた実際の速度
@@ -45,6 +46,16 @@ private:
 public: // accsessor
     bool IsActive() const { return isActive_; }
     void SetIsActive(const bool _isActive) { isActive_ = _isActive; }
+
+    const Vec3f& GetPrePos() const { return prePos_; }
+    float GetPrePos(int32_t _index) const { return prePos_[_index]; }
+    void SetPrePos(const Vec3f& _prePos) { prePos_ = _prePos; }
+    void SetPrePos(int32_t _index, float _pos) {
+        if (_index < 0 || _index >= 3) {
+            throw std::out_of_range("Index must be between 0 and 2.");
+        }
+        prePos_[_index] = _pos;
+    }
 
     const Vec3f& GetAcceleration() const { return acceleration_; }
     float GetAcceleration(int32_t _index) const { return acceleration_[_index]; }

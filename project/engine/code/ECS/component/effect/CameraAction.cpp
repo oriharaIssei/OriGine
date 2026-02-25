@@ -5,7 +5,7 @@
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 /// math
-#include <math/mathEnv.h>
+#include <math/MathEnv.h>
 #endif // DEBUG
 
 using namespace OriGine;

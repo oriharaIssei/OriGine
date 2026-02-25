@@ -12,7 +12,9 @@ namespace OriGine {
 /// </summary>
 /// <typeparam name="valueType"></typeparam>
 template <typename valueType = float>
-struct Vector3 final : Vector<3, valueType> {
+struct Vector3 final
+    : Vector<3, valueType> {
+    using Vector<3, valueType>::dim;
     using Vector<3, valueType>::v;
     using Vector<3, valueType>::operator[];
     using Vector<3, valueType>::operator+;
@@ -26,6 +28,14 @@ struct Vector3 final : Vector<3, valueType> {
     using Vector<3, valueType>::operator=;
     using Vector<3, valueType>::operator==;
     using Vector<3, valueType>::operator!=;
+    using Vector<3, valueType>::length;
+    using Vector<3, valueType>::Length;
+    using Vector<3, valueType>::lengthSq;
+    using Vector<3, valueType>::LengthSq;
+    using Vector<3, valueType>::dot;
+    using Vector<3, valueType>::Dot;
+    using Vector<3, valueType>::normalize;
+    using Vector<3, valueType>::Normalize;
 
     // コンストラクタ
     constexpr Vector3() : Vector<3, valueType>({0, 0, 0}) {}
@@ -41,56 +51,6 @@ struct Vector3 final : Vector<3, valueType> {
         : Vector<3, valueType>({*_x, *_y, *_z}) {}
     constexpr Vector3(const valueType* _ptr)
         : Vector<3, valueType>({_ptr[0], _ptr[1], _ptr[2]}) {}
-
-    /// <summary>
-    /// ベクトルの長さを計算
-    /// </summary>
-    /// <returns>ベクトルの長さ</returns>
-    constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
-    /// <summary>
-    /// ベクトルの長さを計算 (static)
-    /// </summary>
-    /// <param name="v">ベクトル</param>
-    /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector3& _v) { return std::sqrt(_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]); }
-    /// <summary>
-    /// ベクトルの長さの二乗を計算
-    /// </summary>
-    constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
-    /// <summary>
-    /// ベクトルの長さの二乗を計算 (static)
-    /// </summary>
-    /// <param name="v">ベクトル</param>
-    /// <returns>長さの二乗</returns>
-    static constexpr valueType LengthSq(const Vector3& _v) { return (_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]); }
-
-    /// <summary>
-    /// 内積を計算
-    /// </summary>
-    constexpr valueType dot() const { return v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]; }
-    /// <summary>
-    /// 指定のベクトルとの内積を計算
-    /// </summary>
-    /// <param name="vec">対象ベクトル</param>
-    /// <returns>内積</returns>
-    constexpr valueType dot(const Vector3<valueType>& _vec) const {
-        return v[X] * _vec.v[X] + v[Y] * _vec.v[Y] + v[Z] * _vec.v[Z];
-    }
-    /// <summary>
-    /// ベクトルの内積を計算 (static)
-    /// </summary>
-    /// <param name="v">対象ベクトル</param>
-    /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector3& _v) { return _v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]; }
-    /// <summary>
-    /// 2つのベクトルの内積を計算 (static)
-    /// </summary>
-    /// <param name="v">ベクトル1</param>
-    /// <param name="vec">ベクトル2</param>
-    /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector3& _v, const Vector3& _vec) {
-        return _v.dot(_vec);
-    }
 
     /// <summary>
     /// 外積を計算
@@ -112,28 +72,57 @@ struct Vector3 final : Vector<3, valueType> {
     static constexpr Vector3 Cross(const Vector3& _v, const Vector3& _another) {
         return _v.cross(_another);
     }
-
-    /// <summary>
-    /// 正規化
-    /// </summary>
-    constexpr Vector3 normalize() const {
-        valueType len = length();
-        if (len == 0)
-            return *this;
-        return (*this / len);
-    }
-    /// <summary>
-    /// 正規化 (static)
-    /// </summary>
-    /// <param name="v">正規化前ベクトル</param>
-    /// <returns>正規化後ベクトル</returns>
-    static constexpr Vector3 Normalize(const Vector3& _v) {
-        valueType len = _v.length();
-        if (len == 0)
-            return _v;
-        return (_v / len);
-    }
 };
+
+
+template <int dim, typename valueType>
+inline Vector3<valueType> operator*(const valueType& scalar, const Vector3<valueType>& vec) {
+    Vector3<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * scalar;
+    }
+    return result;
+}
+
+template <int dim, typename valueType>
+inline Vector3<valueType> operator*(const Vector3<valueType>& vec, const Vector3<valueType>& another) {
+    Vector3<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * another[i];
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector3<valueType>* operator*=(Vector3<valueType>& vec, const Vector3<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        vec[i] *= another[i];
+    }
+    return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector3<valueType> operator/(const Vector3<valueType>& vec, const Vector3<valueType>& another) {
+    Vector3<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            result[i] = vec[i] / another[i];
+        } else {
+            result[i] = 0;
+        }
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector3<valueType>* operator/=(Vector3<valueType>& vec, const Vector3<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            vec[i] /= another[i];
+        } else {
+            vec[i] = 0;
+        }
+    }
+    return &vec;
+}
 
 /// <summary>
 /// 反射ベクトルを計算

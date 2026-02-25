@@ -212,7 +212,7 @@ static void CreateSkinCluster(
 static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryPath, const ::std::string& _filename) {
     Assimp::Importer importer;
     ::std::string filePath = _directoryPath + "/" + _filename;
-    const aiScene* scene   = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+    const aiScene* scene   = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_GenSmoothNormals);
     assert(scene->HasMeshes());
 
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
@@ -230,7 +230,10 @@ static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryP
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
         auto& mesh = _data->meshGroup[loadedMesh->mName.C_Str()] = TextureColorMesh();
-        mesh.SetName(loadedMesh->mName.C_Str());
+        std::string meshName                                     = loadedMesh->mName.length > 0
+                                                                       ? loadedMesh->mName.C_Str()
+                                                                       : std::to_string(meshIndex);
+        mesh.SetName(meshName);
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {

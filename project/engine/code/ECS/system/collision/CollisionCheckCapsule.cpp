@@ -2,7 +2,7 @@
 #include "CollisionCheckUtility.h"
 
 /// math
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 #include "math/Vector3.h"
 
 namespace OriGine {

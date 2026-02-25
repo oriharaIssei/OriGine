@@ -152,7 +152,7 @@ public:
     /// <summary> 直前フレームからの経過時間（秒）を取得する. </summary>
     float GetDeltaTime() const { return deltaTimer_->GetDeltaTime(); }
     /// <summary> デルタ値を強制的に更新する. </summary>
-    void SetDeltaTime(float _dt) { deltaTimer_->SetDeltaTimer(_dt); }
+    void SetDeltaTime(float _dt) { deltaTimer_->SetDeltaTime(_dt); }
 
     /// <summary> ライト管理オブジェクトを取得する. </summary>
     LightManager* GetLightManager() const { return lightManager_; }

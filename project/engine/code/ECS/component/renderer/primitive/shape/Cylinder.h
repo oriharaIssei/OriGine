@@ -3,7 +3,7 @@
 #include "component/renderer/primitive/base/IPrimitive.h"
 
 /// math
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 #include "math/MyEasing.h"
 #include <cstdint>
 

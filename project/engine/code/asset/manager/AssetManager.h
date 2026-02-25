@@ -199,7 +199,6 @@ inline size_t AssetManager<T>::LoadAsset(const std::string& _assetPath) {
         throw std::runtime_error("Unsupported asset extension: " + extension);
     }
 
-
     // 拡張子に対応するローダーの取得
     IAssetLoader<T>* loader = nullptr;
     auto it                 = loaderByExtension_.find(extension);
@@ -208,7 +207,6 @@ inline size_t AssetManager<T>::LoadAsset(const std::string& _assetPath) {
     } else {
         loader = defaultLoader_.get();
     }
-
 
     AssetType asset = loader->LoadAsset(mappedPath.string());
     asset.path      = _assetPath;
@@ -228,6 +226,9 @@ inline size_t AssetManager<T>::LoadAsset(const std::string& _assetPath) {
         index = assets_.size();
         assets_.push_back(std::move(slot));
     }
+
+    // パスとインデックスのマッピングを保存
+    assetPathToIndexMap_[_assetPath] = index;
 
     return index;
 }

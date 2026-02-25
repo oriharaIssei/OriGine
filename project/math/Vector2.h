@@ -15,6 +15,7 @@ namespace OriGine {
 template <typename valueType = float>
 struct Vector2 final
     : Vector<2, valueType> {
+    using Vector<2, valueType>::dim;
     using Vector<2, valueType>::v;
     using Vector<2, valueType>::operator[];
     using Vector<2, valueType>::operator+;
@@ -28,6 +29,14 @@ struct Vector2 final
     using Vector<2, valueType>::operator=;
     using Vector<2, valueType>::operator==;
     using Vector<2, valueType>::operator!=;
+    using Vector<2, valueType>::length;
+    using Vector<2, valueType>::Length;
+    using Vector<2, valueType>::lengthSq;
+    using Vector<2, valueType>::LengthSq;
+    using Vector<2, valueType>::dot;
+    using Vector<2, valueType>::Dot;
+    using Vector<2, valueType>::normalize;
+    using Vector<2, valueType>::Normalize;
 
     // コンストラクタ
     constexpr Vector2() : Vector<2, valueType>({valueType(0), valueType(0)}) {}
@@ -37,40 +46,6 @@ struct Vector2 final
         : Vector<2, valueType>({*_xPtr, *_yPtr}) {}
     constexpr Vector2(const valueType* _ptr)
         : Vector<2, valueType>({_ptr[0], _ptr[1]}) {}
-
-    /// <summary>
-    /// ベクトルの長さを計算
-    /// </summary>
-    /// <returns>ベクトルの長さ</returns>
-    constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y]); }
-    /// <summary>
-    /// ベクトルの長さを計算 (static)
-    /// </summary>
-    /// <param name="_v">ベクトル</param>
-    /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector2& _v) { return std::sqrt(_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y]); }
-
-    /// <summary>
-    /// ベクトルの長さの2乗を計算
-    /// </summary>
-    constexpr valueType lengthSq() const { return (this->v[X] * this->v[X] + this->v[Y] * this->v[Y]); }
-    /// <summary>
-    /// ベクトルの長さの2乗を計算 (static)
-    /// </summary>
-    /// <param name="_v1">ベクトル</param>
-    /// <returns>長さの2乗</returns>
-    static constexpr valueType LengthSq(const Vector2& _v1) { return (_v1.v[X] * _v1.v[X] + _v1.v[Y] * _v1.v[Y]); }
-
-    /// <summary>
-    /// 内積を計算
-    /// </summary>
-    constexpr valueType dot() const { return v[X] * v[X] + v[Y] * v[Y]; }
-    /// <summary>
-    /// 内積を計算 (static)
-    /// </summary>
-    /// <param name="_v">ベクトル</param>
-    /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector2& _v) { return _v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y]; }
 
     /// <summary>
     /// 外積を計算 (2Dの外積はスカラー)
@@ -83,32 +58,6 @@ struct Vector2 final
     /// <param name="_another">ベクトル2</param>
     /// <returns>外積(行列式)</returns>
     static constexpr valueType Cross(const Vector2& _v, const Vector2& _another) { return (_v.v[X] * _another.v[Y]) - (_v.v[Y] * _another.v[X]); }
-
-    /// <summary>
-    /// 正規化
-    /// </summary>
-    /// <returns>正規化済みベクトル</returns>
-    constexpr Vector2 normalize() const {
-        valueType length = this->length();
-        if (length == 0) {
-            return *this;
-        }
-        Vector2 result = *this;
-        return (result / length);
-    }
-    /// <summary>
-    /// 正規化(static)
-    /// </summary>
-    /// <param name="_v">正規化 前</param>
-    /// <returns>正規化 後</returns>
-    static constexpr Vector2 Normalize(const Vector2& _v) {
-        valueType length = _v.length();
-        if (length == 0) {
-            return _v;
-        }
-        Vector2 result = _v;
-        return (result / length);
-    }
 
 #ifdef _DEBUG
     constexpr Vector2& operator=(const ImVec2& _another) {
@@ -128,6 +77,55 @@ struct Vector2 final
     }
 #endif // DEBUG
 };
+
+template <int dim, typename valueType>
+inline Vector2<valueType> operator*(const valueType& scalar, const Vector2<valueType>& vec) {
+    Vector2<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * scalar;
+    }
+    return result;
+}
+
+template <int dim, typename valueType>
+inline Vector2<valueType> operator*(const Vector2<valueType>& vec, const Vector2<valueType>& another) {
+    Vector2<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * another[i];
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector2<valueType>* operator*=(Vector2<valueType>& vec, const Vector2<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        vec[i] *= another[i];
+    }
+    return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector2<valueType> operator/(const Vector2<valueType>& vec, const Vector2<valueType>& another) {
+    Vector2<valueType> result;
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            result[i] = vec[i] / another[i];
+        } else {
+            result[i] = 0;
+        }
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector2<valueType>* operator/=(Vector2<valueType>& vec, const Vector2<valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            vec[i] /= another[i];
+        } else {
+            vec[i] = 0;
+        }
+    }
+    return &vec;
+}
 
 /// <summary>
 /// 反射ベクトルを計算

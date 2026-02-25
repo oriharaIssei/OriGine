@@ -1,7 +1,7 @@
 #pragma once
 
 /// my math
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 #include "math/Quaternion.h"
 
 /// math library

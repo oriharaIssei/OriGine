@@ -126,8 +126,8 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "component/effect/CameraAction.h"
 
 #include "component/collision/collider/AABBCollider.h"
-#include "component/collision/collider/CapsuleCollider.h"
 #include "component/collision/collider/base/Collider.h"
+#include "component/collision/collider/CapsuleCollider.h"
 #include "component/collision/collider/OBBCollider.h"
 #include "component/collision/collider/RayCollider.h"
 #include "component/collision/collider/SegmentCollider.h"
@@ -142,6 +142,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/GradationComponent.h"
+#include "component/effect/post/GrayscaleComponent.h"
 #include "component/effect/post/OutlineComponent.h"
 #include "component/effect/post/RadialBlurParam.h"
 #include "component/effect/post/RandomEffectParam.h"

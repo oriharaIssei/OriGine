@@ -4,7 +4,7 @@
 #include "EngineConfig.h"
 
 /// math
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 #include <cmath>
 
 using namespace OriGine;

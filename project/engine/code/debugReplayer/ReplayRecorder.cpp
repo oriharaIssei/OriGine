@@ -23,6 +23,13 @@ void ReplayRecorder::Initialize(const std::string& _startSceneName) {
     frames_.clear();
 }
 
+void OriGine::ReplayRecorder::Finalize() {
+    // フレームデータのクリア
+    frames_.clear();
+    // ヘッダ情報のリセット
+    header_ = {};
+}
+
 /// <summary> 各種入力デバイスから現在の状態を取得し、リプレイ用フレームデータとして保存する. </summary>
 void ReplayRecorder::RecordFrame(float _deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     ReplayFrameData frameData = {};

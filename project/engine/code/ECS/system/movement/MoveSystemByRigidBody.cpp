@@ -91,6 +91,7 @@ void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
     rigidbody->SetVelocity(velocity);
 
     /// --------------------------------------- 位置の更新 --------------------------------------- ///
+    rigidbody->SetPrePos(transform->translate);
     Vec3f realVelo = velocity * deltaTime;
     transform->translate += realVelo;
 

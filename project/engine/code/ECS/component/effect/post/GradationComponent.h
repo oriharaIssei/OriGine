@@ -14,7 +14,7 @@
 #include "component/material/Material.h"
 
 /// math
-#include "mathEnv.h"
+#include "MathEnv.h"
 
 namespace OriGine {
 

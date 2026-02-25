@@ -25,7 +25,9 @@ GrayscaleEffect::~GrayscaleEffect() {}
 /// 初期化
 /// </summary>
 void GrayscaleEffect::Initialize() {
+    constexpr int32_t kDefGrayscaleCompCount = 10; // グレースケールエフェクトに使用するコンポーネントの想定最大数 (必要に応じて調整する)
     BasePostRenderingSystem::Initialize();
+    grayscaleComps_.reserve(kDefGrayscaleCompCount);
 }
 
 /// <summary>
@@ -69,7 +71,12 @@ void GrayscaleEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
-    D3D12_ROOT_PARAMETER rootParameter        = {};
+    D3D12_ROOT_PARAMETER rootParameter[2] = {};
+
+    rootParameter[0].ParameterType        = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[0].ShaderVisibility     = D3D12_SHADER_VISIBILITY_PIXEL;
+    shaderInfo.pushBackRootParameter(rootParameter[0]);
+
     D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
     descriptorRange[0].BaseShaderRegister     = 0;
     descriptorRange[0].NumDescriptors         = 1;
@@ -79,9 +86,9 @@ void GrayscaleEffect::CreatePSO() {
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     // DescriptorTable を使う
-    rootParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex      = shaderInfo.pushBackRootParameter(rootParameter);
+    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[1]);
     shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
     ///================================================
@@ -118,7 +125,7 @@ void GrayscaleEffect::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->GetBackBufferSrvHandle());
 }
 
 /// <summary>
@@ -127,11 +134,17 @@ void GrayscaleEffect::RenderStart() {
 void GrayscaleEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
-    RenderStart();
+    for (auto* grayscaleComp : grayscaleComps_) {
+        RenderStart();
 
-    commandList->DrawInstanced(6, 1, 0, 0);
+        grayscaleComp->GetConstantBuffer().SetForRootParameter(commandList.Get(), 0);
 
-    RenderEnd();
+        commandList->DrawInstanced(6, 1, 0, 0);
+
+        RenderEnd();
+    }
+
+    grayscaleComps_.clear();
 }
 
 /// <summary>
@@ -139,4 +152,18 @@ void GrayscaleEffect::Rendering() {
 /// </summary>
 void GrayscaleEffect::RenderEnd() {
     renderTarget_->PostDraw();
+}
+
+void OriGine::GrayscaleEffect::DispatchComponent(EntityHandle _owner) {
+    auto& comps = GetComponents<GrayscaleComponent>(_owner);
+    if (comps.empty()) {
+        return;
+    }
+
+    for (auto& comp : comps) {
+        if (comp.IsEnabled()) {
+            comp.GetConstantBuffer().ConvertToBuffer();
+            grayscaleComps_.push_back(&comp);
+        }
+    }
 }

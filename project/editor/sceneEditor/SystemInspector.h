@@ -86,9 +86,9 @@ public:
         CATEGORY_MOVEMENT        = 0b1 << 4,
         CATEGORY_COLLISION       = 0b1 << 5,
         CATEGORY_EFFECT          = 0b1 << 6,
-        CATEGORY_RENER           = 0b1 << 7,
+        CATEGORY_RENDER          = 0b1 << 7,
         CATEGORY_POSTRENDER      = 0b1 << 8,
-        CATEGORY_ALL             = static_cast<int32_t>(CATEGORY_INITIALIZE) | static_cast<int32_t>(CATEGORY_INPUT) | static_cast<int32_t>(CATEGORY_STATETRANSITION) | static_cast<int32_t>(CATEGORY_MOVEMENT) | static_cast<int32_t>(CATEGORY_COLLISION) | static_cast<int32_t>(CATEGORY_EFFECT) | static_cast<int32_t>(CATEGORY_RENER) | static_cast<int32_t>(CATEGORY_POSTRENDER),
+        CATEGORY_ALL             = static_cast<int32_t>(CATEGORY_INITIALIZE) | static_cast<int32_t>(CATEGORY_INPUT) | static_cast<int32_t>(CATEGORY_STATETRANSITION) | static_cast<int32_t>(CATEGORY_MOVEMENT) | static_cast<int32_t>(CATEGORY_COLLISION) | static_cast<int32_t>(CATEGORY_EFFECT) | static_cast<int32_t>(CATEGORY_RENDER) | static_cast<int32_t>(CATEGORY_POSTRENDER),
         SEARCH                   = 0b1 << 9, // 検索フィルター
     };
     /// <summary>

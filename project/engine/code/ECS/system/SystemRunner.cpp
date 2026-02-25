@@ -158,7 +158,8 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
         return;
     }
 
-    for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
+    for (size_t i = 0; i < activeSystems_[static_cast<size_t>(_category)].size(); ++i) {
+        auto& system = activeSystems_[static_cast<size_t>(_category)][i];
         if (system) {
             system->Run();
         }

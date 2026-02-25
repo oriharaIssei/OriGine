@@ -24,7 +24,7 @@ enum ColorChannel {
     G,
     B,
     A,
-    MAX
+    MAX = 4
 };
 
 template <typename valueType>
@@ -35,12 +35,13 @@ template <typename valueType>
 struct Vector4;
 
 /// <summary>
-/// ベクトル構造体(直接の使用は非推奨 Vector2などWrapperを使用すること)
+/// ベクトル構造体
 /// </summary>
 /// <typeparam name="valueType">数値クラス</typeparam>
 /// <typeparam name="dimension">次元</typeparam>
 template <int dimension, typename valueType>
 struct Vector {
+
     // デフォルトコンストラクタ
     constexpr Vector() : v{} {} // ゼロ初期化
 
@@ -48,6 +49,13 @@ struct Vector {
     constexpr Vector(const Vector& other) {
         for (int i = 0; i < dimension; i++) {
             v[i] = other.v[i];
+        }
+    }
+
+    // 配列からのコンストラクタ
+    constexpr Vector(const valueType* _ptr) {
+        for (int i = 0; i < dimension; i++) {
+            v[i] = _ptr[i];
         }
     }
 
@@ -79,11 +87,11 @@ public:
         }
         return result;
     }
-    Vector* operator+=(const Vector& other) {
+    Vector& operator+=(const Vector& other) {
         for (int i = 0; i < dim; i++) {
             v[i] += other.v[i];
         }
-        return this;
+        return *this;
     }
     // minus
     constexpr Vector operator-(const Vector& other) const {
@@ -101,11 +109,11 @@ public:
         }
         return result;
     }
-    Vector* operator-=(const Vector& other) {
+    Vector& operator-=(const Vector& other) {
         for (int i = 0; i < dim; i++) {
             v[i] -= other.v[i];
         }
-        return this;
+        return *this;
     }
     // multiply
     constexpr Vector operator*(const valueType& scalar) const {
@@ -115,17 +123,17 @@ public:
         }
         return result;
     }
-    Vector* operator*=(const Vector& other) {
+    Vector& operator*=(const Vector& other) {
         for (int i = 0; i < dim; i++) {
             v[i] *= other.v[i];
         }
-        return this;
+        return *this;
     }
-    Vector* operator*=(const valueType& scalar) {
+    Vector& operator*=(const valueType& scalar) {
         for (int i = 0; i < dim; i++) {
             v[i] *= scalar;
         }
-        return this;
+        return *this;
     }
     // divide
     constexpr Vector operator/(const valueType& scalar) const {
@@ -139,7 +147,7 @@ public:
         }
         return result;
     }
-    Vector* operator/=(const valueType& scalar) {
+    Vector& operator/=(const valueType& scalar) {
         if (scalar != 0) {
             for (int i = 0; i < dim; i++)
                 v[i] /= scalar;
@@ -147,9 +155,9 @@ public:
             for (int i = 0; i < dim; i++)
                 v[i] = 0;
         }
-        return this;
+        return *this;
     }
-    Vector* operator/=(const Vector& other) {
+    Vector& operator/=(const Vector& other) {
         for (int i = 0; i < dim; i++) {
             if (other.v[i] != 0) {
                 v[i] /= other.v[i];
@@ -157,7 +165,7 @@ public:
                 v[i] = 0;
             }
         }
-        return this;
+        return *this;
     }
 
     // equal
@@ -191,6 +199,64 @@ public:
         return *this;
     }
 
+    // 数学系
+
+    /// <summary>
+    /// ベクトルの長さを計算
+    /// </summary>
+    /// <returns>ベクトルの長さ</returns>
+    constexpr valueType length() const;
+    /// <summary>
+    /// ベクトルの長さを計算 (static)
+    /// </summary>
+    /// <param name="_v">ベクトル</param>
+    /// <returns>ベクトルの長さ</returns>
+    static constexpr valueType Length(const Vector& _v);
+
+    /// <summary>
+    /// ベクトルの長さの2乗を計算
+    /// </summary>
+    constexpr valueType lengthSq() const;
+    /// <summary>
+    /// ベクトルの長さの2乗を計算 (static)
+    /// </summary>
+    /// <param name="_v1">ベクトル</param>
+    /// <returns>長さの2乗</returns>
+    static constexpr valueType LengthSq(const Vector& _v1);
+
+    /// <summary>
+    /// 内積を計算
+    /// </summary>
+    constexpr valueType dot() const;
+    constexpr valueType dot(const Vector& _v) const;
+
+    /// <summary>
+    /// 内積を計算 (static)
+    /// </summary>
+    /// <param name="_v">ベクトル</param>
+    /// <returns>内積</returns>
+    static constexpr valueType Dot(const Vector& _v);
+    /// <summary>
+    /// 内積を計算 (static)
+    /// </summary>
+    /// <param name="_v"></param>
+    /// <param name="_another"></param>
+    /// <returns></returns>
+    static constexpr valueType Dot(const Vector& _v, const Vector& _another);
+
+    /// <summary>
+    /// 正規化
+    /// </summary>
+    /// <returns>正規化済みベクトル</returns>
+    constexpr Vector normalize() const;
+    /// <summary>
+    /// 正規化(static)
+    /// </summary>
+    /// <param name="_v">正規化 前</param>
+    /// <returns>正規化 後</returns>
+    static constexpr Vector Normalize(const Vector& _v);
+
+    // 型変換
     constexpr operator Vector2<valueType>() const {
         static_assert(dim == 2, "Conversion only available for 2D vectors.");
         return Vector2<valueType>(v[X], v[Y]);
@@ -263,6 +329,14 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
     return start + (end - start) * t;
 }
 
+/// <summary>
+/// 要素ごとの最小値を計算
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
+/// <typeparam name="dim"></typeparam>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <returns></returns>
 template <int dim, typename valueType>
 inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
     Vector<dim, valueType> result;
@@ -271,6 +345,14 @@ inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const 
     }
     return result;
 }
+/// <summary>
+/// 要素ごとの最大値を計算
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
+/// <typeparam name="dim"></typeparam>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <returns></returns>
 template <int dim, typename valueType>
 inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
     Vector<dim, valueType> result;
@@ -311,6 +393,96 @@ inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
     for (int i = 0; i < dim; ++i) {
         v[i] = j.at(i).get<valueType>();
     }
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::length() const {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += v[i] * v[i];
+    }
+    return std::sqrt(sum);
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::Length(const Vector& _v) {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += _v.v[i] * _v.v[i];
+    }
+    return std::sqrt(sum);
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::lengthSq() const {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += v[i] * v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::LengthSq(const Vector& _v1) {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += _v1.v[i] * _v1.v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::dot() const {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += v[i] * v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::dot(const Vector& _v) const {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += v[i] * _v.v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& _v) {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += _v.v[i] * _v.v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& _v, const Vector& _another) {
+    valueType sum = 0;
+    for (int i = 0; i < dim; i++) {
+        sum += _v.v[i] * _another.v[i];
+    }
+    return sum;
+}
+
+template <int dimension, typename valueType>
+inline constexpr Vector<dimension, valueType> Vector<dimension, valueType>::normalize() const {
+    valueType len = length();
+    if (len == 0) {
+        return *this;
+    }
+    return (*this / len);
+}
+
+template <int dimension, typename valueType>
+inline constexpr Vector<dimension, valueType> Vector<dimension, valueType>::Normalize(const Vector<dimension, valueType>& _v) {
+    valueType len = _v.length();
+    if (len == 0) {
+        return _v;
+    }
+    return (_v / len);
 }
 
 } // namespace OriGine

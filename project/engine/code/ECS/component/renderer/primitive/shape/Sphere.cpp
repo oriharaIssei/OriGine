@@ -1,7 +1,7 @@
 #include "Sphere.h"
 
 /// math
-#include "math/mathEnv.h"
+#include "math/MathEnv.h"
 
 namespace OriGine {
 namespace Primitive {
