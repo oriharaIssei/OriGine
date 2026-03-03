@@ -42,21 +42,19 @@ std::string TimeToString();
 /// <summary>
 /// 文字列を区切り文字で分割する
 /// </summary>
-inline std::vector<std::string> Split(const std::string& _str, char _delimiter) {
-    std::vector<std::string> result;
-    std::stringstream ss(_str);
-    std::string item;
-    while (std::getline(ss, item, _delimiter)) {
-        result.push_back(item);
-    }
-    return result;
-}
+/// <param name="_str">分割する文字列</param>
+/// <param name="_delimiter">区切り文字</param>
+std::vector<std::string> Split(const std::string& _str, char _delimiter = ' ');
 
 /// <summary>
 /// 文字列の前後の空白を削除する
 /// </summary>
-inline std::string Trim(const std::string& _str) {
-    auto start = std::find_if_not(_str.begin(), _str.end(), [](unsigned char c) { return std::isspace(c); });
-    auto end   = std::find_if_not(_str.rbegin(), _str.rend(), [](unsigned char c) { return std::isspace(c); }).base();
-    return (start < end) ? std::string(start, end) : std::string();
-}
+/// <param name="_str">トリムする文字列</param>
+std::string Trim(const std::string& _str);
+
+/// <summary>
+/// 最初の改行文字以降を削除する (\r\n 両対応)
+/// </summary>
+/// <param name="_str">処理する文字列</param>
+/// <param name="_includeNewline">true : 改行文字を結果に含める / false : 改行文字も削除する</param>
+std::string TrimAfterNewline(const std::string& _str, bool _includeNewline = false);

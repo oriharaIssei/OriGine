@@ -54,6 +54,22 @@ public:
         return worldScale;
     }
 
+    /// <summary>
+    /// 回転から求めた前方ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f FrontVector() const;
+    /// <summary>
+    /// 回転から求めた右方向ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f RightVector() const;
+    /// <summary>
+    /// 回転から求めた上方向ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f UpVector() const;
+
 public:
     struct ConstantBuffer {
         Matrix4x4 world;

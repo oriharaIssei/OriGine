@@ -5,7 +5,7 @@
 #include "scene/Scene.h"
 /// ECS
 // component
-#include "component/SubScene.h"
+#include "component/scene/SubScene.h"
 
 using namespace OriGine;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IComponent.h"
+#include "component/IComponent.h"
 
 /// stl
 #include <memory>

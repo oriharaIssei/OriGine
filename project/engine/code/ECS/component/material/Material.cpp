@@ -149,6 +149,8 @@ void OriGine::to_json(nlohmann::json& _j, const Material& _comp) {
     _j["enableLighting"] = static_cast<bool>(_comp.enableLighting_);
     _j["shininess"]      = _comp.shininess_;
     to_json<3, float>(_j["specularColor"], _comp.specularColor_);
+    _j["environmentCoefficient"] = _comp.environmentCoefficient_;
+
 }
 
 void OriGine::from_json(const nlohmann::json& _j, Material& _comp) {
@@ -159,4 +161,7 @@ void OriGine::from_json(const nlohmann::json& _j, Material& _comp) {
     _j.at("enableLighting").get_to(_comp.enableLighting_);
     _j.at("shininess").get_to(_comp.shininess_);
     _j.at("specularColor").get_to(_comp.specularColor_);
+    if (_j.contains("environmentCoefficient")) {
+        _j.at("environmentCoefficient").get_to(_comp.environmentCoefficient_);
+    }
 }

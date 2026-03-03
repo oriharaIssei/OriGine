@@ -7,8 +7,8 @@
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
-#include "camera/CameraManager.h"
 #include "asset/AssetSystem.h"
+#include "camera/CameraManager.h"
 
 // ECS
 // component
@@ -19,6 +19,11 @@
 #include "component/renderer/SkyBoxRenderer.h"
 
 using namespace OriGine;
+
+namespace {
+static const std::string kVSName = "Object3dTextureColor.VS";
+static const std::string kPSName = "Object3dTextureColorWithRaytracing.PS";
+}
 
 /// <summary>
 /// コンストラクタ
@@ -111,17 +116,20 @@ void SkinningMeshRenderSystem::Finalize() {
 /// パイプラインステートオブジェクト（PSO）を作成する
 /// </summary>
 void SkinningMeshRenderSystem::CreatePSO() {
+    const std::string kPsoKey = "TextureMeshWithRaytracing_";
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj(kPsoKey + kBlendModeStr[0])) {
+        bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {
-            if (psoByBlendMode_[i]) {
+            if (!psoByBlendMode_[i]) {
+                isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj(kPsoKey + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -134,25 +142,30 @@ void SkinningMeshRenderSystem::CreatePSO() {
         lightCountBufferIndex_         = 6;
         textureBufferIndex_            = 7;
         environmentTextureBufferIndex_ = 8;
+        raytracingSceneBufferIndex_    = 9;
 
-        return;
+        // すべて登録されていれば return
+        if (isAllRegistered) {
+            return;
+        }
     }
 
     ///=================================================
     /// shader読み込み
     ///=================================================
-    shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
+
+    shaderManager->LoadShader(kVSName);
+    shaderManager->LoadShader(kPSName, kShaderDirectory, L"ps_6_5");
 
     ///=================================================
     /// shader情報の設定
     ///=================================================
     ShaderInfo texShaderInfo{};
-    texShaderInfo.vsKey = "Object3dTexture.VS";
-    texShaderInfo.psKey = "Object3dTexture.PS";
+    texShaderInfo.vsKey = kVSName;
+    texShaderInfo.psKey = kPSName;
 
 #pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[9]{};
+    D3D12_ROOT_PARAMETER rootParameter[10]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -202,6 +215,13 @@ void SkinningMeshRenderSystem::CreatePSO() {
     rootParameter[8].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     environmentTextureBufferIndex_    = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[8]);
+
+    // raytracingScene ... 9
+    rootParameter[9].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    rootParameter[9].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[9].Descriptor.ShaderRegister = 5; // t5
+    rootParameter[9].Descriptor.RegisterSpace  = 0;
+    raytracingSceneBufferIndex_                = static_cast<int32_t>(texShaderInfo.pushBackRootParameter(rootParameter[9]));
 
     D3D12_DESCRIPTOR_RANGE textureRange[1] = {};
     textureRange[0].BaseShaderRegister     = 0;
@@ -282,6 +302,12 @@ void SkinningMeshRenderSystem::CreatePSO() {
     inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
     inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
     texShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "COLOR"; /*Semantics*/
+    inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    texShaderInfo.pushBackInputElementDesc(inputElementDesc);
 #pragma endregion
 
     ///=================================================
@@ -293,7 +319,7 @@ void SkinningMeshRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[i]       = shaderManager->CreatePso("TextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[i]       = shaderManager->CreatePso(kPsoKey + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 

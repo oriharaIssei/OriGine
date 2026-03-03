@@ -76,7 +76,7 @@ public:
     const Transform& GetTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;
     }
-    Transform& GetTransform(int32_t _meshIndex = 0) {
+    Transform& GetTransformRef(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex].openData_;
     }
 

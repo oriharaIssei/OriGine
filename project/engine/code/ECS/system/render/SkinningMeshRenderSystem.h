@@ -122,6 +122,7 @@ private:
     int32_t lightCountBufferIndex_         = 0; // ライト数バッファのインデックス
     int32_t textureBufferIndex_            = 0; // テクスチャバッファのインデックス
     int32_t environmentTextureBufferIndex_ = 0; // 環境マップテクスチャのインデックス
+    int32_t raytracingSceneBufferIndex_    = 0; // RaytracingSceneのインデックス
 };
 
 } // namespace OriGine

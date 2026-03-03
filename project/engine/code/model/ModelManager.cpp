@@ -238,7 +238,6 @@ static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryP
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
             aiFace& face = loadedMesh->mFaces[faceIndex];
-            assert(face.mNumIndices == 3); // 三角形面のみを扱う
 
             for (uint32_t i = 0; i < 3; ++i) {
                 uint32_t vertexIndex = face.mIndices[i];

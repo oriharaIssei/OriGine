@@ -351,3 +351,4 @@ project/externals/assetsCooker/Cache/cache.bin
 *.slnx
 *.vcxproj
 *.filters
+/project/externals/assetCooker/Cache

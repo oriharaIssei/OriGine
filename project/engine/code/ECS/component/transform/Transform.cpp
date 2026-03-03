@@ -51,3 +51,15 @@ void Transform::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused
 
 #endif // _DEBUG
 }
+
+Vec3f OriGine::Transform::FrontVector() const {
+    return rotate.RotateVector(axisZ);
+}
+
+Vec3f OriGine::Transform::RightVector() const {
+    return rotate.RotateVector(axisX);
+}
+
+Vec3f OriGine::Transform::UpVector() const {
+    return rotate.RotateVector(axisY);
+}

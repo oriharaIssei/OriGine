@@ -96,6 +96,20 @@ const ::std::array<BYTE, KEY_COUNT>& OriGine::KeyboardInput::GetKeyStates() cons
     return current ? current->keys : emptyKeys;
 }
 
+bool OriGine::KeyboardInput::IsPressAnyKey() const {
+    const auto* current = GetState(0);
+    if (!current) {
+        return false;
+    }
+    // どれか1つでもキーが押されていれば true
+    for (const auto& keyState : current->keys) {
+        if ((keyState & 0x80) != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool KeyboardInput::IsPress(uint32_t _key) const {
     if (_key >= KEY_COUNT) {
         return false;

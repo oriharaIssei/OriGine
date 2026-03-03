@@ -1,13 +1,13 @@
 #include "RegisterWindowResizeEvent.h"
 
 /// engine
-#include "engine.h"
+#include "Engine.h"
 // directX12
 #include "directX12/RenderTexture.h"
 
 /// component
 #include "component/renderer/Sprite.h"
-#include "component/SubScene.h"
+#include "component/scene/SubScene.h"
 
 using namespace OriGine;
 

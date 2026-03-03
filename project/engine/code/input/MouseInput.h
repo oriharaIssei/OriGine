@@ -123,6 +123,12 @@ public:
     const MouseState& GetCurrentState() const;
 
     /// <summary>
+    /// 何かしらのボタンが押されているか (Press/Hold)
+    /// </summary>
+    /// <returns></returns>
+    bool IsPressAnyButton() const { return GetCurrentState().buttonData != 0; }
+
+    /// <summary>
     /// 指定したボタンが押されているか (Press/Hold)
     /// </summary>
     /// <param name="_button"></param>

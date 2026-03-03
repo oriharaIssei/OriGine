@@ -15,6 +15,9 @@
 #include "editor/EditorController.h"
 #include "editor/sceneEditor/SceneEditor.h"
 
+/// util
+#include "StringUtil.h"
+
 /// externals
 #include "myGui/MyGui.h"
 
@@ -116,13 +119,9 @@ void SystemInspectorArea::DrawGui() {
 
         {
             label = "SearchSystems##SystemInspectorArea";
-            ImGui::InputText(label.c_str(), &searchBuffer_[0], sizeof(char) * searchBufferSize_);
-            static GuiValuePool<std::string> entityNamePool;
-            if (ImGui::IsItemActive()) {
-                entityNamePool.SetValue(label, searchBuffer_);
-            } else if (ImGui::IsItemDeactivatedAfterEdit()) {
-                auto command = std::make_unique<ChangeSearchFilter>(this, entityNamePool.popValue(label));
-                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
+            ImGui::InputText(label.c_str(), &searchBuffer_);
+            if (!searchBuffer_.empty()) {
+                searchBuffer_ = TrimAfterNewline(searchBuffer_);
             }
         }
 

@@ -5,7 +5,7 @@
 #include "directX12/RenderTexture.h"
 
 // component
-#include "component/SubScene.h"
+#include "component/scene/SubScene.h"
 
 using namespace OriGine;
 

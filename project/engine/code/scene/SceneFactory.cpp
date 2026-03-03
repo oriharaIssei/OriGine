@@ -55,7 +55,7 @@ nlohmann::json SceneFactory::CreateSceneJsonFromScene(const Scene* _scene) {
         sceneJson["CategoryActivity"] = nlohmann::json::array();
         auto& systems                 = _scene->systemRunner_->GetSystemsRef();
         for (auto& [name, sys] : systems) {
-            if (!sys) {
+            if (!sys || !sys->IsActive()) {
                 continue;
             }
             nlohmann::json sysJson;

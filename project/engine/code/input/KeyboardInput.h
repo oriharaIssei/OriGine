@@ -314,6 +314,12 @@ public:
     const ::std::array<BYTE, KEY_COUNT>& GetKeyStates() const;
 
     /// <summary>
+    /// 何かしらのキーが押されているか判定する.
+    /// </summary>
+    /// <returns></returns>
+    bool IsPressAnyKey() const;
+
+    /// <summary>
     /// 指定されたキーが現在押されているか判定する.
     /// </summary>
     bool IsPress(uint32_t _key) const;

@@ -80,3 +80,35 @@ std::string TimeToString() {
     oss << std::put_time(&time_info, "%Y-%m-%d_%H-%M-%S");
     return oss.str();
 }
+
+std::vector<std::string> Split(const std::string& _str, char _delimiter) {
+    std::vector<std::string> result;
+    std::stringstream ss(_str);
+    std::string item;
+    while (std::getline(ss, item, _delimiter)) {
+        result.push_back(item);
+    }
+    return result;
+}
+
+std::string Trim(const std::string& _str) {
+    auto start = std::find_if_not(_str.begin(), _str.end(), [](unsigned char c) { return std::isspace(c); });
+    auto end   = std::find_if_not(_str.rbegin(), _str.rend(), [](unsigned char c) { return std::isspace(c); }).base();
+    return (start < end) ? std::string(start, end) : std::string();
+}
+
+std::string TrimAfterNewline(const std::string& _str, bool _includeNewline) {
+    size_t pos = _str.find_first_of("\r\n");
+    if (pos == std::string::npos) {
+        return _str;
+    }
+    if (_includeNewline) {
+        // 改行文字の直後まで含める (\r\n の場合は 2 文字分)
+        size_t end = pos + 1;
+        if (_str[pos] == '\r' && end < _str.size() && _str[end] == '\n') {
+            ++end;
+        }
+        return _str.substr(0, end);
+    }
+    return _str.substr(0, pos);
+}

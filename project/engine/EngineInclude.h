@@ -58,6 +58,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/collision/CollisionPushBackSystem.h"
+#include "system/collision/CollisionTriggeredSceneTransition.h"
 
 #include "system/effect/CameraActionSystem.h"
 #include "system/effect/DissolveAnimationSystem.h"
@@ -66,6 +67,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "system/effect/MaterialAnimationWorkSystem.h"
 #include "system/effect/MaterialEffect.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
+#include "system/effect/ScaleDeformSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TransformAnimationWorkSystem.h"
@@ -106,7 +108,8 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "audio/Audio.h"
 
 #include "component/EntityReferenceList.h"
-#include "component/SubScene.h"
+#include "component/scene/SubScene.h"
+#include "component/scene/SceneChanger.h"
 
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
@@ -148,6 +151,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/SpeedlineEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
+#include "component/effect/SquashStretchComponent.h"
 
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"

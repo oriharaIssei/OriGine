@@ -330,6 +330,31 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
 }
 
 /// <summary>
+/// 要素ごとにクランプ
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
+/// <typeparam name="dim"></typeparam>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <returns></returns>
+template <int dim, typename valueType>
+inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _min, const Vector<dim, valueType>& _max) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::clamp)(_a[i], _min[i], _max[i]);
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& _a, valueType _min, valueType _max) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::clamp)(_a[i], _min, _max);
+    }
+    return result;
+}
+
+/// <summary>
 /// 要素ごとの最小値を計算
 /// </summary>
 /// <typeparam name="valueType"></typeparam>
@@ -338,13 +363,22 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
 /// <param name="b"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
+inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::min)(a[i], b[i]);
+        result[i] = (std::min)(_a[i], _b[i]);
     }
     return result;
 }
+template <int dim, typename valueType>
+inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& _a, valueType _b) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::min)(_a[i], _b);
+    }
+    return result;
+}
+
 /// <summary>
 /// 要素ごとの最大値を計算
 /// </summary>
@@ -354,10 +388,34 @@ inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const 
 /// <param name="b"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
+inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::max)(a[i], b[i]);
+        result[i] = (std::max)(_a[i], _b[i]);
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& _a, valueType _b) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::max)(_a[i], _b);
+    }
+    return result;
+}
+
+/// <summary>
+/// 要素ごとの絶対値
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
+/// <typeparam name="dim"></typeparam>
+/// <param name="a"></param>
+/// <returns></returns>
+template <int dim, typename valueType>
+inline Vector<dim, valueType> AbsElement(const Vector<dim, valueType>& _a) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::max)(-_a[i], _a[i]);
     }
     return result;
 }

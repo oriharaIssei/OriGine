@@ -158,9 +158,9 @@ void Scene::ExecuteDeleteEntities() {
 }
 
 void Scene::DispatchMeshForRaytracing() {
-    const auto& modelRendererComponentArray = componentRepository_->GetComponentArray<ModelMeshRenderer>();
+    auto* modelRendererComponentArray = componentRepository_->GetComponentArray<ModelMeshRenderer>();
     if (modelRendererComponentArray) {
-        for (auto& slot : modelRendererComponentArray->GetSlots()) {
+        for (auto& slot : modelRendererComponentArray->GetSlotsRef()) {
             if (!slot.alive) {
                 continue;
             }
@@ -184,8 +184,9 @@ void Scene::DispatchMeshForRaytracing() {
                     }
 
                     entry.meshHandle = meshRenderer.GetMeshHandle(meshIdx);
-                    entry.worldMat   = meshRenderer.GetTransform(meshIdx).worldMat;
-                    entry.isDynamic  = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx), true);
+                    meshRenderer.GetTransformRef(meshIdx).UpdateMatrix();
+                    entry.worldMat  = meshRenderer.GetTransform(meshIdx).worldMat;
+                    entry.isDynamic = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx), true);
                     meshForRaytracing_.push_back(entry);
                 }
             }

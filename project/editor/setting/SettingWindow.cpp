@@ -2,15 +2,19 @@
 
 #include "SettingWindow.h"
 
+/// collision
+#include "component/collision/collider/base/CollisionCategoryManager.h"
+
 /// editor
 #include "editor/EditorController.h"
 
+/// util
 #include "util/globalVariables/GlobalVariables.h"
-// util
 #include "util/nameof.h"
+#include "util/StringUtil.h"
 
-// collision
-#include "component/collision/collider/base/CollisionCategoryManager.h"
+/// externals
+#include "myGui/MyGui.h"
 
 using namespace OriGine;
 
@@ -87,7 +91,11 @@ void SettingWindowRegion::Initialize() {
         "Size");
 }
 void SettingWindowRegion::DrawGui() {
-    ImGui::InputText("Window Title", &windowTitle_[0], sizeof(char) * 256);
+    ImGui::InputText("Window Title", &windowTitle_);
+    if (!windowTitle_.empty()) {
+        windowTitle_ = TrimAfterNewline(windowTitle_);
+    }
+
     ImGui::InputFloat2("Window Size", windowSize_.v, "%4.0f");
 
     ImGui::Spacing();
