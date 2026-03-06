@@ -60,6 +60,11 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     label = "Duration##" + _parentLabel;
     DragGuiCommand(label, duration_, 0.1f, 0.0f, 100.0f, "%.3f");
 
+    label = "LocalTime##" + _parentLabel;
+    SlideGuiCommand(label, currentTime_, 0.f, duration_);
+
+    CheckBoxCommand("Is Debug Play##" + _parentLabel, isDebugPlay_);
+
     ImGui::Spacing();
     ImGui::SeparatorText("Color Animation");
     label = "Color Animation Is Play##" + _parentLabel;
@@ -179,26 +184,38 @@ void SpriteAnimation::Finalize() {
 }
 
 void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer) {
+#ifdef _DEBUG
+    if (!isDebugPlay_) {
+        currentTime_ += _deltaTime;
+    }
+#else
     currentTime_ += _deltaTime;
+#endif // _DEBUG
 
     if (currentTime_ >= duration_) {
         if (colorAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
+            colorAnimationState_.isEnd_ = true;
+#ifndef _DEBUG
             colorAnimationState_.isPlay_ = false;
-            colorAnimationState_.isEnd_  = true;
+#endif // !_DEBUG
         }
         if (transformAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
+            transformAnimationState_.isEnd_ = true;
+#ifndef _DEBUG
             transformAnimationState_.isPlay_ = false;
-            transformAnimationState_.isEnd_  = true;
+#endif // !_DEBUG
         }
         if (uvAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
+            uvAnimationState_.isEnd_ = true;
+#ifndef _DEBUG
             uvAnimationState_.isPlay_ = false;
-            uvAnimationState_.isEnd_  = true;
+#endif // !_DEBUG
         }
     }
 

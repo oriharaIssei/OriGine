@@ -61,6 +61,10 @@ private:
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
 
+#ifdef _DEBUG
+    bool isDebugPlay_ = false;
+#endif // _DEBUG
+
     AnimationState colorAnimationState_       = {};
     InterpolationType colorInterpolationType_ = InterpolationType::LINEAR;
     AnimationCurve<Vec4f> colorCurve_         = {};
