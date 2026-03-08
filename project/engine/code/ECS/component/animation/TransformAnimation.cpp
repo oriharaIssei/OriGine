@@ -14,6 +14,36 @@
 
 using namespace OriGine;
 
+// ---------------------------------------------------------------------------
+// 反転ヘルパー
+// ---------------------------------------------------------------------------
+Vec3f TransformAnimation::ApplyFlip(Vec3f _val, const FlipMask& _flip) {
+    if (_flip.x) {
+        _val[X] *= -1.0f;
+    }
+    if (_flip.y) {
+        _val[Y] *= -1.0f;
+    }
+    if (_flip.z) {
+        _val[Z] *= -1.0f;
+    }
+    return _val;
+}
+
+Quaternion TransformAnimation::ApplyFlipQ(Quaternion _val, const FlipMask& _flip) {
+    // 各虚数成分の符号を反転することで、対応する軸の回転を鏡像化する
+    if (_flip.x) {
+        _val[X] *= -1.0f;
+    }
+    if (_flip.y) {
+        _val[Y] *= -1.0f;
+    }
+    if (_flip.z) {
+        _val[Z] *= -1.0f;
+    }
+    return _val;
+}
+
 TransformAnimation::TransformAnimation() {}
 TransformAnimation::~TransformAnimation() {}
 
@@ -28,6 +58,10 @@ void TransformAnimation::Finalize() {
     scaleCurve_.clear();
     rotateCurve_.clear();
     translateCurve_.clear();
+
+    scaleFlip_     = {};
+    rotateFlip_    = {};
+    translateFlip_ = {};
 }
 
 void TransformAnimation::Edit(
@@ -83,6 +117,37 @@ void TransformAnimation::Edit(
             }
         }
         ::ImGui::EndCombo();
+    }
+
+    ::ImGui::Spacing();
+
+    // -----------------------------
+    // Flip Mask (軸ごとの反転)
+    // -----------------------------
+    label = "Flip##" + _parentLabel;
+    if (::ImGui::TreeNode(label.c_str())) {
+        ::ImGui::TextUnformatted("Scale");
+        CheckBoxCommand("X##scaleFlipX" + _parentLabel, scaleFlip_.x);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Y##scaleFlipY" + _parentLabel, scaleFlip_.y);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Z##scaleFlipZ" + _parentLabel, scaleFlip_.z);
+
+        ::ImGui::TextUnformatted("Rotate");
+        CheckBoxCommand("X##rotateFlipX" + _parentLabel, rotateFlip_.x);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Y##rotateFlipY" + _parentLabel, rotateFlip_.y);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Z##rotateFlipZ" + _parentLabel, rotateFlip_.z);
+
+        ::ImGui::TextUnformatted("Translate");
+        CheckBoxCommand("X##translateFlipX" + _parentLabel, translateFlip_.x);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Y##translateFlipY" + _parentLabel, translateFlip_.y);
+        ::ImGui::SameLine();
+        CheckBoxCommand("Z##translateFlipZ" + _parentLabel, translateFlip_.z);
+
+        ::ImGui::TreePop();
     }
 
     ::ImGui::Spacing();
@@ -183,25 +248,25 @@ void TransformAnimation::UpdateTransform(Transform* _transform) {
     switch (interpolationType_) {
     case InterpolationType::LINEAR:
         if (!scaleCurve_.empty()) {
-            _transform->scale = CalculateValue::Linear(scaleCurve_, currentTime_);
+            _transform->scale = ApplyFlip(CalculateValue::Linear(scaleCurve_, currentTime_), scaleFlip_);
         }
         if (!rotateCurve_.empty()) {
-            _transform->rotate = CalculateValue::Linear(rotateCurve_, currentTime_);
+            _transform->rotate = ApplyFlipQ(CalculateValue::Linear(rotateCurve_, currentTime_), rotateFlip_);
         }
         if (!translateCurve_.empty()) {
-            _transform->translate = CalculateValue::Linear(translateCurve_, currentTime_);
+            _transform->translate = ApplyFlip(CalculateValue::Linear(translateCurve_, currentTime_), translateFlip_);
         }
         break;
 
     case InterpolationType::STEP:
         if (!scaleCurve_.empty()) {
-            _transform->scale = CalculateValue::Step(scaleCurve_, currentTime_);
+            _transform->scale = ApplyFlip(CalculateValue::Step(scaleCurve_, currentTime_), scaleFlip_);
         }
         if (!rotateCurve_.empty()) {
-            _transform->rotate = CalculateValue::Step(rotateCurve_, currentTime_);
+            _transform->rotate = ApplyFlipQ(CalculateValue::Step(rotateCurve_, currentTime_), rotateFlip_);
         }
         if (!translateCurve_.empty()) {
-            _transform->translate = CalculateValue::Step(translateCurve_, currentTime_);
+            _transform->translate = ApplyFlip(CalculateValue::Step(translateCurve_, currentTime_), translateFlip_);
         }
         break;
     default:
@@ -254,6 +319,13 @@ void OriGine::to_json(nlohmann::json& _j, const TransformAnimation& _comp) {
     writeCurve("scaleCurve", _comp.scaleCurve_);
     writeCurve("rotateCurve", _comp.rotateCurve_);
     writeCurve("translateCurve", _comp.translateCurve_);
+
+    auto writeFlip = [&_j](const std::string& _name, const TransformAnimation::FlipMask& _flip) {
+        _j[_name] = {_flip.x, _flip.y, _flip.z};
+    };
+    writeFlip("scaleFlip", _comp.scaleFlip_);
+    writeFlip("rotateFlip", _comp.rotateFlip_);
+    writeFlip("translateFlip", _comp.translateFlip_);
 }
 
 void OriGine::from_json(const nlohmann::json& _j, TransformAnimation& _comp) {
@@ -275,4 +347,15 @@ void OriGine::from_json(const nlohmann::json& _j, TransformAnimation& _comp) {
     readCurve("scaleCurve", _comp.scaleCurve_);
     readCurve("rotateCurve", _comp.rotateCurve_);
     readCurve("translateCurve", _comp.translateCurve_);
+
+    auto readFlip = [&_j](const std::string& _name, TransformAnimation::FlipMask& _flip) {
+        if (_j.contains(_name) && _j.at(_name).is_array() && _j.at(_name).size() >= 3) {
+            _flip.x = _j.at(_name)[0].get<bool>();
+            _flip.y = _j.at(_name)[1].get<bool>();
+            _flip.z = _j.at(_name)[2].get<bool>();
+        }
+    };
+    readFlip("scaleFlip", _comp.scaleFlip_);
+    readFlip("rotateFlip", _comp.rotateFlip_);
+    readFlip("translateFlip", _comp.translateFlip_);
 }

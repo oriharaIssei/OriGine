@@ -24,6 +24,16 @@ class TransformAnimation
     friend void from_json(const nlohmann::json& _j, TransformAnimation& _comp);
 
 public:
+    /// <summary>
+    /// 各軸ごとの反転フラグ
+    /// </summary>
+    struct FlipMask {
+        bool x = false;
+        bool y = false;
+        bool z = false;
+    };
+
+public:
     TransformAnimation();
     ~TransformAnimation() override;
 
@@ -59,6 +69,15 @@ private:
     AnimationCurve<Quaternion> rotateCurve_;
     AnimationCurve<Vec3f> translateCurve_;
 
+    /// flip masks (軸ごとの反転)
+    FlipMask scaleFlip_;
+    FlipMask rotateFlip_;
+    FlipMask translateFlip_;
+
+    // --- 反転ヘルパー ---
+    static Vec3f ApplyFlip(Vec3f _val, const FlipMask& _flip);
+    static Quaternion ApplyFlipQ(Quaternion _val, const FlipMask& _flip);
+
 public: // アクセッサ
     float GetDuration() const { return duration_; }
     float GetCurrentTime() const { return currentTime_; }
@@ -92,6 +111,18 @@ public: // アクセッサ
 
     void SetDuration(float _duration) { duration_ = _duration; }
     void SetInterpolationType(InterpolationType _type) { interpolationType_ = _type; }
+
+    FlipMask& GetScaleFlip() { return scaleFlip_; }
+    FlipMask& GetRotateFlip() { return rotateFlip_; }
+    FlipMask& GetTranslateFlip() { return translateFlip_; }
+
+    const FlipMask& GetScaleFlip() const { return scaleFlip_; }
+    const FlipMask& GetRotateFlip() const { return rotateFlip_; }
+    const FlipMask& GetTranslateFlip() const { return translateFlip_; }
+
+    void SetScaleFlip(const FlipMask& _flip) { scaleFlip_ = _flip; }
+    void SetRotateFlip(const FlipMask& _flip) { rotateFlip_ = _flip; }
+    void SetTranslateFlip(const FlipMask& _flip) { translateFlip_ = _flip; }
 };
 
 } // namespace OriGine
