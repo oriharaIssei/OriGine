@@ -99,9 +99,17 @@ void SceneFactory::LoadSystems(Scene* _scene, const nlohmann::json& _systemsJson
     for (auto& systemByType : _systemsJson) {
         for (auto& [systemName, sysData] : systemByType.items()) {
             int priority = sysData["Priority"];
-            _scene->systemRunner_->RegisterSystem(systemName, priority, true);
+            _scene->systemRunner_->RegisterSystem(systemName, priority, true, false);
         }
     }
+
+    // システムの初期化。登録された全システムを初期化する
+    for (auto& system : _scene->systemRunner_->GetSystemsRef()) {
+        if (system.second) {
+            system.second->Initialize();
+        }
+    }
+
     // 各更新カテゴリ (Input, Render 等) の実行フラグを設定
     for (int32_t i = 0; i < static_cast<int32_t>(SystemCategory::Count); ++i) {
         if (i < _catActivityJson.size()) {

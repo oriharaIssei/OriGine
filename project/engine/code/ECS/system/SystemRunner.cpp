@@ -172,7 +172,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
 /// <param name="_systemName">システム名</param>
 /// <param name="_priority">優先度</param>
 /// <param name="_activate">アクティブにするか</param>
-void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
+void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _priority, bool _activate, bool _isInitialize) {
     auto itr = systems_.find(_systemName);
 
     if (itr == systems_.end() || !itr->second) {
@@ -185,7 +185,9 @@ void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _prior
         createdSystem->SetScene(scene_);
 
         createdSystem->SetPriority(_priority);
-        createdSystem->Initialize();
+        if (_isInitialize) {
+            createdSystem->Initialize();
+        }
 
         systems_[_systemName] = std::move(createdSystem);
     } else {

@@ -118,7 +118,8 @@ public:
     /// <param name="_systemName">登録するシステム名</param>
     /// <param name="_priority">実行優先順位</param>
     /// <param name="_isActivate">Activeにするかどうか</param>
-    void RegisterSystem(const ::std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
+    /// param name="_isInitialize">登録時に初期化するかどうか</param>
+    void RegisterSystem(const ::std::string& _systemName, int32_t _priority = 0, bool _isActivate = true, bool _isInitialize = true);
     /// <summary>
     /// システムを登録する
     /// </summary>
@@ -126,7 +127,7 @@ public:
     /// <param name="_priority">実行優先順位</param>
     /// <param name="_activate">Activeにするかどうか</param>
     template <IsSystem SystemClass>
-    void RegisterSystem(int32_t _priority = 0, bool _activate = true);
+    void RegisterSystem(int32_t _priority = 0, bool _activate = true, bool _isInitialize = true);
 
     /// <summary>
     /// 登録を解除する
@@ -360,9 +361,10 @@ inline void SystemRunner::UpdateCategory() {
 /// <typeparam name="SystemClass">システムクラスの型</typeparam>
 /// <param name="_priority">優先度</param>
 /// <param name="_activate">初期状態でアクティブにするか</param>
+/// <param name="_isInitialize">登録時に初期化するか</param>
 template <IsSystem SystemClass>
-inline void SystemRunner::RegisterSystem(int32_t _priority, bool _activate) {
-    RegisterSystem(nameof<SystemClass>(), _priority, _activate);
+inline void SystemRunner::RegisterSystem(int32_t _priority, bool _activate, bool _isInitialize) {
+    RegisterSystem(nameof<SystemClass>(), _priority, _activate, _isInitialize);
 }
 
 /// <summary>
