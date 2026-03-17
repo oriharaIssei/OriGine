@@ -10,6 +10,13 @@
 // module
 #include "camera/CameraManager.h"
 
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/TextureAsset.h"
+
+// math
+#include "math/Matrix4x4.h"
+
 using namespace OriGine;
 
 /// <summary>
@@ -211,7 +218,61 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
         if (emitter == nullptr) {
             continue;
         }
-        emitter->Draw(viewMat, commandList);
+        if (emitter->particles_.empty()) {
+            continue;
+        }
+
+        Matrix4x4 scaleMat     = MakeMatrix4x4::Identity();
+        Matrix4x4 rotateMat    = MakeMatrix4x4::Identity();
+        Matrix4x4 translateMat = MakeMatrix4x4::Identity();
+
+        if (emitter->particleIsBillBoard_) {
+            // カメラの回転行列を取得し、平行移動成分をゼロにする
+            Matrix4x4 cameraRotation = viewMat;
+            cameraRotation[3][0]     = 0.0f;
+            cameraRotation[3][1]     = 0.0f;
+            cameraRotation[3][2]     = 0.0f;
+            cameraRotation[3][3]     = 1.0f;
+            Matrix4x4 billboardMat   = cameraRotation.inverse();
+
+            for (size_t i = 0; i < emitter->particles_.size(); i++) {
+                scaleMat     = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
+                translateMat = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
+                emitter->structuredTransform_.openData_[i].worldMat = scaleMat * billboardMat * translateMat;
+                emitter->structuredTransform_.openData_[i].uvMat    = emitter->particles_[i]->GetTransform().uvMat;
+                emitter->structuredTransform_.openData_[i].color    = emitter->particles_[i]->GetTransform().color;
+            }
+        } else {
+            for (size_t i = 0; i < emitter->particles_.size(); i++) {
+                scaleMat     = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
+                rotateMat    = MakeMatrix4x4::RotateXYZ(emitter->structuredTransform_.openData_[i].rotate);
+                translateMat = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
+                emitter->structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+                emitter->structuredTransform_.openData_[i].uvMat    = emitter->particles_[i]->GetTransform().uvMat;
+                emitter->structuredTransform_.openData_[i].color    = emitter->particles_[i]->GetTransform().color;
+            }
+        }
+
+        if (emitter->parent_) {
+            for (size_t i = 0; i < emitter->particles_.size(); i++) {
+                emitter->structuredTransform_.openData_[i].worldMat *= emitter->parent_->worldMat;
+            }
+        }
+
+        emitter->structuredTransform_.ConvertToBuffer();
+        emitter->structuredTransform_.SetForRootParameter(commandList, 0);
+
+        emitter->materialBuffer_.SetForRootParameter(commandList, 2);
+        commandList->SetGraphicsRootDescriptorTable(
+            3,
+            AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(emitter->textureIndex_).srv.GetGpuHandle());
+
+        commandList->IASetVertexBuffers(0, 1, &emitter->mesh_.GetVBView());
+        commandList->IASetIndexBuffer(&emitter->mesh_.GetIBView());
+        commandList->DrawIndexedInstanced(
+            UINT(emitter->mesh_.GetIndexSize()),
+            static_cast<UINT>(emitter->structuredTransform_.openData_.size()),
+            0, 0, 0);
     }
 
     // 描画後クリア

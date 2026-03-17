@@ -177,7 +177,7 @@ PixelShaderOutput main(VertexShaderOutput input)
 
         cosThetaMax = cos(gDirectionalLight[directionalLightIndex].angularRadius);
         float shadow = TraceShadowSoft(
-            input.worldPos + normal * SHADOW_RAY_EPSILON,
+            input.worldPos + normal * SHADOW_RAY_EPSILON + lightDir * SHADOW_RAY_EPSILON,
             lightDir,
             1e5f,
             cosThetaMax,
@@ -216,7 +216,7 @@ PixelShaderOutput main(VertexShaderOutput input)
         cosThetaMax = cos(gPointLight[pointLightIndex].angularRadius);
         
         float shadow = TraceShadowSoft(
-        input.worldPos + normal * SHADOW_RAY_EPSILON,
+        input.worldPos + normal * SHADOW_RAY_EPSILON + lightDir * SHADOW_RAY_EPSILON,
         lightDir,
         distance,
         cosThetaMax,
@@ -258,7 +258,7 @@ PixelShaderOutput main(VertexShaderOutput input)
         cosThetaMax = cos(gSpotLight[spotLightIndex].angularRadius);
         
         float shadow = TraceShadowSoft(
-        input.worldPos + normal * SHADOW_RAY_EPSILON,
+        input.worldPos + normal * SHADOW_RAY_EPSILON + lightDir * SHADOW_RAY_EPSILON,
         lightDir,
         distance,
         cosThetaMax,

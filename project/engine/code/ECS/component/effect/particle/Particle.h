@@ -75,7 +75,7 @@ protected:
     Vec3f velocity_  = {0.0f, 0.0f, 0.0f};
 
     bool rotateForward_        = false;
-    bool velocityRotateFoward_ = false;
+    bool velocityRotateForward_ = false;
 
     float deltaTime_ = 0.0f;
 

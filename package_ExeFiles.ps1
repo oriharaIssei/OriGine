@@ -31,17 +31,17 @@ $EngineResourceFolder = Join-Path $EngineFolder "resource"
 Ensure-Directory $AppResourceFolder
 Ensure-Directory $EngineResourceFolder
 
-# === ビルド ===
-Write-Host "msbuildを開始しています..." -ForegroundColor Yellow
+# # === ビルド ===
+# Write-Host "msbuildを開始しています..." -ForegroundColor Yellow
 
-# 直接実行することで出力をリアルタイムで表示
-& msbuild.exe "project/OriGine.slnx" /p:Configuration=Release /nr:false
+# # 直接実行することで出力をリアルタイムで表示
+# & msbuild.exe "project/OriGine.slnx" /p:Configuration=Release /nr:false
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Warning "msbuildが失敗しました。終了コード: $LASTEXITCODE"
-    exit 1
-}
-Write-Host "msbuildが完了しました。" -ForegroundColor Green
+# if ($LASTEXITCODE -ne 0) {
+#     Write-Warning "msbuildが失敗しました。終了コード: $LASTEXITCODE"
+#     exit 1
+# }
+# Write-Host "msbuildが完了しました。" -ForegroundColor Green
 
 # === 実行ファイル・ライブラリコピー ===
 $buildOutput = "generated/output/Release"

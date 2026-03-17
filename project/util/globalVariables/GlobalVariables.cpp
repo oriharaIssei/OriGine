@@ -63,7 +63,7 @@ void GlobalVariables::LoadFile(const std::string& _scene, const std::string& _gr
     ifs.open(dir);
     if (!ifs.is_open()) {
         std::string message = "Failed open data file for Load.";
-        MessageBoxA(nullptr, message.c_str(), "GrobalVariables", 0);
+        MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
         assert(0);
         return;
     }

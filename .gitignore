@@ -352,3 +352,4 @@ project/externals/assetsCooker/Cache/cache.bin
 *.vcxproj
 *.filters
 /project/externals/assetCooker/Cache
+/project/.claude

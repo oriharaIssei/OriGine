@@ -48,17 +48,15 @@ class Emitter
 
     // EmitterEditor を friend として宣言
     friend class EmitterEditor;
+    // System から private メンバへアクセスするための friend 宣言
+    friend class EmitterWorkSystem;
+    friend class ParticleRenderSystem;
 
 public:
     Emitter();
     ~Emitter();
 
     void Initialize(Scene* _scene, EntityHandle _entity) override;
-    //! ToDo :: Update,Draw の削除
-    void Update(float _deltaTime);
-    void UpdateParticle(float _deltaTime);
-    void Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList);
-
     void Finalize() override;
 
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;

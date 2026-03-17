@@ -78,55 +78,6 @@ void Emitter::Finalize() {
     structuredTransform_.Finalize();
 }
 
-void Emitter::Update(float _deltaTime) {
-    { // Update Active
-        if (!isActive_) {
-            return;
-        }
-
-        // Loop するなら スキップ
-        if (!isLoop_) {
-            leftActiveTime_ -= _deltaTime;
-            // leftActiveTime が 0 以下で Particle が 全て消えたら
-            if (leftActiveTime_ <= 0.0f && particles_.empty()) {
-                isActive_ = false;
-                return;
-            }
-        }
-    }
-
-    UpdateParticle(_deltaTime);
-}
-
-void Emitter::UpdateParticle(float _deltaTime) {
-    { // Particles Update
-        for (auto& particle : particles_) {
-            particle->Update(_deltaTime);
-        }
-        // IsAliveでないもの は 消す
-        std::erase_if(particles_, [](std::shared_ptr<Particle>& particle) {
-            return !particle->GetIsAlive();
-        });
-    }
-
-    { // Update Spawn
-        currentCoolTime_ -= _deltaTime;
-        // leftActiveTimeが 0以上のときだけ
-        if (leftActiveTime_ > 0.f) {
-            if (currentCoolTime_ <= 0.0f) {
-                currentCoolTime_ = spawnCoolTime_ / static_cast<float>(spawnParticleVal_);
-                SpawnParticle((std::max)(1, static_cast<int32_t>(_deltaTime / currentCoolTime_)));
-            }
-        }
-    }
-
-    { // push Drawing InstanceData
-        structuredTransform_.openData_.clear();
-        for (auto& particle : particles_) {
-            structuredTransform_.openData_.push_back(particle->GetTransform());
-        }
-    }
-}
 
 void Emitter::CreateResource() {
     if (!mesh_.GetVertexBuffer().GetResource()) {
@@ -275,76 +226,6 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle
 #endif // _DEBUG
 }
 
-void Emitter::Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList) {
-
-    Matrix4x4 billboardMat = {};
-    // パーティクルのスケール行列を事前計算
-    Matrix4x4 scaleMat     = MakeMatrix4x4::Identity();
-    Matrix4x4 rotateMat    = MakeMatrix4x4::Identity();
-    Matrix4x4 translateMat = MakeMatrix4x4::Identity();
-    if (particles_.empty()) {
-        return;
-    }
-
-    if (particleIsBillBoard_) { // Bill Board
-        // カメラの回転行列を取得し、平行移動成分をゼロにする
-        Matrix4x4 cameraRotation = _viewMat;
-        cameraRotation[3][0]     = 0.0f;
-        cameraRotation[3][1]     = 0.0f;
-        cameraRotation[3][2]     = 0.0f;
-        cameraRotation[3][3]     = 1.0f;
-
-        // カメラの回転行列を反転してワールド空間への変換行列を作成
-        billboardMat = cameraRotation.inverse();
-
-        // 各パーティクルのワールド行列を計算
-        for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat     = MakeMatrix4x4::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat    = MakeMatrix4x4::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            translateMat = MakeMatrix4x4::Translate(structuredTransform_.openData_[i].translate);
-
-            // ワールド行列を構築
-            structuredTransform_.openData_[i].worldMat = scaleMat * billboardMat * translateMat;
-
-            structuredTransform_.openData_[i].uvMat = particles_[i]->GetTransform().uvMat;
-            structuredTransform_.openData_[i].color = particles_[i]->GetTransform().color;
-        }
-    } else {
-        // 各パーティクルのワールド行列を計算
-        for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat     = MakeMatrix4x4::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat    = MakeMatrix4x4::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            translateMat = MakeMatrix4x4::Translate(structuredTransform_.openData_[i].translate);
-
-            // ワールド行列を構築
-            structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
-
-            structuredTransform_.openData_[i].uvMat = particles_[i]->GetTransform().uvMat;
-            structuredTransform_.openData_[i].color = particles_[i]->GetTransform().color;
-        }
-    }
-
-    if (parent_) {
-        for (size_t i = 0; i < particles_.size(); i++) {
-            structuredTransform_.openData_[i].worldMat *= parent_->worldMat;
-        }
-    }
-
-    structuredTransform_.ConvertToBuffer();
-    structuredTransform_.SetForRootParameter(_commandList, 0);
-
-    materialBuffer_.SetForRootParameter(_commandList, 2);
-    _commandList->SetGraphicsRootDescriptorTable(
-        3,
-        AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(textureIndex_).srv.GetGpuHandle());
-
-    // 頂点バッファの設定
-    _commandList->IASetVertexBuffers(0, 1, &mesh_.GetVBView());
-    _commandList->IASetIndexBuffer(&mesh_.GetIBView());
-
-    // 描画!!!
-    _commandList->DrawIndexedInstanced(UINT(mesh_.GetIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
-}
 
 void OriGine::from_json(const nlohmann::json& _j, Emitter& _comp) {
     _j.at("blendMode").get_to(_comp.blendMode_);

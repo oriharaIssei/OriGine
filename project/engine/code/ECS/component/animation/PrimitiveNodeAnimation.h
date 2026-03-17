@@ -15,7 +15,7 @@ struct Material;
 struct Transform;
 
 /// <summary>
-/// PrimtiveをNode単位でアニメーションさせるコンポーネント
+/// PrimitiveをNode単位でアニメーションさせるコンポーネント
 /// </summary>
 class PrimitiveNodeAnimation
     : public IComponent {

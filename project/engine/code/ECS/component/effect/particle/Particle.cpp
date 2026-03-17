@@ -66,7 +66,7 @@ void Particle::Update(float _deltaTime) {
         update();
     }
 
-    if (velocityRotateFoward_) {
+    if (velocityRotateForward_) {
         Vec3f rotationAxis  = axisZ.cross(direction_).normalize();
         float angle         = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
         Quaternion rotation = Quaternion::RotateAxisAngle(rotationAxis, angle);
@@ -174,7 +174,7 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             velocity_[Y] -= gravity_ * mass_ * deltaTime_;
         });
     }
-    velocityRotateFoward_ =
+    velocityRotateForward_ =
         (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward)) != 0;
 
     // uvScale

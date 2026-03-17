@@ -144,7 +144,7 @@ void Scene::Finalize() {
 void Scene::ExecuteDeleteEntities() {
     for (EntityHandle entityID : deleteEntities_) {
         if (!entityID.IsValid()) {
-            LOG_ERROR("Failed Delte Entity : {}", uuids::to_string(entityID.uuid));
+            LOG_ERROR("Failed Delete Entity : {}", uuids::to_string(entityID.uuid));
             return;
         }
         // コンポーネント を削除

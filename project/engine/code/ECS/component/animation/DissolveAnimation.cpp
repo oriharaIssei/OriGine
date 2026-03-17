@@ -63,18 +63,24 @@ void DissolveAnimation::Edit(
 
     label = "Dissolve Animation##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
+        ImGui::Text("Threshold");
+        ImGui::SameLine();
         ImGui::EditKeyFrame(
             " Threshold##" + _parentLabel,
             thresholdCurve_,
             duration_,
             0.0f);
 
+        ImGui::Text("EdgeWidth");
+        ImGui::SameLine();
         ImGui::EditKeyFrame(
             " EdgeWidth##" + _parentLabel,
             edgeWidthCurve_,
             duration_,
             0.05f);
 
+        ImGui::Text("OutLineColor");
+        ImGui::SameLine();
         ImGui::EditKeyFrame(
             " OutLineColor##" + _parentLabel,
             outLineColorCurve_,

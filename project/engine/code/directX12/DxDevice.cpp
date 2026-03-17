@@ -90,12 +90,12 @@ void DxDevice::Initialize() {
             // Windows11 でのDXGIデバッグレイヤーとDx12デバッグレイヤーの相互作用によるエラーメッセージ
             D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE};
         // 抑制するレベル
-        D3D12_MESSAGE_SEVERITY serverities[] = {D3D12_MESSAGE_SEVERITY_INFO};
+        D3D12_MESSAGE_SEVERITY severities[] = {D3D12_MESSAGE_SEVERITY_INFO};
         D3D12_INFO_QUEUE_FILTER filter{};
         filter.DenyList.NumIDs        = _countof(denyIds);
         filter.DenyList.pIDList       = denyIds;
-        filter.DenyList.NumSeverities = _countof(serverities);
-        filter.DenyList.pSeverityList = serverities;
+        filter.DenyList.NumSeverities = _countof(severities);
+        filter.DenyList.pSeverityList = severities;
         // 指定したメッセージの表示を抑制する
         infoQueue->PushStorageFilter(&filter);
 

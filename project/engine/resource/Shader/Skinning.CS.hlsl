@@ -23,7 +23,7 @@ struct Well
 struct VertexInfluence
 {
     float4 weights;
-    int4 indecies;
+    int4 indices;
 };
 struct SkinningInformation
 {
@@ -60,17 +60,17 @@ void main(uint3 DTid : SV_DispatchThreadID)
         skinned.texcoord = input.texcoord;
 
         // 位置 の 変換
-        skinned.pos = mul(input.pos, gMatrixPalette[influence.indecies.x].skeletonSpaceMat) * influence.weights.x;
-        skinned.pos += mul(input.pos, gMatrixPalette[influence.indecies.y].skeletonSpaceMat) * influence.weights.y;
-        skinned.pos += mul(input.pos, gMatrixPalette[influence.indecies.z].skeletonSpaceMat) * influence.weights.z;
-        skinned.pos += mul(input.pos, gMatrixPalette[influence.indecies.w].skeletonSpaceMat) * influence.weights.w;
+        skinned.pos = mul(input.pos, gMatrixPalette[influence.indices.x].skeletonSpaceMat) * influence.weights.x;
+        skinned.pos += mul(input.pos, gMatrixPalette[influence.indices.y].skeletonSpaceMat) * influence.weights.y;
+        skinned.pos += mul(input.pos, gMatrixPalette[influence.indices.z].skeletonSpaceMat) * influence.weights.z;
+        skinned.pos += mul(input.pos, gMatrixPalette[influence.indices.w].skeletonSpaceMat) * influence.weights.w;
         skinned.pos.w = 1.f;
 
         // 法線 の 変換
-        skinned.normal = mul(input.normal, (float3x3) gMatrixPalette[influence.indecies.x].skeletonSpaceInverseTransposeMat) * influence.weights.x;
-        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indecies.y].skeletonSpaceInverseTransposeMat) * influence.weights.y;
-        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indecies.z].skeletonSpaceInverseTransposeMat) * influence.weights.z;
-        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indecies.w].skeletonSpaceInverseTransposeMat) * influence.weights.w;
+        skinned.normal = mul(input.normal, (float3x3) gMatrixPalette[influence.indices.x].skeletonSpaceInverseTransposeMat) * influence.weights.x;
+        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indices.y].skeletonSpaceInverseTransposeMat) * influence.weights.y;
+        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indices.z].skeletonSpaceInverseTransposeMat) * influence.weights.z;
+        skinned.normal += mul(input.normal, (float3x3) gMatrixPalette[influence.indices.w].skeletonSpaceInverseTransposeMat) * influence.weights.w;
         skinned.normal = normalize(skinned.normal);
 
         

@@ -56,7 +56,7 @@ struct GradationParam {
 };
 
 /// <summary>
-/// GradiationTextureEffectのパラメーター
+/// GradationTextureEffectのパラメーター
 /// </summary>
 class GradationComponent
     : public IComponent {
