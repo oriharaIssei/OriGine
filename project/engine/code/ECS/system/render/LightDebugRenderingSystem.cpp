@@ -306,10 +306,6 @@ void LightDebugRenderingSystem::CreateRenderMesh() {
                 continue; // Entityが存在しない場合はスキップ
             }
 
-            if (!slot.alive) {
-                continue;
-            }
-
             for (auto& spotlight : slot.components) {
                 if (!spotlight.isActive) {
                     continue;
@@ -346,10 +342,6 @@ void LightDebugRenderingSystem::CreateRenderMesh() {
             Entity* entity = GetEntity(slot.owner);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
-            }
-
-            if (!slot.alive) {
-                continue;
             }
 
             for (auto& spotlight : slot.components) {

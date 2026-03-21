@@ -161,9 +161,6 @@ void Scene::DispatchMeshForRaytracing() {
     auto* modelRendererComponentArray = componentRepository_->GetComponentArray<ModelMeshRenderer>();
     if (modelRendererComponentArray) {
         for (auto& slot : modelRendererComponentArray->GetSlotsRef()) {
-            if (!slot.alive) {
-                continue;
-            }
             for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
                 auto& meshRenderer = slot.components[compIdx];
                 if (!meshRenderer.IsRender()) {
@@ -198,9 +195,6 @@ void Scene::DispatchMeshForRaytracing() {
             return;
         }
         for (auto& slot : primitiveRendererComponentArray->GetSlots()) {
-            if (!slot.alive) {
-                continue;
-            }
             for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
                 auto& meshRenderer = slot.components[compIdx];
                 if (!meshRenderer.IsRender()) {

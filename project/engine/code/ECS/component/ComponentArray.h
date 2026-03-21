@@ -2,9 +2,11 @@
 
 /// stl
 #include <cassert>
-#include <queue>
 #include <unordered_map>
 #include <vector>
+
+/// util
+#include "util/container/DenseSlotMap.h"
 
 /// ECS
 // entity
@@ -224,23 +226,21 @@ public:
     /// コンポーネントのスロット内インデックス
     /// </summary>
     struct EntitySlot {
-        bool alive = false;
         EntityHandle owner{};
         std::vector<ComponentType> components;
     };
 
 private:
-    std::vector<EntitySlot> slots_;
-    std::queue<uint32_t> freeSlots_;
+    DenseSlotMap<EntitySlot> slots_;
 
-    // entity uuid -> slot index
+    // entity uuid -> DenseSlotMap stable ID
     std::unordered_map<uuids::uuid, uint32_t> entitySlotMap_;
-    // component uuid -> (slot index, component index)
+    // component uuid -> (stable ID, component index)
     std::unordered_map<uuids::uuid, ComponentLocation> componentLocationMap_;
 
 public:
-    const std::vector<EntitySlot>& GetSlots() const { return slots_; }
-    std::vector<EntitySlot>& GetSlotsRef() { return slots_; }
+    const DenseSlotMap<EntitySlot>& GetSlots() const { return slots_; }
+    DenseSlotMap<EntitySlot>& GetSlotsRef() { return slots_; }
 
     const std::unordered_map<uuids::uuid, uint32_t>& GetEntitySlotMap() const { return entitySlotMap_; }
     const std::unordered_map<uuids::uuid, ComponentLocation>& GetComponentLocationMap() const { return componentLocationMap_; }

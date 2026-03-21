@@ -212,9 +212,6 @@ void OriGine::ObjectPicker::DispatchMeshForRaytracing() {
     const auto& modelRendererComponentArray = scene_->GetComponentArray<ModelMeshRenderer>();
     if (modelRendererComponentArray) {
         for (auto& slot : modelRendererComponentArray->GetSlots()) {
-            if (!slot.alive) {
-                continue;
-            }
             for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
                 auto& meshRenderer = slot.components[compIdx];
                 if (!meshRenderer.IsRender()) {
@@ -243,9 +240,6 @@ void OriGine::ObjectPicker::DispatchMeshForRaytracing() {
             return;
         }
         for (auto& slot : primitiveRendererComponentArray->GetSlots()) {
-            if (!slot.alive) {
-                continue;
-            }
             for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
                 auto& meshRenderer = slot.components[compIdx];
                 if (!meshRenderer.IsRender()) {

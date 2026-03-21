@@ -6,25 +6,19 @@ namespace OriGine {
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::Initialize(uint32_t _reserveSize) {
-    slots_.reserve(_reserveSize);
+    slots_.Reserve(_reserveSize);
     entitySlotMap_.clear();
     componentLocationMap_.clear();
-    if (!freeSlots_.empty()) {
-        freeSlots_ = std::queue<uint32_t>();
-    }
 }
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::Finalize() {
     for (auto& slot : slots_) {
-        if (!slot.alive) {
-            continue;
-        }
         for (auto& comp : slot.components) {
             comp.Finalize();
         }
     }
-    slots_.clear();
+    slots_.Clear();
     entitySlotMap_.clear();
     componentLocationMap_.clear();
 }
@@ -35,22 +29,12 @@ inline void ComponentArray<ComponentType>::RegisterEntity(EntityHandle _entity) 
         return;
     }
 
-    uint32_t slotIndex;
-
-    if (!freeSlots_.empty()) {
-        slotIndex = freeSlots_.front();
-        freeSlots_.pop();
-    } else {
-        slotIndex = static_cast<uint32_t>(slots_.size());
-        slots_.emplace_back();
-    }
-
-    EntitySlot& slot = slots_[slotIndex];
-    slot.alive       = true;
+    uint32_t slotId  = slots_.Emplace();
+    EntitySlot& slot = slots_[slotId];
     slot.owner       = _entity;
     slot.components.clear();
 
-    entitySlotMap_[_entity.uuid] = slotIndex;
+    entitySlotMap_[_entity.uuid] = slotId;
 }
 
 template <IsComponent ComponentType>
@@ -60,20 +44,15 @@ inline void ComponentArray<ComponentType>::UnregisterEntity(EntityHandle _entity
         return;
     }
 
-    uint32_t slotIndex = itr->second;
-    EntitySlot& slot   = slots_[slotIndex];
+    uint32_t slotId = itr->second;
 
-    for (auto& comp : slot.components) {
+    for (auto& comp : slots_[slotId].components) {
         comp.Finalize();
         componentLocationMap_.erase(comp.GetHandle().uuid);
     }
 
-    slot.components.clear();
-    slot.alive = false;
-    slot.owner = {};
-
     entitySlotMap_.erase(itr);
-    freeSlots_.push(slotIndex);
+    slots_.Erase(slotId);
 }
 
 template <IsComponent ComponentType>
@@ -83,14 +62,7 @@ inline bool ComponentArray<ComponentType>::HasEntity(EntityHandle _entity) const
         return false;
     }
 
-    uint32_t slotIndex     = itr->second;
-    const EntitySlot& slot = slots_[slotIndex];
-
-    if (!slot.alive || slot.components.empty()) {
-        return false;
-    }
-
-    return true;
+    return !slots_[itr->second].components.empty();
 }
 
 template <IsComponent ComponentType>
