@@ -353,3 +353,4 @@ project/externals/assetsCooker/Cache/cache.bin
 *.filters
 /project/externals/assetCooker/Cache
 /project/.claude
+/.claude
