@@ -61,10 +61,9 @@ struct Vector {
 
     // 可変長引数コンストラクタ
     template <typename... Args>
-    constexpr Vector(Args... args) : v{static_cast<valueType>(args)...} {
-        static_assert(sizeof...(args) == dimension,
-            "The number of arguments must be equal to the dimension of the vector.");
-    }
+        requires (sizeof...(Args) == dimension) &&
+                 (std::is_convertible_v<Args, valueType> && ...)
+    constexpr Vector(Args... args) : v{static_cast<valueType>(args)...} {}
 
 public:
     // メンバ変数

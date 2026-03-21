@@ -2,196 +2,157 @@
 
 /// stl
 #include <memory>
-#include <vector>
 
 /// engine
-// dx12object
-#include "directX12/buffer/IStructuredBuffer.h"
-#include "directX12/buffer/SimpleConstantBuffer.h"
-#include "directX12/mesh/Mesh.h"
-#include "directX12/ShaderManager.h"
-// assets
-#include "component/material/Material.h"
-// object
-#include "../Particle.h"
-// component
-#include "component/transform/CameraTransform.h"
-#include "component/transform/ParticleTransform.h"
-#include "component/transform/Transform.h"
-
-/// math
-#include "math/Matrix4x4.h"
 // shape
 #include "EmitterShape.h"
+// component
+#include "component/ComponentHandle.h"
+
+/// externals
+#include <nlohmann/json.hpp>
+
+/// math
+#include "math/Vector3.h"
 
 namespace OriGine {
-// 前方宣言
-struct ParticleKeyFrames;
-struct EmitterShape;
 
-enum class BillBoardType {
-    NONE = 0,
-    X    = 0x1 << 1,
-    Y    = 0x1 << 2,
-    Z    = 0x1 << 3
-};
+// 前方宣言
+class ParticleSystem;
+class EntitySpawner;
+class EmitterEditor;
+class EmitterShapeRenderingSystem;
+class Scene;
+struct Transform;
 
 /// <summary>
-/// Particleを生成、管理するコンポーネント
+/// 汎用スポーンコントローラ
+/// IComponent ではない。ParticleSystem や Spawner が所有する。
+/// スポーンの「タイミング・数・形状」を管理し、Update() で今フレームのスポーン数を返す。
 /// </summary>
-class Emitter
-    : public IComponent {
+class Emitter {
+    friend void to_json(nlohmann::json& _j, const Emitter& _ctrl);
+    friend void from_json(const nlohmann::json& _j, Emitter& _ctrl);
 
-    // to_json, from_json を friend として宣言
-    friend void to_json(nlohmann::json& _j, const Emitter& _comp);
-    friend void from_json(const nlohmann::json& _j, Emitter& _comp);
+    // オーナークラス：private メンバへ直接アクセス可（CalculateMaxSize, SpawnParticle など）
+    friend class ParticleSystem;
+    friend class EntitySpawner;
 
-    // EmitterEditor を friend として宣言
+    // エディタ：ImGui / SetterCommand でフィールドの生ポインタが必要なため
+#ifdef _DEBUG
     friend class EmitterEditor;
-    // System から private メンバへアクセスするための friend 宣言
-    friend class EmitterWorkSystem;
-    friend class ParticleRenderSystem;
+    friend class EmitterShapeRenderingSystem;
+#endif
 
 public:
     Emitter();
-    ~Emitter();
-
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
-    void Finalize() override;
-
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    ~Emitter() = default;
 
     /// <summary>
-    /// 生成される Particle の 最大数を計算する
+    /// 初期化（シェイプのデフォルト生成・タイマーリセット）
     /// </summary>
-    void CalculateMaxSize();
+    void Initialize();
 
     /// <summary>
-    /// 0から再生を開始する
+    /// 毎フレーム呼ぶ。今フレームのスポーン数を返す。
+    /// </summary>
+    /// <param name="_deltaTime">デルタタイム</param>
+    /// <returns>スポーンすべき数。0 ならスポーン不要</returns>
+    int32_t Update(float _deltaTime);
+
+    /// <summary>
+    /// アクティブかどうかを返す
+    /// </summary>
+    bool IsActive() const { return isActive_; }
+
+    /// <summary>
+    /// 非アクティブ化（タイマーはリセットしない）
+    /// </summary>
+    void Deactivate() { isActive_ = false; }
+
+    /// <summary>
+    /// activeTime が切れ、スポーンが終了したか（ループ時は常に false）
+    /// </summary>
+    bool IsExpired() const { return !isLoop_ && leftActiveTime_ <= 0.f; }
+
+    /// <summary>
+    /// スポーン位置をシェイプから取得
+    /// </summary>
+    Vec3f GetSpawnPos() const;
+
+    /// <summary>
+    /// 補間スポーン原点を返す。
+    /// interpolateSpawnPos_ が true のとき preWorldOriginPos_ → worldOriginPos_ を _index/_total で線形補間する。
+    /// false のときは worldOriginPos_ をそのまま返す。
+    /// </summary>
+    /// <param name="_index">今フレームのスポーンインデックス（0-based）</param>
+    /// <param name="_total">今フレームの合計スポーン数</param>
+    Vec3f GetInterpolatedOriginPos(int32_t _index, int32_t _total) const;
+
+    /// <summary>
+    /// worldOriginPos_ を更新する。毎スポーン前に呼ぶ。
+    /// parent_ がある場合はそのワールド座標 + originPos_（オフセット）で算出する。
+    /// </summary>
+    void UpdateWorldOriginPos();
+
+    // ── 親子関係 ──────────────────────────────────────────────
+
+    Transform* GetParent() const { return parent_; }
+    void SetParent(Transform* _parent) { parent_ = _parent; }
+
+    const ComponentHandle& GetParentHandle() const { return parentHandle_; }
+    void SetParentHandle(const ComponentHandle& _handle) { parentHandle_ = _handle; }
+
+    /// <summary>
+    /// parentHandle_ から parent_ (キャッシュポインタ) を解決する。
+    /// Initialize および Editor での設定変更後に呼ぶ。
+    /// </summary>
+    void ResolveParent(Scene* _scene);
+
+    // ── 再生制御 ──────────────────────────────────────────────
+
+    /// <summary>
+    /// 最初から再生開始（タイマーをリセットしてアクティブ化）
     /// </summary>
     void PlayStart();
     /// <summary>
-    /// 途中から再生を開始する
+    /// 途中から再生再開
     /// </summary>
     void PlayContinue();
     /// <summary>
-    /// 再生を止める
+    /// 再生停止
     /// </summary>
     void PlayStop();
 
 private:
-    void CreateResource();
-
-    /// <summary>
-    /// パーティクルを生成する
-    /// </summary>
-    void SpawnParticle(int32_t _spawnVal);
+    void EnsureShape();
 
 private:
-    Transform* parent_       = nullptr;
-    Vec3f preWorldOriginPos_ = {0.f, 0.f, 0.f};
-    Vec3f worldOriginPos_    = {0.f, 0.f, 0.f};
-    Vec3f originPos_         = {0.f, 0.f, 0.f};
+    bool isActive_            = false;
+    bool isLoop_              = false;
+    bool interpolateSpawnPos_ = false;
 
-    uint32_t particleMaxSize_ = 12;
-
-    std::vector<std::shared_ptr<Particle>> particles_;
-
-    /// <summary>
-    /// 頂点 を 持つ
-    /// </summary>
-    TextureColorMesh mesh_;
-
-    int32_t materialIndex_ = -1;
-    SimpleConstantBuffer<Material> materialBuffer_;
-
-    IStructuredBuffer<ParticleTransform> structuredTransform_;
-    //=============== Texture ===============/
-    std::string textureFileName_ = "";
-    size_t textureIndex_        = 0;
-
-    //=============== エミッター設定項目 ===============//
-    BlendMode blendMode_ = BlendMode::None;
-    bool isActive_       = false;
-    bool isLoop_         = false;
-    // emitter 生存時間
     float activeTime_     = 0.f;
     float leftActiveTime_ = 0.f;
 
-    /// <summary>
-    /// 一度に 生成される Particle の 数
-    /// </summary>
-    int32_t spawnParticleVal_ = 1;
+    int32_t spawnCount_    = 1;
+    float spawnCoolTime_   = 0.f;
+    float currentCoolTime_ = 0.f;
+
+    Vec3f originPos_         = {};
+    Vec3f worldOriginPos_    = {};
+    Vec3f preWorldOriginPos_ = {};
 
     EmitterShapeType shapeType_ = EmitterShapeType::SPHERE;
-    std::shared_ptr<EmitterShape> emitterSpawnShape_;
+    std::shared_ptr<EmitterShape> spawnShape_;
 
-    float currentCoolTime_  = 0.f;
-    float spawnCoolTime_    = 0.f;
-    float particleLifeTime_ = 0.f;
-
-    // billBoard 計算するかどうか
-    bool particleIsBillBoard_ = true;
-
-    //=============== パーティクル設定項目 ===============//
-    Vec4f particleColor_       = {1.f, 1.f, 1.f, 1.f};
-    Vec3f particleUvScale_     = {1.f, 1.f, 1.f};
-    Vec3f particleUvRotate_    = {0.f, 0.f, 0.f};
-    Vec3f particleUvTranslate_ = {0.f, 0.f, 0.f};
-
-    int32_t updateSettings_ = 0;
-
-    Vec2f randMass_ = {1.f, 1.f};
-
-    std::shared_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
-
-#ifdef _DEBUG
-    // 連番画像から uv Curveにするためのもの
-    Vec2f tileSize_            = {};
-    Vec2f textureSize_         = {};
-    float tilePerTime_         = 0.f;
-    float startAnimationTime_  = 0.f;
-    float animationTimeLength_ = 0.f;
-#endif // _DEBUG
-
-    InterpolationType transformInterpolationType_ = InterpolationType::LINEAR;
-    InterpolationType colorInterpolationType_     = InterpolationType::LINEAR;
-    InterpolationType uvInterpolationType_        = InterpolationType::LINEAR;
-    // ランダムな数値の範囲を設定するためのメンバ変数
-    // ランダムではない場合 (min == max) になる
-    Vec3f startParticleScaleMin_    = {1.f, 1.f, 1.f};
-    Vec3f startParticleScaleMax_    = {1.f, 1.f, 1.f};
-    Vec3f startParticleRotateMin_   = {0.f, 0.f, 0.f};
-    Vec3f startParticleRotateMax_   = {0.f, 0.f, 0.f};
-    Vec3f startParticleVelocityMin_ = {0.f, 0.f, 0.f};
-    Vec3f startParticleVelocityMax_ = {0.f, 0.f, 0.f};
-
-    Vec3f updateParticleScaleMin_    = {1.f, 1.f, 1.f};
-    Vec3f updateParticleScaleMax_    = {1.f, 1.f, 1.f};
-    Vec3f updateParticleRotateMin_   = {0.f, 0.f, 0.f};
-    Vec3f updateParticleRotateMax_   = {0.f, 0.f, 0.f};
-    Vec3f updateParticleVelocityMin_ = {0.f, 0.f, 0.f};
-    Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
-
-public:
-    bool IsActive() const { return isActive_; }
-    bool ParticleIsEmpty() const { return particles_.empty(); }
-    bool GetIsLoop() const { return isLoop_; }
-    void SetIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
-
-    float GetActiveTime() const { return activeTime_; }
-    void SetLeftActiveTime(float _time) { leftActiveTime_ = _time; }
-
-    bool GetIsBillBoard() const { return particleIsBillBoard_; }
-    void SetIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
-
-    const Vec3f& GetOriginPos() const { return originPos_; }
-    void SetOriginPos(const Vec3f& _pos) { originPos_ = _pos; }
-
-    BlendMode GetBlendMode() const { return blendMode_; }
-
-    Transform* GetParent() const { return parent_; }
-    void SetParent(Transform* _parent) { parent_ = _parent; }
+    // originPos_ はワールド空間でのオフセット。
+    // worldOriginPos_ = parent_->GetWorldTranslate() + originPos_
+    ComponentHandle parentHandle_; // シリアライズ・エディタ設定用
+    Transform* parent_ = nullptr; // ランタイムキャッシュ（ResolveParent で更新）
 };
+
+void to_json(nlohmann::json& _j, const Emitter& _ctrl);
+void from_json(const nlohmann::json& _j, Emitter& _ctrl);
 
 } // namespace OriGine

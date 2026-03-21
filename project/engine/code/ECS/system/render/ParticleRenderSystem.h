@@ -14,7 +14,7 @@
 #include "directX12/ShaderManager.h"
 
 // component
-#include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/particle/emitter/ParticleSystem.h"
 
 namespace OriGine {
 
@@ -74,7 +74,7 @@ protected:
     void UpdateEntity(EntityHandle /*_owner*/) override {}
 
 private:
-    std::array<std::vector<Emitter*>, kBlendNum> activeEmittersByBlendMode_{};
+    std::array<std::vector<ParticleSystem*>, kBlendNum> activeEmittersByBlendMode_{};
 
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };

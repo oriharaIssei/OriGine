@@ -157,7 +157,7 @@ void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 
     Transform* transform           = GetComponent<Transform>(_entity);
-    std::vector<Emitter>& emitters = GetComponents<Emitter>(_entity);
+    std::vector<ParticleSystem>& emitters = GetComponents<ParticleSystem>(_entity);
 
     if (emitters.empty()) {
         return;
@@ -236,26 +236,26 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
             Matrix4x4 billboardMat   = cameraRotation.inverse();
 
             for (size_t i = 0; i < emitter->particles_.size(); i++) {
-                scaleMat     = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
-                translateMat = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
+                scaleMat                                            = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
+                translateMat                                        = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
                 emitter->structuredTransform_.openData_[i].worldMat = scaleMat * billboardMat * translateMat;
                 emitter->structuredTransform_.openData_[i].uvMat    = emitter->particles_[i]->GetTransform().uvMat;
                 emitter->structuredTransform_.openData_[i].color    = emitter->particles_[i]->GetTransform().color;
             }
         } else {
             for (size_t i = 0; i < emitter->particles_.size(); i++) {
-                scaleMat     = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
-                rotateMat    = MakeMatrix4x4::RotateXYZ(emitter->structuredTransform_.openData_[i].rotate);
-                translateMat = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
+                scaleMat                                            = MakeMatrix4x4::Scale(emitter->structuredTransform_.openData_[i].scale);
+                rotateMat                                           = MakeMatrix4x4::RotateXYZ(emitter->structuredTransform_.openData_[i].rotate);
+                translateMat                                        = MakeMatrix4x4::Translate(emitter->structuredTransform_.openData_[i].translate);
                 emitter->structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
                 emitter->structuredTransform_.openData_[i].uvMat    = emitter->particles_[i]->GetTransform().uvMat;
                 emitter->structuredTransform_.openData_[i].color    = emitter->particles_[i]->GetTransform().color;
             }
         }
 
-        if (emitter->parent_) {
+        if (emitter->emitter_.GetParent()) {
             for (size_t i = 0; i < emitter->particles_.size(); i++) {
-                emitter->structuredTransform_.openData_[i].worldMat *= emitter->parent_->worldMat;
+                emitter->structuredTransform_.openData_[i].worldMat *= emitter->emitter_.GetParent()->worldMat;
             }
         }
 

@@ -5,20 +5,20 @@
 namespace OriGine {
 
 /// <summary>
-/// エミッターの動作を管理するシステム
+/// ParticleSystem の動作を管理するシステム
 /// </summary>
-class EmitterWorkSystem
+class ParticleSystemWorkSystem
     : public ISystem {
 public:
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    EmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
+    ParticleSystemWorkSystem() : ISystem(SystemCategory::Effect) {}
 
     /// <summary>
     /// デストラクタ
     /// </summary>
-    ~EmitterWorkSystem() {}
+    ~ParticleSystemWorkSystem() {}
 
     /// <summary>
     /// 初期化

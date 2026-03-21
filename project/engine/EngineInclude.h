@@ -62,7 +62,8 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #include "system/effect/CameraActionSystem.h"
 #include "system/effect/DissolveAnimationSystem.h"
-#include "system/effect/EmitterWorkSystem.h"
+#include "system/effect/ParticleSystemWorkSystem.h"
+#include "system/effect/EntitySpawnerWorkSystem.h"
 #include "system/effect/GpuParticleEmitterWorkSystem.h"
 #include "system/effect/MaterialAnimationWorkSystem.h"
 #include "system/effect/MaterialEffect.h"
@@ -74,6 +75,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
+#include "system/render/EmitterShapeRenderingSystem.h"
 #include "system/render/GpuParticleRenderSystem.h"
 #include "system/render/LightDebugRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
@@ -107,9 +109,11 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #include "audio/Audio.h"
 
+#include "component/spawner/EntitySpawner.h"
+
 #include "component/EntityReferenceList.h"
-#include "component/scene/SubScene.h"
 #include "component/scene/SceneChanger.h"
+#include "component/scene/SubScene.h"
 
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
@@ -140,7 +144,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "component/physics/Rigidbody.h"
 
 #include "component/effect/MaterialEffectPipeLine.h"
-#include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/particle/emitter/ParticleSystem.h"
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
