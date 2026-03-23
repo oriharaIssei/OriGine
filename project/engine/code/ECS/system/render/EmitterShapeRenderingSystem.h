@@ -53,8 +53,8 @@ private:
     void AddShapeToMesh(const Emitter& _ctrl);
 
 private:
-    ComponentArray<ParticleSystem>*       emitters_ = nullptr;
-    ComponentArray<EntitySpawner>* spawners_ = nullptr;
+    ComponentArray<ParticleSystem>* emitters_ = nullptr;
+    ComponentArray<EntitySpawner>* spawners_  = nullptr;
 
     // 形状ごとのレンダラー
     std::unique_ptr<LineRenderer> sphereRenderer_;

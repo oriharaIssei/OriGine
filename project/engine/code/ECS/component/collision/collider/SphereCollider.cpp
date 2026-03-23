@@ -44,7 +44,7 @@ void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
 
 void SphereCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
-    this->worldShape_.center_ = Vec3f(transform_.worldMat[3]) + shape_.center_;
+    this->worldShape_.center_ = shape_.center_ * transform_.worldMat;
     this->worldShape_.radius_ = shape_.radius_;
 }
 

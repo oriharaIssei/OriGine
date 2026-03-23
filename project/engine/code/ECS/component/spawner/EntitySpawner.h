@@ -27,9 +27,7 @@ class EntitySpawner
     friend void from_json(const nlohmann::json& _j, EntitySpawner& _comp);
 
     friend class EntitySpawnerWorkSystem;
-#ifdef _DEBUG
     friend class EmitterShapeRenderingSystem;
-#endif
 
 public:
     EntitySpawner()           = default;

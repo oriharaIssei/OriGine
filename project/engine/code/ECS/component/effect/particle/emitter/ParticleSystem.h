@@ -51,9 +51,7 @@ class ParticleSystem
     // System から private メンバへアクセスするための friend 宣言
     friend class ParticleSystemWorkSystem;
     friend class ParticleRenderSystem;
-#ifdef _DEBUG
     friend class EmitterShapeRenderingSystem;
-#endif
 
 public:
     ParticleSystem();
@@ -91,7 +89,6 @@ private:
     void SpawnParticle(int32_t _spawnVal);
 
 private:
-
     uint32_t particleMaxSize_ = 12;
 
     std::vector<std::shared_ptr<Particle>> particles_;
@@ -107,7 +104,7 @@ private:
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Texture ===============/
     std::string textureFileName_ = "";
-    size_t textureIndex_        = 0;
+    size_t textureIndex_         = 0;
 
     //=============== エミッター設定項目 ===============//
     BlendMode blendMode_ = BlendMode::None;

@@ -39,8 +39,7 @@
 
 using namespace OriGine;
 
-ParticleSystem::ParticleSystem() : IComponent() {}
-
+ParticleSystem::ParticleSystem() {}
 ParticleSystem::~ParticleSystem() {}
 
 void ParticleSystem::Initialize(Scene* _scene, EntityHandle /*_entity*/) {
@@ -69,7 +68,6 @@ void ParticleSystem::Finalize() {
     }
     structuredTransform_.Finalize();
 }
-
 
 void ParticleSystem::CreateResource() {
     if (!mesh_.GetVertexBuffer().GetResource()) {
@@ -206,7 +204,6 @@ void ParticleSystem::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
 #endif // _DEBUG
 }
 
-
 void OriGine::from_json(const nlohmann::json& _j, ParticleSystem& _comp) {
     _j.at("blendMode").get_to(_comp.blendMode_);
     _j.at("textureFileName").get_to(_comp.textureFileName_);
@@ -274,7 +271,6 @@ void OriGine::from_json(const nlohmann::json& _j, ParticleSystem& _comp) {
     if (_j.find("uvTranslateCurve") != _j.end()) {
         curveLoad(_j.at("uvTranslateCurve"), _comp.particleKeyFrames_->uvTranslateCurve);
     }
-
 }
 
 void OriGine::to_json(nlohmann::json& _j, const ParticleSystem& _comp) {

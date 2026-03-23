@@ -41,8 +41,8 @@ class Emitter {
     // エディタ：ImGui / SetterCommand でフィールドの生ポインタが必要なため
 #ifdef _DEBUG
     friend class EmitterEditor;
-    friend class EmitterShapeRenderingSystem;
 #endif
+    friend class EmitterShapeRenderingSystem;
 
 public:
     Emitter();

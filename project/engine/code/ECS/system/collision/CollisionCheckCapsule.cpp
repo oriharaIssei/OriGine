@@ -118,23 +118,23 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// </summary>
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    // カプセルの線分上の各点とAABBの最近接点を求め、最短距離を計算
-    Vec3f closestOnSeg, closestOnAABB;
-    float minDistSq = FLT_MAX;
+    // 反復最近接点法：線分上の点とAABB上の点を交互に更新して収束させる
+    Vec3f closestOnSeg  = _shapeA.segment.Center();
+    Vec3f closestOnAABB = ClosestPointOnAABB(closestOnSeg, _shapeB);
 
-    // 線分上の点をサンプリングして最近接点を求める
-    const int numSamples = 10;
-    for (int i = 0; i <= numSamples; ++i) {
-        float t           = static_cast<float>(i) / numSamples;
-        Vec3f pointOnSeg  = _shapeA.segment.GetPoint(t);
-        Vec3f pointOnAABB = ClosestPointOnAABB(pointOnSeg, _shapeB);
-        float distSq      = Vec3f(pointOnAABB - pointOnSeg).lengthSq();
-        if (distSq < minDistSq) {
-            minDistSq     = distSq;
-            closestOnSeg  = pointOnSeg;
-            closestOnAABB = pointOnAABB;
+    constexpr int kMaxIterations = 8;
+    for (int i = 0; i < kMaxIterations; ++i) {
+        Vec3f prevOnSeg  = closestOnSeg;
+        closestOnSeg     = ClosestPointOnSegment(closestOnAABB, _shapeA.segment.start, _shapeA.segment.end);
+        closestOnAABB    = ClosestPointOnAABB(closestOnSeg, _shapeB);
+
+        // 収束判定
+        if (Vec3f(closestOnSeg - prevOnSeg).lengthSq() < kEpsilon * kEpsilon) {
+            break;
         }
     }
+
+    float minDistSq = Vec3f(closestOnAABB - closestOnSeg).lengthSq();
 
     if (minDistSq > _shapeA.radius * _shapeA.radius) {
         return false;
@@ -185,22 +185,22 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// </summary>
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    // カプセルの線分上の各点とOBBの最近接点を求め、最短距離を計算
-    Vec3f closestOnSeg, closestOnOBB;
-    float minDistSq = FLT_MAX;
+    // 反復最近接点法：線分上の点とOBB上の点を交互に更新して収束させる
+    Vec3f closestOnSeg = _shapeA.segment.Center();
+    Vec3f closestOnOBB = ClosestPointOnOBB(closestOnSeg, _shapeB);
 
-    const int numSamples = 10;
-    for (int i = 0; i <= numSamples; ++i) {
-        float t          = static_cast<float>(i) / numSamples;
-        Vec3f pointOnSeg = _shapeA.segment.GetPoint(t);
-        Vec3f pointOnOBB = ClosestPointOnOBB(pointOnSeg, _shapeB);
-        float distSq     = Vec3f(pointOnOBB - pointOnSeg).lengthSq();
-        if (distSq < minDistSq) {
-            minDistSq    = distSq;
-            closestOnSeg = pointOnSeg;
-            closestOnOBB = pointOnOBB;
+    constexpr int kMaxIterations = 8;
+    for (int i = 0; i < kMaxIterations; ++i) {
+        Vec3f prevOnSeg = closestOnSeg;
+        closestOnSeg    = ClosestPointOnSegment(closestOnOBB, _shapeA.segment.start, _shapeA.segment.end);
+        closestOnOBB    = ClosestPointOnOBB(closestOnSeg, _shapeB);
+
+        if (Vec3f(closestOnSeg - prevOnSeg).lengthSq() < kEpsilon * kEpsilon) {
+            break;
         }
     }
+
+    float minDistSq = Vec3f(closestOnOBB - closestOnSeg).lengthSq();
 
     if (minDistSq > _shapeA.radius * _shapeA.radius) {
         return false;
