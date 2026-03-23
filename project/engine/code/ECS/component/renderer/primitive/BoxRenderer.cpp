@@ -25,6 +25,9 @@ using namespace OriGine;
 void BoxRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
     MeshRenderer::Initialize(_scene, _entity);
 
+    // デフォルトでインスタンシング描画を使用
+    useInstancing_ = true;
+
     // _mesh Init
     if (!meshGroup_->empty()) {
         meshGroup_->clear();

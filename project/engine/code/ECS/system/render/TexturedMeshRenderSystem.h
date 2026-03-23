@@ -17,6 +17,7 @@
 #include "directX12/ShaderManager.h"
 
 #include "directX12/raytracing/RaytracingScene.h"
+#include "directX12/instancing/InstancedMeshManager.h"
 
 // component
 #include "component/material/Material.h"
@@ -33,6 +34,9 @@ class PrimitiveMeshRendererBase;
 class TexturedMeshRenderSystem
     : public BaseRenderSystem {
 public:
+    /// <summary>同一モデルの自動インスタンシング切り替え閾値</summary>
+    static constexpr uint32_t kAutoInstanceThreshold = 3;
+
     TexturedMeshRenderSystem();
     ~TexturedMeshRenderSystem() override;
 
@@ -141,6 +145,8 @@ protected:
 
     // PSOリスト [カリングON/OFF][ブレンドモード]
     std::array<std::array<PipelineStateObj*, kBlendNum>, 2> psoByBlendMode_{};
+    // インスタンシング用PSOリスト [カリングON/OFF][ブレンドモード]
+    std::array<std::array<PipelineStateObj*, kBlendNum>, 2> instancedPsoByBlendMode_{};
 
     int32_t transformBufferIndex_          = 0; // トランスフォームバッファのインデックス
     int32_t cameraBufferIndex_             = 0; // カメラバッファのインデックス
@@ -153,7 +159,28 @@ protected:
     int32_t environmentTextureBufferIndex_ = 0; // 環境マップテクスチャのインデックス
     int32_t raytracingSceneBufferIndex_    = 0; // レイトレーシングシーンバッファのインデックス
 
+    // インスタンシング用ルートパラメータインデックス
+    int32_t instancedTransformBufferIndex_ = 0;
+    int32_t instancedMaterialBufferIndex_  = 0;
+    int32_t instancedOffsetBufferIndex_    = 0;
+
+    // インスタンシング描画管理
+    InstancedMeshManager instancedMeshManager_;
+
+    // Model 自動インスタンシング用：ModelMeshData* 別のエンティティカウント（フレーム毎に再構築）
+    std::unordered_map<ModelMeshData*, uint32_t> modelInstanceCounts_;
+
 public:
+    /// <summary>
+    /// インスタンシング用PSOの作成
+    /// </summary>
+    void CreateInstancedPSO();
+
+    /// <summary>
+    /// インスタンシング描画マネージャへの参照を取得する
+    /// </summary>
+    InstancedMeshManager& GetInstancedMeshManager() { return instancedMeshManager_; }
+
     /// <summary>
     /// ブレンドモードを設定する
     /// </summary>

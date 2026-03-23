@@ -5,8 +5,13 @@
 /// engine
 // asset
 #include "asset/TextureAsset.h"
+// instancing
+#include "directX12/instancing/InstanceHandle.h"
 
 namespace OriGine {
+
+/// 前方宣言
+struct ModelMeshData;
 
 ///< summary>
 /// モデルのメッシュ描画コンポーネント
@@ -62,6 +67,13 @@ private:
 
     std::vector<std::string> textureFilePath_ = {};
     std::vector<size_t> meshTextureNumbers_;
+
+    /// <summary>共有モデルデータへのポインタ（インスタンシング判定キー）</summary>
+    ModelMeshData* modelData_ = nullptr;
+    /// <summary>インスタンシング描画用ハンドル</summary>
+    InstanceHandle instanceHandle_;
+    /// <summary>true のとき常に個別描画を使用する</summary>
+    bool forceNonInstanced_ = false;
 
 public:
     //------------------------------ File ------------------------------//
@@ -136,6 +148,22 @@ public:
         }
         meshTextureNumbers_[_meshIndex] = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_[_meshIndex]);
     }
+
+    //------------------------------ Instancing ------------------------------//
+    /// <summary>共有モデルデータを取得する</summary>
+    ModelMeshData* GetModelData() const { return modelData_; }
+    /// <summary>共有モデルデータを設定する</summary>
+    void SetModelData(ModelMeshData* _modelData) { modelData_ = _modelData; }
+
+    /// <summary>インスタンスハンドルを取得する</summary>
+    const InstanceHandle& GetInstanceHandle() const { return instanceHandle_; }
+    /// <summary>インスタンスハンドルを設定する</summary>
+    void SetInstanceHandle(const InstanceHandle& _handle) { instanceHandle_ = _handle; }
+
+    /// <summary>強制個別描画フラグを取得する</summary>
+    bool IsForceNonInstanced() const { return forceNonInstanced_; }
+    /// <summary>強制個別描画フラグを設定する</summary>
+    void SetForceNonInstanced(bool _force) { forceNonInstanced_ = _force; }
 };
 
 void CreateModelMeshRenderer(

@@ -91,6 +91,9 @@ private:
     /// <summary>デバッグ用のメッシュ名</summary>
     std::string name_ = "UNKNOWN";
 
+    /// <summary>テンプレートメッシュ（インスタンシング描画対象）かどうか</summary>
+    bool isTemplated_ = false;
+
 public:
     /// <summary>メッシュに名称を設定する（リソース名にも反映されることがある）.</summary>
     void SetName(const std::string& _name) {
@@ -101,6 +104,11 @@ public:
     const std::string& GetName() const {
         return name_;
     }
+
+    /// <summary>テンプレートメッシュかどうかを取得する.</summary>
+    bool IsTemplated() const { return isTemplated_; }
+    /// <summary>テンプレートメッシュフラグを設定する.</summary>
+    void SetTemplated(bool _isTemplated) { isTemplated_ = _isTemplated; }
 
     /// <summary>
     /// 頂点データのセット

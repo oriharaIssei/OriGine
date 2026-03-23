@@ -104,8 +104,6 @@ void Scene::Update() {
 void Scene::Render() {
     // worldの描画
     sceneView_->PreDraw();
-    DispatchMeshForRaytracing();
-    // UpdateRaytracingScene();
     systemRunner_->UpdateCategory<SystemCategory::Render>();
     sceneView_->PostDraw();
 
@@ -167,6 +165,9 @@ void Scene::DispatchMeshForRaytracing() {
                     continue;
                 }
 
+                // エンティティの Transform を取得して parent にセット
+                auto* entityTransform = componentRepository_->GetComponent<Transform>(slot.owner);
+
                 auto& meshGroup = meshRenderer.GetMeshGroup();
                 for (int32_t meshIdx = 0; meshIdx < meshGroup->size(); ++meshIdx) {
                     RaytracingMeshEntry entry{};
@@ -181,7 +182,11 @@ void Scene::DispatchMeshForRaytracing() {
                     }
 
                     entry.meshHandle = meshRenderer.GetMeshHandle(meshIdx);
-                    meshRenderer.GetTransformRef(meshIdx).UpdateMatrix();
+                    auto& meshTransform = meshRenderer.GetTransformRef(meshIdx);
+                    if (meshTransform.parent == nullptr && entityTransform) {
+                        meshTransform.parent = entityTransform;
+                    }
+                    meshTransform.UpdateMatrix();
                     entry.worldMat  = meshRenderer.GetTransform(meshIdx).worldMat;
                     entry.isDynamic = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx), true);
                     meshForRaytracing_.push_back(entry);
@@ -190,16 +195,20 @@ void Scene::DispatchMeshForRaytracing() {
         }
     }
 
-    auto dispatchPrimitiveRenderers = [this](const auto& primitiveRendererComponentArray) {
+    auto dispatchPrimitiveRenderers = [this](auto* primitiveRendererComponentArray) {
         if (!primitiveRendererComponentArray) {
             return;
         }
-        for (auto& slot : primitiveRendererComponentArray->GetSlots()) {
+        for (auto& slot : primitiveRendererComponentArray->GetSlotsRef()) {
             for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
                 auto& meshRenderer = slot.components[compIdx];
                 if (!meshRenderer.IsRender()) {
                     continue;
                 }
+
+                // エンティティの Transform を取得して parent にセット
+                auto* entityTransform = componentRepository_->GetComponent<Transform>(slot.owner);
+
                 auto& meshGroup = meshRenderer.GetMeshGroup();
                 for (int32_t meshIdx = 0; meshIdx < meshGroup->size(); ++meshIdx) {
                     RaytracingMeshEntry entry{};
@@ -214,7 +223,12 @@ void Scene::DispatchMeshForRaytracing() {
                     }
 
                     entry.meshHandle = meshRenderer.GetMeshHandle(meshIdx);
-                    entry.worldMat   = meshRenderer.GetTransformBuff()->worldMat;
+                    auto& meshTransform = meshRenderer.GetTransformBuff().openData_;
+                    if (meshTransform.parent == nullptr && entityTransform) {
+                        meshTransform.parent = entityTransform;
+                    }
+                    meshTransform.UpdateMatrix();
+                    entry.worldMat   = meshTransform.worldMat;
                     entry.isDynamic  = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx));
                     meshForRaytracing_.push_back(entry);
                 }

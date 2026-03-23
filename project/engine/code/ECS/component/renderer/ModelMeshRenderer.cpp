@@ -175,6 +175,9 @@ void OriGine::CreateModelMeshRenderer(
         // メッシュグループの作成
         CreateMeshGroupFormNode(_renderer, _model, &_model->meshData_->rootNode);
 
+        // インスタンシング判定用に ModelMeshData を保持
+        _renderer->SetModelData(_model->meshData_);
+
         isLoaded = true;
     });
 
@@ -282,8 +285,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 }
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureColorMesh>>();
-                CreateModelMeshRenderer(this, this->hostEntityHandle_, this->directory_, this->fileName_);
-                InitializeMaterialFromModelFile(this, _scene, this->hostEntityHandle_, this->directory_, this->fileName_);
+                this->Initialize(_scene,this->GetHostEntityHandle());
             },
                 true);
             OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));

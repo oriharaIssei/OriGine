@@ -3,6 +3,7 @@
 /// engine
 // directX12
 #include "component/renderer/MeshRenderer.h"
+#include "directX12/instancing/InstanceHandle.h"
 
 namespace OriGine {
 
@@ -44,6 +45,11 @@ protected:
     std::string textureFilePath_;
     size_t textureIndex_ = 0;
 
+    /// <summary>インスタンシング描画用ハンドル</summary>
+    InstanceHandle instanceHandle_;
+    /// <summary>インスタンシング描画を使用するかどうか（派生クラスで設定）</summary>
+    bool useInstancing_ = false;
+
 public:
     Transform& GetTransform() {
         return transformBuff_.openData_;
@@ -78,6 +84,16 @@ public:
     size_t GetTextureIndex() const {
         return textureIndex_;
     }
+
+    /// <summary>インスタンシング描画を使用するかどうか</summary>
+    bool IsInstancing() const { return useInstancing_; }
+    /// <summary>インスタンシング描画の有効/無効を設定する</summary>
+    void SetInstancing(bool _useInstancing) { useInstancing_ = _useInstancing; }
+
+    /// <summary>インスタンスハンドルを取得する</summary>
+    const InstanceHandle& GetInstanceHandle() const { return instanceHandle_; }
+    /// <summary>インスタンスハンドルを設定する</summary>
+    void SetInstanceHandle(const InstanceHandle& _handle) { instanceHandle_ = _handle; }
 };
 
 } // namespace OriGine

@@ -12,6 +12,8 @@
 #include "asset/AssetSystem.h"
 
 /// ECS
+// entity
+#include "entity/Entity.h"
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/ModelMeshRenderer.h"
@@ -36,6 +38,7 @@ TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
 
 void TexturedMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
+    instancedMeshManager_.Initialize();
 }
 
 void OriGine::TexturedMeshRenderSystem::Update() {
@@ -44,8 +47,50 @@ void OriGine::TexturedMeshRenderSystem::Update() {
         return;
     }
 
+    // 死んだエンティティのインスタンスをクリーンアップ
+    for (auto& entityID : entities_) {
+        Entity* entity = GetEntity(entityID);
+        if (!entityID.IsValid() || !entity || !entity->IsAlive()) {
+            // ModelMeshRenderer のインスタンスハンドルを解放
+            auto& modelRenderers = GetComponents<ModelMeshRenderer>(entityID);
+            for (auto& renderer : modelRenderers) {
+                if (renderer.GetInstanceHandle().IsValid()) {
+                    instancedMeshManager_.RemoveInstance(renderer.GetInstanceHandle());
+                    renderer.SetInstanceHandle(InstanceHandle{});
+                }
+            }
+
+            // Primitive のインスタンスハンドルを解放
+            auto cleanupPrimitive = [this](auto& renderers) {
+                for (auto& renderer : renderers) {
+                    if (renderer.GetInstanceHandle().IsValid()) {
+                        instancedMeshManager_.RemoveInstance(renderer.GetInstanceHandle());
+                        renderer.SetInstanceHandle(InstanceHandle{});
+                    }
+                }
+            };
+            cleanupPrimitive(GetComponents<PlaneRenderer>(entityID));
+            cleanupPrimitive(GetComponents<BoxRenderer>(entityID));
+            cleanupPrimitive(GetComponents<RingRenderer>(entityID));
+            cleanupPrimitive(GetComponents<SphereRenderer>(entityID));
+            cleanupPrimitive(GetComponents<CylinderRenderer>(entityID));
+        }
+    }
+
     // 有効でないエンティティを削除
     EraseDeadEntity();
+
+    // カウントプレパス: 同一モデルのエンティティ数を集計
+    modelInstanceCounts_.clear();
+    for (auto& entityID : entities_) {
+        auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(entityID);
+        for (auto& renderer : modelMeshRenderers) {
+            ModelMeshData* modelData = renderer.GetModelData();
+            if (modelData && !renderer.IsForceNonInstanced()) {
+                modelInstanceCounts_[modelData]++;
+            }
+        }
+    }
 
     // レンダラー登録
     for (auto& entityID : entities_) {
@@ -61,6 +106,9 @@ void OriGine::TexturedMeshRenderSystem::Update() {
     ///! TODO: シーン側で更新するべき
     // だけど、メッシュのTransformをここで更新しているので、暫定対応としておく
     GetScene()->UpdateRaytracingScene();
+    // インスタンシング描画のバッファ更新
+    instancedMeshManager_.UpdateBuffers(GetScene());
+
     // レンダリング実行
     Rendering();
 }
@@ -72,6 +120,9 @@ void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
         entityTransform->UpdateMatrix();
     }
 
+    //==============================
+    // ModelMeshRenderer の振り分け
+    //==============================
     auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
     if (!modelMeshRenderers.empty()) {
 
@@ -80,45 +131,127 @@ void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
                 continue;
             }
 
-            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
-                ///==============================
-                /// Transformの更新 (meshごと)
-                ///==============================
-                auto& transform = renderer.GetTransformBuff(i);
+            ModelMeshData* modelData = renderer.GetModelData();
+            auto countItr = modelData ? modelInstanceCounts_.find(modelData) : modelInstanceCounts_.end();
+            bool shouldInstance = modelData
+                && !renderer.IsForceNonInstanced()
+                && countItr != modelInstanceCounts_.end()
+                && countItr->second >= kAutoInstanceThreshold;
 
-                if (transform->parent == nullptr) {
-                    transform->parent = entityTransform;
+            if (shouldInstance) {
+                // インスタンシング描画パス
+                if (!renderer.GetInstanceHandle().IsValid()) {
+                    renderer.SetInstanceHandle(
+                        instancedMeshManager_.AddInstance(modelData, _entity));
                 }
 
-                transform->UpdateMatrix();
-                transform.ConvertToBuffer();
-            }
+                // Material / Texture / BlendMode / Culling 同期
+                InstanceEntry& entry = instancedMeshManager_.GetInstance(renderer.GetInstanceHandle());
+                entry.blendMode  = renderer.GetCurrentBlend();
+                entry.isCulling  = renderer.IsCulling();
+                uint32_t submeshCount = static_cast<uint32_t>(renderer.GetMeshGroup()->size());
+                for (uint32_t i = 0; i < submeshCount; ++i) {
+                    ComponentHandle matHandle = renderer.GetMaterialHandle(i);
+                    Material* material = GetComponent<Material>(matHandle);
+                    if (material && i < entry.materials.size()) {
+                        material->UpdateUvMatrix();
+                        entry.materials[i] = *material;
 
-            ///==============================
-            /// push_back
-            ///==============================
-            BlendMode blendMode = renderer.GetCurrentBlend();
-            int32_t blendIndex  = static_cast<int32_t>(blendMode);
-            int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
-            activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+                        // customTexture の同期
+                        if (i < entry.customTextureHandles.size()) {
+                            if (material->hasCustomTexture()) {
+                                entry.customTextureHandles[i] = material->GetCustomTexture()->srv_.GetGpuHandle();
+                            } else {
+                                entry.customTextureHandles[i] = D3D12_GPU_DESCRIPTOR_HANDLE{0};
+                            }
+                        }
+                    }
+                    if (i < entry.textureIndices.size()) {
+                        entry.textureIndices[i] = renderer.GetTextureIndex(i);
+                    }
+                }
+            } else {
+                // 閾値未満に戻った場合：インスタンスを解除
+                if (renderer.GetInstanceHandle().IsValid()) {
+                    instancedMeshManager_.RemoveInstance(renderer.GetInstanceHandle());
+                    renderer.SetInstanceHandle(InstanceHandle{});
+                }
+
+                // 個別描画パス
+                for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
+                    auto& transform = renderer.GetTransformBuff(i);
+                    if (transform->parent == nullptr) {
+                        transform->parent = entityTransform;
+                    }
+                    transform->UpdateMatrix();
+                    transform.ConvertToBuffer();
+                }
+
+                BlendMode blendMode = renderer.GetCurrentBlend();
+                int32_t blendIndex  = static_cast<int32_t>(blendMode);
+                int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
+                activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+            }
         }
     }
 
+    //==============================
+    // Primitive の振り分け
+    //==============================
     auto dispatchPrimitive = [this, _entity, entityTransform](auto& renderers) {
         for (auto& renderer : renderers) {
             if (!renderer.IsRender()) {
                 continue;
             }
 
-            ///==============================
-            /// Transformの更新
-            ///==============================
-            auto& transform = renderer.GetTransformBuff();
+            // インスタンシング描画判定
+            if (renderer.IsInstancing()) {
+                if (!renderer.GetInstanceHandle().IsValid()) {
+                    // テンプレートメッシュを取得し、インスタンスを追加
+                    auto templateMesh = instancedMeshManager_.GetOrCreatePrimitiveTemplate(
+                        typeid(renderer).name(),
+                        [&renderer](TextureColorMesh* _mesh) {
+                            renderer.CreateMesh(_mesh);
+                        });
+                    renderer.SetInstanceHandle(
+                        instancedMeshManager_.AddInstance(templateMesh, _entity));
+                }
 
+                // Material / Texture / LocalTransform / BlendMode / Culling 同期
+                InstanceEntry& entry = instancedMeshManager_.GetInstance(renderer.GetInstanceHandle());
+                entry.blendMode  = renderer.GetCurrentBlend();
+                entry.isCulling  = renderer.IsCulling();
+                if (!entry.materials.empty()) {
+                    Material* material = GetComponent<Material>(_entity, renderer.GetMaterialIndex());
+                    if (material) {
+                        material->UpdateUvMatrix();
+                        entry.materials[0] = *material;
+
+                        // customTexture の同期
+                        if (!entry.customTextureHandles.empty()) {
+                            if (material->hasCustomTexture()) {
+                                entry.customTextureHandles[0] = material->GetCustomTexture()->srv_.GetGpuHandle();
+                            } else {
+                                entry.customTextureHandles[0] = D3D12_GPU_DESCRIPTOR_HANDLE{0};
+                            }
+                        }
+                    }
+                }
+                if (!entry.textureIndices.empty()) {
+                    entry.textureIndices[0] = renderer.GetTextureIndex();
+                }
+                // ローカル Transform 同期（レンダラーの transformBuff_ を使用）
+                if (!entry.localTransforms.empty()) {
+                    entry.localTransforms[0] = renderer.GetTransformBuff().openData_;
+                }
+                continue;
+            }
+
+            // 個別描画パス
+            auto& transform = renderer.GetTransformBuff();
             if (transform->parent == nullptr) {
                 transform->parent = entityTransform;
             }
-
             transform->UpdateMatrix();
             transform.ConvertToBuffer();
 
@@ -149,8 +282,10 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
     auto& activeModelMeshRenderers     = activeModelMeshRenderer_[cullingIndex][blendIndex];
     auto& activePrimitiveMeshRenderers = activePrimitiveMeshRenderer_[cullingIndex][blendIndex];
 
-    bool isSkip = activeModelMeshRenderers.empty() && activePrimitiveMeshRenderers.empty();
-    if (isSkip) {
+    bool hasNonInstanced = !activeModelMeshRenderers.empty() || !activePrimitiveMeshRenderers.empty();
+    bool hasInstanced    = instancedMeshManager_.HasInstancesFor(_blendMode, _isCulling);
+
+    if (!hasNonInstanced && !hasInstanced) {
         return;
     }
 
@@ -158,25 +293,72 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
     currentCulling_   = _isCulling;
     currentBlendMode_ = _blendMode;
 
-    StartRender();
+    // 非インスタンス描画
+    if (hasNonInstanced) {
+        StartRender();
 
-    // model
-    if (!activeModelMeshRenderers.empty()) {
+        // model
         for (auto& renderer : activeModelMeshRenderers) {
             RenderModelMesh(commandList, renderer);
         }
         activeModelMeshRenderers.clear();
-    }
-    // primitive
-    if (!activePrimitiveMeshRenderers.empty()) {
+
+        // primitive
         for (auto& renderer : activePrimitiveMeshRenderers) {
             RenderPrimitiveMesh(commandList, renderer);
         }
         activePrimitiveMeshRenderers.clear();
     }
+
+    // インスタンシング描画（該当する BlendMode / Culling のみ）
+    if (hasInstanced) {
+        // インスタンシング用 PSO に切り替え
+        commandList->SetGraphicsRootSignature(instancedPsoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
+        commandList->SetPipelineState(instancedPsoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+        commandList->SetDescriptorHeaps(1, ppHeaps);
+
+        // Camera
+        CameraManager* cameraManager = CameraManager::GetInstance();
+        cameraManager->SetBufferForRootParameter(GetScene(), commandList, cameraBufferIndex_);
+
+        // Light
+        LightManager::GetInstance()->SetForRootParameter(
+            commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
+
+        // RaytracingScene
+        if (!GetScene()->GetRaytracingScene()->IsEmpty()) {
+            commandList->SetGraphicsRootShaderResourceView(raytracingSceneBufferIndex_, GetScene()->GetRaytracingSceneRef()->GetTlasResource()->GetGPUVirtualAddress());
+        }
+
+        // 環境テクスチャ
+        EntityHandle skyboxEntity = GetUniqueEntity("Skybox");
+        if (skyboxEntity.IsValid()) {
+            SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
+            commandList->SetGraphicsRootDescriptorTable(
+                environmentTextureBufferIndex_,
+                AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
+        }
+
+        // インスタンシング描画
+        instancedMeshManager_.Render(
+            commandList,
+            instancedTransformBufferIndex_,
+            instancedMaterialBufferIndex_,
+            textureBufferIndex_,
+            instancedOffsetBufferIndex_,
+            _blendMode,
+            _isCulling);
+    }
 }
 
 bool TexturedMeshRenderSystem::ShouldSkipRender() const {
+    // インスタンシング描画がある場合はスキップしない
+    if (!instancedMeshManager_.IsEmpty()) {
+        return false;
+    }
     for (size_t isCulling = 0; isCulling < 2; ++isCulling) {
         for (size_t blendIndex = 0; blendIndex < kBlendNum; ++blendIndex) {
             if (!activeModelMeshRenderer_[isCulling][blendIndex].empty() || !activePrimitiveMeshRenderer_[isCulling][blendIndex].empty()) {
@@ -199,6 +381,7 @@ void TexturedMeshRenderSystem::Finalize() {
         }
     }
 
+    instancedMeshManager_.Finalize();
     dxCommand_->Finalize();
 }
 
@@ -421,6 +604,9 @@ void TexturedMeshRenderSystem::CreatePSO() {
         texShaderInfo.blendMode_ = blend;
         psoByBlendMode_[1][i]    = shaderManager->CreatePso(kCullingPsoKey + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
+
+    // インスタンシング用 PSO の作成
+    CreateInstancedPSO();
 }
 
 void TexturedMeshRenderSystem::LightUpdate() {
@@ -636,5 +822,244 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
             _renderer->GetTransformBuff(),
             _renderer->GetMaterialBuff(),
             textureHandle);
+    }
+}
+
+//==============================================================================
+// TexturedMeshRenderSystem - Instanced PSO
+//==============================================================================
+
+void TexturedMeshRenderSystem::CreateInstancedPSO() {
+    const std::string kInstancedVSName = "Object3dTextureColorInstanced.VS";
+    const std::string kInstancedPSName = "Object3dTextureColorInstancedWithRaytracing.PS";
+    const std::string kInstancedPsoKey         = "InstancedTextureMeshWithRaytracing_";
+    const std::string kInstancedCullingPsoKey   = "CullingInstancedTextureMeshWithRaytracing_";
+
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+
+    // 登録済みチェック
+    if (shaderManager->IsRegisteredPipelineStateObj(kInstancedPsoKey + kBlendModeStr[0])) {
+        bool isAllRegistered = true;
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            if (!instancedPsoByBlendMode_[0][i] || !instancedPsoByBlendMode_[1][i]) {
+                isAllRegistered = false;
+                continue;
+            }
+            instancedPsoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj(kInstancedPsoKey + kBlendModeStr[i]);
+            instancedPsoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj(kInstancedCullingPsoKey + kBlendModeStr[i]);
+        }
+
+        // インスタンシング用ルートパラメータインデックスを設定
+        instancedTransformBufferIndex_ = 0;
+        instancedMaterialBufferIndex_  = 2;
+        instancedOffsetBufferIndex_    = 10;
+
+        if (isAllRegistered) {
+            return;
+        }
+    }
+
+    ///=================================================
+    /// shader読み込み
+    ///=================================================
+    shaderManager->LoadShader(kInstancedVSName);
+    shaderManager->LoadShader(kInstancedPSName, kShaderDirectory, L"ps_6_5");
+
+    ///=================================================
+    /// shader情報の設定
+    ///=================================================
+    ShaderInfo shaderInfo{};
+    shaderInfo.vsKey = kInstancedVSName;
+    shaderInfo.psKey = kInstancedPSName;
+
+#pragma region "RootParameter"
+    D3D12_ROOT_PARAMETER rootParameter[11]{};
+
+    // [0] Transform StructuredBuffer (DescriptorTable, SRV t6)
+    rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+    instancedTransformBufferIndex_    = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[0]));
+
+    // [1] Camera/ViewProjection (CBV b2)
+    // NOTE: 共有パラメータのインデックスは非インスタンスPSOと同じ順序で配置されている.
+    //       共有メンバ変数は上書きせず、ローカル変数で受ける.
+    rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameter[1].Descriptor.ShaderRegister = 2;
+    [[maybe_unused]] int32_t instCameraIdx     = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[1]));
+
+    // [2] Material StructuredBuffer (DescriptorTable, SRV t7)
+    rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    instancedMaterialBufferIndex_     = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[2]));
+
+    // [3] DirectionalLight (DescriptorTable)
+    rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    [[maybe_unused]] int32_t instDirLightIdx   = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[3]));
+
+    // [4] PointLight (DescriptorTable)
+    rootParameter[4].ParameterType              = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[4].ShaderVisibility           = D3D12_SHADER_VISIBILITY_PIXEL;
+    [[maybe_unused]] int32_t instPointLightIdx  = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[4]));
+
+    // [5] SpotLight (DescriptorTable)
+    rootParameter[5].ParameterType              = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[5].ShaderVisibility           = D3D12_SHADER_VISIBILITY_PIXEL;
+    [[maybe_unused]] int32_t instSpotLightIdx   = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[5]));
+
+    // [6] LightCounts (CBV b5)
+    rootParameter[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[6].Descriptor.ShaderRegister = 5;
+    [[maybe_unused]] int32_t instLightCountIdx = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[6]));
+
+    // [7] Texture (DescriptorTable, SRV t0)
+    rootParameter[7].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[7].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    [[maybe_unused]] int32_t instTextureIdx    = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[7]));
+
+    // [8] Environment Texture (DescriptorTable, SRV t1)
+    rootParameter[8].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[8].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    [[maybe_unused]] int32_t instEnvTexIdx     = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[8]));
+
+    // [9] RaytracingScene (SRV t5)
+    rootParameter[9].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    rootParameter[9].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[9].Descriptor.ShaderRegister = 5; // t5
+    rootParameter[9].Descriptor.RegisterSpace  = 0;
+    [[maybe_unused]] int32_t instRaytracingIdx = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[9]));
+
+    // [10] InstanceOffset (Root Constants, b6) - テクスチャバッチ描画時のオフセット
+    rootParameter[10].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+    rootParameter[10].ShaderVisibility         = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameter[10].Constants.ShaderRegister = 6; // b6
+    rootParameter[10].Constants.RegisterSpace  = 0;
+    rootParameter[10].Constants.Num32BitValues = 1;
+    instancedOffsetBufferIndex_                = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[10]));
+
+    // DescriptorRange 定義
+    // Transform StructuredBuffer (t6)
+    D3D12_DESCRIPTOR_RANGE instanceTransformRange[1]            = {};
+    instanceTransformRange[0].BaseShaderRegister                = 6;
+    instanceTransformRange[0].NumDescriptors                    = 1;
+    instanceTransformRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    instanceTransformRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // Material StructuredBuffer (t7)
+    D3D12_DESCRIPTOR_RANGE instanceMaterialRange[1]            = {};
+    instanceMaterialRange[0].BaseShaderRegister                = 7;
+    instanceMaterialRange[0].NumDescriptors                    = 1;
+    instanceMaterialRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    instanceMaterialRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // Texture (t0)
+    D3D12_DESCRIPTOR_RANGE textureRange[1]            = {};
+    textureRange[0].BaseShaderRegister                = 0;
+    textureRange[0].NumDescriptors                    = 1;
+    textureRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    textureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // Environment Texture (t1)
+    D3D12_DESCRIPTOR_RANGE environmentTextureRange[1]            = {};
+    environmentTextureRange[0].BaseShaderRegister                = 1;
+    environmentTextureRange[0].NumDescriptors                    = 1;
+    environmentTextureRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    environmentTextureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // Light SRVs
+    D3D12_DESCRIPTOR_RANGE directionalLightRange[1]            = {};
+    directionalLightRange[0].BaseShaderRegister                = 2;
+    directionalLightRange[0].NumDescriptors                    = 1;
+    directionalLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    D3D12_DESCRIPTOR_RANGE pointLightRange[1]            = {};
+    pointLightRange[0].BaseShaderRegister                = 3;
+    pointLightRange[0].NumDescriptors                    = 1;
+    pointLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    pointLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    D3D12_DESCRIPTOR_RANGE spotLightRange[1]            = {};
+    spotLightRange[0].BaseShaderRegister                = 4;
+    spotLightRange[0].NumDescriptors                    = 1;
+    spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // DescriptorRange をルートパラメータに紐付け
+    shaderInfo.SetDescriptorRange2Parameter(instanceTransformRange, 1, instancedTransformBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(instanceMaterialRange, 1, instancedMaterialBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
+#pragma endregion
+
+    ///=================================================
+    /// Sampler
+    D3D12_STATIC_SAMPLER_DESC staticSampler = {};
+    staticSampler.Filter                    = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    staticSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    staticSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    staticSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    staticSampler.ComparisonFunc   = D3D12_COMPARISON_FUNC_NEVER;
+    staticSampler.MinLOD           = 0;
+    staticSampler.MaxLOD           = D3D12_FLOAT32_MAX;
+    staticSampler.ShaderRegister   = 0;
+    staticSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    shaderInfo.pushBackSamplerDesc(staticSampler);
+
+#pragma region "InputElement"
+    D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
+    inputElementDesc.SemanticName             = "POSITION";
+    inputElementDesc.SemanticIndex            = 0;
+    inputElementDesc.Format                   = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    inputElementDesc.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
+    shaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "TEXCOORD";
+    inputElementDesc.SemanticIndex     = 0;
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32_FLOAT;
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    shaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "NORMAL";
+    inputElementDesc.SemanticIndex     = 0;
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    shaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "COLOR";
+    inputElementDesc.SemanticIndex     = 0;
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    shaderInfo.pushBackInputElementDesc(inputElementDesc);
+#pragma endregion
+
+    ///=================================================
+    /// BlendMode ごとの PSO を作成
+    ///=================================================
+
+    // カリングなし
+    shaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        if (instancedPsoByBlendMode_[0][i] != nullptr) {
+            continue;
+        }
+        shaderInfo.blendMode_          = static_cast<BlendMode>(i);
+        instancedPsoByBlendMode_[0][i] = shaderManager->CreatePso(kInstancedPsoKey + kBlendModeStr[i], shaderInfo, dxDevice->device_);
+    }
+
+    // カリングあり
+    shaderInfo.changeCullMode(D3D12_CULL_MODE_BACK);
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        if (instancedPsoByBlendMode_[1][i] != nullptr) {
+            continue;
+        }
+        shaderInfo.blendMode_          = static_cast<BlendMode>(i);
+        instancedPsoByBlendMode_[1][i] = shaderManager->CreatePso(kInstancedCullingPsoKey + kBlendModeStr[i], shaderInfo, dxDevice->device_);
     }
 }
