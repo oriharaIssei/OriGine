@@ -40,29 +40,29 @@ struct Vector2 final
 
     // コンストラクタ
     constexpr Vector2() : Vector<2, valueType>({valueType(0), valueType(0)}) {}
-    constexpr Vector2(valueType _xValue, valueType _yValue)
-        : Vector<2, valueType>({_xValue, _yValue}) {}
-    constexpr Vector2(const valueType* _xPtr, const valueType* _yPtr)
-        : Vector<2, valueType>({*_xPtr, *_yPtr}) {}
-    constexpr Vector2(const valueType* _ptr)
-        : Vector<2, valueType>({_ptr[0], _ptr[1]}) {}
+    constexpr Vector2(valueType xValue, valueType yValue)
+        : Vector<2, valueType>({xValue, yValue}) {}
+    constexpr Vector2(const valueType* xPtr, const valueType* yPtr)
+        : Vector<2, valueType>({*xPtr, *yPtr}) {}
+    constexpr Vector2(const valueType* ptr)
+        : Vector<2, valueType>({ptr[0], ptr[1]}) {}
 
     /// <summary>
     /// 外積を計算 (2Dの外積はスカラー)
     /// </summary>
-    constexpr valueType cross(const Vector2& _another) const { return (this->v[X] * _another.v[Y]) - (this->v[Y] * _another.v[X]); }
+    constexpr valueType cross(const Vector2& another) const { return (this->v[X] * another.v[Y]) - (this->v[Y] * another.v[X]); }
     /// <summary>
     /// 外積を計算 (static)
     /// </summary>
-    /// <param name="_v">ベクトル1</param>
-    /// <param name="_another">ベクトル2</param>
+    /// <param name="v">ベクトル1</param>
+    /// <param name="another">ベクトル2</param>
     /// <returns>外積(行列式)</returns>
-    static constexpr valueType Cross(const Vector2& _v, const Vector2& _another) { return (_v.v[X] * _another.v[Y]) - (_v.v[Y] * _another.v[X]); }
+    static constexpr valueType Cross(const Vector2& v, const Vector2& another) { return (v.v[X] * another.v[Y]) - (v.v[Y] * another.v[X]); }
 
 #ifdef _DEBUG
-    constexpr Vector2& operator=(const ImVec2& _another) {
-        this->v[X] = _another.x;
-        this->v[Y] = _another.y;
+    constexpr Vector2& operator=(const ImVec2& another) {
+        this->v[X] = another.x;
+        this->v[Y] = another.y;
         return *this;
     }
     /// <summary>
@@ -131,12 +131,12 @@ inline Vector2<valueType>* operator/=(Vector2<valueType>& vec, const Vector2<val
 /// 反射ベクトルを計算
 /// </summary>
 /// <typeparam name="valueType"></typeparam>
-/// <param name="_v"></param>
-/// <param name="_normal"></param>
+/// <param name="v"></param>
+/// <param name="normal"></param>
 /// <returns></returns>
 template <typename valueType>
-inline Vector2<valueType> Reflect(const Vector2<valueType>& _v, const Vector2<valueType>& _normal) {
-    return _v - 2.0f * (_v.dot(_normal)) * _normal;
+inline Vector2<valueType> Reflect(const Vector2<valueType>& v, const Vector2<valueType>& normal) {
+    return v - 2.0f * (v.dot(normal)) * normal;
 }
 
 //=========== using ===========//

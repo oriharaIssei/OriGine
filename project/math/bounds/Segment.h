@@ -15,7 +15,7 @@ namespace Bounds {
 struct Segment
     : public IBounds {
     Segment() {}
-    Segment(const Vec3f& _start, const Vec3f& _end) : start(_start), end(_end) {}
+    Segment(const Vec3f& start, const Vec3f& end) : start(start), end(end) {}
 
     /// <summary>
     /// 始点

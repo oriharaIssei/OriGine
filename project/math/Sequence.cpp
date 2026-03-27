@@ -2,8 +2,8 @@
 
 using namespace OriGine;
 
-std::string std::to_string(CommonSequenceType _type) {
-    switch (_type) {
+std::string std::to_string(CommonSequenceType type) {
+    switch (type) {
     case CommonSequenceType::Arithmetic:
         return "Arithmetic";
     case CommonSequenceType::Geometric:

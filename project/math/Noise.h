@@ -14,44 +14,44 @@ namespace FractalBrownianMotionNoise {
 /// <summary>
 /// 小数部分を取得
 /// </summary>
-/// <param name="_x"></param>
+/// <param name="x"></param>
 /// <returns></returns>
-float Fract(float _x);
+float Fract(float x);
 
 /// <summary>
 /// 各要素を切り捨て
 /// </summary>
-/// <param name="_v"></param>
+/// <param name="v"></param>
 /// <returns></returns>
-Vec2f Floor(const Vec2f& _v);
+Vec2f Floor(const Vec2f& v);
 
 /// <summary>
 /// 各要素の小数部分を取得
 /// </summary>
-/// <param name="_v"></param>
+/// <param name="v"></param>
 /// <returns></returns>
-Vec2f Fract(const Vec2f& _v);
+Vec2f Fract(const Vec2f& v);
 
 /// <summary>
 /// 疑似乱数生成
 /// </summary>
-/// <param name="_st"></param>
+/// <param name="st"></param>
 /// <returns></returns>
-float Random(const Vec2f& _st);
+float Random(const Vec2f& st);
 
 /// <summary>
 /// 2D ノイズ
 /// </summary>
-/// <param name="_st"></param>
+/// <param name="st"></param>
 /// <returns></returns>
-float Noise(const Vec2f& _st);
+float Noise(const Vec2f& st);
 
 /// <summary>
 /// fractal brownian motion ノイズ
 /// </summary>
-/// <param name="_st"></param>
+/// <param name="st"></param>
 /// <returns></returns>
-float Fbm(Vec2f _st);
+float Fbm(Vec2f st);
 
 /// <summary>
 ///  ピクセル座標から色を取得
@@ -59,7 +59,7 @@ float Fbm(Vec2f _st);
 /// <param name="fragCoord"></param>
 /// <param name="resolution"></param>
 /// <returns></returns>
-Vec4f ShadePixel(const Vec2f& _fragCoord, const Vec2f& _resolution);
+Vec4f ShadePixel(const Vec2f& fragCoord, const Vec2f& resolution);
 
 } // namespace FractalBrownianMotionNoise
 

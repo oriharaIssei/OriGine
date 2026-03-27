@@ -5,40 +5,40 @@
 
 namespace OriGine {
 
-Matrix3x3 Matrix3x3::operator+(const Matrix3x3& _another) const {
+Matrix3x3 Matrix3x3::operator+(const Matrix3x3& another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] + _another[i][j];
+            r[i][j] = m[i][j] + another[i][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator-(const Matrix3x3& _another) const {
+Matrix3x3 Matrix3x3::operator-(const Matrix3x3& another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] - _another[i][j];
+            r[i][j] = m[i][j] - another[i][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator*(const Matrix3x3& _another) const {
+Matrix3x3 Matrix3x3::operator*(const Matrix3x3& another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][0] * _another[0][j] + m[i][1] * _another[1][j] + m[i][2] * _another[2][j];
+            r[i][j] = m[i][0] * another[0][j] + m[i][1] * another[1][j] + m[i][2] * another[2][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator*(const float& _scalar) const {
+Matrix3x3 Matrix3x3::operator*(const float& scalar) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] * _scalar;
+            r[i][j] = m[i][j] * scalar;
     return r;
 }
 
-Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& _another) {
-    *this = *this * _another;
+Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& another) {
+    *this = *this * another;
     return *this;
 }
 
@@ -46,27 +46,27 @@ Matrix3x3 Matrix3x3::transpose() const {
     return Transpose(*this);
 }
 
-Matrix3x3 Matrix3x3::Transpose(const Matrix3x3& _mat) {
+Matrix3x3 Matrix3x3::Transpose(const Matrix3x3& mat) {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = _mat[j][i];
+            r[i][j] = mat[j][i];
     return r;
 }
 
-Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& _mat) {
+Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& mat) {
     // 3x3 を 4x4 に埋めたテンポラリ（行優先で埋める）
     DirectX::XMFLOAT4X4 src{
-        _mat[0][0], _mat[0][1], _mat[0][2], 0.0f,
-        _mat[1][0], _mat[1][1], _mat[1][2], 0.0f,
-        _mat[2][0], _mat[2][1], _mat[2][2], 0.0f,
+        mat[0][0], mat[0][1], mat[0][2], 0.0f,
+        mat[1][0], mat[1][1], mat[1][2], 0.0f,
+        mat[2][0], mat[2][1], mat[2][2], 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f};
 
     // SIMD ロード
-    DirectX::XMMATRIX mat = DirectX::XMLoadFloat4x4(&src);
+    DirectX::XMMATRIX xmmat = DirectX::XMLoadFloat4x4(&src);
 
     // 行列式を取得して特異かを判定
-    DirectX::XMVECTOR detVec = DirectX::XMMatrixDeterminant(mat);
+    DirectX::XMVECTOR detVec = DirectX::XMMatrixDeterminant(xmmat);
     float det                = DirectX::XMVectorGetX(detVec);
     if (std::fabs(det) < 1e-6f) {
         // 特異（逆行列が存在しない） -> ゼロ行列を返す（既存実装と合わせる）
@@ -74,7 +74,7 @@ Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& _mat) {
     }
 
     // 逆行列を計算
-    DirectX::XMMATRIX invMat = DirectX::XMMatrixInverse(&detVec, mat);
+    DirectX::XMMATRIX invMat = DirectX::XMMatrixInverse(&detVec, xmmat);
 
     // 結果を XMFLOAT4X4 に格納
     DirectX::XMFLOAT4X4 out;
@@ -95,31 +95,31 @@ Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& _mat) {
     return r;
 }
 
-void Matrix3x3::ToFloatArray(const Matrix3x3& _mat, float _out[9]) {
+void Matrix3x3::ToFloatArray(const Matrix3x3& mat, float out[9]) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            _out[i * 3 + j] = _mat[i][j];
+            out[i * 3 + j] = mat[i][j];
         }
     }
 }
 
-void Matrix3x3::FromFloatArray(Matrix3x3& _mat, const float _in[9]) {
+void Matrix3x3::FromFloatArray(Matrix3x3& mat, const float in[9]) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            _mat[i][j] = _in[i * 3 + j];
+            mat[i][j] = in[i * 3 + j];
         }
     }
 }
 
-void Matrix3x3::Decompose2D(const Matrix3x3& _mat, Vec2f& _outScale, float& _outRotate, Vec2f& _outTranslate) {
+void Matrix3x3::Decompose2D(const Matrix3x3& mat, Vec2f& outScale, float& outRotate, Vec2f& outTranslate) {
     // スケール
-    _outScale[X] = std::sqrt(_mat[0][0] * _mat[0][0] + _mat[1][0] * _mat[1][0]);
-    _outScale[Y] = std::sqrt(_mat[0][1] * _mat[0][1] + _mat[1][1] * _mat[1][1]);
+    outScale[X] = std::sqrt(mat[0][0] * mat[0][0] + mat[1][0] * mat[1][0]);
+    outScale[Y] = std::sqrt(mat[0][1] * mat[0][1] + mat[1][1] * mat[1][1]);
     // 回転（ラジアン）
-    _outRotate = std::atan2(_mat[1][0], _mat[0][0]);
+    outRotate = std::atan2(mat[1][0], mat[0][0]);
     // 平行移動
-    _outTranslate[X] = _mat[2][0];
-    _outTranslate[Y] = _mat[2][1];
+    outTranslate[X] = mat[2][0];
+    outTranslate[Y] = mat[2][1];
 }
 
 Matrix3x3 Matrix3x3::inverse() const {

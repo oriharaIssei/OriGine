@@ -15,7 +15,7 @@ namespace Bounds {
 struct Ray
     : public IBounds {
     Ray() {}
-    Ray(const Vec3f& _origin, const Vec3f& _direction) : origin(_origin), direction(_direction.normalize()) {}
+    Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction.normalize()) {}
 
     /// <summary>
     /// 始点

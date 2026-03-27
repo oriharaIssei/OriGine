@@ -29,17 +29,17 @@
 /// ::ImGui::Drag を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <typename T>
-bool DragGuiCommand(const std::string& _label, T& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    bool result = DragGui(_label, _value, _speed, _min, _max, _format);
+    bool result = DragGui(label, value, speed, min, max, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = _value;
-        _value     = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
+        T newValue = value;
+        value     = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, afterFunc));
         result = true;
     }
 
@@ -54,17 +54,17 @@ bool DragGuiCommand(const std::string& _label, T& _value, float _speed = 0.1f, T
 /// ::ImGui::Drag を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <int N, typename T>
-bool DragGuiVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool DragGuiVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
-    bool result = DragVectorGui(_label, _value, _speed, _min, _max, _format);
+    bool result = DragVectorGui(label, value, speed, min, max, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = _value;
-        _value                         = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = value;
+        value                         = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, afterFunc));
         result = true;
     }
 
@@ -79,17 +79,17 @@ bool DragGuiVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _val
 /// ::ImGui::Slider を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <typename T>
-bool SlideGuiCommand(const std::string& _label, T& _value, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    bool result = SlideGui(_label, _value, _min, _max, _format);
+    bool result = SlideGui(label, value, min, max, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = _value;
-        _value     = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
+        T newValue = value;
+        value     = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, afterFunc));
         return true;
     }
 
@@ -104,17 +104,17 @@ bool SlideGuiCommand(const std::string& _label, T& _value, T _min = T(), T _max 
 /// ::ImGui::Slider を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <typename T, int N>
-bool SlideVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _value, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool SlideVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
-    bool result = SlideVectorGui(_label, _value, _min, _max, _format);
+    bool result = SlideVectorGui(label, value, min, max, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = _value;
-        _value                         = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = value;
+        value                         = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, afterFunc));
         return true;
     }
 
@@ -129,17 +129,17 @@ bool SlideVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _value
 /// ::ImGui::Input を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <typename T>
-bool InputGuiCommand(const std::string& _label, T& _value, const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    bool result = InputGui(_label, _value, _format);
+    bool result = InputGui(label, value, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = _value;
-        _value     = valuePool.popValue(_label);
-        ::OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
+        T newValue = value;
+        value     = valuePool.popValue(label);
+        ::OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, afterFunc));
         return true;
     }
 
@@ -154,17 +154,17 @@ bool InputGuiCommand(const std::string& _label, T& _value, const char* _format =
 /// ::ImGui::Input を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <typename T, int N>
-bool InputVectorGuiCommand(const std::string& _label, OriGine::Vector<N, T>& _value, const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool InputVectorGuiCommand(const std::string& label, OriGine::Vector<N, T>& value, const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
-    bool result = InputVectorGui(_label, _value, _format);
+    bool result = InputVectorGui(label, value, format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = _value;
-        _value                         = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = value;
+        value                         = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, afterFunc));
         return true;
     }
 
@@ -179,19 +179,19 @@ bool InputVectorGuiCommand(const std::string& _label, OriGine::Vector<N, T>& _va
 /// ::ImGui::ColorEdit を型Nの3または4次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
 /// </summary>
 template <int N>
-bool ColorEditGuiCommand(const std::string& _label, OriGine::Vector<N, float>& _value, ImGuiColorEditFlags _colorEditFlags = 0, std::function<void(OriGine::Vector<N, float>*)> _afterFunc = nullptr) {
+bool ColorEditGuiCommand(const std::string& label, OriGine::Vector<N, float>& value, ImGuiColorEditFlags colorEditFlags = 0, std::function<void(OriGine::Vector<N, float>*)> afterFunc = nullptr) {
     static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
 
     static GuiValuePool<OriGine::Vector<N, float>> valuePool;
 
-    bool result = ColorEditGui<N>(_label, _value, _colorEditFlags);
+    bool result = ColorEditGui<N>(label, value, colorEditFlags);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(_label, _value);
+        valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, float> newValue = _value;
-        _value                             = valuePool.popValue(_label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, float>>>(&_value, newValue, _afterFunc));
+        OriGine::Vector<N, float> newValue = value;
+        value                             = valuePool.popValue(label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, float>>>(&value, newValue, afterFunc));
         return true;
     }
 

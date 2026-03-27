@@ -28,12 +28,12 @@ struct DampTraits<T> {
 
     using Scalar = T;
 
-    static T Magnitude(T _v) {
-        return std::abs(_v);
+    static T Magnitude(T v) {
+        return std::abs(v);
     }
 
-    static T ClampMagnitude(T _v, T _max) {
-        return (std::min)((std::max)(_v, -_max), _max);
+    static T ClampMagnitude(T v, T max) {
+        return (std::min)((std::max)(v, -max), max);
     }
 };
 
@@ -48,59 +48,59 @@ struct DampTraits<Vector<dimension, T>> {
 
     using Scalar = T;
 
-    static T Magnitude(const VecT& _v) {
-        return _v.length();
+    static T Magnitude(const VecT& v) {
+        return v.length();
     }
 
-    static VecT ClampMagnitude(const VecT& _v, T _max) {
-        T len = _v.lengthSq();
-        if (len > _max * _max) {
-            return _v.normalize() * _max;
+    static VecT ClampMagnitude(const VecT& v, T max) {
+        T len = v.lengthSq();
+        if (len > max * max) {
+            return v.normalize() * max;
         }
-        return _v;
+        return v;
     }
 };
 
 /// <summary>
-/// _from から _to へ、currentVelocity を考慮しながら、smoothTime の時間をかけて移動させる。
+/// from から to へ、currentVelocity を考慮しながら、smoothTime の時間をかけて移動させる。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <param name="_from">移動前</param>
-/// <param name="_to">移動後(目標であって実際にこの数値になるとは限らない)</param>
-/// <param name="_currentVelocity"></param>
-/// <param name="_smoothTime"></param>
-/// <param name="_deltaTime"></param>
-/// <param name="_maxSpeed"></param>
+/// <param name="from">移動前</param>
+/// <param name="to">移動後(目標であって実際にこの数値になるとは限らない)</param>
+/// <param name="currentVelocity"></param>
+/// <param name="smoothTime"></param>
+/// <param name="deltaTime"></param>
+/// <param name="maxSpeed"></param>
 /// <returns></returns>
 template <typename T>
 T SmoothDamp(
-    const T& _from,
-    const T& _to,
-    T& _currentVelocity,
-    typename DampTraits<T>::Scalar _smoothTime,
-    typename DampTraits<T>::Scalar _deltaTime,
-    typename DampTraits<T>::Scalar _maxSpeed) {
+    const T& from,
+    const T& to,
+    T& currentVelocity,
+    typename DampTraits<T>::Scalar smoothTime,
+    typename DampTraits<T>::Scalar deltaTime,
+    typename DampTraits<T>::Scalar maxSpeed) {
     using Traits = DampTraits<T>;
     using Scalar = DampTraits<T>::Scalar;
     // e^(-x) を近似するための係数 パデ近似というらしい
     constexpr Scalar kExpCoeff2 = static_cast<Scalar>(0.48);
     constexpr Scalar kExpCoeff3 = static_cast<Scalar>(0.235);
 
-    _smoothTime = (std::max)(Scalar(kEpsilon), _smoothTime);
+    smoothTime = (std::max)(Scalar(kEpsilon), smoothTime);
 
-    Scalar omega = Scalar(2) / _smoothTime;
-    Scalar x     = omega * _deltaTime;
+    Scalar omega = Scalar(2) / smoothTime;
+    Scalar x     = omega * deltaTime;
     Scalar exp   = Scalar(1) / (Scalar(1) + x + kExpCoeff2 * x * x + kExpCoeff3 * x * x * x);
 
-    T change = _to - _from;
+    T change = to - from;
 
-    Scalar maxChange = _maxSpeed * _smoothTime;
+    Scalar maxChange = maxSpeed * smoothTime;
     change           = Traits::ClampMagnitude(change, maxChange);
 
-    T temp           = (_currentVelocity - omega * change) * _deltaTime;
-    _currentVelocity = (_currentVelocity - omega * temp) * exp;
+    T temp           = (currentVelocity - omega * change) * deltaTime;
+    currentVelocity = (currentVelocity - omega * temp) * exp;
 
-    return _from + (change + temp) * exp;
+    return from + (change + temp) * exp;
 }
 
 } // namespace OriGine

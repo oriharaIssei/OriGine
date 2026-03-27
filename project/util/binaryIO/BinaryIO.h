@@ -21,9 +21,9 @@ public:
     /// <summary>
     /// Binaryの書き込みをするクラス
     /// </summary>
-    /// <param name="_directory">出力先のディレクトリ</param>
-    /// <param name="_fileName">出力先のファイル名</param>
-    BinaryWriter(const std::string& _directory, const std::string& _fileName) : directory_(_directory), fileName_(_fileName) {}
+    /// <param name="directory">出力先のディレクトリ</param>
+    /// <param name="fileName">出力先のファイル名</param>
+    BinaryWriter(const std::string& directory, const std::string& fileName) : directory_(directory), fileName_(fileName) {}
     ~BinaryWriter() {};
 
     /// <summary>
@@ -38,9 +38,9 @@ public:
     /// <summary>
     /// Groupの開始
     /// </summary>
-    /// <param name="_groupName"></param>
-    void WriteBeginGroup(const std::string& _groupName) {
-        groupName_ = _groupName;
+    /// <param name="groupName"></param>
+    void WriteBeginGroup(const std::string& groupName) {
+        groupName_ = groupName;
     }
     /// <summary>
     /// Groupの終了
@@ -52,24 +52,24 @@ public:
     /// <summary>
     /// 1行書き込み
     /// </summary>
-    /// <param name="_line">書き込む内容</param>
-    void WriteLine(const std::string& _line);
+    /// <param name="line">書き込む内容</param>
+    void WriteLine(const std::string& line);
 
     /// <summary>
     /// 値を書き込み
     /// </summary>
     /// <typeparam name="T">書き込む値のタイプ(数値 or 文字 型)</typeparam>
-    /// <param name="_label">値のラベル(読み込みの際に特定する)</param>
-    /// <param name="_data">値</param>
+    /// <param name="label">値のラベル(読み込みの際に特定する)</param>
+    /// <param name="data">値</param>
     template <typename T>
-    void Write(const std::string& _label, const T& _data) {
+    void Write(const std::string& label, const T& data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
 
-        WriteLabel(groupName_ + _label);
+        WriteLabel(groupName_ + label);
 
         size_t length = sizeof(T);
         fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
-        fileStream_.write(reinterpret_cast<const char*>(&_data), length);
+        fileStream_.write(reinterpret_cast<const char*>(&data), length);
         if (!fileStream_) {
             throw std::runtime_error("Failed to write to the file.");
         }
@@ -80,24 +80,24 @@ public:
     /// </summary>
     /// <typeparam name="valueType">vectorの値の型</typeparam>
     /// <typeparam name="dim">次元数</typeparam>
-    /// <param name="_label">値のラベル(読み込みの際に特定する)</param>
-    /// <param name="_data">値</param>
+    /// <param name="label">値のラベル(読み込みの際に特定する)</param>
+    /// <param name="data">値</param>
     template <int dim, typename valueType>
-    void Write(const std::string& _label, const OriGine::Vector<dim, valueType>& _data);
+    void Write(const std::string& label, const OriGine::Vector<dim, valueType>& data);
 
 protected:
     /// <summary>
     /// ラベルを書き込み (Groupを適応する)
     /// </summary>
-    /// <param name="_label"></param>
-    void WriteLabel(const std::string& _label) {
-        size_t length = _label.size();
+    /// <param name="label"></param>
+    void WriteLabel(const std::string& label) {
+        size_t length = label.size();
         fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
         if (length < 0) {
             assert(false);
             return;
         }
-        fileStream_.write(_label.c_str(), length);
+        fileStream_.write(label.c_str(), length);
     }
 
 private:
@@ -135,7 +135,7 @@ public:
 /// </summary>
 class BinaryReader {
 public:
-    BinaryReader(const std::string& _directory, const std::string& _fileName) : directory_(_directory), fileName_(_fileName) {}
+    BinaryReader(const std::string& directory, const std::string& fileName) : directory_(directory), fileName_(fileName) {}
     ~BinaryReader() {}
 
     /// <summary>
@@ -151,9 +151,9 @@ public:
     /// <summary>
     /// グループの開始を宣言
     /// </summary>
-    /// <param name="_groupName">グループ名</param>
-    void ReadBeginGroup(const std::string& _groupName) {
-        groupName_ = _groupName;
+    /// <param name="groupName">グループ名</param>
+    void ReadBeginGroup(const std::string& groupName) {
+        groupName_ = groupName;
     }
     /// <summary>
     /// グループの終了を宣言
@@ -165,14 +165,14 @@ public:
     /// 指定されたラベルのデータを読み込む
     /// </summary>
     /// <typeparam name="T">データ型</typeparam>
-    /// <param name="_label">ラベル名</param>
-    /// <param name="_data">格納先参照</param>
+    /// <param name="label">ラベル名</param>
+    /// <param name="data">格納先参照</param>
     template <typename T>
-    void Read(const std::string& _label, T& _data) {
+    void Read(const std::string& label, T& data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
 
         // 無いなら スキップ
-        auto dataItr = readMap_.find(groupName_ + _label);
+        auto dataItr = readMap_.find(groupName_ + label);
         if (dataItr == readMap_.end()) {
             return;
         }
@@ -181,14 +181,14 @@ public:
         if (dataStr.size() != sizeof(T)) {
             throw std::runtime_error("Size mismatch when reading data.");
         }
-        std::memcpy(&_data, dataStr.data(), sizeof(T));
+        std::memcpy(&data, dataStr.data(), sizeof(T));
     }
 
     /// <summary>
     /// Vector型のデータを読み込む
     /// </summary>
     template <int dim, typename valueType>
-    void Read(const std::string& _label, OriGine::Vector<dim, valueType>& _data);
+    void Read(const std::string& label, OriGine::Vector<dim, valueType>& data);
     // ----------------------------------------------
 
 private:
@@ -219,31 +219,31 @@ public:
 // std::string専用の関数を追加
 #pragma region "std::string"
 template <>
-inline void BinaryWriter::Write<std::string>(const std::string& _label, const std::string& _data) {
-    WriteLabel(groupName_ + _label);
-    size_t length = _data.size();
+inline void BinaryWriter::Write<std::string>(const std::string& label, const std::string& data) {
+    WriteLabel(groupName_ + label);
+    size_t length = data.size();
     fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
-    fileStream_.write(_data.c_str(), length);
+    fileStream_.write(data.c_str(), length);
 };
 template <>
-inline void BinaryReader::Read<std::string>(const std::string& _label, std::string& _data) {
-    _data = readMap_[groupName_ + _label];
+inline void BinaryReader::Read<std::string>(const std::string& label, std::string& data) {
+    data = readMap_[groupName_ + label];
 }
 #pragma endregion "std::string"
 
 #pragma region "Vector"
 template <int dim, typename valueType>
-inline void BinaryWriter::Write(const std::string& _label, const OriGine::Vector<dim, valueType>& _data) {
-    WriteLabel(groupName_ + _label);
+inline void BinaryWriter::Write(const std::string& label, const OriGine::Vector<dim, valueType>& data) {
+    WriteLabel(groupName_ + label);
 
     size_t length = sizeof(valueType) * dim;
     fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
-    fileStream_.write(reinterpret_cast<const char*>(&_data.v[0]), length);
+    fileStream_.write(reinterpret_cast<const char*>(&data.v[0]), length);
 }
 
 template <int dim, typename valueType>
-inline void BinaryReader::Read(const std::string& _label, OriGine::Vector<dim, valueType>& _data) {
-    auto dataItr = readMap_.find(groupName_ + _label);
+inline void BinaryReader::Read(const std::string& label, OriGine::Vector<dim, valueType>& data) {
+    auto dataItr = readMap_.find(groupName_ + label);
     if (dataItr == readMap_.end()) {
         return;
     }
@@ -251,6 +251,6 @@ inline void BinaryReader::Read(const std::string& _label, OriGine::Vector<dim, v
     if (dataStr.size() != sizeof(valueType) * dim) {
         throw std::runtime_error("Size mismatch when reading Vector data.");
     }
-    std::memcpy(&_data.v[0], dataStr.data(), sizeof(valueType) * dim);
+    std::memcpy(&data.v[0], dataStr.data(), sizeof(valueType) * dim);
 }
 #pragma endregion "Vector"

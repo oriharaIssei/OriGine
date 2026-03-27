@@ -51,7 +51,7 @@ public:
     /// <summary>
     /// 直近 指定フレーム数 の平均DeltaTimeを取得
     /// </summary>
-    float GetAverageDeltaTime(size_t _frameCount) const;
+    float GetAverageDeltaTime(size_t frameCount) const;
 
     /// <summary>
     /// 履歴全体の平均FPSを取得
@@ -61,26 +61,26 @@ public:
     /// <summary>
     /// 直近 指定フレーム数 の平均FPSを取得
     /// </summary>
-    /// <param name="_frameCount"></param>
+    /// <param name="frameCount"></param>
     /// <returns></returns>
-    size_t GetAverageFPS(size_t _frameCount) const;
+    size_t GetAverageFPS(size_t frameCount) const;
 
     /// <summary>
     /// タイムスケールを適用した経過時間を取得
     /// </summary>
     /// <param name="key">タイムスケールのキー</param>
     /// <returns>スケール後のデルタタイム</returns>
-    float GetScaledDeltaTime(const std::string& _key) const;
+    float GetScaledDeltaTime(const std::string& key) const;
 
     /// <summary>
     /// デルタタイムを直接設定
     /// </summary>
     /// <param name="dt">デルタタイム</param>
-    void SetDeltaTime(float _dt) { deltaTime_ = _dt; }
+    void SetDeltaTime(float dt) { deltaTime_ = dt; }
     /// <summary>
     /// タイムスケールを設定
     /// </summary>
     /// <param name="key">キー</param>
     /// <param name="scale">スケール値</param>
-    void SetTimeScale(const std::string& _key, float _scale);
+    void SetTimeScale(const std::string& key, float scale);
 };

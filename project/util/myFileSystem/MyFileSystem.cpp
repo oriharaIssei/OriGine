@@ -17,11 +17,11 @@
 
 namespace fs = std::filesystem;
 
-std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const std::string& _directory, const std::string& _extension, bool _withoutExtensionOutput) {
+std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const std::string& directory, const std::string& extension, bool withoutExtensionOutput) {
     std::list<std::pair<std::string, std::string>> fileList;
-    for (const auto& entry : fs::recursive_directory_iterator(_directory)) {
-        if (entry.is_regular_file() && entry.path().extension() == ('.' + _extension)) {
-            if (_withoutExtensionOutput) {
+    for (const auto& entry : fs::recursive_directory_iterator(directory)) {
+        if (entry.is_regular_file() && entry.path().extension() == ('.' + extension)) {
+            if (withoutExtensionOutput) {
                 fileList.push_back({entry.path().parent_path().string(), entry.path().filename().stem().string()});
             } else {
                 fileList.push_back({entry.path().parent_path().string(), entry.path().filename().string()});
@@ -31,9 +31,9 @@ std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const st
     return fileList;
 }
 
-std::list<std::string> MyFileSystem::SearchSubFolder(const std::string& _directory) {
+std::list<std::string> MyFileSystem::SearchSubFolder(const std::string& directory) {
     std::list<std::string> subFolders;
-    for (const auto& entry : fs::recursive_directory_iterator(_directory)) {
+    for (const auto& entry : fs::recursive_directory_iterator(directory)) {
         if (fs::is_regular_file(entry)) {
             subFolders.push_back(entry.path().string());
         }
@@ -41,8 +41,8 @@ std::list<std::string> MyFileSystem::SearchSubFolder(const std::string& _directo
     return subFolders;
 }
 
-bool MyFileSystem::CreateMyFile(const std::string& _filePath) {
-    std::ofstream file(_filePath);
+bool MyFileSystem::CreateMyFile(const std::string& filePath) {
+    std::ofstream file(filePath);
     if (file) {
         file.close();
         return true;
@@ -50,11 +50,11 @@ bool MyFileSystem::CreateMyFile(const std::string& _filePath) {
     return false;
 }
 
-bool MyFileSystem::CreateFolder(const std::string& _directory) {
-    return std::filesystem::create_directories(_directory);
+bool MyFileSystem::CreateFolder(const std::string& directory) {
+    return std::filesystem::create_directories(directory);
 }
 
-void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std::string& _outPath) {
+void MyFileSystem::SelectFolderDialog(const std::string& defaultDirectory, std::string& outPath) {
     HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     bool coInitialized = SUCCEEDED(hr);
 
@@ -71,7 +71,7 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
             fs::path projectRoot = fs::current_path();
 
             // プロジェクトルートからの相対パスを絶対パスに変換
-            fs::path absPath = fs::absolute(projectRoot / _defaultDirectory);
+            fs::path absPath = fs::absolute(projectRoot / defaultDirectory);
 
             // それを SetDefaultFolder に渡す
             if (!absPath.empty()) {
@@ -98,19 +98,19 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
                     hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 
                     if (SUCCEEDED(hr)) {
-                        // pszFilePath で入手されるのは フルパスなので それを _defaultDirectory からの相対パスに変換する
+                        // pszFilePath で入手されるのは フルパスなので それを defaultDirectory からの相対パスに変換する
                         // 選択結果のフルパス
                         std::wstring wFullPath(pszFilePath);
                         std::string fullPath = ConvertString(wFullPath);
 
                         // 基準パスを絶対パスに変換
-                        fs::path basePath = fs::absolute(_defaultDirectory);
+                        fs::path basePath = fs::absolute(defaultDirectory);
 
                         // 相対パスに変換
                         fs::path relativePath = fs::relative(fullPath, basePath);
 
                         // 出力
-                        _outPath = relativePath.string();
+                        outPath = relativePath.string();
                     }
                     pItem->Release();
                 }
@@ -127,11 +127,11 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
 }
 
 bool MyFileSystem::SelectFileDialog(
-    const std::string& _defaultDirectory,
-    std::string& _fileDirectory,
-    std::string& _filename,
-    const std::vector<std::string>& _extensions,
-    bool _withoutExtensionOutput) {
+    const std::string& defaultDirectory,
+    std::string& fileDirectory,
+    std::string& filename,
+    const std::vector<std::string>& extensions,
+    bool withoutExtensionOutput) {
     HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     bool coInitialized = SUCCEEDED(hr);
 
@@ -148,7 +148,7 @@ bool MyFileSystem::SelectFileDialog(
             fs::path projectRoot = fs::current_path();
 
             // プロジェクトルートからの相対パスを絶対パスに変換
-            fs::path absPath = fs::absolute(projectRoot / _defaultDirectory);
+            fs::path absPath = fs::absolute(projectRoot / defaultDirectory);
 
             // それを SetDefaultFolder に渡す
             if (!absPath.empty()) {
@@ -166,9 +166,9 @@ bool MyFileSystem::SelectFileDialog(
             }
 
             // ファイルフィルターを設定
-            if (!_extensions.empty()) {
+            if (!extensions.empty()) {
                 std::wstring combinedFilter;
-                for (const auto& ext : _extensions) {
+                for (const auto& ext : extensions) {
                     std::wstring wext(ext.begin(), ext.end());
                     if (!combinedFilter.empty()) {
                         combinedFilter += L";";
@@ -192,12 +192,12 @@ bool MyFileSystem::SelectFileDialog(
                     if (SUCCEEDED(hr)) {
                         std::wstring wFullPath(pszFilePath);
                         std::string fullPath  = ConvertString(wFullPath);
-                        fs::path relativePath = fs::relative(fullPath, _defaultDirectory);
-                        _fileDirectory        = relativePath.parent_path().string();
-                        if (_withoutExtensionOutput) {
-                            _filename = relativePath.filename().stem().string();
+                        fs::path relativePath = fs::relative(fullPath, defaultDirectory);
+                        fileDirectory        = relativePath.parent_path().string();
+                        if (withoutExtensionOutput) {
+                            filename = relativePath.filename().stem().string();
                         } else {
-                            _filename = relativePath.filename().string();
+                            filename = relativePath.filename().string();
                         }
                         CoTaskMemFree(pszFilePath);
                         pItem->Release();
@@ -222,20 +222,20 @@ bool MyFileSystem::SelectFileDialog(
     return false;
 }
 
-bool MyFileSystem::RemoveEmptyFolder(const std::string& _directory) {
-    return fs::remove(_directory);
+bool MyFileSystem::RemoveEmptyFolder(const std::string& directory) {
+    return fs::remove(directory);
 }
 
-std::uintmax_t MyFileSystem::DeleteFolder(const std::string& _path) {
-    return fs::remove_all(_path);
+std::uintmax_t MyFileSystem::DeleteFolder(const std::string& path) {
+    return fs::remove_all(path);
 }
 
-std::uintmax_t MyFileSystem::DeleteMyFile(const std::string& _filePath) {
-    return fs::remove(_filePath);
+std::uintmax_t MyFileSystem::DeleteMyFile(const std::string& filePath) {
+    return fs::remove(filePath);
 }
 
-FileWatcher::FileWatcher(const std::string& _filePath, int32_t _intervalMs)
-    : filePath_(_filePath), intervalMs_(_intervalMs), isChanged_(false), isRunning_(false) {
+FileWatcher::FileWatcher(const std::string& filePath, int32_t intervalMs)
+    : filePath_(filePath), intervalMs_(intervalMs), isChanged_(false), isRunning_(false) {
     // file が 存在するか
     if (fs::exists(filePath_)) {
         // 最終編集時間を取得

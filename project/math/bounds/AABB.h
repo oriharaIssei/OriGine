@@ -15,7 +15,7 @@ namespace Bounds {
 struct AABB
     : public IBounds {
     AABB() {}
-    AABB(const Vec3f& _center, const Vec3f& _halfSize) : center(_center), halfSize(_halfSize) {}
+    AABB(const Vec3f& center, const Vec3f& halfSize) : center(center), halfSize(halfSize) {}
 
     Vec3f center   = {0.f, 0.f, 0.f};
     Vec3f halfSize = {0.f, 0.f, 0.f};

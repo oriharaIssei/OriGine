@@ -53,16 +53,15 @@ struct Vector {
     }
 
     // 配列からのコンストラクタ
-    constexpr Vector(const valueType* _ptr) {
+    constexpr Vector(const valueType* ptr) {
         for (int i = 0; i < dimension; i++) {
-            v[i] = _ptr[i];
+            v[i] = ptr[i];
         }
     }
 
     // 可変長引数コンストラクタ
     template <typename... Args>
-        requires (sizeof...(Args) == dimension) &&
-                 (std::is_convertible_v<Args, valueType> && ...)
+        requires(sizeof...(Args) == dimension) && (std::is_convertible_v<Args, valueType> && ...)
     constexpr Vector(Args... args) : v{static_cast<valueType>(args)...} {}
 
 public:
@@ -208,9 +207,9 @@ public:
     /// <summary>
     /// ベクトルの長さを計算 (static)
     /// </summary>
-    /// <param name="_v">ベクトル</param>
+    /// <param name="v">ベクトル</param>
     /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector& _v);
+    static constexpr valueType Length(const Vector& vec);
 
     /// <summary>
     /// ベクトルの長さの2乗を計算
@@ -219,29 +218,29 @@ public:
     /// <summary>
     /// ベクトルの長さの2乗を計算 (static)
     /// </summary>
-    /// <param name="_v1">ベクトル</param>
+    /// <param name="v1">ベクトル</param>
     /// <returns>長さの2乗</returns>
-    static constexpr valueType LengthSq(const Vector& _v1);
+    static constexpr valueType LengthSq(const Vector& v1);
 
     /// <summary>
     /// 内積を計算
     /// </summary>
     constexpr valueType dot() const;
-    constexpr valueType dot(const Vector& _v) const;
+    constexpr valueType dot(const Vector& vec) const;
 
     /// <summary>
     /// 内積を計算 (static)
     /// </summary>
-    /// <param name="_v">ベクトル</param>
+    /// <param name="v">ベクトル</param>
     /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector& _v);
+    static constexpr valueType Dot(const Vector& vec);
     /// <summary>
     /// 内積を計算 (static)
     /// </summary>
-    /// <param name="_v"></param>
-    /// <param name="_another"></param>
+    /// <param name="v"></param>
+    /// <param name="another"></param>
     /// <returns></returns>
-    static constexpr valueType Dot(const Vector& _v, const Vector& _another);
+    static constexpr valueType Dot(const Vector& vec, const Vector& another);
 
     /// <summary>
     /// 正規化
@@ -251,9 +250,9 @@ public:
     /// <summary>
     /// 正規化(static)
     /// </summary>
-    /// <param name="_v">正規化 前</param>
+    /// <param name="v">正規化 前</param>
     /// <returns>正規化 後</returns>
-    static constexpr Vector Normalize(const Vector& _v);
+    static constexpr Vector Normalize(const Vector& vec);
 
     // 型変換
     constexpr operator Vector2<valueType>() const {
@@ -337,18 +336,18 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
 /// <param name="b"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _min, const Vector<dim, valueType>& _max) {
+inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& min, const Vector<dim, valueType>& max) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::clamp)(_a[i], _min[i], _max[i]);
+        result[i] = (std::clamp)(a[i], min[i], max[i]);
     }
     return result;
 }
 template <int dim, typename valueType>
-inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& _a, valueType _min, valueType _max) {
+inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& a, valueType min, valueType max) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::clamp)(_a[i], _min, _max);
+        result[i] = (std::clamp)(a[i], min, max);
     }
     return result;
 }
@@ -362,18 +361,18 @@ inline Vector<dim, valueType> ClampElement(const Vector<dim, valueType>& _a, val
 /// <param name="b"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _b) {
+inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::min)(_a[i], _b[i]);
+        result[i] = (std::min)(a[i], b[i]);
     }
     return result;
 }
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& _a, valueType _b) {
+inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, valueType b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::min)(_a[i], _b);
+        result[i] = (std::min)(a[i], b);
     }
     return result;
 }
@@ -387,18 +386,18 @@ inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& _a, value
 /// <param name="b"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& _a, const Vector<dim, valueType>& _b) {
+inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::max)(_a[i], _b[i]);
+        result[i] = (std::max)(a[i], b[i]);
     }
     return result;
 }
 template <int dim, typename valueType>
-inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& _a, valueType _b) {
+inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, valueType b) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::max)(_a[i], _b);
+        result[i] = (std::max)(a[i], b);
     }
     return result;
 }
@@ -411,10 +410,10 @@ inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& _a, value
 /// <param name="a"></param>
 /// <returns></returns>
 template <int dim, typename valueType>
-inline Vector<dim, valueType> AbsElement(const Vector<dim, valueType>& _a) {
+inline Vector<dim, valueType> AbsElement(const Vector<dim, valueType>& a) {
     Vector<dim, valueType> result;
     for (int32_t i = 0; i < dim; ++i) {
-        result[i] = (std::max)(-_a[i], _a[i]);
+        result[i] = (std::max)(-a[i], a[i]);
     }
     return result;
 }
@@ -462,10 +461,10 @@ inline constexpr valueType Vector<dimension, valueType>::length() const {
 }
 
 template <int dimension, typename valueType>
-inline constexpr valueType Vector<dimension, valueType>::Length(const Vector& _v) {
+inline constexpr valueType Vector<dimension, valueType>::Length(const Vector& vec) {
     valueType sum = 0;
     for (int i = 0; i < dim; i++) {
-        sum += _v.v[i] * _v.v[i];
+        sum += vec.v[i] * vec.v[i];
     }
     return std::sqrt(sum);
 }
@@ -480,10 +479,10 @@ inline constexpr valueType Vector<dimension, valueType>::lengthSq() const {
 }
 
 template <int dimension, typename valueType>
-inline constexpr valueType Vector<dimension, valueType>::LengthSq(const Vector& _v1) {
+inline constexpr valueType Vector<dimension, valueType>::LengthSq(const Vector& v1) {
     valueType sum = 0;
     for (int i = 0; i < dim; i++) {
-        sum += _v1.v[i] * _v1.v[i];
+        sum += v1.v[i] * v1.v[i];
     }
     return sum;
 }
@@ -498,28 +497,28 @@ inline constexpr valueType Vector<dimension, valueType>::dot() const {
 }
 
 template <int dimension, typename valueType>
-inline constexpr valueType Vector<dimension, valueType>::dot(const Vector& _v) const {
+inline constexpr valueType Vector<dimension, valueType>::dot(const Vector& vec) const {
     valueType sum = 0;
     for (int i = 0; i < dim; i++) {
-        sum += v[i] * _v.v[i];
+        sum += v[i] * vec[i];
     }
     return sum;
 }
 
 template <int dimension, typename valueType>
-inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& _v) {
+inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& vec) {
     valueType sum = 0;
     for (int i = 0; i < dim; i++) {
-        sum += _v.v[i] * _v.v[i];
+        sum += v.v[i] * vec.v[i];
     }
     return sum;
 }
 
 template <int dimension, typename valueType>
-inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& _v, const Vector& _another) {
+inline constexpr valueType Vector<dimension, valueType>::Dot(const Vector& vec, const Vector& another) {
     valueType sum = 0;
     for (int i = 0; i < dim; i++) {
-        sum += _v.v[i] * _another.v[i];
+        sum += vec.v[i] * another.v[i];
     }
     return sum;
 }
@@ -534,12 +533,12 @@ inline constexpr Vector<dimension, valueType> Vector<dimension, valueType>::norm
 }
 
 template <int dimension, typename valueType>
-inline constexpr Vector<dimension, valueType> Vector<dimension, valueType>::Normalize(const Vector<dimension, valueType>& _v) {
-    valueType len = _v.length();
+inline constexpr Vector<dimension, valueType> Vector<dimension, valueType>::Normalize(const Vector<dimension, valueType>& vec) {
+    valueType len = vec.length();
     if (len == 0) {
-        return _v;
+        return vec;
     }
-    return (_v / len);
+    return (vec / len);
 }
 
 } // namespace OriGine

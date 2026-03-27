@@ -40,24 +40,24 @@ struct Vector4 final
 
     // コンストラクタ
     constexpr Vector4() : Vector<4, valueType>({0, 0, 0, 0}) {}
-    constexpr Vector4(valueType _xValue, valueType _yValue, valueType _zValue, valueType _wValue)
-        : Vector<4, valueType>({_xValue, _yValue, _zValue, _wValue}) {}
-    constexpr Vector4(const Vector2<valueType>& _xy, const Vector2<valueType>& _zw)
-        : Vector<4, valueType>({_xy[X], _xy[Y], _zw[X], _zw[Y]}) {}
-    constexpr Vector4(valueType _x, const Vector2<valueType>& _yz, valueType _w)
-        : Vector<4, valueType>({_x, _yz[X], _yz[Y], _w}) {}
-    constexpr Vector4(const Vector3<valueType>& _xyz, valueType _w)
-        : Vector<4, valueType>({_xyz[X], _xyz[Y], _xyz[Z], _w}) {}
-    constexpr Vector4(const Vector2<valueType>& _xy, valueType _z, valueType _w)
-        : Vector<4, valueType>({_xy[X], _xy[Y], _z, _w}) {}
-    constexpr Vector4(valueType _x, valueType _y, const Vector2<valueType>& _zw)
-        : Vector<4, valueType>({_x, _y, _zw[X], _zw[Y]}) {}
-    constexpr Vector4(valueType _x, const Vector3<valueType>& _yzw)
-        : Vector<4, valueType>({_x, _yzw[X], _yzw[Y], _yzw[Z]}) {}
-    constexpr Vector4(const valueType* _xPtr, const valueType* _yPtr, const valueType* _zPtr, const valueType* _wPtr)
-        : Vector<4, valueType>({*_xPtr, *_yPtr, *_zPtr, *_wPtr}) {}
-    constexpr Vector4(const valueType* _ptr)
-        : Vector<4, valueType>({_ptr[0], _ptr[1], _ptr[2], _ptr[3]}) {}
+    constexpr Vector4(valueType xValue, valueType yValue, valueType zValue, valueType wValue)
+        : Vector<4, valueType>({xValue, yValue, zValue, wValue}) {}
+    constexpr Vector4(const Vector2<valueType>& xy, const Vector2<valueType>& zw)
+        : Vector<4, valueType>({xy[X], xy[Y], zw[X], zw[Y]}) {}
+    constexpr Vector4(valueType x, const Vector2<valueType>& yz, valueType w)
+        : Vector<4, valueType>({x, yz[X], yz[Y], w}) {}
+    constexpr Vector4(const Vector3<valueType>& xyz, valueType w)
+        : Vector<4, valueType>({xyz[X], xyz[Y], xyz[Z], w}) {}
+    constexpr Vector4(const Vector2<valueType>& xy, valueType z, valueType w)
+        : Vector<4, valueType>({xy[X], xy[Y], z, w}) {}
+    constexpr Vector4(valueType x, valueType y, const Vector2<valueType>& zw)
+        : Vector<4, valueType>({x, y, zw[X], zw[Y]}) {}
+    constexpr Vector4(valueType x, const Vector3<valueType>& yzw)
+        : Vector<4, valueType>({x, yzw[X], yzw[Y], yzw[Z]}) {}
+    constexpr Vector4(const valueType* xPtr, const valueType* yPtr, const valueType* zPtr, const valueType* wPtr)
+        : Vector<4, valueType>({*xPtr, *yPtr, *zPtr, *wPtr}) {}
+    constexpr Vector4(const valueType* ptr)
+        : Vector<4, valueType>({ptr[0], ptr[1], ptr[2], ptr[3]}) {}
 
 };
 

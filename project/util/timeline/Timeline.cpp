@@ -27,39 +27,39 @@ namespace ImGui {
 //==============================================================================
 
 bool TimeLineButtons(
-    const std::string& _label,
-    std::vector<float>& _nodeTimes,
-    float _duration,
-    std::function<void(float newNodeTime)> _updateOnNodeDragged,
-    std::function<void(float _currentTime)> _sliderPopupUpdate,
-    std::function<bool(int nodeIndex)> _nodePopupUpdate) {
+    const std::string& label,
+    std::vector<float>& nodeTimes,
+    float duration,
+    std::function<void(float newNodeTime)> updateOnNodeDragged,
+    std::function<void(float currentTime)> sliderPopupUpdate,
+    std::function<bool(int nodeIndex)> nodePopupUpdate) {
     return TimeLineButtonsImpl(
-        _label,
-        _nodeTimes,
-        _duration,
+        label,
+        nodeTimes,
+        duration,
         [](const float& time) { return time; },
         [](float& time, float newTime) { time = newTime; },
-        _updateOnNodeDragged,
-        _sliderPopupUpdate,
-        _nodePopupUpdate);
+        updateOnNodeDragged,
+        sliderPopupUpdate,
+        nodePopupUpdate);
 }
 
 bool TimeLineButtons(
-    const std::string& _label,
-    OriGine::AnimationCurve<int>& _keyFrames,
-    float _duration,
-    std::function<void(float newNodeTime)> _updateOnNodeDragged,
-    std::function<void(float _currentTime)> _sliderPopupUpdate,
-    std::function<bool(int nodeIndex)> _nodePopupUpdate) {
+    const std::string& label,
+    OriGine::AnimationCurve<int>& keyFrames,
+    float duration,
+    std::function<void(float newNodeTime)> updateOnNodeDragged,
+    std::function<void(float currentTime)> sliderPopupUpdate,
+    std::function<bool(int nodeIndex)> nodePopupUpdate) {
     return TimeLineButtonsImpl(
-        _label,
-        _keyFrames,
-        _duration,
+        label,
+        keyFrames,
+        duration,
         [](const OriGine::KeyFrame<int>& kf) { return kf.time; },
         [](OriGine::KeyFrame<int>& kf, float newTime) { kf.time = newTime; },
-        _updateOnNodeDragged,
-        _sliderPopupUpdate,
-        _nodePopupUpdate);
+        updateOnNodeDragged,
+        sliderPopupUpdate,
+        nodePopupUpdate);
 }
 
 //==============================================================================
@@ -67,97 +67,97 @@ bool TimeLineButtons(
 //==============================================================================
 
 bool EditKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<float>& _keyFrames,
-    float _duration,
-    float _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<float>& keyFrames,
+    float duration,
+    float defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
         TimelinePopup::DrawValueEditFloat,
-        _howEditItem,
+        howEditItem,
         true); // float版はコマンド付きAddNode
 }
 
 bool EditKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<OriGine::Vec2f>& _keyFrames,
-    float _duration,
-    const OriGine::Vec2f& _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<OriGine::Vec2f>& keyFrames,
+    float duration,
+    const OriGine::Vec2f& defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
         TimelinePopup::DrawValueEditVec2,
-        _howEditItem,
+        howEditItem,
         false);
 }
 
 bool EditKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<OriGine::Vec3f>& _keyFrames,
-    float _duration,
-    const OriGine::Vec3f& _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<OriGine::Vec3f>& keyFrames,
+    float duration,
+    const OriGine::Vec3f& defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
         TimelinePopup::DrawValueEditVec3,
-        _howEditItem,
+        howEditItem,
         false);
 }
 
 bool EditKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<OriGine::Vec4f>& _keyFrames,
-    float _duration,
-    const OriGine::Vec4f& _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<OriGine::Vec4f>& keyFrames,
+    float duration,
+    const OriGine::Vec4f& defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
         TimelinePopup::DrawValueEditVec4,
-        _howEditItem,
+        howEditItem,
         false);
 }
 
 bool EditKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<OriGine::Quaternion>& _keyFrames,
-    float _duration,
-    const OriGine::Quaternion& _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<OriGine::Quaternion>& keyFrames,
+    float duration,
+    const OriGine::Quaternion& defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
         TimelinePopup::DrawValueEditQuaternion,
-        _howEditItem,
+        howEditItem,
         false);
 }
 
 bool EditColorKeyFrame(
-    const std::string& _label,
-    OriGine::AnimationCurve<OriGine::Vec4f>& _keyFrames,
-    float _duration,
-    const OriGine::Vec4f& _defaultValue,
-    std::function<void(int)> _howEditItem) {
+    const std::string& label,
+    OriGine::AnimationCurve<OriGine::Vec4f>& keyFrames,
+    float duration,
+    const OriGine::Vec4f& defaultValue,
+    std::function<void(int)> howEditItem) {
     return EditColorKeyFrameImpl(
-        _label,
-        _keyFrames,
-        _duration,
-        _defaultValue,
-        _howEditItem);
+        label,
+        keyFrames,
+        duration,
+        defaultValue,
+        howEditItem);
 }
 
 } // namespace ImGui

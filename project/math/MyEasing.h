@@ -47,114 +47,114 @@ enum class EaseType : int {
 /// <summary>
 /// 線形補間
 /// </summary>
-/// <param name="_t">時間(0-1)</param>
+/// <param name="t">時間(0-1)</param>
 /// <returns>補間値</returns>
-float Linear(float _t);
+float Linear(float t);
 
 /// <summary>
 /// Sine In イージング
 /// </summary>
-float EaseInSine(float _time);
+float EaseInSine(float time);
 
 /// <summary>
 /// Sine Out イージング
 /// </summary>
-float EaseOutSine(float _t);
+float EaseOutSine(float t);
 
 /// <summary>
 /// Sine InOut イージング
 /// </summary>
-float EaseInOutSine(float _t);
+float EaseInOutSine(float t);
 
 /// <summary>
 /// Quad In イージング
 /// </summary>
-float EaseInQuad(float _t);
+float EaseInQuad(float t);
 
 /// <summary>
 /// Quad Out イージング
 /// </summary>
-float EaseOutQuad(float _t);
+float EaseOutQuad(float t);
 
 /// <summary>
 /// Quad InOut イージング
 /// </summary>
-float EaseInOutQuad(float _t);
+float EaseInOutQuad(float t);
 
 /// <summary>
 /// Cubic In イージング
 /// </summary>
-float EaseInCubic(float _t);
+float EaseInCubic(float t);
 
 /// <summary>
 /// Cubic Out イージング
 /// </summary>
-float EaseOutCubic(float _t);
+float EaseOutCubic(float t);
 
 /// <summary>
 /// Cubic InOut イージング
 /// </summary>
-float EaseInOutCubic(float _t);
+float EaseInOutCubic(float t);
 
 /// <summary>
 /// Quart In イージング
 /// </summary>
-float EaseInQuart(float _t);
+float EaseInQuart(float t);
 
 /// <summary>
 /// Quart Out イージング
 /// </summary>
-float EaseOutQuart(float _t);
+float EaseOutQuart(float t);
 
 /// <summary>
 /// Quart InOut イージング
 /// </summary>
-float EaseInOutQuart(float _t);
+float EaseInOutQuart(float t);
 
 /// <summary>
 /// Back In イージング
 /// </summary>
-float EaseInBack(float _t);
+float EaseInBack(float t);
 
 /// <summary>
 /// Back Out イージング
 /// </summary>
-float EaseOutBack(float _t);
+float EaseOutBack(float t);
 
 /// <summary>
 /// Back InOut イージング
 /// </summary>
-float EaseInOutBack(float _t);
+float EaseInOutBack(float t);
 
 /// <summary>
 /// Elastic In イージング
 /// </summary>
-float EaseInElastic(float _t);
+float EaseInElastic(float t);
 
 /// <summary>
 /// Elastic Out イージング
 /// </summary>
-float EaseOutElastic(float _t);
+float EaseOutElastic(float t);
 
 /// <summary>
 /// Elastic InOut イージング
 /// </summary>
-float EaseInOutElastic(float _t);
+float EaseInOutElastic(float t);
 
 /// <summary>
 /// Bounce In イージング
 /// </summary>
-float EaseInBounce(float _t);
+float EaseInBounce(float t);
 
 /// <summary>
 /// Bounce Out イージング
 /// </summary>
-float EaseOutBounce(float _t);
+float EaseOutBounce(float t);
 
 /// <summary>
 /// Bounce InOut イージング
 /// </summary>
-float EaseInOutBounce(float _t);
+float EaseInOutBounce(float t);
 
 static ::std::array<::std::function<float(float)>, static_cast<int>(EaseType::COUNT)> EasingFunctions = {
     Linear,
@@ -217,9 +217,9 @@ static ::std::unordered_map<EaseType, ::std::string> EasingNames = {
 /// <summary>
 /// イージング設定用GUIを表示
 /// </summary>
-/// <param name="_label">ラベル</param>
-/// <param name="_easeType">設定対象のイージングタイプ</param>
-void EasingComboGui(const ::std::string& _label, EaseType& _easeType);
+/// <param name="label">ラベル</param>
+/// <param name="easeType">設定対象のイージングタイプ</param>
+void EasingComboGui(const ::std::string& label, EaseType& easeType);
 #endif // _DEBUG
 
 } // namespace OriGine

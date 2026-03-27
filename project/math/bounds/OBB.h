@@ -15,8 +15,8 @@ namespace Bounds {
 struct OBB
     : public IBounds {
     OBB() {}
-    OBB(const Vec3f& _center, const Vec3f& _halfSize, const Orientation& _orientations)
-        : center_(_center), halfSize_(_halfSize), orientations_(_orientations) {}
+    OBB(const Vec3f& center, const Vec3f& halfSize, const Orientation& orientations)
+        : center_(center), halfSize_(halfSize), orientations_(orientations) {}
 
     Vec3f center_             = {0.f, 0.f, 0.f};
     Vec3f halfSize_           = {0.f, 0.f, 0.f};

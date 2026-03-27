@@ -18,10 +18,10 @@ namespace Bounds {
 struct Capsule
     : public IBounds {
     Capsule() {}
-    Capsule(const Vec3f& _start, const Vec3f& _end, float _radius)
-        : segment(_start, _end), radius(_radius) {}
-    Capsule(const Segment& _segment, float _radius)
-        : segment(_segment), radius(_radius) {}
+    Capsule(const Vec3f& start, const Vec3f& end, float radius)
+        : segment(start, end), radius(radius) {}
+    Capsule(const Segment& segment, float radius)
+        : segment(segment), radius(radius) {}
 
     /// <summary>
     /// 中心軸となる線分

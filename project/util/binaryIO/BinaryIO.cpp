@@ -23,8 +23,8 @@ void BinaryWriter::WriteEnd() {
         isOpen_ = false;
     }
 }
-void BinaryWriter::WriteLine(const std::string& _line) {
-    fileStream_ << _line << std::endl;
+void BinaryWriter::WriteLine(const std::string& line) {
+    fileStream_ << line << std::endl;
 }
 
 #pragma endregion
