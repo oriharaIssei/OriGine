@@ -46,15 +46,21 @@ void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
         case CollisionPushBackType::Reflect: {
             pushBackSum += info.collVec;
 
-            Rigidbody* rigidbody = GetComponent<Rigidbody>(_handle);
+            Rigidbody* rigidbody      = GetComponent<Rigidbody>(_handle);
+            Rigidbody* otherRigidbody = GetComponent<Rigidbody>(EntityHandle(entityID));
 
-            // 衝突時に反射する
-            // 反射ベクトルを計算
-            Vec3f reflectDir = Reflect(rigidbody->GetVelocity(), static_cast<Vec3f>(info.collVec.normalize()));
-            // 反射後の速度を設定
             if (rigidbody) {
-                rigidbody->SetVelocity(reflectDir);
-                rigidbody->SetAcceleration(reflectDir.normalize() * rigidbody->GetAcceleration().length());
+                Vec3f velocity = rigidbody->GetVelocity();
+                Vec3f normal   = info.collVec.normalize();
+
+                float restitution = rigidbody->GetRestitution();
+                if (otherRigidbody) {
+                    restitution = std::max(restitution, otherRigidbody->GetRestitution());
+                }
+
+                velocity = Reflect(velocity, normal, restitution);
+
+                rigidbody->SetVelocity(velocity);
             }
             break;
         }

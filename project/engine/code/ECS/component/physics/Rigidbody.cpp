@@ -31,6 +31,10 @@ void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused
 
     ImGui::Separator();
 
+    DragGuiCommand("restitution##" + _parentLabel, restitution_, 0.01f);
+
+    ImGui::Separator();
+
     CheckBoxCommand("isUsingLocalDeltaTime##" + _parentLabel, isUsingLocalDeltaTime_);
     std::string label = "localDeltaTimeName##" + _parentLabel;
     if (isUsingLocalDeltaTime_) {
@@ -64,6 +68,7 @@ void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
     _j["mass"]         = _comp.mass_;
     _j["useGravity"]   = _comp.useGravity_;
     _j["maxFallSpeed"] = _comp.maxFallSpeed_;
+    _j["restitution"]  = _comp.restitution_;
 
     _j["isUsingLocalDeltaTime"] = _comp.isUsingLocalDeltaTime_;
     _j["localDeltaTimeName"]    = _comp.localDeltaTimeName_;
@@ -83,6 +88,8 @@ void OriGine::from_json(const nlohmann::json& _j, Rigidbody& _comp) {
     if (_j.contains("maxFallSpeed")) {
         _j.at("maxFallSpeed").get_to(_comp.maxFallSpeed_);
     }
+
+    _comp.restitution_ = _j.value("restitution", 0.0f); // デフォルト値を 0.0f に設定
 
     if (_j.contains("isUsingLocalDeltaTime")) {
         _j.at("isUsingLocalDeltaTime").get_to(_comp.isUsingLocalDeltaTime_);

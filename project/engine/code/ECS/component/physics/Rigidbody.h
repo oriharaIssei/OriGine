@@ -40,6 +40,8 @@ private:
     float mass_         = 1.0f;
     float maxFallSpeed_ = 1000.0f; // 最大落下速度
 
+    float restitution_ = 0.0f; // 反発係数 (0.0f = 非反発, 1.0f = 完全反発)
+
     bool isUsingLocalDeltaTime_     = false;
     std::string localDeltaTimeName_ = "";
 
@@ -100,6 +102,9 @@ public: // accsessor
     void SetMaxFallSpeed(float _maxFallSpeed) {
         maxFallSpeed_ = _maxFallSpeed;
     }
+
+    float GetRestitution() const { return restitution_; }
+    void SetRestitution(float _restitution) { restitution_ = _restitution; }
 
     bool IsUsingLocalDeltaTime() const { return isUsingLocalDeltaTime_; }
     const std::string& GetLocalDeltaTimeName() const { return localDeltaTimeName_; }
