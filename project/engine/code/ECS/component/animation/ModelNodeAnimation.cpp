@@ -15,7 +15,12 @@
 /// externals
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
+#include "util/timeline/Timeline.h"
 #include <imgui/imgui.h>
+
+// Scene & Renderer (for Edit node tree)
+#include "scene/Scene.h"
+#include "component/renderer/ModelMeshRenderer.h"
 #endif // _DEBUG
 
 /// math
@@ -37,7 +42,7 @@ void ModelNodeAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/)
     }
 }
 
-void ModelNodeAnimation::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void ModelNodeAnimation::Edit(Scene* _scene, EntityHandle _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "Load File##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
@@ -63,12 +68,172 @@ void ModelNodeAnimation::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[may
         }
     }
 
+    ImGui::SameLine();
+    if (ImGui::Button(("Save File##" + _parentLabel).c_str())) {
+        if (data_) {
+            data_->duration = duration_;
+            AnimationManager::GetInstance()->SaveAnimation(directory_, fileName_, *data_);
+        }
+    }
+
     ImGui::Text("File Name : %s", fileName_.c_str());
 
-    label = "isPlay##" + _parentLabel;
-    CheckBoxCommand(label, animationState_.isPlay_);
     label = "Duration##" + _parentLabel;
     DragGuiCommand(label, duration_, 0.01f, 0.0f);
+
+    CheckBoxCommand("Is Loop##" + _parentLabel, animationState_.isLoop_);
+    CheckBoxCommand("Is Play##" + _parentLabel, animationState_.isPlay_);
+
+    // --- ModelMeshRenderer からノードツリーを取得・可視化 ---
+    {
+        ModelMeshData* modelData = nullptr;
+        auto& renderers          = _scene->GetComponents<ModelMeshRenderer>(_entity);
+        if (!renderers.empty()) {
+            modelData = renderers[0].GetModelData();
+        }
+
+        if (modelData) {
+            if (ImGui::TreeNode(("Node Tree##" + _parentLabel).c_str())) {
+                // data_ がなければ作成
+                if (!data_) {
+                    data_ = std::make_shared<AnimationData>();
+                }
+
+                // 再帰的にノードツリーを表示
+                std::function<void(const ModelNode&)> showNodeTree;
+                showNodeTree = [&](const ModelNode& node) {
+                    bool hasAnim = data_->animationNodes_.count(node.name) > 0;
+
+                    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+                    if (node.children.empty()) {
+                        flags |= ImGuiTreeNodeFlags_Leaf;
+                    }
+
+                    // アニメーションノードがあるノードは緑色で表示
+                    if (hasAnim) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 1.0f, 0.3f, 1.0f));
+                    }
+
+                    bool opened = ImGui::TreeNodeEx(
+                        (node.name + "##NodeTree" + _parentLabel).c_str(), flags);
+
+                    if (hasAnim) {
+                        ImGui::PopStyleColor();
+                    }
+
+                    // アニメーションノードがなければ追加ボタン
+                    if (!hasAnim) {
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton(("+##Add" + node.name + _parentLabel).c_str())) {
+                            data_->animationNodes_[node.name] = ModelAnimationNode();
+                        }
+                    } else {
+                        // 削除ボタン
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton(("-##Remove" + node.name + _parentLabel).c_str())) {
+                            data_->animationNodes_.erase(node.name);
+                        }
+                    }
+
+                    if (opened) {
+                        for (const auto& child : node.children) {
+                            showNodeTree(child);
+                        }
+                        ImGui::TreePop();
+                    }
+                };
+
+                showNodeTree(modelData->rootNode);
+                ImGui::TreePop();
+            }
+        }
+
+        // 手動ノード追加
+        {
+            static char newNodeName[128] = "";
+            ImGui::InputText(("New Node##Input" + _parentLabel).c_str(), newNodeName, sizeof(newNodeName));
+            ImGui::SameLine();
+            if (ImGui::Button(("Add##NewNode" + _parentLabel).c_str())) {
+                if (strlen(newNodeName) > 0) {
+                    if (!data_) {
+                        data_ = std::make_shared<AnimationData>();
+                    }
+                    std::string name(newNodeName);
+                    if (data_->animationNodes_.find(name) == data_->animationNodes_.end()) {
+                        data_->animationNodes_[name] = ModelAnimationNode();
+                        newNodeName[0]               = '\0';
+                    }
+                }
+            }
+        }
+    }
+
+    ImGui::Separator();
+
+    // ノードごとのキーフレーム編集
+    if (data_ && !data_->animationNodes_.empty()) {
+        for (auto& [nodeName, nodeAnim] : data_->animationNodes_) {
+            if (!ImGui::TreeNode((nodeName + "##" + _parentLabel).c_str())) {
+                continue;
+            }
+
+            // InterpolationType
+            std::string comboLabel = "InterpolationType##" + nodeName + _parentLabel;
+            if (ImGui::BeginCombo(comboLabel.c_str(), InterpolationTypeName[int(nodeAnim.interpolationType)])) {
+                for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
+                    if (ImGui::Selectable(InterpolationTypeName[i], nodeAnim.interpolationType == InterpolationType(i))) {
+                        OriGine::EditorController::GetInstance()->PushCommand(
+                            std::make_unique<SetterCommand<InterpolationType>>(&nodeAnim.interpolationType, InterpolationType(i)));
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollX;
+            if (ImGui::BeginTable(("NodeKeyFrames##" + nodeName + _parentLabel).c_str(), 2, tableFlags)) {
+                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("Edit");
+                ImGui::TableHeadersRow();
+
+                // Scale
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted("Scale");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::EditKeyFrame("##Scale" + nodeName + _parentLabel, nodeAnim.scale, duration_);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Separator();
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Separator();
+
+                // Rotate
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted("Rotate");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::EditKeyFrame("##Rotate" + nodeName + _parentLabel, nodeAnim.rotate, duration_);
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Separator();
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Separator();
+
+                // Translate
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted("Translate");
+                ImGui::TableSetColumnIndex(1);
+                ImGui::EditKeyFrame("##Translate" + nodeName + _parentLabel, nodeAnim.translate, duration_);
+
+                ImGui::EndTable();
+            }
+
+            ImGui::TreePop();
+        }
+    }
 
 #endif // _DEBUG
 }

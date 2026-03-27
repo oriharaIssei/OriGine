@@ -48,9 +48,7 @@ void CollectSubmeshes(
 // InstancedMeshManager - Core Implementation
 //==============================================================================
 
-void InstancedMeshManager::Initialize() {
-    // 現時点では特別な初期化は不要
-}
+void InstancedMeshManager::Initialize() {}
 
 void InstancedMeshManager::Finalize() {
     for (auto& [key, group] : modelGroups_) {
