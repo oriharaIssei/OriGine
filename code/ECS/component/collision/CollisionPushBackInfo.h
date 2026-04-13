@@ -1,0 +1,56 @@
+#pragma once
+
+#include "component/IComponent.h"
+/// stl
+#include <unordered_map>
+/// math
+#include <math/Vector3.h>
+
+namespace OriGine {
+
+enum class CollisionPushBackType {
+    None     = 0,
+    PushBack = 1, // 衝突時に押し戻す
+    Reflect  = 2, // 衝突時に反射する
+
+    Count
+};
+const char* GetCollisionPushBackTypeName(CollisionPushBackType _type);
+
+class CollisionPushBackInfo
+    : public IComponent {
+    friend void to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp);
+    friend void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
+
+public:
+    void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
+    void Finalize() override;
+
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+
+    void ClearInfo();
+
+public:
+    struct Info {
+        CollisionPushBackType pushBackType;
+        Vec3f collVec; // 衝突ベクトル
+        Vec3f collFaceNormal; // 衝突面の法線ベクトル
+        Vec3f collPoint; // 衝突点
+    };
+
+private:
+    CollisionPushBackType pushBackType_ = CollisionPushBackType::None; // 衝突時の挙動
+    std::unordered_map<EntityHandle, Info> collisionInfoMap_;
+
+public:
+    CollisionPushBackType GetPushBackType() const { return pushBackType_; }
+    void SetPushBackType(CollisionPushBackType _type) { pushBackType_ = _type; }
+
+    const std::unordered_map<EntityHandle, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
+    void SetCollisionInfoMap(const std::unordered_map<EntityHandle, Info>& _map) { collisionInfoMap_ = _map; }
+    void AddCollisionInfo(EntityHandle _handle, const Info& _info) {
+        collisionInfoMap_[_handle] = _info;
+    }
+};
+
+} // namespace OriGine

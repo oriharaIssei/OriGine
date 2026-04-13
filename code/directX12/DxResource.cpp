@@ -1,0 +1,244 @@
+#include "DxResource.h"
+
+/// stl
+#include <cassert>
+
+/// engine
+// directX12 object
+#include "directX12/DxDevice.h"
+#include "directX12/ResourceStateTracker.h"
+
+/// externals
+#include "logger/Logger.h"
+
+/// util
+#include "DxUtil.h"
+
+#include "EngineConfig.h"
+
+using namespace OriGine;
+
+const char* OriGine::DxResourceTypeToString(DxResourceType _type) {
+    switch (_type) {
+    case DxResourceType::Unknown:
+        return "Unknown";
+    case DxResourceType::Descriptor_RTV:
+        return "Descriptor_RTV";
+    case DxResourceType::Descriptor_DSV:
+        return "Descriptor_DSV";
+    case DxResourceType::Descriptor_SRV:
+        return "Descriptor_SRV";
+    case DxResourceType::Descriptor_UAV:
+        return "Descriptor_UAV";
+    case DxResourceType::Descriptor_Sampler:
+        return "Descriptor_Sampler";
+    case DxResourceType::Buffer:
+        return "Buffer";
+    case DxResourceType::Buffer_Constant:
+        return "Buffer_Constant";
+    case DxResourceType::Buffer_Structured:
+        return "Buffer_Structured";
+    default:
+        return "Unknown Type";
+    }
+}
+
+std::string std::to_string(DxResourceType _type) {
+    return DxResourceTypeToString(_type);
+}
+
+void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_STATES _state, D3D12_HEAP_TYPE _heapType) {
+    // リソース用のヒープの設定
+    D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+    uploadHeapProperties.Type = _heapType;
+    // リソースの設定
+    // バッファのリソース(テクスチャの場合は別の設定をする)
+    resourceDesc_.Flags     = D3D12_RESOURCE_FLAG_NONE;
+    resourceDesc_.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    resourceDesc_.Width     = _sizeInBytes;
+    // バッファの場合、これらは 1 にする
+    resourceDesc_.Height           = 1;
+    resourceDesc_.DepthOrArraySize = 1;
+    resourceDesc_.MipLevels        = 1;
+    resourceDesc_.SampleDesc.Count = 1;
+    // バッファの場合はこれにする
+    resourceDesc_.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+    HRESULT hr = _device->CreateCommittedResource(
+        &uploadHeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        _state,
+        nullptr,
+        IID_PPV_ARGS(&resource_));
+
+    if (FAILED(hr)) {
+        LOG_CRITICAL("Failed to create buffer resource.\n massage : {}", std::to_string(hr));
+        assert(false);
+    }
+}
+
+void DxResource::CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, UINT64 _width, UINT _height) {
+    resourceDesc_.Width            = _width;
+    resourceDesc_.Height           = _height;
+    resourceDesc_.MipLevels        = 1;
+    resourceDesc_.DepthOrArraySize = 1;
+    resourceDesc_.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    resourceDesc_.SampleDesc.Count = 1;
+    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resourceDesc_.Flags            = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    // heap の設定
+    D3D12_HEAP_PROPERTIES heapProperties{};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    D3D12_CLEAR_VALUE depthClearValue{};
+    depthClearValue.DepthStencil.Depth = Config::Rendering::kDefaultDepthClear; // 最大値でクリア
+    depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
+
+    HRESULT result = _device->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthClearValue,
+        IID_PPV_ARGS(resource_.GetAddressOf()));
+
+    if (FAILED(result)) {
+        // エラーログを出力
+        LOG_ERROR("Failed to create depth stencil view resource.");
+        assert(false);
+    }
+}
+
+void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_FLAGS _flags, D3D12_RESOURCE_STATES _state, D3D12_HEAP_TYPE _heapType) {
+    // Heap Properties の設定
+    D3D12_HEAP_PROPERTIES heapProps{};
+    heapProps.Type = _heapType; // VRAM 上に生成
+
+    // Resource Desc の設定
+    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファリソース
+    resourceDesc_.Width            = _sizeInBytes; // サイズを指定
+    resourceDesc_.Height           = 1; // バッファなので高さは 1
+    resourceDesc_.DepthOrArraySize = 1; // バッファなので奥行きは 1
+    resourceDesc_.MipLevels        = 1; // Mipレベルは 1
+    resourceDesc_.SampleDesc.Count = 1; // サンプル数は 1
+    resourceDesc_.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR; // バッファなので行メジャー
+    resourceDesc_.Flags            = _flags; // UAV 用のフラグを指定
+
+    // Resource の作成
+    HRESULT hr = _device->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        _state, // UAV 用の状態
+        nullptr, // Clear最適値は nullptr
+        IID_PPV_ARGS(resource_.GetAddressOf()));
+
+    if (FAILED(hr)) {
+        LOG_CRITICAL("Failed to create UAV buffer resource.\n message : {}", std::to_string(hr));
+        assert(false);
+    }
+    type_ |= DxResourceType::Descriptor_UAV;
+}
+
+void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _width, uint32_t _height, DXGI_FORMAT _format, const Vec4f& _clearColor) {
+    resourceDesc_.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resourceDesc_.Width              = static_cast<UINT64>(_width);
+    resourceDesc_.Height             = static_cast<UINT>(_height);
+    resourceDesc_.DepthOrArraySize   = 1;
+    resourceDesc_.MipLevels          = 1;
+    resourceDesc_.Format             = _format;
+    resourceDesc_.SampleDesc.Count   = 1;
+    resourceDesc_.SampleDesc.Quality = 0;
+    resourceDesc_.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    resourceDesc_.Flags              = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    D3D12_HEAP_PROPERTIES heapProps{};
+    // VRAM 上に 生成
+    heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    D3D12_CLEAR_VALUE clearValue{};
+    clearValue.Format   = _format;
+    clearValue.Color[0] = _clearColor[X];
+    clearValue.Color[1] = _clearColor[Y];
+    clearValue.Color[2] = _clearColor[Z];
+    clearValue.Color[3] = _clearColor[W];
+
+    HRESULT hr = _device->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        D3D12_RESOURCE_STATE_RENDER_TARGET, // 描画すること を 前提とした テクスチャ なので RenderTarget として 扱う
+        &clearValue,
+        IID_PPV_ARGS(&resource_));
+
+    if (FAILED(hr)) {
+        LOG_CRITICAL("Failed to create render texture resource.\n message :{}", std::to_string(hr));
+        HRESULT reason = _device->GetDeviceRemovedReason();
+        char buf[256];
+        sprintf_s(buf, "CreateRenderTextureResource FAILED hr=0x%08X, DeviceRemovedReason=0x%08X\n",
+            static_cast<unsigned int>(hr), static_cast<unsigned int>(reason));
+        OutputDebugStringA(buf);
+
+        assert(false);
+    }
+}
+
+void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, const DirectX::TexMetadata& _metadata) {
+    //================================================
+    // 1. metadata を基に Resource を設定
+
+    resourceDesc_.Width            = UINT(_metadata.width);
+    resourceDesc_.Height           = UINT(_metadata.height);
+    resourceDesc_.MipLevels        = UINT16(_metadata.mipLevels); // mipMap の数
+    resourceDesc_.DepthOrArraySize = UINT16(_metadata.arraySize); // 奥行 or Texture[]の配列数
+    resourceDesc_.Format           = _metadata.format; // texture の Format
+    resourceDesc_.SampleDesc.Count = 1; // サンプリングカウント 1固定
+    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION(_metadata.dimension);
+
+    //================================================
+    // 2. 利用する Heap の設定
+    D3D12_HEAP_PROPERTIES heapProperties{};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    //================================================
+    // 3. Resource の作成
+    HRESULT hr;
+    hr = _device->CreateCommittedResource(
+        &heapProperties, // heap の設定
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        nullptr, // Clear最適値
+        IID_PPV_ARGS(&resource_));
+
+    if (FAILED(hr)) {
+        LOG_CRITICAL("Failed to create render texture resource.\n message :{}", std::to_string(hr));
+        assert(false);
+    }
+}
+
+void DxResource::Finalize() {
+    ULONG count = GetComRefCount(resource_);
+
+    LOG_CRITICAL("Left Instance Count : {}\n pointer : {}", count, static_cast<const void*>(resource_.Get()));
+
+    // tracker から解除
+    ResourceStateTracker::UnregisterResource(resource_.Get());
+
+    resource_.Reset();
+    type_         = DxResourceType::Unknown; // リソースの種類をリセット
+    resourceDesc_ = {}; // リソースの詳細情報をリセット
+}
+
+HRESULT DxResource::SetName(const std::wstring& _name) {
+    HRESULT result = 0;
+    if (resource_) {
+        result = resource_->SetName(_name.c_str());
+    }
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to Set resource name.\n message : {}", result);
+        assert(false);
+    }
+    return result;
+}

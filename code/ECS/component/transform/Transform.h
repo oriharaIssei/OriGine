@@ -1,0 +1,93 @@
+#pragma once
+
+/// microsoft
+#include <wrl.h>
+/// dx12
+#include <d3d12.h>
+/// stl
+#include <array>
+#include <functional>
+#include <string>
+
+/// engine
+#include "component/IComponent.h"
+
+/// math
+#include "Matrix4x4.h"
+#include "Quaternion.h"
+
+namespace OriGine {
+
+/// <summary>
+/// Transform コンポーネント(3次元)
+/// </summary>
+struct Transform
+    : public IComponent {
+public:
+    Transform();
+    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
+        : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix4x4::Identity()) {}
+    ~Transform() {}
+
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void UpdateMatrix();
+    Quaternion CalculateWorldRotate() const;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+
+    void Finalize() override {};
+
+public:
+    Vec3f scale        = {1.0f, 1.0f, 1.0f};
+    Quaternion rotate  = {0.0f, 0.0f, 0.0f, 1.0f};
+    Vec3f translate    = {0.0f, 0.0f, 0.0f};
+    Matrix4x4 worldMat = MakeMatrix4x4::Identity();
+
+    Transform* parent = nullptr;
+
+public:
+    Vec3f GetWorldTranslate() const { return worldMat[3]; }
+    Vec3f GetWorldScale() const {
+        Vec3f worldScale;
+        worldScale[X] = Vec3f::Length(worldMat[0]);
+        worldScale[Y] = Vec3f::Length(worldMat[1]);
+        worldScale[Z] = Vec3f::Length(worldMat[2]);
+        return worldScale;
+    }
+
+    /// <summary>
+    /// 回転から求めた前方ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f FrontVector() const;
+    /// <summary>
+    /// 回転から求めた右方向ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f RightVector() const;
+    /// <summary>
+    /// 回転から求めた上方向ベクトルを取得
+    /// </summary>
+    /// <returns></returns>
+    Vec3f UpVector() const;
+
+public:
+    struct ConstantBuffer {
+        Matrix4x4 world;
+        ConstantBuffer& operator=(const Transform& _comp) {
+            world = _comp.worldMat;
+            return *this;
+        }
+    };
+};
+
+inline void from_json(const nlohmann::json& _j, Transform& _comp) {
+    _j.at("scale").get_to(_comp.scale);
+    _j.at("rotate").get_to(_comp.rotate);
+    _j.at("translate").get_to(_comp.translate);
+}
+
+inline void to_json(nlohmann::json& _j, const Transform& _comp) {
+    _j = nlohmann::json{{"scale", _comp.scale}, {"rotate", _comp.rotate}, {"translate", _comp.translate}};
+}
+
+} // namespace OriGine

@@ -1,0 +1,24 @@
+#pragma once
+
+#include "component/renderer/primitive/PrimitiveMeshRenderer.h"
+#include "component/renderer/primitive/shape/Sphere.h"
+
+namespace OriGine {
+
+class SphereRenderer
+    : public PrimitiveMeshRenderer<Primitive::Sphere> {
+    friend void to_json(nlohmann::json& _j, const SphereRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, SphereRenderer& _comp);
+
+public:
+    SphereRenderer() : PrimitiveMeshRenderer() {}
+    SphereRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    SphereRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+
+    ~SphereRenderer() override {}
+
+    void Initialize(Scene* _scene, EntityHandle _hostEntity) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+};
+
+} // namespace OriGine

@@ -1,0 +1,101 @@
+#pragma once
+#include "component/IComponent.h"
+
+/// ECS
+// component
+#include "component/animation/AnimationData.h"
+
+namespace OriGine {
+
+/// <summary>
+/// カメラをアニメーションさせるコンポーネント
+/// </summary>
+class CameraAction
+    : public IComponent {
+    friend void to_json(nlohmann::json& _j, const CameraAction& _comp);
+    friend void from_json(const nlohmann::json& _j, CameraAction& _comp);
+
+public:
+    CameraAction();
+    ~CameraAction();
+
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Finalize() override;
+
+    void Play() {
+#ifdef _DEBUG
+        isDebugPlay_ = true;
+#else
+        animationState_.isPlay_ = true;
+#endif // _DEBUG
+        animationState_.isEnd_ = false;
+        currentTime_           = 0.0f;
+    }
+    void PlayContinue() {
+#ifdef _DEBUG
+        isDebugPlay_ = true;
+#else
+        animationState_.isPlay_ = true;
+#endif // _DEBUG
+        animationState_.isEnd_ = false;
+    }
+    void Stop() {
+#ifdef _DEBUG
+        isDebugPlay_ = false;
+#else
+        animationState_.isPlay_ = false;
+#endif // _DEBUG
+        animationState_.isEnd_ = true;
+    }
+
+private:
+    float duration_    = 1.f; // アニメーションの総時間
+    float currentTime_ = 0.0f;
+
+#ifdef _DEBUG
+    bool isDebugPlay_ = false;
+#endif // _DEBUG
+    AnimationState animationState_; // アニメーション状態
+
+    // カメラのアニメーションカーブ
+    AnimationCurve<float> fovCurve_; // FOVのアニメーションカーブ
+    AnimationCurve<float> aspectRatioCurve_; // アスペクト比のアニメーションカーブ
+    AnimationCurve<float> nearZCurve_; // 近接深度のアニメーションカーブ
+    AnimationCurve<float> farZCurve_; // 遠方深度のアニメーションカーブ
+
+    AnimationCurve<Vec3f> positionCurve_; // カメラ位置のアニメーションカーブ
+    AnimationCurve<Quaternion> rotationCurve_; // カメラ回転のアニメーションカーブ
+public:
+    bool isPlaying() const {
+#ifdef _DEBUG
+        return isDebugPlay_;
+#else
+        return animationState_.isPlay_;
+#endif // _DEBUG
+    }
+    bool IsEnd() const { return animationState_.isEnd_; }
+
+    bool isLooping() const { return animationState_.isLoop_; }
+    void SetIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
+
+    float GetDuration() const { return duration_; }
+    void SetDuration(float duration) { duration_ = duration; }
+    float GetTime() const { return currentTime_; }
+    void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
+
+    const AnimationCurve<float>& GetFovCurve() const { return fovCurve_; }
+    const AnimationCurve<float>& GetAspectRatioCurve() const { return aspectRatioCurve_; }
+    const AnimationCurve<float>& GetNearZCurve() const { return nearZCurve_; }
+    const AnimationCurve<float>& GetFarZCurve() const { return farZCurve_; }
+    const AnimationCurve<Vec3f>& GetPositionCurve() const { return positionCurve_; }
+    const AnimationCurve<Quaternion>& GetRotationCurve() const { return rotationCurve_; }
+    void SetFovCurve(const AnimationCurve<float>& curve) { fovCurve_ = curve; }
+    void SetAspectRatioCurve(const AnimationCurve<float>& curve) { aspectRatioCurve_ = curve; }
+    void SetNearZCurve(const AnimationCurve<float>& curve) { nearZCurve_ = curve; }
+    void SetFarZCurve(const AnimationCurve<float>& curve) { farZCurve_ = curve; }
+    void SetPositionCurve(const AnimationCurve<Vec3f>& curve) { positionCurve_ = curve; }
+    void SetRotationCurve(const AnimationCurve<Quaternion>& curve) { rotationCurve_ = curve; }
+};
+
+} // namespace OriGine

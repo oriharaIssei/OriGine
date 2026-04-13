@@ -1,0 +1,92 @@
+#include "RegisterWindowResizeEvent.h"
+
+/// engine
+#include "Engine.h"
+// directX12
+#include "directX12/RenderTexture.h"
+
+/// component
+#include "component/renderer/Sprite.h"
+#include "component/scene/SubScene.h"
+
+using namespace OriGine;
+
+RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory::Initialize) {}
+
+void RegisterWindowResizeEvent::Initialize() {
+    Engine* engine = Engine::GetInstance();
+
+    auto shared                                       = shared_from_this();
+    std::weak_ptr<RegisterWindowResizeEvent> weakSelf = shared;
+
+#ifndef _DEBUG
+    // シーンビューのリサイズイベント登録
+    auto sceneViewResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                currentScene->GetSceneView()->Resize(size);
+            }
+        }
+    };
+    sceneViewResizeEventIndex_ = engine->AddWindowResizeEvent(sceneViewResizeEvent);
+#endif // _DEBUG
+
+    // スプライトのリサイズイベント登録
+    auto spriteResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                auto spritesArray = currentScene->GetComponentArray<SpriteRenderer>();
+                for (auto& sprites : spritesArray->GetSlotsRef()) {
+                    for (auto& sprite : sprites.components) {
+                        sprite.CalculateWindowRatioPosAndSize(size);
+                    }
+                }
+            }
+        }
+    };
+    spriteResizeEventIndex_ = engine->AddWindowResizeEvent(spriteResizeEvent);
+
+    // サブシーンのリサイズイベント登録
+    auto subSceneResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                auto subScenesArray = currentScene->GetComponentArray<SubScene>();
+                for (auto& subScenes : subScenesArray->GetSlotsRef()) {
+                    for (auto& subScene : subScenes.components) {
+                        auto scene = subScene.GetSubSceneRef();
+                        if (scene) {
+                            scene->GetSceneView()->Resize(size);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    subSceneResizeEventIndex_ = engine->AddWindowResizeEvent(subSceneResizeEvent);
+}
+
+void RegisterWindowResizeEvent::Finalize() {
+    Engine* engine = Engine::GetInstance();
+    if (subSceneResizeEventIndex_ != -1) {
+        engine->RemoveWindowResizeEvent(subSceneResizeEventIndex_);
+        subSceneResizeEventIndex_ = -1;
+    }
+
+    if (spriteResizeEventIndex_ != -1) {
+        engine->RemoveWindowResizeEvent(spriteResizeEventIndex_);
+        spriteResizeEventIndex_ = -1;
+    }
+
+#ifndef _DEBUG
+    if (sceneViewResizeEventIndex_ != -1) {
+        engine->RemoveWindowResizeEvent(sceneViewResizeEventIndex_);
+        sceneViewResizeEventIndex_ = -1;
+    }
+#endif // _DEBUG
+}
+
+void RegisterWindowResizeEvent::UpdateEntity(EntityHandle /*_owner*/) {
+}

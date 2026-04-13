@@ -1,0 +1,27 @@
+# Build artifacts
+/generated/
+/_standalone/
+
+# AssetCooker 成果物 (ローカル生成)
+**/cookedResource/
+
+# Runtime logs
+/resource/logs/
+
+# Visual Studio / Premake 生成物
+*.sln
+*.slnx
+*.vcxproj
+*.vcxproj.*
+.vs/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+imgui.ini

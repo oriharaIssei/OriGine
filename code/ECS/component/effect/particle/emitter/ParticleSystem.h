@@ -1,0 +1,186 @@
+#pragma once
+
+/// stl
+#include <memory>
+#include <vector>
+
+/// engine
+// dx12object
+#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/SimpleConstantBuffer.h"
+#include "directX12/mesh/Mesh.h"
+#include "directX12/ShaderManager.h"
+// assets
+#include "component/material/Material.h"
+// object
+#include "../Particle.h"
+// component
+#include "component/transform/CameraTransform.h"
+#include "component/transform/ParticleTransform.h"
+#include "component/transform/Transform.h"
+
+/// math
+#include "math/Matrix4x4.h"
+// spawn control
+#include "Emitter.h"
+
+namespace OriGine {
+// 前方宣言
+struct ParticleKeyFrames;
+class EmitterShapeRenderingSystem;
+
+enum class BillBoardType {
+    NONE = 0,
+    X    = 0x1 << 1,
+    Y    = 0x1 << 2,
+    Z    = 0x1 << 3
+};
+
+/// <summary>
+/// Particleを生成、管理するコンポーネント
+/// </summary>
+class ParticleSystem
+    : public IComponent {
+
+    // to_json, from_json を friend として宣言
+    friend void to_json(nlohmann::json& _j, const ParticleSystem& _comp);
+    friend void from_json(const nlohmann::json& _j, ParticleSystem& _comp);
+
+    // ParticleSystemEditor を friend として宣言
+    friend class ParticleSystemEditor;
+    // System から private メンバへアクセスするための friend 宣言
+    friend class ParticleSystemWorkSystem;
+    friend class ParticleRenderSystem;
+    friend class EmitterShapeRenderingSystem;
+
+public:
+    ParticleSystem();
+    ~ParticleSystem();
+
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Finalize() override;
+
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+
+    /// <summary>
+    /// 生成される Particle の 最大数を計算する
+    /// </summary>
+    void CalculateMaxSize();
+
+    /// <summary>
+    /// 0から再生を開始する
+    /// </summary>
+    void PlayStart();
+    /// <summary>
+    /// 途中から再生を開始する
+    /// </summary>
+    void PlayContinue();
+    /// <summary>
+    /// 再生を止める
+    /// </summary>
+    void PlayStop();
+
+private:
+    void CreateResource();
+
+    /// <summary>
+    /// パーティクルを生成する
+    /// </summary>
+    void SpawnParticle(int32_t _spawnVal);
+
+private:
+    uint32_t particleMaxSize_ = 12;
+    bool pendingResize_       = false;
+
+    std::vector<std::shared_ptr<Particle>> particles_;
+
+    /// <summary>
+    /// 頂点 を 持つ
+    /// </summary>
+    TextureColorMesh mesh_;
+
+    int32_t materialIndex_ = -1;
+    SimpleConstantBuffer<Material> materialBuffer_;
+
+    IStructuredBuffer<ParticleTransform> structuredTransform_;
+    //=============== Texture ===============/
+    std::string textureFileName_ = "";
+    size_t textureIndex_         = 0;
+
+    //=============== エミッター設定項目 ===============//
+    BlendMode blendMode_ = BlendMode::None;
+
+    float particleLifeTime_ = 0.f;
+
+    // billBoard 計算するかどうか
+    bool particleIsBillBoard_ = true;
+
+    //=============== パーティクル設定項目 ===============//
+    Vec4f particleColor_       = {1.f, 1.f, 1.f, 1.f};
+    Vec3f particleUvScale_     = {1.f, 1.f, 1.f};
+    Vec3f particleUvRotate_    = {0.f, 0.f, 0.f};
+    Vec3f particleUvTranslate_ = {0.f, 0.f, 0.f};
+
+    int32_t updateSettings_ = 0;
+
+    Vec2f randMass_ = {1.f, 1.f};
+
+    std::shared_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
+
+#ifdef _DEBUG
+    // 連番画像から uv Curveにするためのもの
+    Vec2f tileSize_            = {};
+    Vec2f textureSize_         = {};
+    float tilePerTime_         = 0.f;
+    float startAnimationTime_  = 0.f;
+    float animationTimeLength_ = 0.f;
+#endif // _DEBUG
+
+    InterpolationType transformInterpolationType_ = InterpolationType::LINEAR;
+    InterpolationType colorInterpolationType_     = InterpolationType::LINEAR;
+    InterpolationType uvInterpolationType_        = InterpolationType::LINEAR;
+    // ランダムな数値の範囲を設定するためのメンバ変数
+    // ランダムではない場合 (min == max) になる
+    Vec3f startParticleScaleMin_    = {1.f, 1.f, 1.f};
+    Vec3f startParticleScaleMax_    = {1.f, 1.f, 1.f};
+    Vec3f startParticleRotateMin_   = {0.f, 0.f, 0.f};
+    Vec3f startParticleRotateMax_   = {0.f, 0.f, 0.f};
+    Vec3f startParticleVelocityMin_ = {0.f, 0.f, 0.f};
+    Vec3f startParticleVelocityMax_ = {0.f, 0.f, 0.f};
+
+    Vec3f updateParticleScaleMin_    = {1.f, 1.f, 1.f};
+    Vec3f updateParticleScaleMax_    = {1.f, 1.f, 1.f};
+    Vec3f updateParticleRotateMin_   = {0.f, 0.f, 0.f};
+    Vec3f updateParticleRotateMax_   = {0.f, 0.f, 0.f};
+    Vec3f updateParticleVelocityMin_ = {0.f, 0.f, 0.f};
+    Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
+
+private:
+    // スポーン制御（タイミング・形状・数）
+    Emitter emitter_;
+
+public:
+    bool IsActive() const { return emitter_.isActive_; }
+    bool ParticleIsEmpty() const { return particles_.empty(); }
+    bool GetIsLoop() const { return emitter_.isLoop_; }
+    void SetIsLoop(bool _isLoop) { emitter_.isLoop_ = _isLoop; }
+
+    float GetActiveTime() const { return emitter_.activeTime_; }
+    void SetLeftActiveTime(float _time) { emitter_.leftActiveTime_ = _time; }
+
+    bool GetIsBillBoard() const { return particleIsBillBoard_; }
+    void SetIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
+
+    const Vec3f& GetOriginPos() const { return emitter_.originPos_; }
+    void SetOriginPos(const Vec3f& _pos) { emitter_.originPos_ = _pos; }
+
+    BlendMode GetBlendMode() const { return blendMode_; }
+
+    Transform* GetParent() const { return emitter_.GetParent(); }
+    void SetParent(Transform* _parent) { emitter_.SetParent(_parent); }
+
+    const ComponentHandle& GetParentHandle() const { return emitter_.GetParentHandle(); }
+    void SetParentHandle(const ComponentHandle& _handle) { emitter_.SetParentHandle(_handle); }
+};
+
+} // namespace OriGine

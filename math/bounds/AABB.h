@@ -1,0 +1,34 @@
+#pragma once
+
+#include "base/IBounds.h"
+
+/// math
+#include "Vector3.h"
+
+namespace OriGine {
+namespace Bounds {
+
+/// <summary>
+/// 軸平行境界ボックス
+/// Axis Aligned Bounding Box
+/// </summary>
+struct AABB
+    : public IBounds {
+    AABB() {}
+    AABB(const Vec3f& center, const Vec3f& halfSize) : center(center), halfSize(halfSize) {}
+
+    Vec3f center   = {0.f, 0.f, 0.f};
+    Vec3f halfSize = {0.f, 0.f, 0.f};
+
+    /// <summary>
+    /// 最小座標を取得
+    /// </summary>
+    Vec3f Min() const { return center - halfSize; }
+    /// <summary>
+    /// 最大座標を取得
+    /// </summary>
+    Vec3f Max() const { return center + halfSize; };
+};
+
+} // namespace Bounds
+} // namespace OriGine

@@ -1,0 +1,45 @@
+#pragma once
+
+/// stl
+#include <array>
+#include <string>
+
+namespace OriGine {
+
+/// <summary>
+/// システムの種類(この種類によって処理順序が決定する)
+/// </summary>
+enum class SystemCategory {
+    Initialize, // 初期化処理
+
+    Input, // Userによる入力に対する処理
+    StateTransition, // 入力等による状態遷移の処理
+    Movement, // 移動や行動の処理
+    Collision, // 衝突判定処理
+
+    Effect, // エフェクト処理
+
+    Render, // 更新処理のあとに 描画処理
+    PostRender, // 描画処理のあとに 処理
+
+    Count
+};
+
+static const ::std::array<::std::string, static_cast<int>(SystemCategory::Count)> kSystemCategoryString = {
+    "Initialize",
+    "Input",
+    "StateTransition",
+    "Movement",
+    "Collision",
+    "Effect",
+    "Render",
+    "PostRender"};
+
+} // namespace OriGine
+
+/// <summary>
+/// SystemCategoryを文字列に変換する
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
+/// <returns>カテゴリ名の文字列</returns>
+std::string ToString(const OriGine::SystemCategory& _category);
