@@ -3,7 +3,7 @@
 #define ENGINE_ECS
 #define ENGINE_INCLUDE
 #include "directX12/DxDevice.h"
-#include "engine/EngineInclude.h"
+#include "EngineInclude.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"

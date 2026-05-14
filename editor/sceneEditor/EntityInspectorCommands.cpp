@@ -5,7 +5,7 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "editor/EditorConfig.h"
-#include "engine/code/EngineConfig.h"
+#include "EngineConfig.h"
 #include "EngineInclude.h"
 
 /// scene

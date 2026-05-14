@@ -3,7 +3,7 @@
 /// engine
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
-#include "engine/code/Engine.h"
+#include "Engine.h"
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"

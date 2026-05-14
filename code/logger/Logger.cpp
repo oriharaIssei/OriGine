@@ -6,7 +6,7 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "directX12/DxDebug.h"
-#include "engine/EngineInclude.h"
+#include "EngineInclude.h"
 
 /// externals
 #include "spdlog/sinks/basic_file_sink.h"
