@@ -4,14 +4,21 @@
 #include <Windows.h>
 
 /// stl
+#include <functional>
 #include <memory>
 #include <string>
+#include <vector>
 
 /// math
 #include <cstdint>
 #include <Vector2.h>
 
+/// engine
+#include "EngineConfig.h"
+
 namespace OriGine {
+
+using Vec2i = Vector2<int32_t>;
 
 /// <summary>
 /// ウィンドウのサイズ変更挙動を制御する列挙型.
@@ -26,12 +33,58 @@ enum class WindowResizeMode {
     FIXED_ASPECT = 0b10000, // 指定されたアスペクト比を維持してリサイズ
 };
 
+enum class WindowMode {
+    WINDOWED,
+    BORDERLESS_WINDOWED,
+    BORDERLESS_FULLSCREEN,
+    EXCLUSIVE_FULLSCREEN,
+};
+
+struct DisplayMode {
+    int32_t width       = 0;
+    int32_t height      = 0;
+    int32_t refreshRate = 0;
+};
+
+struct MonitorInfo {
+    ::std::wstring name;
+    RECT workArea{};
+    RECT monitorArea{};
+    UINT dpi       = Config::Window::kDefaultDpi;
+    bool isPrimary = false;
+};
+
+struct WindowDesc {
+    const wchar_t* title     = L"OriGine Application";
+    int32_t clientWidth      = Config::Window::kDefaultClientWidth;
+    int32_t clientHeight     = Config::Window::kDefaultClientHeight;
+    UINT windowStyle         = WS_OVERLAPPEDWINDOW;
+    int32_t minWidth         = Config::Window::kDefaultMinWidth;
+    int32_t minHeight        = Config::Window::kDefaultMinHeight;
+    int32_t maxWidth         = Config::Window::kDefaultMaxWidth;
+    int32_t maxHeight        = Config::Window::kDefaultMaxHeight;
+    WindowResizeMode resizeMode = WindowResizeMode::FIXED_ASPECT;
+    const wchar_t* iconPath  = nullptr;
+    int iconResourceId       = 0;
+    WindowMode windowMode    = WindowMode::WINDOWED;
+    bool showCursor          = true;
+    bool clipCursor          = false;
+    bool enableDpiAwareness  = true;
+    bool enableDragDrop      = false;
+    bool enableBackgroundTransparency = false;
+    BYTE backgroundAlpha     = 255;
+    COLORREF transparencyColorKey = RGB(0, 0, 0);
+    bool useTransparencyColorKey = true;
+};
+
 /// <summary>
 /// Windows アプリケーションの基盤 (ウィンドウ生成、メッセージループ) を管理するクラス.
 /// OS レベルのイベントを抽象化し、エンジン各部へのアクティブ状態の通知などを行う.
 /// </summary>
 class WinApp {
 public:
+    using DropCallback = ::std::function<void(const ::std::vector<::std::wstring>& _paths)>;
+
     /// <summary>
     /// OS から届くウィンドウメッセージを処理するコールバック関数.
     /// ImGui の入力処理などもここで行う.
@@ -48,6 +101,7 @@ public:
     /// <param name="_windowStyle">WS_OVERLAPPEDWINDOW 等のスタイルフラグ</param>
     /// <param name="_clientWidth">クライアント領域の横幅 (ピクセル)</param>
     /// <param name="_clientHeight">クライアント領域の縦幅 (ピクセル)</param>
+    void CreateGameWindow(const WindowDesc& _desc);
     void CreateGameWindow(const wchar_t* _title, UINT _windowStyle,
         int32_t _clientWidth, int32_t _clientHeight);
 
@@ -74,11 +128,71 @@ public:
     /// <param name="_enable">true でフルスクリーン化</param>
     void ToggleFullscreen(bool _enable);
 
+    void SetMinWindowSize(int32_t _width, int32_t _height);
+    void SetMaxWindowSize(int32_t _width, int32_t _height);
+    Vec2i GetMinWindowSize() const { return Vec2i(minWidth_, minHeight_); }
+    Vec2i GetMaxWindowSize() const { return Vec2i(maxWidth_, maxHeight_); }
+
+    UINT GetDpi() const { return currentDpi_; }
+    float GetDpiScale() const { return dpiScale_; }
+    bool IsDpiAware() const { return dpiAware_; }
+
+    void ShowCursor(bool _show);
+    bool IsCursorVisible() const { return cursorVisible_; }
+    void SetCursorClip(bool _clip);
+    bool IsCursorClipped() const { return cursorClipped_; }
+    void SetCustomCursor(const wchar_t* _cursorPath);
+    void ResetCursor();
+
+    void SetIcon(const wchar_t* _iconPath);
+    void SetIcon(int _resourceId);
+
+    static ::std::vector<DisplayMode> EnumerateDisplayModes(int _monitorIndex = 0);
+    void ChangeResolution(int32_t _width, int32_t _height);
+
+    void SetWindowMode(WindowMode _mode);
+    WindowMode GetWindowMode() const { return windowMode_; }
+    bool IsFullscreen() const {
+        return windowMode_ == WindowMode::BORDERLESS_FULLSCREEN
+            || windowMode_ == WindowMode::EXCLUSIVE_FULLSCREEN;
+    }
+
+    void SaveWindowState();
+    bool RestoreWindowState();
+
+    void SetDropCallback(const DropCallback& _callback);
+    void ClearDropCallback();
+
+    void SetWindowTitle(const wchar_t* _title);
+    void SetWindowTitle(const ::std::wstring& _title) { SetWindowTitle(_title.c_str()); }
+    const ::std::wstring& GetWindowTitle() const { return wideWindowTitle_; }
+
+    static ::std::vector<MonitorInfo> EnumerateMonitors();
+    void SetTargetMonitor(int _index);
+    int GetCurrentMonitorIndex() const;
+
+    void SetAlwaysOnTop(bool _enable);
+    bool IsAlwaysOnTop() const { return alwaysOnTop_; }
+
+    void SetBackgroundTransparency(bool _enable);
+    bool IsBackgroundTransparent() const { return backgroundTransparent_; }
+    void SetWindowOpacity(BYTE _alpha);
+    BYTE GetWindowOpacity() const { return backgroundAlpha_; }
+    void SetTransparencyColorKey(COLORREF _colorKey, bool _enable);
+    COLORREF GetTransparencyColorKey() const { return transparencyColorKey_; }
+    bool IsTransparencyColorKeyEnabled() const { return useTransparencyColorKey_; }
+
 private:
+    void ApplyCursorClip();
+    void ApplyBackgroundTransparency();
+    void ReleaseOwnedIcons();
+    RECT GetMonitorRect(int _monitorIndex) const;
+
     HWND hwnd_                              = nullptr; // ウィンドウハンドル
     ::std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス定義
     UINT windowStyle_; // 生成時のウィンドウスタイル
 
+    ::std::wstring windowClassName_; // 登録時のウィンドウクラス名
     ::std::wstring wideWindowTitle_; // ウィンドウタイトル兼クラス名
     RECT windowRect_{}; // ウィンドウ矩形領域
     float aspectRatio_ = 0.0f; // 目標アスペクト比
@@ -86,9 +200,36 @@ private:
     int32_t clientWidth_, clientHeight_; // クライアント領域の整数サイズ
 
     WindowResizeMode windowResizeMode_ = WindowResizeMode::FIXED_ASPECT; // リサイズ方針
-    bool isFullscreen_                 = false; // フルスクリーン中フラグ
     bool isReSized_                    = false; // サイズ変更発生フラグ
     bool isActive_                     = false; // ウィンドウがアクティブかどうか
+
+    int32_t minWidth_  = Config::Window::kDefaultMinWidth;
+    int32_t minHeight_ = Config::Window::kDefaultMinHeight;
+    int32_t maxWidth_  = Config::Window::kDefaultMaxWidth;
+    int32_t maxHeight_ = Config::Window::kDefaultMaxHeight;
+
+    UINT currentDpi_ = Config::Window::kDefaultDpi;
+    float dpiScale_  = 1.0f;
+    bool dpiAware_   = false;
+
+    bool cursorVisible_   = true;
+    bool cursorClipped_   = false;
+    HCURSOR customCursor_ = nullptr;
+    HCURSOR defaultCursor_ = nullptr;
+
+    HICON iconLarge_ = nullptr;
+    HICON iconSmall_ = nullptr;
+    bool ownsIcons_  = false;
+
+    WindowMode windowMode_ = WindowMode::WINDOWED;
+    int targetMonitorIndex_ = 0;
+    DropCallback dropCallback_;
+    bool alwaysOnTop_ = false;
+    bool dragDropEnabled_ = false;
+    bool backgroundTransparent_ = false;
+    BYTE backgroundAlpha_ = 255;
+    COLORREF transparencyColorKey_ = RGB(0, 0, 0);
+    bool useTransparencyColorKey_ = true;
 
 public:
     /// <summary>

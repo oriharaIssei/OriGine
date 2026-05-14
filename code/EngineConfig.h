@@ -8,6 +8,11 @@ namespace Config {
 namespace Window {
 constexpr int32_t kDefaultClientWidth  = 1280;
 constexpr int32_t kDefaultClientHeight = 720;
+constexpr int32_t kDefaultMinWidth     = 320;
+constexpr int32_t kDefaultMinHeight    = 240;
+constexpr int32_t kDefaultMaxWidth     = 0;
+constexpr int32_t kDefaultMaxHeight    = 0;
+constexpr uint32_t kDefaultDpi         = 96;
 }
 
 // Input

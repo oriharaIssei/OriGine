@@ -25,3 +25,4 @@ Thumbs.db
 *.swp
 *.swo
 imgui.ini
+externals/assetCooker/Cache/cache.bin

@@ -2,8 +2,18 @@
 
 #include "SettingWindow.h"
 
+/// stl
+#include <algorithm>
+
+/// api
+#include <Windows.h>
+
 /// collision
 #include "component/collision/collider/base/CollisionCategoryManager.h"
+
+/// engine
+#include "Engine.h"
+#include "winApp/WinApp.h"
 
 /// editor
 #include "editor/EditorController.h"
@@ -20,6 +30,7 @@ using namespace OriGine;
 
 const std::string SettingWindow::kGlobalVariablesSceneName       = "Settings";
 const std::string SettingWindowRegion::kGlobalVariablesGroupName = "Window";
+const std::string SettingWindowRegion::kGlobalVariablesWindowStateGroupName = "WindowState";
 
 SettingWindow::SettingWindow()
     : Editor::Window(nameof<SettingWindow>()) {}
@@ -81,6 +92,10 @@ SettingWindowRegion::SettingWindowRegion()
 SettingWindowRegion::~SettingWindowRegion() {}
 
 void SettingWindowRegion::Initialize() {
+    LoadSettings();
+}
+
+void SettingWindowRegion::LoadSettings() {
     GlobalVariables* globalVariables = GlobalVariables::GetInstance();
     // ウィンドウのタイトルとサイズを更新
     windowTitle_ = globalVariables->GetValue<std::string>(
@@ -89,7 +104,143 @@ void SettingWindowRegion::Initialize() {
         SettingWindow::kGlobalVariablesSceneName,
         SettingWindowRegion::kGlobalVariablesGroupName,
         "Size");
+
+    windowPos_[0] = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "PosX",
+        0);
+    windowPos_[1] = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "PosY",
+        0);
+    windowClientSize_[0] = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Width",
+        static_cast<int32_t>(windowSize_[X]));
+    windowClientSize_[1] = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Height",
+        static_cast<int32_t>(windowSize_[Y]));
+    windowMode_ = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Mode",
+        0);
+    monitorIndex_ = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "MonitorIndex",
+        0);
+    backgroundTransparent_ = *globalVariables->AddValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "BackgroundTransparent",
+        false);
+    backgroundAlpha_ = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "BackgroundAlpha",
+        255);
+    int32_t colorKey = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "TransparencyColorKey",
+        static_cast<int32_t>(RGB(0, 0, 0)));
+    transparencyColor_[0] = GetRValue(static_cast<COLORREF>(colorKey));
+    transparencyColor_[1] = GetGValue(static_cast<COLORREF>(colorKey));
+    transparencyColor_[2] = GetBValue(static_cast<COLORREF>(colorKey));
+    useTransparencyColorKey_ = *globalVariables->AddValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "UseTransparencyColorKey",
+        true);
 }
+
+void SettingWindowRegion::SaveSettings() {
+    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+    // ウィンドウのタイトルとサイズを更新
+    globalVariables->SetValue<std::string>(
+        SettingWindow::kGlobalVariablesSceneName,
+        SettingWindowRegion::kGlobalVariablesGroupName,
+        "Title",
+        windowTitle_);
+    globalVariables->SetValue<Vec2f>(
+        SettingWindow::kGlobalVariablesSceneName,
+        SettingWindowRegion::kGlobalVariablesGroupName,
+        "Size",
+        windowSize_);
+
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "PosX",
+        windowPos_[0]);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "PosY",
+        windowPos_[1]);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Width",
+        windowClientSize_[0]);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Height",
+        windowClientSize_[1]);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "Mode",
+        windowMode_);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "MonitorIndex",
+        monitorIndex_);
+    globalVariables->SetValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "BackgroundTransparent",
+        backgroundTransparent_);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "BackgroundAlpha",
+        backgroundAlpha_);
+    COLORREF colorKey = RGB(
+        std::clamp(transparencyColor_[0], 0, 255),
+        std::clamp(transparencyColor_[1], 0, 255),
+        std::clamp(transparencyColor_[2], 0, 255));
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "TransparencyColorKey",
+        static_cast<int32_t>(colorKey));
+    globalVariables->SetValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "UseTransparencyColorKey",
+        useTransparencyColorKey_);
+
+    globalVariables->SaveFile(
+        SettingWindow::kGlobalVariablesSceneName,
+        SettingWindowRegion::kGlobalVariablesGroupName);
+    globalVariables->SaveFile(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName);
+
+    if (WinApp* winApp = Engine::GetInstance()->GetWinApp()) {
+        winApp->RestoreWindowState();
+    }
+}
+
 void SettingWindowRegion::DrawGui() {
     ImGui::InputText("Window Title", &windowTitle_);
     if (!windowTitle_.empty()) {
@@ -99,35 +250,43 @@ void SettingWindowRegion::DrawGui() {
     ImGui::InputFloat2("Window Size", windowSize_.v, "%4.0f");
 
     ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("Saved Window State");
+    ImGui::InputInt2("Window Position", windowPos_);
+    ImGui::InputInt2("Client Size", windowClientSize_);
+
+    const char* windowModeItems[] = {
+        "Windowed",
+        "Borderless Windowed",
+        "Borderless Fullscreen",
+        "Exclusive Fullscreen",
+    };
+    constexpr int32_t kWindowModeCount = static_cast<int32_t>(sizeof(windowModeItems) / sizeof(windowModeItems[0]));
+    windowMode_ = std::clamp(windowMode_, 0, kWindowModeCount - 1);
+    ImGui::Combo("Window Mode", &windowMode_, windowModeItems, kWindowModeCount);
+    ImGui::InputInt("Monitor Index", &monitorIndex_);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("Background Transparency");
+    ImGui::Checkbox("Transparent Background", &backgroundTransparent_);
+    ImGui::SliderInt("Opacity", &backgroundAlpha_, 0, 255);
+    ImGui::Checkbox("Use Color Key", &useTransparencyColorKey_);
+    ImGui::InputInt3("Color Key RGB", transparencyColor_);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
 
     if (ImGui::Button("Save")) {
-        GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-        // ウィンドウのタイトルとサイズを更新
-        globalVariables->SetValue<std::string>(
-            SettingWindow::kGlobalVariablesSceneName,
-            SettingWindowRegion::kGlobalVariablesGroupName,
-            "Title",
-            windowTitle_);
-        globalVariables->SetValue<Vec2f>(
-            SettingWindow::kGlobalVariablesSceneName,
-            SettingWindowRegion::kGlobalVariablesGroupName,
-            "Size",
-            windowSize_);
-
-        globalVariables->SaveFile(
-            SettingWindow::kGlobalVariablesSceneName,
-            SettingWindowRegion::kGlobalVariablesGroupName);
+        SaveSettings();
     }
     if (ImGui::Button("Cancel")) {
-        // 設定をリセット
-        GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-        // ウィンドウのタイトルとサイズを更新
-        windowTitle_ = globalVariables->GetValue<std::string>(
-            SettingWindow::kGlobalVariablesSceneName, SettingWindowRegion::kGlobalVariablesGroupName, "Title");
-        windowSize_ = globalVariables->GetValue<Vec2f>(
-            SettingWindow::kGlobalVariablesSceneName,
-            SettingWindowRegion::kGlobalVariablesGroupName,
-            "Size");
+        LoadSettings();
 
         SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
         // ウィンドウを閉じる

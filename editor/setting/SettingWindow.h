@@ -71,6 +71,7 @@ class SettingWindowRegion
     : public Editor::Region {
 public:
     static const std::string kGlobalVariablesGroupName;
+    static const std::string kGlobalVariablesWindowStateGroupName;
 
 public:
     SettingWindowRegion();
@@ -80,8 +81,19 @@ public:
     void Finalize() override;
 
 private:
+    void LoadSettings();
+    void SaveSettings();
+
     std::string windowTitle_   = "OriGine"; // ウィンドウのタイトル
     OriGine::Vec2f windowSize_ = OriGine::Vec2f(1280.f, 720.f); // ウィンドウのサイズ
+    int32_t windowPos_[2]      = {0, 0};
+    int32_t windowClientSize_[2] = {1280, 720};
+    int32_t windowMode_        = 0;
+    int32_t monitorIndex_      = 0;
+    bool backgroundTransparent_ = false;
+    int32_t backgroundAlpha_   = 255;
+    int32_t transparencyColor_[3] = {0, 0, 0};
+    bool useTransparencyColorKey_ = true;
 };
 
 /// <summary>
