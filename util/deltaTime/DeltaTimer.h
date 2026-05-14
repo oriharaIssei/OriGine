@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 /// engine
-#include "engine/code/EngineConfig.h"
+#include "EngineConfig.h"
 
 /// <summary>
 /// DeltaTimerの計測をするクラス

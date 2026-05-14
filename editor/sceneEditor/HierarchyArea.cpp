@@ -4,7 +4,7 @@
 
 /// engine
 #include "editor/EditorConfig.h"
-#include "engine/code/EngineConfig.h"
+#include "EngineConfig.h"
 #include "input/InputManager.h"
 #include "scene/SceneFactory.h"
 #include "scene/SceneJsonRegistry.h"

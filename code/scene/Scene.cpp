@@ -3,7 +3,7 @@
 /// engine
 #define ENGINE_INCLUDE
 #define RESOURCE_DIRECTORY
-#include "engine/EngineInclude.h"
+#include "EngineInclude.h"
 
 #include "scene/SceneFactory.h"
 

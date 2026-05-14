@@ -1,24 +1,24 @@
 RuleFile = "rules.toml"
-LogDirectory = "../../engine/resource/logs/asset_cooker"
+LogDirectory = "../../resource/logs/asset_cooker"
 CacheDirectory = "Cache"
 WindowTitle = "MyAssetCooker"
 
 [[Repo]]
 Name = "Tools"
-Path = "../../tool"
+Path = "../../tools"
 
 [[Repo]]
 Name = "Engine"
-Path = "../../engine/resource"
+Path = "../../resource"
 
 [[Repo]]
 Name = "Application"
-Path = "../../application/resource"
+Path = "../../../application/resource"
 
 [[Repo]]
 Name = "EngineOutput"
-Path = "../../engine/cookedResource"
+Path = "../../cookedResource"
 
 [[Repo]]
 Name = "ApplicationOutput"
-Path = "../../application/cookedResource"
+Path = "../../../application/cookedResource"
