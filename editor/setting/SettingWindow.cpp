@@ -13,6 +13,7 @@
 
 /// engine
 #include "Engine.h"
+#include "directX12/DxSwapChain.h"
 #include "winApp/WinApp.h"
 
 /// editor
@@ -42,7 +43,7 @@ void SettingWindow::Initialize() {
 
     windowFlags_ = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
 
-    AddArea(std::make_shared<SettingWindowArea>());
+    AddArea(std::make_shared<WindowSettingArea>());
     AddArea(std::make_shared<ProjectSettingArea>());
     AddArea(std::make_shared<CollisionSettingArea>());
 
@@ -52,8 +53,6 @@ void SettingWindow::Initialize() {
 
 void SettingWindow::DrawGui() {
     if (isOpen_.Current()) {
-        // 開いている間はずっとフォーカスする
-        // Areaを含めて、どれか一つでもフォーカスされていれば良い
         bool isAnyOneFocused = isFocused_.Current();
         if (!isAnyOneFocused) {
             for (const auto& areaPair : areas_) {
@@ -63,7 +62,8 @@ void SettingWindow::DrawGui() {
                 }
             }
         }
-        if (!isAnyOneFocused) {
+        bool isPopupOpen = ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId | ImGuiPopupFlags_AnyPopupLevel);
+        if (!isAnyOneFocused && !isPopupOpen) {
             ImGui::SetNextWindowFocus();
         }
     }
@@ -77,15 +77,15 @@ void SettingWindow::Finalize() {
 
 #pragma region "SettingWindow"
 
-SettingWindowArea::SettingWindowArea()
-    : Editor::Area(nameof<SettingWindowArea>()) {}
-SettingWindowArea::~SettingWindowArea() {}
+WindowSettingArea::WindowSettingArea()
+    : Editor::Area(nameof<WindowSettingArea>()) {}
+WindowSettingArea::~WindowSettingArea() {}
 
-void SettingWindowArea::Initialize() {
+void WindowSettingArea::Initialize() {
     AddRegion(std::make_shared<SettingWindowRegion>());
 }
 
-void SettingWindowArea::Finalize() {}
+void WindowSettingArea::Finalize() {}
 
 SettingWindowRegion::SettingWindowRegion()
     : Editor::Region(nameof<SettingWindowRegion>()) {}
@@ -98,9 +98,9 @@ void SettingWindowRegion::Initialize() {
 void SettingWindowRegion::LoadSettings() {
     GlobalVariables* globalVariables = GlobalVariables::GetInstance();
     // ウィンドウのタイトルとサイズを更新
-    windowTitle_ = globalVariables->GetValue<std::string>(
+    windowTitle_ = *globalVariables->AddValue<std::string>(
         SettingWindow::kGlobalVariablesSceneName, SettingWindowRegion::kGlobalVariablesGroupName, "Title");
-    windowSize_ = globalVariables->GetValue<Vec2f>(
+    windowSize_ = *globalVariables->AddValue<Vec2f>(
         SettingWindow::kGlobalVariablesSceneName,
         SettingWindowRegion::kGlobalVariablesGroupName,
         "Size");
@@ -158,6 +158,36 @@ void SettingWindowRegion::LoadSettings() {
         kGlobalVariablesWindowStateGroupName,
         "UseTransparencyColorKey",
         true);
+    clickThrough_ = *globalVariables->AddValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ClickThrough",
+        false);
+    showTitleBar_ = *globalVariables->AddValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ShowTitleBar",
+        true);
+    resizeMode_ = *globalVariables->AddValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ResizeMode",
+        2);
+    allowFullscreenToggle_ = *globalVariables->AddValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "AllowFullscreenToggle",
+        true);
+
+    Vec4f defaultClearColor = Engine::GetInstance()->GetDxSwapChain()->GetClearColor();
+    clearColor_[0] = *globalVariables->AddValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorR", defaultClearColor[X]);
+    clearColor_[1] = *globalVariables->AddValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorG", defaultClearColor[Y]);
+    clearColor_[2] = *globalVariables->AddValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorB", defaultClearColor[Z]);
+    clearColor_[3] = *globalVariables->AddValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorA", defaultClearColor[W]);
 }
 
 void SettingWindowRegion::SaveSettings() {
@@ -228,6 +258,35 @@ void SettingWindowRegion::SaveSettings() {
         kGlobalVariablesWindowStateGroupName,
         "UseTransparencyColorKey",
         useTransparencyColorKey_);
+    globalVariables->SetValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ClickThrough",
+        clickThrough_);
+    globalVariables->SetValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ShowTitleBar",
+        showTitleBar_);
+    globalVariables->SetValue<int32_t>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "ResizeMode",
+        resizeMode_);
+    globalVariables->SetValue<bool>(
+        SettingWindow::kGlobalVariablesSceneName,
+        kGlobalVariablesWindowStateGroupName,
+        "AllowFullscreenToggle",
+        allowFullscreenToggle_);
+
+    globalVariables->SetValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorR", clearColor_[0]);
+    globalVariables->SetValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorG", clearColor_[1]);
+    globalVariables->SetValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorB", clearColor_[2]);
+    globalVariables->SetValue<float>(
+        SettingWindow::kGlobalVariablesSceneName, kGlobalVariablesWindowStateGroupName, "ClearColorA", clearColor_[3]);
 
     globalVariables->SaveFile(
         SettingWindow::kGlobalVariablesSceneName,
@@ -235,10 +294,6 @@ void SettingWindowRegion::SaveSettings() {
     globalVariables->SaveFile(
         SettingWindow::kGlobalVariablesSceneName,
         kGlobalVariablesWindowStateGroupName);
-
-    if (WinApp* winApp = Engine::GetInstance()->GetWinApp()) {
-        winApp->RestoreWindowState();
-    }
 }
 
 void SettingWindowRegion::DrawGui() {
@@ -266,6 +321,18 @@ void SettingWindowRegion::DrawGui() {
     constexpr int32_t kWindowModeCount = static_cast<int32_t>(sizeof(windowModeItems) / sizeof(windowModeItems[0]));
     windowMode_ = std::clamp(windowMode_, 0, kWindowModeCount - 1);
     ImGui::Combo("Window Mode", &windowMode_, windowModeItems, kWindowModeCount);
+    ImGui::Checkbox("Show Title Bar", &showTitleBar_);
+
+    const char* resizeModeItems[] = {
+        "None",
+        "Free",
+        "Fixed Aspect Ratio",
+    };
+    constexpr int32_t kResizeModeCount = static_cast<int32_t>(sizeof(resizeModeItems) / sizeof(resizeModeItems[0]));
+    resizeMode_ = std::clamp(resizeMode_, 0, kResizeModeCount - 1);
+    ImGui::Combo("Resize Mode", &resizeMode_, resizeModeItems, kResizeModeCount);
+    ImGui::Checkbox("Allow Fullscreen Toggle (F11)", &allowFullscreenToggle_);
+
     ImGui::InputInt("Monitor Index", &monitorIndex_);
 
     ImGui::Spacing();
@@ -277,6 +344,14 @@ void SettingWindowRegion::DrawGui() {
     ImGui::SliderInt("Opacity", &backgroundAlpha_, 0, 255);
     ImGui::Checkbox("Use Color Key", &useTransparencyColorKey_);
     ImGui::InputInt3("Color Key RGB", transparencyColor_);
+    ImGui::Checkbox("Click Through Transparent Area", &clickThrough_);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("Clear Color");
+    ImGui::ColorEdit4("Clear Color", clearColor_);
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -319,12 +394,12 @@ void ProjectSettingRegion::Initialize() {
     // 設定をリセット
     GlobalVariables* globalVariables = GlobalVariables::GetInstance();
     // ウィンドウのタイトルとサイズを更新
-    startUpSceneName_ = globalVariables->GetValue<std::string>(
+    startUpSceneName_ = *globalVariables->AddValue<std::string>(
         SettingWindow::kGlobalVariablesSceneName,
         "Scene",
         "StartupSceneName");
 
-    gravity_ = globalVariables->GetValue<float>(
+    gravity_ = *globalVariables->AddValue<float>(
         SettingWindow::kGlobalVariablesSceneName,
         "Physics",
         "Gravity");
@@ -365,12 +440,12 @@ void ProjectSettingRegion::DrawGui() {
         // 設定をリセット
         GlobalVariables* globalVariables = GlobalVariables::GetInstance();
         // ウィンドウのタイトルとサイズを更新
-        startUpSceneName_ = globalVariables->GetValue<std::string>(
+        startUpSceneName_ = *globalVariables->AddValue<std::string>(
             SettingWindow::kGlobalVariablesSceneName,
             "Scene",
             "StartupSceneName");
 
-        gravity_ = globalVariables->GetValue<float>(
+        gravity_ = *globalVariables->AddValue<float>(
             SettingWindow::kGlobalVariablesSceneName,
             "Physics",
             "Gravity");
@@ -442,7 +517,7 @@ void CollisionSettingRegion::Initialize() {
 
     // CellSizeをGlobalVariablesから読み込み
     GlobalVariables* gv  = GlobalVariables::GetInstance();
-    spatialHashCellSize_ = gv->GetValue<float>(
+    spatialHashCellSize_ = *gv->AddValue<float>(
         SettingWindow::kGlobalVariablesSceneName,
         "Collision",
         "SpatialHashCellSize");

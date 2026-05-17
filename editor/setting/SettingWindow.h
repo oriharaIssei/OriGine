@@ -59,11 +59,11 @@ public:
 /// <summary>
 /// 設定ウィンドウ内のエリア
 /// </summary>
-class SettingWindowArea
+class WindowSettingArea
     : public Editor::Area {
 public:
-    SettingWindowArea();
-    ~SettingWindowArea() override;
+    WindowSettingArea();
+    ~WindowSettingArea() override;
     void Initialize() override;
     void Finalize() override;
 };
@@ -94,6 +94,11 @@ private:
     int32_t backgroundAlpha_   = 255;
     int32_t transparencyColor_[3] = {0, 0, 0};
     bool useTransparencyColorKey_ = true;
+    bool clickThrough_             = false;
+    bool showTitleBar_             = true;
+    int32_t resizeMode_            = 2; // 0:NONE, 1:FREE, 2:FIXED_ASPECT
+    bool allowFullscreenToggle_    = true;
+    float clearColor_[4]           = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
 /// <summary>

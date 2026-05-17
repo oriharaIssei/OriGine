@@ -9,6 +9,8 @@
 /// editor
 #include "editor/EditorController.h"
 
+#include "editor/setting/SettingWindow.h"
+
 #include "editor/sceneEditor/DevelopControlArea.h"
 #include "editor/sceneEditor/EntityInspector.h"
 #include "editor/sceneEditor/HierarchyArea.h"

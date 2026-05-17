@@ -83,11 +83,14 @@ private:
     UINT bufferHeight_ = 0;
 
     /// <summary>画面クリア時に使用するデフォルト色</summary>
-    const Vec4f clearColor_ = Config::Rendering::kDefaultClearColor;
+    Vec4f clearColor_ = Config::Rendering::kDefaultClearColor;
 
 public:
     /// <summary>構成されているバッファ数を取得する.</summary>
     UINT GetBufferCount() const { return bufferCount_; }
+
+    const Vec4f& GetClearColor() const { return clearColor_; }
+    void SetClearColor(const Vec4f& _color) { clearColor_ = _color; }
     /// <summary>現在書き込み対象となっているバックバッファのインデックスを取得する.</summary>
     UINT GetCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
 

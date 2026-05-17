@@ -36,7 +36,14 @@ GlobalVariables::~GlobalVariables() {}
 
 #pragma region "Load"
 void GlobalVariables::LoadAllFile() {
-    std::filesystem::directory_iterator sceneDirItr(kDirectoryPath);
+
+	// パスが存在しない場合は作成する
+	std::filesystem::path dir(kDirectoryPath);
+	if(!std::filesystem::exists(dir)){
+		std::filesystem::create_directory(dir);
+	}
+
+    std::filesystem::directory_iterator sceneDirItr(dir);
     for (auto& sceneEntry : sceneDirItr) {
         const std::filesystem::path& scenePath = sceneEntry.path();
         std::filesystem::directory_iterator dirItr(sceneEntry);

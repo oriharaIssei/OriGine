@@ -124,18 +124,16 @@ LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam
     }
 
     case WM_SYSCOMMAND:
-        // 最大化ボタン押下時にフルスクリーンモードに移行するカスタム挙動
         if ((_wparam & 0xFFF0) == SC_MAXIMIZE) {
-            if (pThis) {
+            if (pThis && pThis->allowFullscreenToggle_) {
                 pThis->ToggleFullscreen(true);
+                return 0;
             }
-            return 0;
         } else if ((_wparam & 0xFFF0) == SC_RESTORE) {
-            // 元に戻すボタン押下時にフルスクリーンを解除
-            if (pThis) {
+            if (pThis && pThis->allowFullscreenToggle_) {
                 pThis->ToggleFullscreen(false);
+                return 0;
             }
-            return 0;
         }
         break;
 
@@ -232,7 +230,7 @@ LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
     case WM_KEYDOWN:
-        if (_wparam == VK_F11 && pThis) {
+        if (_wparam == VK_F11 && pThis && pThis->allowFullscreenToggle_) {
             pThis->ToggleFullscreen(!pThis->IsFullscreen());
             return 0;
         }
@@ -290,7 +288,7 @@ void WinApp::ApplyBackgroundTransparency() {
 
     LONG_PTR exStyle = GetWindowLongPtr(hwnd_, GWL_EXSTYLE);
     if (!backgroundTransparent_) {
-        SetWindowLongPtr(hwnd_, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
+        SetWindowLongPtr(hwnd_, GWL_EXSTYLE, exStyle & ~(WS_EX_LAYERED | WS_EX_TRANSPARENT));
         MARGINS margins{0, 0, 0, 0};
         DwmExtendFrameIntoClientArea(hwnd_, &margins);
         SetWindowPos(hwnd_, nullptr, 0, 0, 0, 0,
@@ -298,7 +296,13 @@ void WinApp::ApplyBackgroundTransparency() {
         return;
     }
 
-    SetWindowLongPtr(hwnd_, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
+    exStyle |= WS_EX_LAYERED;
+    if (clickThrough_) {
+        exStyle |= WS_EX_TRANSPARENT;
+    } else {
+        exStyle &= ~WS_EX_TRANSPARENT;
+    }
+    SetWindowLongPtr(hwnd_, GWL_EXSTYLE, exStyle);
 
     DWORD flags = LWA_ALPHA;
     if (useTransparencyColorKey_) {
@@ -452,13 +456,13 @@ void WinApp::TerminateGameWindow() {
 }
 
 void WinApp::SetMinWindowSize(int32_t _width, int32_t _height) {
-    minWidth_  = std::max(0, _width);
-    minHeight_ = std::max(0, _height);
+    minWidth_  = (std::max)(0, _width);
+    minHeight_ = (std::max)(0, _height);
 }
 
 void WinApp::SetMaxWindowSize(int32_t _width, int32_t _height) {
-    maxWidth_  = std::max(0, _width);
-    maxHeight_ = std::max(0, _height);
+    maxWidth_  = (std::max)(0, _width);
+    maxHeight_ = (std::max)(0, _height);
 }
 
 void WinApp::ShowCursor(bool _show) {
@@ -582,8 +586,8 @@ std::vector<DisplayMode> WinApp::EnumerateDisplayModes(int _monitorIndex) {
 }
 
 void WinApp::ChangeResolution(int32_t _width, int32_t _height) {
-    clientWidth_  = std::max(1, _width);
-    clientHeight_ = std::max(1, _height);
+    clientWidth_  = (std::max)(1, _width);
+    clientHeight_ = (std::max)(1, _height);
     windowSize_   = Vec2f(float(clientWidth_), float(clientHeight_));
     aspectRatio_  = windowSize_[X] / windowSize_[Y];
 
@@ -613,7 +617,16 @@ void WinApp::SetWindowMode(WindowMode _mode) {
     windowMode_ = _mode;
 
     if (_mode == WindowMode::WINDOWED) {
-        SetWindowLongPtr(hwnd_, GWL_STYLE, static_cast<LONG_PTR>(windowStyle_ | WS_VISIBLE));
+        LONG_PTR style = static_cast<LONG_PTR>(windowStyle_ | WS_VISIBLE);
+#ifndef _DEBUG
+        if (!showTitleBar_) {
+            style &= ~(WS_CAPTION | WS_SYSMENU);
+        }
+        if (windowResizeMode_ == WindowResizeMode::NONE) {
+            style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+        }
+#endif
+        SetWindowLongPtr(hwnd_, GWL_STYLE, style);
         SetWindowPos(hwnd_, alwaysOnTop_ ? HWND_TOPMOST : HWND_NOTOPMOST,
             windowRect_.left, windowRect_.top,
             windowRect_.right - windowRect_.left,
@@ -693,16 +706,7 @@ bool WinApp::RestoreWindowState() {
     SerializedField<int32_t> height{"Settings", "WindowState", "Height"};
     SerializedField<int32_t> mode{"Settings", "WindowState", "Mode"};
     SerializedField<int32_t> monitorIndex{"Settings", "WindowState", "MonitorIndex"};
-    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-    bool* backgroundTransparent = globalVariables->AddValue<bool>(
-        "Settings", "WindowState", "BackgroundTransparent", backgroundTransparent_);
-    int32_t* backgroundAlpha = globalVariables->AddValue<int32_t>(
-        "Settings", "WindowState", "BackgroundAlpha", static_cast<int32_t>(backgroundAlpha_));
-    int32_t* transparencyColorKey = globalVariables->AddValue<int32_t>(
-        "Settings", "WindowState", "TransparencyColorKey", static_cast<int32_t>(transparencyColorKey_));
-    bool* useTransparencyColorKey = globalVariables->AddValue<bool>(
-        "Settings", "WindowState", "UseTransparencyColorKey", useTransparencyColorKey_);
-
+   
     POINT topLeft{*posX.GetValue(), *posY.GetValue()};
     auto monitors = EnumerateMonitors();
     bool isInsideAnyMonitor = std::any_of(monitors.begin(), monitors.end(), [&topLeft](const MonitorInfo& monitor) {
@@ -712,12 +716,40 @@ bool WinApp::RestoreWindowState() {
         return false;
     }
 
-    targetMonitorIndex_ = std::max(0, *monitorIndex.GetValue());
+    targetMonitorIndex_ = (std::max)(0, *monitorIndex.GetValue());
+#ifndef _DEBUG
+    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+    bool* backgroundTransparent = globalVariables->AddValue<bool>(
+        "Settings","WindowState","BackgroundTransparent",backgroundTransparent_);
+    int32_t* backgroundAlpha = globalVariables->AddValue<int32_t>(
+        "Settings","WindowState","BackgroundAlpha",static_cast<int32_t>(backgroundAlpha_));
+    int32_t* transparencyColorKey = globalVariables->AddValue<int32_t>(
+        "Settings","WindowState","TransparencyColorKey",static_cast<int32_t>(transparencyColorKey_));
+    bool* useTransparencyColorKey = globalVariables->AddValue<bool>(
+        "Settings","WindowState","UseTransparencyColorKey",useTransparencyColorKey_);
+    bool* clickThrough = globalVariables->AddValue<bool>(
+        "Settings","WindowState","ClickThrough",clickThrough_);
+    bool* showTitleBar = globalVariables->AddValue<bool>(
+        "Settings","WindowState","ShowTitleBar",showTitleBar_);
+    int32_t* resizeMode = globalVariables->AddValue<int32_t>(
+        "Settings","WindowState","ResizeMode",2);
+    bool* allowFullscreenToggle = globalVariables->AddValue<bool>(
+        "Settings","WindowState","AllowFullscreenToggle",allowFullscreenToggle_);
+
     backgroundTransparent_ = *backgroundTransparent;
     backgroundAlpha_ = static_cast<BYTE>(std::clamp(*backgroundAlpha, 0, 255));
     transparencyColorKey_ = static_cast<COLORREF>(*transparencyColorKey);
     useTransparencyColorKey_ = *useTransparencyColorKey;
+    clickThrough_ = *clickThrough;
+    showTitleBar_ = *showTitleBar;
+    switch (*resizeMode) {
+    case 0: windowResizeMode_ = WindowResizeMode::NONE; break;
+    case 1: windowResizeMode_ = WindowResizeMode::FREE; break;
+    case 2: default: windowResizeMode_ = WindowResizeMode::FIXED_ASPECT; break;
+    }
+    allowFullscreenToggle_ = *allowFullscreenToggle;
     ApplyBackgroundTransparency();
+#endif
     ChangeResolution(*width.GetValue(), *height.GetValue());
     windowRect_ = RECT{*posX.GetValue(), *posY.GetValue(), *posX.GetValue() + *width.GetValue(), *posY.GetValue() + *height.GetValue()};
     SetWindowMode(static_cast<WindowMode>(*mode.GetValue()));

@@ -1,6 +1,6 @@
 #include "IEditor.h"
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #include "EditorController.h"
 #include "imGuiManager/ImGuiManager.h"
 #include <imgui/imgui_internal.h>
@@ -240,4 +240,4 @@ void WindowFocusCommand::Undo() {
     windowOpenState_->Sync();
 }
 
-#endif // DEBUG
+#endif // _DEBUG

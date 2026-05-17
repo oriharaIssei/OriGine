@@ -15,7 +15,11 @@ void DxDevice::Initialize() {
     ///================================================
     ///	IDXGIFactoryの初期化
     ///================================================
-    result = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));
+    UINT dxgiFactoryFlags = 0;
+#ifdef _DEBUG
+    dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif
+    result = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory_));
 
     assert(SUCCEEDED(result));
     //=================================================

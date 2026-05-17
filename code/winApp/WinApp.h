@@ -230,6 +230,9 @@ private:
     BYTE backgroundAlpha_ = 255;
     COLORREF transparencyColorKey_ = RGB(0, 0, 0);
     bool useTransparencyColorKey_ = true;
+    bool clickThrough_ = false;
+    bool showTitleBar_ = true;
+    bool allowFullscreenToggle_ = true;
 
 public:
     /// <summary>

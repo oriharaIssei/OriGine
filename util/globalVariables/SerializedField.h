@@ -16,11 +16,7 @@ public:
         value_ = GlobalVariables::GetInstance()->AddValue<T>(scene, group, value);
     }
     SerializedField(const std::string& scene, const std::string& group, const std::string& value, const T& defaultValue) {
-        value_ = GlobalVariables::GetInstance()->AddValue<T>(scene, group, value);
-        // 値が nullptr の場合はデフォルト値を設定
-        if (!value_) {
-            SetValue(defaultValue);
-        }
+        value_ = GlobalVariables::GetInstance()->AddValue<T>(scene, group, value, defaultValue);
     }
 
     SerializedField()

@@ -86,8 +86,8 @@ void Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
 
     // 外部設定ファイルからウィンドウタイトルとサイズを読み込む
-    SerializedField<std::string> windowTitle{"Settings", "Window", "Title"};
-    SerializedField<Vec2f> windowSize{"Settings", "Window", "Size"};
+    SerializedField<std::string> windowTitle{"Settings", "Window", "Title", "OriGine Application"};
+    SerializedField<Vec2f> windowSize{"Settings", "Window", "Size", Vec2f(float(Config::Window::kDefaultClientWidth), float(Config::Window::kDefaultClientHeight))};
 
     UINT windowStyle = 0;
 
