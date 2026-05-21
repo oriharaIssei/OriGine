@@ -74,6 +74,11 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_un
     std::string fontPath = kEngineResourceDirectory + "/fonts/FiraMono-Regular.ttf";
     font_                = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), Config::UI::kDefaultFontSize);
 
+    // 日本語グリフをマージ
+    ImFontConfig jpConfig;
+    jpConfig.MergeMode = true;
+    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\YuGothM.ttc", Config::UI::kDefaultFontSize, &jpConfig, io.Fonts->GetGlyphRangesJapanese());
+
 #endif // _DEBUG
 }
 

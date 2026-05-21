@@ -48,6 +48,8 @@ public:
     bool Open(DxDevice* dxDevice, DxCommand* dxCommand, uint32_t monitorIndex = 0);
     void Close();
 
+    const std::string& GetLastError() const { return lastError_; }
+
     bool StartCapture();
     void StopCapture();
 
@@ -62,7 +64,8 @@ public:
     bool GetLatestFrame(std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight);
 
 private:
-    void CaptureThread();
+    void CaptureThreadDuplication();
+    void CaptureThreadGDI();
 
     // D3D11 Desktop Duplication
     Microsoft::WRL::ComPtr<ID3D11Device> d3d11Device_;
@@ -86,6 +89,11 @@ private:
 
     std::mutex frameMutex_;
     std::vector<uint8_t> latestFrame_;
+    std::string lastError_;
+
+    // GDI fallback
+    bool useGDI_ = false;
+    HMONITOR targetMonitor_ = nullptr;
 };
 
 } // namespace OriGine

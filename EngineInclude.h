@@ -171,6 +171,10 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #endif // ENGINE_COMPONENTS
 
+#ifdef ENGINE_PROCESS_MANAGER
+#include "winApp/ProcessManager.h"
+#endif // ENGINE_PROCESS_MANAGER
+
 #ifdef ENGINE_MEDIA_CAPTURE
 #include "mediaCapture/Microphone.h"
 #include "mediaCapture/WebCamera.h"
