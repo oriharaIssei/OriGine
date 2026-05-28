@@ -55,6 +55,11 @@ LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam
         PostQuitMessage(0); // OS にアプリケーション終了を通知
         return 0;
 
+    case WM_HOTKEY:
+        ::ShowWindow(_hwnd, SW_RESTORE);
+        ::SetForegroundWindow(_hwnd);
+        return 0;
+
     case WM_GETMINMAXINFO: {
         if (pThis) {
             MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(_lparam);
