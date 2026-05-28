@@ -182,6 +182,34 @@ public:
     COLORREF GetTransparencyColorKey() const { return transparencyColorKey_; }
     bool IsTransparencyColorKeyEnabled() const { return useTransparencyColorKey_; }
 
+    // ===== グローバルホットキー =====
+    bool RegisterGlobalHotkey(int _id, UINT _modifiers, UINT _vk);
+    void UnregisterGlobalHotkey(int _id);
+    void UnregisterAllHotkeys();
+
+    // ===== システムトレイ =====
+    using TrayMenuCallback = ::std::function<void()>;
+
+    bool EnableSystemTray(const wchar_t* _tooltip, HICON _icon = nullptr);
+    void DisableSystemTray();
+    void SetTrayTooltip(const wchar_t* _tooltip);
+    void MinimizeToTray();
+    void RestoreFromTray();
+    bool IsMinimizedToTray() const { return minimizedToTray_; }
+    void SetMinimizeToTrayOnClose(bool _enable) { minimizeToTrayOnClose_ = _enable; }
+    bool IsMinimizeToTrayOnClose() const { return minimizeToTrayOnClose_; }
+
+    struct TrayMenuItem {
+        ::std::wstring label;
+        TrayMenuCallback callback;
+    };
+    void AddTrayMenuItem(const wchar_t* _label, TrayMenuCallback _callback);
+    void ClearTrayMenu();
+
+    // ===== 自動起動 =====
+    static bool SetAutoStart(const wchar_t* _appName, bool _enable);
+    static bool IsAutoStartEnabled(const wchar_t* _appName);
+
 private:
     void ApplyCursorClip();
     void ApplyBackgroundTransparency();
@@ -233,6 +261,16 @@ private:
     bool clickThrough_ = false;
     bool showTitleBar_ = true;
     bool allowFullscreenToggle_ = true;
+
+    // ホットキー
+    ::std::vector<int> registeredHotkeyIds_;
+
+    // システムトレイ
+    bool trayEnabled_ = false;
+    bool minimizedToTray_ = false;
+    bool minimizeToTrayOnClose_ = false;
+    ::std::vector<TrayMenuItem> trayMenuItems_;
+    void ShowTrayContextMenu();
 
 public:
     /// <summary>

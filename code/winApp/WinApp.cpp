@@ -56,8 +56,30 @@ LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam
         return 0;
 
     case WM_HOTKEY:
-        ::ShowWindow(_hwnd, SW_RESTORE);
-        ::SetForegroundWindow(_hwnd);
+        if (pThis && pThis->minimizedToTray_) {
+            pThis->RestoreFromTray();
+        } else {
+            ::ShowWindow(_hwnd, SW_RESTORE);
+            ::SetForegroundWindow(_hwnd);
+        }
+        return 0;
+
+    case WM_CLOSE:
+        if (pThis && pThis->minimizeToTrayOnClose_ && pThis->trayEnabled_) {
+            pThis->MinimizeToTray();
+            return 0;
+        }
+        ::DestroyWindow(_hwnd);
+        return 0;
+
+    case (WM_APP + 1): // トレイアイコンメッセージ
+        if (pThis) {
+            if (LOWORD(_lparam) == WM_LBUTTONUP) {
+                pThis->RestoreFromTray();
+            } else if (LOWORD(_lparam) == WM_RBUTTONUP) {
+                pThis->ShowTrayContextMenu();
+            }
+        }
         return 0;
 
     case WM_GETMINMAXINFO: {
@@ -253,6 +275,8 @@ LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam
 }
 
 WinApp::~WinApp() {
+    UnregisterAllHotkeys();
+    DisableSystemTray();
     ReleaseOwnedIcons();
     ResetCursor();
     CloseWindow(hwnd_);
@@ -996,3 +1020,170 @@ bool OriGine::RunProcessAndWait(const std::string& _command, const char* _curren
 
     return exitCode == 0;
 }
+
+// ===== グローバルホットキー =====
+
+bool WinApp::RegisterGlobalHotkey(int _id, UINT _modifiers, UINT _vk) {
+    if (!hwnd_) return false;
+    if (::RegisterHotKey(hwnd_, _id, _modifiers, _vk)) {
+        registeredHotkeyIds_.push_back(_id);
+        return true;
+    }
+    return false;
+}
+
+void WinApp::UnregisterGlobalHotkey(int _id) {
+    if (!hwnd_) return;
+    ::UnregisterHotKey(hwnd_, _id);
+    registeredHotkeyIds_.erase(
+        std::remove(registeredHotkeyIds_.begin(), registeredHotkeyIds_.end(), _id),
+        registeredHotkeyIds_.end());
+}
+
+void WinApp::UnregisterAllHotkeys() {
+    if (!hwnd_) return;
+    for (int id : registeredHotkeyIds_) {
+        ::UnregisterHotKey(hwnd_, id);
+    }
+    registeredHotkeyIds_.clear();
+}
+
+// ===== システムトレイ =====
+
+bool WinApp::EnableSystemTray(const wchar_t* _tooltip, HICON _icon) {
+    if (!hwnd_) return false;
+
+    NOTIFYICONDATAW nid = {};
+    nid.cbSize = sizeof(nid);
+    nid.hWnd = hwnd_;
+    nid.uID = 1;
+    nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+    nid.uCallbackMessage = WM_APP + 1;
+    nid.hIcon = _icon ? _icon : LoadIcon(nullptr, IDI_APPLICATION);
+    if (_tooltip) {
+        wcsncpy_s(nid.szTip, _tooltip, _countof(nid.szTip) - 1);
+    }
+
+    if (Shell_NotifyIconW(NIM_ADD, &nid)) {
+        trayEnabled_ = true;
+        return true;
+    }
+    return false;
+}
+
+void WinApp::DisableSystemTray() {
+    if (!trayEnabled_ || !hwnd_) return;
+
+    NOTIFYICONDATAW nid = {};
+    nid.cbSize = sizeof(nid);
+    nid.hWnd = hwnd_;
+    nid.uID = 1;
+    Shell_NotifyIconW(NIM_DELETE, &nid);
+    trayEnabled_ = false;
+}
+
+void WinApp::SetTrayTooltip(const wchar_t* _tooltip) {
+    if (!trayEnabled_ || !hwnd_) return;
+
+    NOTIFYICONDATAW nid = {};
+    nid.cbSize = sizeof(nid);
+    nid.hWnd = hwnd_;
+    nid.uID = 1;
+    nid.uFlags = NIF_TIP;
+    if (_tooltip) {
+        wcsncpy_s(nid.szTip, _tooltip, _countof(nid.szTip) - 1);
+    }
+    Shell_NotifyIconW(NIM_MODIFY, &nid);
+}
+
+void WinApp::MinimizeToTray() {
+    if (!trayEnabled_ || !hwnd_) return;
+    ::ShowWindow(hwnd_, SW_HIDE);
+    minimizedToTray_ = true;
+}
+
+void WinApp::RestoreFromTray() {
+    if (!hwnd_) return;
+    ::ShowWindow(hwnd_, SW_RESTORE);
+    ::SetForegroundWindow(hwnd_);
+    minimizedToTray_ = false;
+}
+
+void WinApp::AddTrayMenuItem(const wchar_t* _label, TrayMenuCallback _callback) {
+    trayMenuItems_.push_back({_label, _callback});
+}
+
+void WinApp::ClearTrayMenu() {
+    trayMenuItems_.clear();
+}
+
+void WinApp::ShowTrayContextMenu() {
+    if (!hwnd_) return;
+
+    HMENU hMenu = ::CreatePopupMenu();
+    if (!hMenu) return;
+
+    for (size_t i = 0; i < trayMenuItems_.size(); ++i) {
+        ::AppendMenuW(hMenu, MF_STRING, 100 + i, trayMenuItems_[i].label.c_str());
+    }
+
+    if (!trayMenuItems_.empty()) {
+        ::AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
+    }
+    ::AppendMenuW(hMenu, MF_STRING, 1, L"\x8868\x793a"); // 表示
+    ::AppendMenuW(hMenu, MF_STRING, 2, L"\x7d42\x4e86"); // 終了
+
+    POINT pt;
+    ::GetCursorPos(&pt);
+    ::SetForegroundWindow(hwnd_);
+    UINT cmd = static_cast<UINT>(::TrackPopupMenu(hMenu, TPM_RETURNCMD | TPM_NONOTIFY,
+                                                   pt.x, pt.y, 0, hwnd_, nullptr));
+    ::DestroyMenu(hMenu);
+
+    if (cmd == 1) {
+        RestoreFromTray();
+    } else if (cmd == 2) {
+        DisableSystemTray();
+        ::DestroyWindow(hwnd_);
+    } else if (cmd >= 100 && cmd - 100 < trayMenuItems_.size()) {
+        trayMenuItems_[cmd - 100].callback();
+    }
+}
+
+// ===== 自動起動 =====
+
+bool WinApp::SetAutoStart(const wchar_t* _appName, bool _enable) {
+    HKEY hKey;
+    if (::RegOpenKeyExW(HKEY_CURRENT_USER,
+            L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+            0, KEY_SET_VALUE, &hKey) != ERROR_SUCCESS) {
+        return false;
+    }
+
+    bool ok = false;
+    if (_enable) {
+        wchar_t exePath[MAX_PATH];
+        ::GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+        ok = (::RegSetValueExW(hKey, _appName, 0, REG_SZ,
+               reinterpret_cast<const BYTE*>(exePath),
+               static_cast<DWORD>((wcslen(exePath) + 1) * sizeof(wchar_t))) == ERROR_SUCCESS);
+    } else {
+        ok = (::RegDeleteValueW(hKey, _appName) == ERROR_SUCCESS);
+    }
+    ::RegCloseKey(hKey);
+    return ok;
+}
+
+bool WinApp::IsAutoStartEnabled(const wchar_t* _appName) {
+    HKEY hKey;
+    if (::RegOpenKeyExW(HKEY_CURRENT_USER,
+            L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+            0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS) {
+        return false;
+    }
+    bool exists = (::RegQueryValueExW(hKey, _appName, nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS);
+    ::RegCloseKey(hKey);
+    return exists;
+}
+
+} // namespace OriGine
