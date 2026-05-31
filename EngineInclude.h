@@ -9,6 +9,7 @@
 
 #ifdef ENGINE_INCLUDE
 #include "Engine.h"
+#include "text/FontManager.h"
 #endif // ENGINE_INCLUDE
 
 #ifdef ENGINE_EDITOR
@@ -18,7 +19,7 @@
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
-/// <summary> アプリケーション側のリソースディレクトリパス </summary>
+ /// <summary> アプリケーション側のリソースディレクトリパス </summary>
 static const ::std::string kApplicationResourceDirectory = "./application/resource";
 /// <summary> エンジン共通のリソースディレクトリパス </summary>
 static const ::std::string kEngineResourceDirectory = "./engine/resource";
@@ -87,8 +88,13 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "system/render/SkinningMeshRenderSystem.h"
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
+#include "system/render/TextBoundsRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
 #include "system/render/VelocityRenderingSystem.h"
+
+#include "system/text/TextRenderSystem.h"
+#include "system/text/TextLayoutSystem.h"
+#include "system/text/TextStreamSystem.h"
 
 #include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"
@@ -157,6 +163,9 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "component/effect/post/SpeedlineEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/SquashStretchComponent.h"
+
+#include "component/text/TextComponent.h"
+#include "component/text/TextStreamComponent.h"
 
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"

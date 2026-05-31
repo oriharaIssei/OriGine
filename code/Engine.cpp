@@ -19,6 +19,7 @@
 #include "input/InputManager.h"
 #include "model/ModelManager.h"
 #include "scene/SceneManager.h"
+#include "text/FontManager.h"
 #include "winApp/WinApp.h"
 
 // messageBus
@@ -142,6 +143,8 @@ void Engine::Initialize() {
     ModelManager::GetInstance()->Initialize();
     RenderTexture::Awake();
 
+    FontManager::GetInstance()->Initialize();
+
     deltaTimer_ = std::make_unique<DeltaTimer>();
     deltaTimer_->Initialize();
 
@@ -168,6 +171,7 @@ void Engine::Finalize() {
 #endif // _DEBUG
     ShaderManager::GetInstance()->Finalize();
     ModelManager::GetInstance()->Finalize();
+    FontManager::GetInstance()->Finalize();
 
     dsvResource_.Finalize();
     dsvHeap_->ReleaseDescriptor(dxDsv_);

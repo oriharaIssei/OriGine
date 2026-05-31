@@ -1,0 +1,16 @@
+{
+  "defaultFont": "FiraMono",
+  "fonts": [
+    {
+      "name": "FiraMono",
+      "path": "engine/resource/fonts/FiraMono-Regular.ttf",
+      "size": 24.0,
+      "fallbacks": [
+        "engine/resource/fonts/NotoSansJP-Regular.ttf",
+        "C:/Windows/Fonts/meiryo.ttc",
+        "C:/Windows/Fonts/YuGothR.ttc",
+        "C:/Windows/Fonts/msgothic.ttc"
+      ]
+    }
+  ]
+}
