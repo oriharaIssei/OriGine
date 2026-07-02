@@ -108,6 +108,11 @@ void OriGine::SceneJsonRegistry::CreateNewScene(const std::string& _sceneName) {
 /// </summary>
 bool OriGine::SceneJsonRegistry::LoadAllEntityTemplates(const std::string& _directory) {
 
+	// ディレクトリが存在しない場合
+    if(!std::filesystem::exists(_directory)){
+        return false;
+    }
+
     // すべての .json を読む
     for (auto& [directory, filename] : myfs::SearchFile(_directory, kEntityExtension)) {
         std::ifstream ifs(_directory + "/" + filename + '.' + kEntityExtension);

@@ -188,6 +188,11 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #include "mediaCapture/Microphone.h"
 #include "mediaCapture/WebCamera.h"
 #include "mediaCapture/ScreenCapture.h"
+#include "mediaCapture/SystemAudioCapture.h"
+#include "mediaCapture/Mp4Recorder.h"
+#include "mediaCapture/MediaRecorder.h"
+#include "mediaCapture/ScreenRecorder.h"
+#include "mediaCapture/Mp4Player.h"
 #endif // ENGINE_MEDIA_CAPTURE
 
 #ifdef ENGINE_INPUT

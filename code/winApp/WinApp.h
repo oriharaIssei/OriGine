@@ -272,7 +272,20 @@ private:
     ::std::vector<TrayMenuItem> trayMenuItems_;
     void ShowTrayContextMenu();
 
+    // テキスト入力 (WM_CHAR で蓄積。IME 確定文字もここに届く)。自前 UI のテキスト入力欄が消費する。
+    ::std::wstring typedCharBuffer_;
+
 public:
+    /// <summary>
+    /// このフレームに WM_CHAR で届いた入力文字 (UTF-16) を取り出してバッファをクリアする.
+    /// バックスペースは 0x08、Enter は 0x0D として届く. 自前 UI のテキスト入力欄から毎フレーム呼ぶ.
+    /// </summary>
+    ::std::wstring TakeTypedChars() {
+        ::std::wstring s;
+        s.swap(typedCharBuffer_);
+        return s;
+    }
+
     /// <summary>
     /// ウィンドウが現在アクティブ (フォーカスされている) かどうかを取得する.
     /// </summary>
