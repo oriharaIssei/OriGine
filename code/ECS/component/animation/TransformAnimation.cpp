@@ -47,7 +47,7 @@ Quaternion TransformAnimation::ApplyFlipQ(Quaternion _val, const FlipMask& _flip
 TransformAnimation::TransformAnimation() {}
 TransformAnimation::~TransformAnimation() {}
 
-void TransformAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
+void TransformAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
@@ -67,7 +67,7 @@ void TransformAnimation::Finalize() {
 
 void TransformAnimation::Edit(
     [[maybe_unused]] Scene* _scene,
-    [[maybe_unused]] EntityHandle _entity,
+    [[maybe_unused]] const EntityHandle& _entity,
     [[maybe_unused]] const ::std::string& _parentLabel) {
 
 #ifdef _DEBUG

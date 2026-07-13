@@ -27,9 +27,9 @@ public:
     SpotLight() {}
     ~SpotLight() {}
 
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) override {}
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) override {}
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {}
 

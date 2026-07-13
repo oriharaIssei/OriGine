@@ -21,9 +21,9 @@ SceneChanger::~SceneChanger() {}
 
 using namespace OriGine;
 
-void SceneChanger::Initialize(Scene* /*_scene*/, EntityHandle /* _handle */) {}
+void SceneChanger::Initialize(Scene* /*_scene*/, const EntityHandle& /* _handle */) {}
 
-void SceneChanger::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SceneChanger::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

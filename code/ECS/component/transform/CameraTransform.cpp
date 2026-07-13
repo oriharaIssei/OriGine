@@ -7,11 +7,11 @@
 
 using namespace OriGine;
 
-void CameraTransform::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
+void CameraTransform::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     UpdateMatrix();
 }
 
-void CameraTransform::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void CameraTransform::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);

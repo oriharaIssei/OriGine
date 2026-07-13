@@ -20,7 +20,7 @@ OriGine::ScaleDeformSystem::ScaleDeformSystem() : ISystem(SystemCategory::Effect
 void OriGine::ScaleDeformSystem::Initialize() {}
 void OriGine::ScaleDeformSystem::Finalize() {}
 
-void OriGine::ScaleDeformSystem::UpdateEntity(EntityHandle _handle) {
+void OriGine::ScaleDeformSystem::UpdateEntity(const EntityHandle& _handle) {
     float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
     auto* squashStretch = GetComponent<SquashStretchComponent>(_handle);

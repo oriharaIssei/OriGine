@@ -40,8 +40,8 @@ class MaterialEffectPipeLine
 public:
     MaterialEffectPipeLine();
     ~MaterialEffectPipeLine() override;
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     /// <summary>
@@ -54,7 +54,7 @@ public:
     /// </summary>
     /// <param name="_type"></param>
     /// <param name="_entityID"></param>
-    void AddEffectEntity(MaterialEffectType _type, EntityHandle _entHandle) {
+    void AddEffectEntity(MaterialEffectType _type, const EntityHandle& _entHandle) {
         effectEntityData_.push_back(EffectEntityData{_type, _entHandle});
     }
     void ClearEffectEntity() { effectEntityData_.clear(); }

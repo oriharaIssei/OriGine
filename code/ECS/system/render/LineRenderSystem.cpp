@@ -60,7 +60,7 @@ void LineRenderSystem::StartRender() {
 /// エンティティのラインレンダラーを登録し、トランスフォームを更新する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void LineRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     std::vector<LineRenderer>& renderers = GetComponents<LineRenderer>(_entity);
     if (renderers.empty()) {
         return;

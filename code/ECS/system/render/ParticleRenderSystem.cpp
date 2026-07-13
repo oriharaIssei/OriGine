@@ -149,7 +149,7 @@ void ParticleRenderSystem::CreatePSO() {
 /// エンティティのエミッターを登録する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void ParticleRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     // 有効なEmitterなら登録する
     // 無効ならreturn
     if (!_entity.IsValid()) {

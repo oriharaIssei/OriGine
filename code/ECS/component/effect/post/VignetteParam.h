@@ -46,9 +46,9 @@ public:
     VignetteParam()           = default;
     ~VignetteParam() override = default;
 
-    void Initialize(OriGine::Scene* _scene, OriGine::EntityHandle _owner) override;
+    void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner) override;
 
-    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

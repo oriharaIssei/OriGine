@@ -205,7 +205,7 @@ void GpuParticleRenderSystem::StartRender() {
 /// エンティティのGPUパーティクルエミッターを収集する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void GpuParticleRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     auto& components = GetComponents<GpuParticleEmitter>(_entity);
     if (components.empty()) {
         return;

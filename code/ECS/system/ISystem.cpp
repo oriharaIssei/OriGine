@@ -21,7 +21,7 @@ namespace OriGine {
 /// 無効なエンティティの除外
 /// </summary>
 void ISystem::EraseDeadEntity() {
-    ::std::erase_if(entities_, [&entityRepository = this->entityRepository_](EntityHandle _handle) {
+    ::std::erase_if(entities_, [&entityRepository = this->entityRepository_](const EntityHandle& _handle) {
         Entity* entity = entityRepository->GetEntity(_handle);
         return !_handle.IsValid() || !entity || !entity->IsAlive();
     });
@@ -32,7 +32,7 @@ void ISystem::EraseDeadEntity() {
 /// </summary>
 /// <param name="_handle">対象のハンドル</param>
 /// <returns>エンティティのポインタ</returns>
-Entity* ISystem::GetEntity(EntityHandle _handle) {
+Entity* ISystem::GetEntity(const EntityHandle& _handle) {
     if (scene_ == nullptr) {
         LOG_ERROR("Scene is not Set.");
         return nullptr;
@@ -45,7 +45,7 @@ Entity* ISystem::GetEntity(EntityHandle _handle) {
 /// </summary>
 /// <param name="_dataTypeName">取得する型名</param>
 /// <returns>エンティティハンドル</returns>
-EntityHandle ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
+const EntityHandle& ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
         return EntityHandle();
@@ -59,7 +59,7 @@ EntityHandle ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
 /// <param name="_dataTypeName">作成する型名</param>
 /// <param name="_isUnique">ユニークなエンティティとして作成するか</param>
 /// <returns>作成したエンティティのハンドル</returns>
-EntityHandle ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isUnique) {
+const EntityHandle& ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isUnique) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
         return EntityHandle();
@@ -86,7 +86,7 @@ IComponentArray* ISystem::GetComponentArray(const ::std::string& _typeName) {
 /// <param name="_entity">対象のエンティティハンドル</param>
 /// <param name="_typeName">追加するコンポーネントの型名</param>
 /// <returns>追加したコンポーネントのハンドル</returns>
-ComponentHandle ISystem::AddComponent(EntityHandle _entity, const ::std::string& _typeName) {
+const ComponentHandle& ISystem::AddComponent(const EntityHandle& _entity, const ::std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not Set.");
         return ComponentHandle();

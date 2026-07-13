@@ -19,12 +19,12 @@ using namespace OriGine;
 SpriteAnimation::SpriteAnimation() {}
 SpriteAnimation::~SpriteAnimation() {}
 
-void SpriteAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
+void SpriteAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     // 初期化
     currentTime_ = 0.0f;
 }
 
-void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "SpriteComponentIndex##" + _parentLabel;
 

@@ -34,7 +34,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
-void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(EntityHandle _entity) {
+void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHandle& _entity) {
     auto entityTransform = GetComponent<Transform>(_entity);
 
     if (entityTransform) {

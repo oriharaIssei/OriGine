@@ -285,7 +285,7 @@ namespace OriGine {
 		_font.ClearAtlasDirty();
 	}
 
-	void TextRenderSystem::DispatchRenderer(EntityHandle _entity){
+	void TextRenderSystem::DispatchRenderer(const EntityHandle& _entity){
 		auto& texts = GetComponents<TextComponent>(_entity);
 
 		for(auto& text : texts){

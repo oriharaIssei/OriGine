@@ -105,7 +105,7 @@ bool BackGroundSpriteRenderSystem::ShouldSkipRender() const {
 /// エンティティのスプライトレンダラーを登録し、バッファを更新する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void BackGroundSpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void BackGroundSpriteRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     auto& spriteRenderer = GetComponents<SpriteRenderer>(_entity);
     if (spriteRenderer.empty()) {
         return;

@@ -42,7 +42,7 @@ protected:
     /// 各エンティティのスキニングアニメーションを更新する
     /// </summary>
     /// <param name="_handle">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 
     /// <summary>
     /// PSOを生成する

@@ -58,7 +58,7 @@ IComponentArray* ComponentRepository::GetComponentArray(const std::string& _type
     return itr->second.get();
 }
 
-void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTypeName, EntityHandle _handle) {
+void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTypeName, const EntityHandle& _handle) {
     auto* componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
         componentArray->AddComponent(_scene, _handle);
@@ -67,13 +67,13 @@ void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTy
     }
 }
 
-void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, EntityHandle _handle) {
+void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, const EntityHandle& _handle) {
     for (const auto& compTypeName : _compTypeNames) {
         AddComponent(_scene, compTypeName, _handle);
     }
 }
 
-void ComponentRepository::RemoveComponent(const std::string& _compTypeName, EntityHandle _handle, int32_t _compIndex) {
+void ComponentRepository::RemoveComponent(const std::string& _compTypeName, const EntityHandle& _handle, int32_t _compIndex) {
     auto componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
         componentArray->RemoveComponent(_handle, _compIndex);
@@ -82,13 +82,13 @@ void ComponentRepository::RemoveComponent(const std::string& _compTypeName, Enti
     }
 }
 
-void ComponentRepository::RemoveEntity(EntityHandle _handle) {
+void ComponentRepository::RemoveEntity(const EntityHandle& _handle) {
     for (auto& [typeName, componentArray] : componentArrays_) {
         componentArray->RemoveAllComponents(_handle);
     }
 }
 
-std::unordered_map<std::string, std::vector<IComponent*>> OriGine::ComponentRepository::GetAllComponentsOfEntity(EntityHandle _handle) {
+std::unordered_map<std::string, std::vector<IComponent*>> OriGine::ComponentRepository::GetAllComponentsOfEntity(const EntityHandle& _handle) {
     std::unordered_map<std::string, std::vector<IComponent*>> result;
 
     for (const auto& [typeName, componentArray] : componentArrays_) {

@@ -21,7 +21,7 @@ EffectAutoDestroySystem::~EffectAutoDestroySystem() {}
 void EffectAutoDestroySystem::Initialize() {}
 void EffectAutoDestroySystem::Finalize() {}
 
-void EffectAutoDestroySystem::UpdateEntity(OriGine::EntityHandle _handle) {
+void EffectAutoDestroySystem::UpdateEntity(const OriGine::EntityHandle& _handle) {
     bool isAlive = false;
 
     auto& materialAnimations = GetComponents<MaterialAnimation>(_handle);

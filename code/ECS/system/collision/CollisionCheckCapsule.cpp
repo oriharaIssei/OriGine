@@ -13,7 +13,7 @@ namespace OriGine {
 /// Capsule vs Capsule の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Capsule& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     Vec3f closest1, closest2;
     ClosestPointsBetweenSegments(
         _shapeA.segment.start, _shapeA.segment.end,
@@ -64,7 +64,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// Capsule vs Sphere の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Capsule& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     Vec3f closest   = ClosestPointOnSegment(_shapeB.center_, _shapeA.segment.start, _shapeA.segment.end);
     Vec3f diff      = _shapeB.center_ - closest;
     float distSq    = diff.lengthSq();
@@ -109,7 +109,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// Sphere vs Capsule の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Sphere& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Capsule, Bounds::Sphere>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 
@@ -117,7 +117,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// Capsule vs AABB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Capsule& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 反復最近接点法：線分上の点とAABB上の点を交互に更新して収束させる
     Vec3f closestOnSeg  = _shapeA.segment.Center();
     Vec3f closestOnAABB = ClosestPointOnAABB(closestOnSeg, _shapeB);
@@ -176,7 +176,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// AABB vs Capsule の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::AABB& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::AABB& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Capsule, Bounds::AABB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 
@@ -184,7 +184,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// Capsule vs OBB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Capsule& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 反復最近接点法：線分上の点とOBB上の点を交互に更新して収束させる
     Vec3f closestOnSeg = _shapeA.segment.Center();
     Vec3f closestOnOBB = ClosestPointOnOBB(closestOnSeg, _shapeB);
@@ -242,7 +242,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// OBB vs Capsule の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::OBB& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Capsule, Bounds::OBB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 
@@ -250,7 +250,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// Capsule vs Segment の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Capsule& _shapeA, const Bounds::Segment& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Capsule& _shapeA, const Bounds::Segment& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     Vec3f closest1, closest2;
     ClosestPointsBetweenSegments(
         _shapeA.segment.start, _shapeA.segment.end,
@@ -299,7 +299,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// Segment vs Capsule の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Segment& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Segment& _shapeA, const Bounds::Capsule& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Capsule, Bounds::Segment>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 

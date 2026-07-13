@@ -30,9 +30,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(OriGine::Scene* _scene, EntityHandle _owner) override;
+    void Initialize(OriGine::Scene* _scene, const EntityHandle& _owner) override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -168,14 +168,14 @@ public:
 
 void CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
-    EntityHandle _hostEntity,
+    const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName,
     bool _usingDefaultTexture = true);
 void InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,
-    EntityHandle _hostEntity,
+    const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName);
 

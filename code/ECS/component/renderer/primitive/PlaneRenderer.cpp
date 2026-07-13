@@ -22,7 +22,7 @@
 
 using namespace OriGine;
 
-void PlaneRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
+void PlaneRenderer::Initialize(Scene* _scene, const EntityHandle& _entity) {
     MeshRenderer::Initialize(_scene, _entity);
 
     // デフォルトでインスタンシング描画を使用
@@ -49,7 +49,7 @@ void PlaneRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
     }
 }
 
-void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

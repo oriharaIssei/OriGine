@@ -51,7 +51,7 @@ protected:
     /// PostEffectに使用するComponentを登録する
     /// (Systemによっては使用しない)
     /// </summary>
-    void DispatchComponent(EntityHandle _handle) override;
+    void DispatchComponent(const EntityHandle& _handle) override;
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

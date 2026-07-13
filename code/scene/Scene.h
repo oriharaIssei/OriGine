@@ -184,14 +184,14 @@ public:
     /// 指定したエンティティを削除予約リストに加える. 実際の削除はフレームの最後に行われる.
     /// </summary>
     /// <param name="_entityId">削除するエンティティのハンドル</param>
-    void AddDeleteEntity(EntityHandle _entityId);
+    void AddDeleteEntity(const EntityHandle& _entityId);
 
     // --- Entity Operation Helpers ---
 
     /// <summary>
     /// ハンドルからエンティティの実体を取得する.
     /// </summary>
-    Entity* GetEntity(EntityHandle _handle) const;
+    Entity* GetEntity(const EntityHandle& _handle) const;
 
     /// <summary>
     /// 指定したデータ型を持つユニークエンティティ (シーン内に一つだけ存在することが保証されるもの) を取得する.
@@ -225,7 +225,7 @@ public:
     /// <param name="_index">複数ある場合のインデックス (デフォルトは 0)</param>
     /// <returns>コンポーネントへのポインタ. 存在しない場合は nullptr</returns>
     template <IsComponent ComponentType>
-    ComponentType* GetComponent(EntityHandle _handle, uint32_t _index = 0) const;
+    ComponentType* GetComponent(const EntityHandle& _handle, uint32_t _index = 0) const;
 
     template <IsComponent ComponentType>
     ComponentType* GetComponent(ComponentHandle _handle) const;
@@ -234,25 +234,25 @@ public:
     /// 指定したエンティティが持つ、特定の型のコンポーネントリストをすべて取得する.
     /// </summary>
     template <IsComponent ComponentType>
-    ::std::vector<ComponentType>& GetComponents(EntityHandle _handle) {
+    ::std::vector<ComponentType>& GetComponents(const EntityHandle& _handle) {
         return componentRepository_->GetComponents<ComponentType>(_handle);
     }
 
     /// <summary>
     /// 型名を指定してエンティティにコンポーネントを追加する.
     /// </summary>
-    bool AddComponent(const ::std::string& _compTypeName, EntityHandle _handle);
+    bool AddComponent(const ::std::string& _compTypeName, const EntityHandle& _handle);
 
     /// <summary>
     /// テンプレート引数で指定した型のコンポーネントをエンティティに追加する.
     /// </summary>
     template <IsComponent ComponentType>
-    bool AddComponent(EntityHandle _handle);
+    bool AddComponent(const EntityHandle& _handle);
 
     /// <summary>
     /// エンティティから指定したコンポーネントを削除する.
     /// </summary>
-    bool RemoveComponent(const ::std::string& _compTypeName, EntityHandle _handle, int32_t _componentIndex = 0);
+    bool RemoveComponent(const ::std::string& _compTypeName, const EntityHandle& _handle, int32_t _componentIndex = 0);
 
     /// <summary>
     /// 指定した型のコンポーネントを格納している内部配列を取得する.
@@ -297,7 +297,7 @@ template <IsComponent ComponentType>
 /// <param name="_handle">エンティティハンドル</param>
 /// <param name="_index">インデックス</param>
 /// <returns>コンポーネントのポインタ</returns>
-inline ComponentType* Scene::GetComponent(EntityHandle _handle, uint32_t _index) const {
+inline ComponentType* Scene::GetComponent(const EntityHandle& _handle, uint32_t _index) const {
     if (!_handle.IsValid()) {
         LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
         return nullptr;
@@ -314,7 +314,7 @@ inline ComponentType* Scene::GetComponent(ComponentHandle _handle) const {
 }
 
 template <IsComponent ComponentType>
-inline bool Scene::AddComponent(EntityHandle _handle) {
+inline bool Scene::AddComponent(const EntityHandle& _handle) {
     if (!_handle.IsValid()) {
         LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;

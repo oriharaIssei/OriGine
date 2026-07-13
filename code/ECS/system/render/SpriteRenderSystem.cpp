@@ -113,7 +113,7 @@ void SpriteRenderSystem::Rendering() {
 /// エンティティのスプライトレンダラーを登録する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void SpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void SpriteRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     std::vector<SpriteRenderer> renderers = GetComponents<SpriteRenderer>(_entity);
 
     if (renderers.empty()) {

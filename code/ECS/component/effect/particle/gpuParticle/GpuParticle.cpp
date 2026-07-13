@@ -19,7 +19,7 @@
 
 using namespace OriGine;
 
-void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner) {
+void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner) {
     Primitive::Plane plane;
     plane.CreateMesh(&mesh_);
 
@@ -32,7 +32,7 @@ void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unus
     }
 }
 
-void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner, [[maybe_unused]] const std::string& _parentLabel) {
+void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("IsActive##" + _parentLabel, isActive_)) {

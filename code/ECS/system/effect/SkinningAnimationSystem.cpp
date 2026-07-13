@@ -97,7 +97,7 @@ void SkinningAnimationSystem::Finalize() {
 /// 各エンティティのスキニングアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
+void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
     auto& skinningAnimationComps = GetComponents<SkinningAnimationComponent>(_handle);
 
     const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");

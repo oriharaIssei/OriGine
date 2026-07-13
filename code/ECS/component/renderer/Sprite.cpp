@@ -28,7 +28,7 @@
 
 using namespace OriGine;
 
-void SpriteRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
+void SpriteRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
 
     // buffer作成
@@ -64,7 +64,7 @@ void SpriteRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     CalculateWindowRatioPosAndSize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
 }
 
-void SpriteRenderer::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     auto realNumberAfterFunc = [this](Vector<2, float>* /*_newVal*/) {
         CalculatePosRatioAndSizeRatio();

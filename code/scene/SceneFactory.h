@@ -108,14 +108,14 @@ namespace OriGine {
 		/// <summary>
 		/// エンティティ個別のシステム設定をロードする.
 		/// </summary>
-		void LoadEntitySystems(Scene* _scene,EntityHandle _entity,const nlohmann::json& _systemsJson);
+		void LoadEntitySystems(Scene* _scene,const EntityHandle& _entity,const nlohmann::json& _systemsJson);
 
 		/// <summary>
 		/// エンティティ個別のコンポーネントとそのフィールド設定をロードする.
 		/// </summary>
 		void LoadEntityComponents(
 			Scene* _scene,
-			EntityHandle _entity,
+			const EntityHandle& _entity,
 			const nlohmann::json& _componentsJson,
 			HandleAssignMode _handleMode = HandleAssignMode::UseSaved);
 	};

@@ -20,9 +20,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

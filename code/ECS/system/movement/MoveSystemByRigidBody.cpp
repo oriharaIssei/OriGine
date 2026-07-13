@@ -34,7 +34,7 @@ void MoveSystemByRigidBody::Finalize() {}
 /// 各エンティティのRigidbodyに基づいた物理移動を計算し、Transformを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
+void MoveSystemByRigidBody::UpdateEntity(const EntityHandle& _handle) {
     float deltaTime = 0.f;
 
     Transform* transform = GetComponent<Transform>(_handle);

@@ -17,7 +17,7 @@ void EntitySpawnerWorkSystem::Finalize() {
     entities_.clear();
 }
 
-void EntitySpawnerWorkSystem::UpdateEntity(EntityHandle _handle) {
+void EntitySpawnerWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
 
     auto& spawners = GetComponents<EntitySpawner>(_handle);

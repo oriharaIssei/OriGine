@@ -14,7 +14,7 @@ using namespace OriGine;
 /// 各エンティティの速度・加速度アニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void TransformRateAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+void TransformRateAnimationWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     auto& animations = GetComponents<TransformRateAnimation>(_handle);
     if (animations.empty()) {
         return;

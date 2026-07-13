@@ -46,10 +46,10 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Initialize(Scene* _scene, EntityHandle _entity) = 0;
+    virtual void Initialize(Scene* _scene, const EntityHandle& _entity) = 0;
     virtual void Finalize()                                      = 0;
 
-    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
+    virtual void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel);
 
     virtual void CalculateWorldShape() = 0;
 
@@ -87,7 +87,7 @@ public: // accessor
     void SetCollisionCategory(const CollisionCategory& _category) { collisionCategory_ = _category; }
 
     // 衝突状態の操作
-    void SetCollisionState(EntityHandle _otherHandle) {
+    void SetCollisionState(const EntityHandle& _otherHandle) {
         if (this->preCollisionStateMap_[_otherHandle] == CollisionState::None) {
             this->collisionStateMap_[_otherHandle] = CollisionState::Enter;
         } else {
@@ -102,13 +102,13 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) override {}
     void Finalize() override {
         this->collisionStateMap_.clear();
         this->preCollisionStateMap_.clear();
     }
 
-    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 

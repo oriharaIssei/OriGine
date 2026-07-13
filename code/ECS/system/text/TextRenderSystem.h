@@ -32,7 +32,7 @@ protected:
 	void CreatePSO() override;
 	void StartRender() override;
 	void Rendering() override;
-	void DispatchRenderer(EntityHandle _entity) override;
+	void DispatchRenderer(const EntityHandle& _entity) override;
 	bool ShouldSkipRender() const override;
 
 private:

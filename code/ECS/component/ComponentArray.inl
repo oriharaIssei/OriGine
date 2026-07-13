@@ -24,7 +24,7 @@ inline void ComponentArray<ComponentType>::Finalize() {
 }
 
 template <IsComponent ComponentType>
-inline void ComponentArray<ComponentType>::RegisterEntity(EntityHandle _entity) {
+inline void ComponentArray<ComponentType>::RegisterEntity(const EntityHandle& _entity) {
     if (entitySlotMap_.contains(_entity.uuid)) {
         return;
     }
@@ -38,7 +38,7 @@ inline void ComponentArray<ComponentType>::RegisterEntity(EntityHandle _entity) 
 }
 
 template <IsComponent ComponentType>
-inline void ComponentArray<ComponentType>::UnregisterEntity(EntityHandle _entity) {
+inline void ComponentArray<ComponentType>::UnregisterEntity(const EntityHandle& _entity) {
     auto itr = entitySlotMap_.find(_entity.uuid);
     if (itr == entitySlotMap_.end()) {
         return;
@@ -56,7 +56,7 @@ inline void ComponentArray<ComponentType>::UnregisterEntity(EntityHandle _entity
 }
 
 template <IsComponent ComponentType>
-inline bool ComponentArray<ComponentType>::HasEntity(EntityHandle _entity) const {
+inline bool ComponentArray<ComponentType>::HasEntity(const EntityHandle& _entity) const {
     auto itr = entitySlotMap_.find(_entity.uuid);
     if (itr == entitySlotMap_.end()) {
         return false;
@@ -66,7 +66,7 @@ inline bool ComponentArray<ComponentType>::HasEntity(EntityHandle _entity) const
 }
 
 template <IsComponent ComponentType>
-inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene, EntityHandle _entity) {
+inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene, const EntityHandle& _entity) {
     auto entIt = entitySlotMap_.find(_entity.uuid);
     if (entIt == entitySlotMap_.end()) {
         RegisterEntity(_entity);
@@ -91,7 +91,7 @@ inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene
 }
 
 template <IsComponent ComponentType>
-inline ComponentHandle ComponentArray<ComponentType>::InsertComponent(Scene* _scene, EntityHandle _entity, uint32_t _compIndex) {
+inline ComponentHandle ComponentArray<ComponentType>::InsertComponent(Scene* _scene, const EntityHandle& _entity, uint32_t _compIndex) {
     auto entIt = entitySlotMap_.find(_entity.uuid);
     if (entIt == entitySlotMap_.end()) {
         RegisterEntity(_entity);
@@ -142,7 +142,7 @@ inline void ComponentArray<ComponentType>::RemoveComponent(ComponentHandle _hand
 }
 
 template <IsComponent ComponentType>
-inline void ComponentArray<ComponentType>::RemoveComponent(EntityHandle _handle, uint32_t _compIndex) {
+inline void ComponentArray<ComponentType>::RemoveComponent(const EntityHandle& _handle, uint32_t _compIndex) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return;
@@ -166,7 +166,7 @@ inline void ComponentArray<ComponentType>::RemoveComponent(EntityHandle _handle,
 }
 
 template <IsComponent ComponentType>
-inline void ComponentArray<ComponentType>::RemoveAllComponents(EntityHandle _handle) {
+inline void ComponentArray<ComponentType>::RemoveAllComponents(const EntityHandle& _handle) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return;
@@ -198,7 +198,7 @@ inline bool ComponentArray<ComponentType>::SaveComponent(ComponentHandle _compHa
 }
 
 template <IsComponent ComponentType>
-inline bool ComponentArray<ComponentType>::SaveComponent(EntityHandle _handle, uint32_t _compIndex, nlohmann::json& _outJson) {
+inline bool ComponentArray<ComponentType>::SaveComponent(const EntityHandle& _handle, uint32_t _compIndex, nlohmann::json& _outJson) {
     // エンティティが存在しない場合は失敗
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
@@ -219,7 +219,7 @@ inline bool ComponentArray<ComponentType>::SaveComponent(EntityHandle _handle, u
 }
 
 template <IsComponent ComponentType>
-inline bool ComponentArray<ComponentType>::SaveComponents(EntityHandle _handle, nlohmann::json& _outJson) {
+inline bool ComponentArray<ComponentType>::SaveComponents(const EntityHandle& _handle, nlohmann::json& _outJson) {
     // エンティティが存在しない場合は何もしない
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
@@ -244,7 +244,7 @@ inline bool ComponentArray<ComponentType>::SaveComponents(EntityHandle _handle, 
 
 template <IsComponent ComponentType>
 inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
-    EntityHandle _handle,
+    const EntityHandle& _handle,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
     auto itr = entitySlotMap_.find(_handle.uuid);
@@ -276,7 +276,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
 
 template <IsComponent ComponentType>
 inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
-    EntityHandle _handle,
+    const EntityHandle& _handle,
     uint32_t _compIndex,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
@@ -316,7 +316,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::LoadComponents(
-    EntityHandle _handle,
+    const EntityHandle& _handle,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
@@ -364,7 +364,7 @@ inline ComponentType* ComponentArray<ComponentType>::GetComponent(ComponentHandl
 }
 
 template <IsComponent ComponentType>
-inline ComponentType* ComponentArray<ComponentType>::GetComponent(EntityHandle _handle, uint32_t _compIndex) {
+inline ComponentType* ComponentArray<ComponentType>::GetComponent(const EntityHandle& _handle, uint32_t _compIndex) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return nullptr;
@@ -380,7 +380,7 @@ inline ComponentType* ComponentArray<ComponentType>::GetComponent(EntityHandle _
 }
 
 template <IsComponent ComponentType>
-inline std::vector<ComponentType>& ComponentArray<ComponentType>::GetComponents(EntityHandle _handle) {
+inline std::vector<ComponentType>& ComponentArray<ComponentType>::GetComponents(const EntityHandle& _handle) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         static std::vector<ComponentType> emptyComponents;
@@ -399,12 +399,12 @@ inline IComponent* ComponentArray<ComponentType>::GetIComponent(ComponentHandle 
 }
 
 template <IsComponent ComponentType>
-inline IComponent* ComponentArray<ComponentType>::GetIComponent(EntityHandle _handle, uint32_t _compIndex) {
+inline IComponent* ComponentArray<ComponentType>::GetIComponent(const EntityHandle& _handle, uint32_t _compIndex) {
     return GetComponent(_handle, _compIndex);
 }
 
 template <IsComponent ComponentType>
-inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(EntityHandle _handle) {
+inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(const EntityHandle& _handle) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         static std::vector<IComponent*> emptyIComponents;
@@ -423,7 +423,7 @@ inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(En
 }
 
 template <IsComponent ComponentType>
-inline uint32_t ComponentArray<ComponentType>::GetComponentCount(EntityHandle _handle) const {
+inline uint32_t ComponentArray<ComponentType>::GetComponentCount(const EntityHandle& _handle) const {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return 0;

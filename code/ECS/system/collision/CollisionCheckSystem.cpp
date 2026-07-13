@@ -170,7 +170,7 @@ void CollisionCheckSystem::Finalize() {
 /// <summary>
 /// エンティティの包含AABBを計算
 /// </summary>
-Bounds::AABB CollisionCheckSystem::ComputeEntityAABB(EntityHandle _entity) {
+Bounds::AABB CollisionCheckSystem::ComputeEntityAABB(const EntityHandle& _entity) {
     Bounds::AABB result;
     result.center   = Vec3f(0.0f, 0.0f, 0.0f);
     result.halfSize = Vec3f(0.0f, 0.0f, 0.0f);
@@ -253,7 +253,7 @@ Bounds::AABB CollisionCheckSystem::ComputeEntityAABB(EntityHandle _entity) {
 /// <summary>
 /// エンティティペア間の衝突判定を行う
 /// </summary>
-void CollisionCheckSystem::CheckEntityPair(EntityHandle _aEntity, EntityHandle _bEntity) {
+void CollisionCheckSystem::CheckEntityPair(const EntityHandle& _aEntity, const EntityHandle& _bEntity) {
     Scene* currentScene = GetScene();
 
     auto aCollPushbackInfo        = GetComponent<CollisionPushBackInfo>(_aEntity);
@@ -274,8 +274,8 @@ void CollisionCheckSystem::CheckEntityPair(EntityHandle _aEntity, EntityHandle _
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](
-                               EntityHandle aEntity,
-                               EntityHandle bEntity,
+                               const EntityHandle& aEntity,
+                               const EntityHandle& bEntity,
                                auto& listA,
                                auto& listB,
                                CollisionPushBackInfo* _aInfo,

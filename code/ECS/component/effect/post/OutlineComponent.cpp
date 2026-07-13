@@ -24,7 +24,7 @@ using namespace OriGine;
 OutlineComponent::OutlineComponent() {}
 OutlineComponent::~OutlineComponent() {}
 
-void OutlineComponent::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
+void OutlineComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     paramData.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
@@ -32,7 +32,7 @@ void OutlineComponent::Finalize() {
     paramData.Finalize();
 }
 
-void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner, [[maybe_unused]] const std::string& _parentLabel) {
+void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     CheckBoxCommand("Is Active##" + _parentLabel, isActive);
 

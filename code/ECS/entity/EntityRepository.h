@@ -89,28 +89,28 @@ public:
     /// </summary>
     /// <param name="_handle">削除するエンティティのハンドル</param>
     /// <returns>削除に成功すればtrue</returns>
-    bool RemoveEntity(EntityHandle _handle);
+    bool RemoveEntity(const EntityHandle& _handle);
 
     /// <summary>
     /// Entity 取得
     /// </summary>
     /// <param name="_handle">取得したいエンティティのハンドル</param>
     /// <returns>エンティティのポインタ。見つからなければnullptr</returns>
-    Entity* GetEntity(EntityHandle _handle);
+    Entity* GetEntity(const EntityHandle& _handle);
 
     /// <summary>
     /// Entity 取得 (const)
     /// </summary>
     /// <param name="_handle">取得したいエンティティのハンドル</param>
     /// <returns>エンティティのポインタ。見つからなければnullptr</returns>
-    const Entity* GetEntity(EntityHandle _handle) const;
+    const Entity* GetEntity(const EntityHandle& _handle) const;
 
     /// <summary>
     /// 生存チェック
     /// </summary>
     /// <param name="_handle">確認したいエンティティのハンドル</param>
     /// <returns>生存していればtrue</returns>
-    bool IsAlive(EntityHandle _handle) const;
+    bool IsAlive(const EntityHandle& _handle) const;
 
     /// <summary>
     /// 全エンティティを削除する

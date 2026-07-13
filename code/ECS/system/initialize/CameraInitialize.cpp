@@ -27,7 +27,7 @@ void CameraInitialize::Finalize() {}
 /// エンティティの更新（カメラの初期化）
 /// </summary>
 /// <param name="_handle">エンティティハンドル</param>
-void CameraInitialize::UpdateEntity(EntityHandle _handle) {
+void CameraInitialize::UpdateEntity(const EntityHandle& _handle) {
     CameraTransform* cameraTransform = GetComponent<CameraTransform>(_handle);
     if (!cameraTransform) {
         return;

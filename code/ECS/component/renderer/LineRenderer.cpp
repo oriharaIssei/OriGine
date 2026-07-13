@@ -49,7 +49,7 @@ LineRenderer::LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexDat
 
 LineRenderer::~LineRenderer() {}
 
-void LineRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
+void LineRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
@@ -132,7 +132,7 @@ private:
 };
 #endif // _DEBUG
 
-void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label;

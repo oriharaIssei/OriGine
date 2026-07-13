@@ -80,7 +80,7 @@ void Audio::PlayTrigger() {
     pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
-    buffer.pAudioData     = audioClip_.data_.pBuffer;
+    buffer.pAudioData     = audioClip_.data_.pBuffer.data();
     buffer.AudioBytes     = audioClip_.data_.bufferSize;
     buffer.Flags          = XAUDIO2_END_OF_STREAM;
 
@@ -118,7 +118,7 @@ void Audio::PlayLoop() {
     pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
-    buffer.pAudioData     = audioClip_.data_.pBuffer;
+    buffer.pAudioData     = audioClip_.data_.pBuffer.data();
     buffer.AudioBytes     = audioClip_.data_.bufferSize;
     buffer.Flags          = XAUDIO2_END_OF_STREAM;
     buffer.LoopBegin      = 0;
@@ -168,14 +168,14 @@ bool Audio::isPlaying() const {
     return state.BuffersQueued > 0;
 }
 
-void Audio::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
+void Audio::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     // ファイル名が設定されていれば音声データを読み込む
     if (!fileName_.empty()) {
         audioClip_.data_ = LoadWave(fileName_);
     }
 };
 
-void Audio::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Audio::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
@@ -232,10 +232,10 @@ SoundData Audio::LoadWave(const std::string& _fileName) {
     FormatChunk format{};
     ChunkHeader chunk;
 
-    bool foundFmt     = false;
-    bool foundData    = false;
-    DWORD dataSize    = 0;
-    BYTE* pDataBuffer = nullptr;
+    bool foundFmt  = false;
+    bool foundData = false;
+    DWORD dataSize = 0;
+    std::vector<BYTE> dataBuffer;
 
     while (file.read(reinterpret_cast<char*>(&chunk), sizeof(chunk))) {
         std::streampos nextChunk = file.tellg();
@@ -245,9 +245,9 @@ SoundData Audio::LoadWave(const std::string& _fileName) {
             foundFmt = true;
             file.read(reinterpret_cast<char*>(&format.fmt), chunk.size);
         } else if (strncmp(chunk.id, "data", 4) == 0) {
-            foundData   = true;
-            pDataBuffer = new BYTE[chunk.size];
-            file.read(reinterpret_cast<char*>(pDataBuffer), chunk.size);
+            foundData = true;
+            dataBuffer.resize(chunk.size);
+            file.read(reinterpret_cast<char*>(dataBuffer.data()), chunk.size);
             dataSize = chunk.size;
         } else {
             // 未使用のチャンクはスキップ
@@ -259,24 +259,20 @@ SoundData Audio::LoadWave(const std::string& _fileName) {
 
     if (!foundFmt || !foundData) {
         LOG_ERROR("Required fmt or data chunk not found");
-        delete[] pDataBuffer;
         return {};
     }
 
     SoundData soundData{};
     soundData.wfex       = format.fmt;
-    soundData.pBuffer    = pDataBuffer;
+    soundData.pBuffer    = std::move(dataBuffer);
     soundData.bufferSize = dataSize;
 
     return soundData;
 }
 
 void Audio::SoundUnLoad() {
-    if (audioClip_.data_.pBuffer) {
-        std::cout << "pBuffer address: " << static_cast<void*>(audioClip_.data_.pBuffer) << std::endl;
-        delete[] audioClip_.data_.pBuffer;
-        audioClip_.data_.pBuffer = nullptr;
-    }
+    audioClip_.data_.pBuffer.clear();
+    audioClip_.data_.pBuffer.shrink_to_fit();
     audioClip_.data_.bufferSize = 0;
     audioClip_.data_.wfex       = {};
 }
@@ -302,7 +298,7 @@ AudioInitializeSystem::~AudioInitializeSystem() {}
 void AudioInitializeSystem::Initialize() {}
 void AudioInitializeSystem::Finalize() {}
 
-void AudioInitializeSystem::UpdateEntity(EntityHandle _entity) {
+void AudioInitializeSystem::UpdateEntity(const EntityHandle& _entity) {
     // entityの持つ AuidoComponentをすべて取得.
     // 存在していればすべて再生
     auto& components = GetComponents<Audio>(_entity);

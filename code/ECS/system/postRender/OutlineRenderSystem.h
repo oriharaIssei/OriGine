@@ -55,7 +55,7 @@ private:
     /// ポストエフェクトに使用するコンポーネントを有効な場合にリスト化する等の前処理
     /// </summary>
     /// <param name="_entity">エンティティハンドル</param>
-    virtual void DispatchComponent(EntityHandle _entity);
+    virtual void DispatchComponent(const EntityHandle& _entity);
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

@@ -17,7 +17,7 @@ using namespace OriGine;
 TransformRateAnimation::TransformRateAnimation() {}
 TransformRateAnimation::~TransformRateAnimation() {}
 
-void TransformRateAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
+void TransformRateAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
 
 void TransformRateAnimation::Finalize() {
     isPlay_              = false;
@@ -29,7 +29,7 @@ void TransformRateAnimation::Finalize() {
 
 void TransformRateAnimation::Edit(
     [[maybe_unused]] Scene* _scene,
-    [[maybe_unused]] EntityHandle _entity,
+    [[maybe_unused]] const EntityHandle& _entity,
     [[maybe_unused]] const ::std::string& _parentLabel) {
 
 #ifdef _DEBUG

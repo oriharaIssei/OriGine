@@ -59,7 +59,7 @@ protected:
     /// ポストエフェクトに使用するコンポーネントを有効な場合にリスト化する等の前処理
     /// </summary>
     /// <param name="_owner">エンティティハンドル</param>
-    void DispatchComponent(EntityHandle _owner) override;
+    void DispatchComponent(const EntityHandle& _owner) override;
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

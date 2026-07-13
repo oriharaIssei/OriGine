@@ -11,14 +11,14 @@
 
 using namespace OriGine;
 
-void EntitySpawner::Initialize(Scene* _scene, EntityHandle /*_entity*/) {
+void EntitySpawner::Initialize(Scene* _scene, const EntityHandle& /*_entity*/) {
     emitter_.Initialize();
     emitter_.ResolveParent(_scene);
 }
 
 void EntitySpawner::Finalize() {}
 
-void EntitySpawner::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void EntitySpawner::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     // ── テンプレート選択 ──────────────────────────────────────
     ImGui::SeparatorText("Entity Template");

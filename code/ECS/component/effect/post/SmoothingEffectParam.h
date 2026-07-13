@@ -36,8 +36,8 @@ public:
     SmoothingEffectParam()           = default;
     ~SmoothingEffectParam() override = default;
 
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
 public:

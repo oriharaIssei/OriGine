@@ -289,7 +289,7 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
 /// </summary>
 /// <param name="_systemTypeName">対象のシステム名</param>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SystemRunner::RegisterEntity(const std::string& _systemTypeName, EntityHandle _handle) {
+void SystemRunner::RegisterEntity(const std::string& _systemTypeName, const EntityHandle& _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
     if (systemItr == systems_.end()) {
@@ -309,7 +309,7 @@ void SystemRunner::RegisterEntity(const std::string& _systemTypeName, EntityHand
 /// </summary>
 /// <param name="_systemTypeName">対象のシステム名</param>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SystemRunner::RemoveEntity(const std::string& _systemTypeName, EntityHandle _handle) {
+void SystemRunner::RemoveEntity(const std::string& _systemTypeName, const EntityHandle& _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
     if (systemItr == systems_.end()) {
@@ -328,7 +328,7 @@ void SystemRunner::RemoveEntity(const std::string& _systemTypeName, EntityHandle
 /// 全てのシステムから指定したエンティティを削除する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SystemRunner::RemoveEntityFromAllSystems(EntityHandle _handle) {
+void SystemRunner::RemoveEntityFromAllSystems(const EntityHandle& _handle) {
     // 各システムからエンティティを削除
     for (auto& [name, system] : systems_) {
         if (system) {

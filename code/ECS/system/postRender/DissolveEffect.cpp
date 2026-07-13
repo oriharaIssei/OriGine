@@ -191,7 +191,7 @@ void DissolveEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void DissolveEffect::DispatchComponent(EntityHandle _handle) {
+void DissolveEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& effectParams = GetComponents<DissolveEffectParam>(_handle);
 
     if (effectParams.empty()) {

@@ -20,7 +20,7 @@
 
 using namespace OriGine;
 
-void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
+void SkyboxRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
 
     isRender_ = true;
@@ -97,7 +97,7 @@ void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void SkyboxRenderer::Edit(Scene* /*_scene*/, EntityHandle /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("FilePath : %s", filePath_.c_str());

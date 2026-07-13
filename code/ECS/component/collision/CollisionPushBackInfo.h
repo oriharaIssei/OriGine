@@ -23,10 +23,10 @@ class CollisionPushBackInfo
     friend void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
 
 public:
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) override {}
     void Finalize() override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     void ClearInfo();
 
@@ -48,7 +48,7 @@ public:
 
     const std::unordered_map<EntityHandle, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
     void SetCollisionInfoMap(const std::unordered_map<EntityHandle, Info>& _map) { collisionInfoMap_ = _map; }
-    void AddCollisionInfo(EntityHandle _handle, const Info& _info) {
+    void AddCollisionInfo(const EntityHandle& _handle, const Info& _info) {
         collisionInfoMap_[_handle] = _info;
     }
 };

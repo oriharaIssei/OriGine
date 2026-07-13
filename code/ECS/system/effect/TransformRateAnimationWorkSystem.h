@@ -34,7 +34,7 @@ protected:
     /// 各エンティティの速度・加速度アニメーションを更新する
     /// </summary>
     /// <param name="_handle">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 };
 
 } // namespace OriGine

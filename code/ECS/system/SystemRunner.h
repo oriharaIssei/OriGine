@@ -172,26 +172,26 @@ public:
     /// <typeparam name="SystemClass">エンティティを追加するシステムクラスたち</typeparam>
     /// <param name="_handle">対象のエンティティハンドル</param>
     template <IsSystem... SystemClass>
-    void RegisterEntity(EntityHandle _handle);
+    void RegisterEntity(const EntityHandle& _handle);
     /// <summary>
     /// 指定したシステムにエンティティを登録する
     /// </summary>
     /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
     /// <param name="_handle">対象のエンティティハンドル</param>
-    void RegisterEntity(const ::std::string& _systemTypeName, EntityHandle _handle);
+    void RegisterEntity(const ::std::string& _systemTypeName, const EntityHandle& _handle);
 
     /// <summary>
     /// 指定されたシステムからエンティティを削除します。
     /// </summary>
     /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
     /// <param name="_handle">削除するEntityハンドル</param>
-    void RemoveEntity(const ::std::string& _systemTypeName, EntityHandle _handle);
+    void RemoveEntity(const ::std::string& _systemTypeName, const EntityHandle& _handle);
 
     /// <summary>
     /// すべてのシステムから指定されたエンティティを削除します。
     /// </summary>
     /// <param name="_handle">削除するEntityハンドル</param>
-    void RemoveEntityFromAllSystems(EntityHandle _handle);
+    void RemoveEntityFromAllSystems(const EntityHandle& _handle);
 
 private:
     Scene* scene_ = nullptr; // 所属するシーン
@@ -399,7 +399,7 @@ inline void SystemRunner::DeactivateSystem() {
 /// <typeparam name="SystemClass">登録先のシステムクラス群</typeparam>
 /// <param name="_handle">対象のエンティティハンドル</param>
 template <IsSystem... SystemClass>
-inline void SystemRunner::RegisterEntity(EntityHandle _handle) {
+inline void SystemRunner::RegisterEntity(const EntityHandle& _handle) {
     // 各システムにエンティティを登録
     (GetSystem<SystemClass>()->AddEntity(_handle), ...);
 }

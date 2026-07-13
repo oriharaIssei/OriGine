@@ -46,7 +46,7 @@ void SkinningMeshRenderSystem::Initialize() {
 /// エンティティのレンダラーを登録する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void SkinningMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void SkinningMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     auto& skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents.empty()) {
         return;

@@ -68,7 +68,7 @@ public:
     /// </summary>
     /// <param name="_entity">エンティティハンドル</param>
     /// <param name="_aabb">オブジェクトのAABB</param>
-    void Insert(EntityHandle _entity, const Bounds::AABB& _aabb);
+    void Insert(const EntityHandle& _entity, const Bounds::AABB& _aabb);
 
     /// <summary>
     /// 指定AABBと衝突する可能性のあるエンティティを取得

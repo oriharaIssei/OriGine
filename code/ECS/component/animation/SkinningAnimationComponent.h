@@ -24,8 +24,8 @@ public:
     SkinningAnimationComponent()           = default;
     ~SkinningAnimationComponent() override = default;
 
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
-    void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
+    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel);
     void Finalize() override;
 
     /// <summary>

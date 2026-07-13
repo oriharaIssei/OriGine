@@ -70,7 +70,7 @@ public:
     /// エンティティの更新 (GpuParticleでは特別に使用しない)
     /// </summary>
     /// <param name="entity">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle /*entity*/) override {}
+    void UpdateEntity(const EntityHandle& /*entity*/) override {}
 
     /// <summary>
     /// パーティクルの更新を行う (GPUコンピュート実行)

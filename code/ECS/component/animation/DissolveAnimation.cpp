@@ -10,7 +10,7 @@ using namespace OriGine;
 DissolveAnimation::DissolveAnimation() {}
 DissolveAnimation::~DissolveAnimation() {}
 
-void DissolveAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
+void DissolveAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
@@ -25,7 +25,7 @@ void DissolveAnimation::Finalize() {
 
 void DissolveAnimation::Edit(
     [[maybe_unused]] Scene* _scene,
-    [[maybe_unused]] EntityHandle _entity,
+    [[maybe_unused]] const EntityHandle& _entity,
     [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG

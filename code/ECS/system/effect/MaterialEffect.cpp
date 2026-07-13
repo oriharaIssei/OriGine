@@ -131,7 +131,7 @@ void MaterialEffect::Update() {
 /// コンポーネントの振り分け
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void MaterialEffect::DispatchComponents(EntityHandle _handle) {
+void MaterialEffect::DispatchComponents(const EntityHandle& _handle) {
     auto& materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_handle);
     if (materialEffectPipeLines.empty()) {
         return;
@@ -164,7 +164,7 @@ void MaterialEffect::DispatchComponents(EntityHandle _handle) {
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
 /// <param name="_pipeline">対象のパイプラインコンポーネント</param>
-void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline) {
+void MaterialEffect::UpdateEffectPipeline(const EntityHandle& _handle, MaterialEffectPipeLine* _pipeline) {
     auto& commandList = dxCommand_->GetCommandList();
 
     auto tempRenderTexture       = tempRenderTextures_[currentTempRTIndex_].get();
@@ -257,7 +257,7 @@ void MaterialEffect::ExecuteCommand() {
 /// <param name="_handle">対象のエンティティハンドル</param>
 /// <param name="_type">エフェクトの種類</param>
 /// <param name="_output">出力先テクスチャ</param>
-void MaterialEffect::TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output) {
+void MaterialEffect::TextureEffect(const EntityHandle& _handle, MaterialEffectType _type, RenderTexture* _output) {
     if (!_handle.IsValid()) {
         return;
     }

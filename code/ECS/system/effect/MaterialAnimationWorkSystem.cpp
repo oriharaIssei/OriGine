@@ -13,7 +13,7 @@ using namespace OriGine;
 /// 各エンティティのマテリアルアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void MaterialAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+void MaterialAnimationWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     auto& materialAnimations = GetComponents<MaterialAnimation>(_handle);
     if (materialAnimations.empty()) {
         return;

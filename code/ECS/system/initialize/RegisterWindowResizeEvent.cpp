@@ -88,5 +88,5 @@ void RegisterWindowResizeEvent::Finalize() {
 #endif // _DEBUG
 }
 
-void RegisterWindowResizeEvent::UpdateEntity(EntityHandle /*_owner*/) {
+void RegisterWindowResizeEvent::UpdateEntity(const EntityHandle& /*_owner*/) {
 }

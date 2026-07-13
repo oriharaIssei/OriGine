@@ -174,9 +174,9 @@ public:
     GpuParticleEmitter()  = default;
     ~GpuParticleEmitter() = default;
 
-    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
 
-    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
 
     void Finalize() override;
 

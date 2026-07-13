@@ -17,7 +17,7 @@ using namespace OriGine;
 /// 各エンティティのプリミティブノードアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void PrimitiveNodeAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+void PrimitiveNodeAnimationWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_handle);
     if (primitiveNodeAnimation == nullptr) {
         return;

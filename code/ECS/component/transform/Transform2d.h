@@ -22,7 +22,7 @@ public:
 
     ~Transform2d() = default;
 
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) override {}
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) override {}
     void Finalize() override {}
 
     /// <summary>
@@ -43,7 +43,7 @@ public:
     /// <summary>
     /// エディタ表示
     /// </summary>
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
 public:
     Vec2f scale     = {1.0f, 1.0f};

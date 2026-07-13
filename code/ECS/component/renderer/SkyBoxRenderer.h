@@ -46,8 +46,8 @@ public:
     SkyboxRenderer() : MeshRenderer() {}
     ~SkyboxRenderer() {}
 
-    void Initialize(Scene* _scene, EntityHandle _hostEntity) override;
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
 private:
     std::string filePath_;

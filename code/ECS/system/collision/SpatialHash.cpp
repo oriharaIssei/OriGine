@@ -19,7 +19,7 @@ void SpatialHash::Clear() {
     entityCells_.clear();
 }
 
-void SpatialHash::Insert(EntityHandle _entity, const Bounds::AABB& _aabb) {
+void SpatialHash::Insert(const EntityHandle& _entity, const Bounds::AABB& _aabb) {
     CellKey minCell, maxCell;
     GetCellRange(_aabb, minCell, maxCell);
 

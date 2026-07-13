@@ -23,7 +23,7 @@ void CollisionPushBackSystem::Finalize() {}
 /// エンティティの押し戻し処理を行う
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
+void CollisionPushBackSystem::UpdateEntity(const EntityHandle& _handle) {
     CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_handle);
 
     if (collPushbackInfo == nullptr) {

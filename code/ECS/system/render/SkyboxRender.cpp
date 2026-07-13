@@ -53,7 +53,7 @@ void SkyboxRender::StartRender() {
 /// エンティティのスカイボックスレンダラーを登録する
 /// </summary>
 /// <param name="_entity">対象のエンティティハンドル</param>
-void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
+void SkyboxRender::DispatchRenderer(const EntityHandle& _entity) {
     std::vector<SkyboxRenderer>& renderers = GetComponents<SkyboxRenderer>(_entity);
     // nullptr なら これ以上存在しないとして終了
     if (renderers.empty()) {

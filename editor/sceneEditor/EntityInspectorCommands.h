@@ -38,7 +38,7 @@ class Scene;
 class ChangeEditEntityCommand
     : public IEditCommand {
 public:
-    ChangeEditEntityCommand(EntityInspectorArea* _inspectorArea, OriGine::EntityHandle _toHandle, OriGine::EntityHandle _fromHandle);
+    ChangeEditEntityCommand(EntityInspectorArea* _inspectorArea, const OriGine::EntityHandle& _toHandle, const OriGine::EntityHandle& _fromHandle);
     ~ChangeEditEntityCommand() override = default;
 
     void Execute() override;
@@ -62,7 +62,7 @@ private:
 class ChangeEntityUniquenessCommand
     : public IEditCommand {
 public:
-    ChangeEntityUniquenessCommand(EntityInspectorArea* _inspectorArea, OriGine::EntityHandle _entityHandle, bool _oldValue)
+    ChangeEntityUniquenessCommand(EntityInspectorArea* _inspectorArea, const OriGine::EntityHandle& _entityHandle, bool _oldValue)
         : inspectorArea_(_inspectorArea), entityHandle_(_entityHandle), oldValue_(_oldValue), newValue_(!oldValue_) {}
     ~ChangeEntityUniquenessCommand() override = default;
     void Execute() override;
@@ -81,7 +81,7 @@ private:
 class ChangeEntityShouldSaveCommand
     : public IEditCommand {
 public:
-    ChangeEntityShouldSaveCommand(EntityInspectorArea* _inspectorArea, OriGine::EntityHandle _entityHandle, bool _oldValue)
+    ChangeEntityShouldSaveCommand(EntityInspectorArea* _inspectorArea, const OriGine::EntityHandle& _entityHandle, bool _oldValue)
         : inspectorArea_(_inspectorArea), entityHandle_(_entityHandle), oldValue_(_oldValue), newValue_(!oldValue_) {}
     ~ChangeEntityShouldSaveCommand() override = default;
     void Execute() override;
@@ -100,7 +100,7 @@ private:
 class ChangeEntityNameCommand
     : public IEditCommand {
 public:
-    ChangeEntityNameCommand(EntityInspectorArea* _inspectorArea, OriGine::EntityHandle _entityHandle, const ::std::string& _newName);
+    ChangeEntityNameCommand(EntityInspectorArea* _inspectorArea, const OriGine::EntityHandle& _entityHandle, const ::std::string& _newName);
     ~ChangeEntityNameCommand() override = default;
     void Execute() override;
     void Undo() override;
@@ -118,7 +118,7 @@ private:
 class DeleteEntityCommand
     : public IEditCommand {
 public:
-    DeleteEntityCommand(EntityInspectorArea* _parentArea, OriGine::EntityHandle _entityHandle);
+    DeleteEntityCommand(EntityInspectorArea* _parentArea, const OriGine::EntityHandle& _entityHandle);
     ~DeleteEntityCommand() override = default;
     void Execute() override;
     void Undo() override;
@@ -357,7 +357,7 @@ private:
 class RemoveComponentForEntityCommand
     : public IEditCommand {
 public:
-    RemoveComponentForEntityCommand(OriGine::Scene* _scene, const ::std::string& _componentTypeName, OriGine::EntityHandle _entityHandle, int32_t _compIndex = 0);
+    RemoveComponentForEntityCommand(OriGine::Scene* _scene, const ::std::string& _componentTypeName, const OriGine::EntityHandle& _entityHandle, int32_t _compIndex = 0);
     ~RemoveComponentForEntityCommand() override = default;
     void Execute() override;
     void Undo() override;

@@ -171,7 +171,7 @@ void GradationEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void GradationEffect::DispatchComponent(EntityHandle _handle) {
+void GradationEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& effectParams = GetComponents<GradationComponent>(_handle);
 
     if (effectParams.empty()) {

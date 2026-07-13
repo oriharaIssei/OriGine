@@ -57,10 +57,10 @@ public:
     ParticleSystem();
     ~ParticleSystem();
 
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
     void Finalize() override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 生成される Particle の 最大数を計算する

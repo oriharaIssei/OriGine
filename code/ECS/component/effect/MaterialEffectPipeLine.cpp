@@ -28,13 +28,13 @@ using namespace OriGine;
 MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 MaterialEffectPipeLine::~MaterialEffectPipeLine() {}
 
-void MaterialEffectPipeLine::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
+void MaterialEffectPipeLine::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     if (!baseTexturePath_.empty()) {
         LoadBaseTexture(baseTexturePath_);
     }
 }
 
-void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {

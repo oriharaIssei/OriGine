@@ -12,7 +12,7 @@
 
 using namespace OriGine;
 
-void VignetteParam::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
+void VignetteParam::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     paramBuffer.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
@@ -20,7 +20,7 @@ void VignetteParam::Finalize() {
     paramBuffer.Finalize();
 }
 
-void VignetteParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void VignetteParam::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

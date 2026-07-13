@@ -189,7 +189,7 @@ void SpeedlineEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void SpeedlineEffect::DispatchComponent(EntityHandle _handle) {
+void SpeedlineEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& speedlineParams = GetComponents<SpeedlineEffectParam>(_handle);
     // 無効な場合はスルー
     if (speedlineParams.empty()) {

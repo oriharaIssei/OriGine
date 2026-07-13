@@ -282,7 +282,7 @@ void DistortionEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void DistortionEffect::DispatchComponent(EntityHandle _handle) {
+void DistortionEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& distortionEffectParams = GetComponents<DistortionEffectParam>(_handle);
     if (distortionEffectParams.empty()) {
         return;

@@ -64,7 +64,7 @@ void SubSceneRender::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void SubSceneRender::DispatchComponent(EntityHandle _handle) {
+void SubSceneRender::DispatchComponent(const EntityHandle& _handle) {
     auto& subScenes = GetComponents<SubScene>(_handle);
     for (auto& subScene : subScenes) {
         if (!subScene.IsActive()) {

@@ -163,7 +163,7 @@ void SmoothingEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void SmoothingEffect::DispatchComponent(EntityHandle _handle) {
+void SmoothingEffect::DispatchComponent(const EntityHandle& _handle) {
     auto params = GetComponents<SmoothingEffectParam>(_handle);
     if (params.empty()) {
         return;

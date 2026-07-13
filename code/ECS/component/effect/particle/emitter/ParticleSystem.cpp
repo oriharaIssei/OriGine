@@ -42,7 +42,7 @@ using namespace OriGine;
 ParticleSystem::ParticleSystem() {}
 ParticleSystem::~ParticleSystem() {}
 
-void ParticleSystem::Initialize(Scene* _scene, EntityHandle /*_entity*/) {
+void ParticleSystem::Initialize(Scene* _scene, const EntityHandle& /*_entity*/) {
     emitter_.Initialize();
     emitter_.ResolveParent(_scene);
 
@@ -198,7 +198,7 @@ void ParticleSystem::PlayStop() {
     emitter_.PlayStop();
 }
 
-void ParticleSystem::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void ParticleSystem::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ParticleSystemEditor::Draw(*this, _scene, _entity, _parentLabel);
 #endif // _DEBUG

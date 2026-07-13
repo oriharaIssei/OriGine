@@ -14,7 +14,7 @@ OriGine::CollisionTriggeredSceneTransition::CollisionTriggeredSceneTransition() 
 void OriGine::CollisionTriggeredSceneTransition::Initialize() {}
 void OriGine::CollisionTriggeredSceneTransition::Finalize() {}
 
-void OriGine::CollisionTriggeredSceneTransition::UpdateEntity(EntityHandle _handle) {
+void OriGine::CollisionTriggeredSceneTransition::UpdateEntity(const EntityHandle& _handle) {
     auto& aabbColliders   = GetComponents<AABBCollider>(_handle);
     auto& sphereColliders = GetComponents<SphereCollider>(_handle);
     auto& obbColliders    = GetComponents<OBBCollider>(_handle);

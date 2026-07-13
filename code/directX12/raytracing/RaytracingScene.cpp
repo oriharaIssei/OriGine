@@ -69,7 +69,7 @@ bool OriGine::RaytracingScene::IsEmpty() const {
     return !tlasIsCreated_ || blasMap_.empty();
 }
 
-bool OriGine::MeshIsDynamic(Scene* _scene, EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh) {
+bool OriGine::MeshIsDynamic(Scene* _scene, const EntityHandle& _entityHandle, RaytracingMeshType _type, bool _isModelMesh) {
     if (_type == RaytracingMeshType::Dynamic) {
         return true;
     }

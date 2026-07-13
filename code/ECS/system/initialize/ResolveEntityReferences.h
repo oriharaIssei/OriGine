@@ -27,7 +27,7 @@ private:
     /// エンティティの更新（Entity間の参照を解決する）
     /// </summary>
     /// <param name="_handle">エンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 };
 
 } // namespace OriGine

@@ -208,7 +208,7 @@ void EntityHierarchyRegion::DrawGui() {
 
 void EntityHierarchyRegion::Finalize() {}
 
-EntityHierarchyRegion::AddSelectedEntitiesCommand::AddSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, EntityHandle _addedEntityHandle)
+EntityHierarchyRegion::AddSelectedEntitiesCommand::AddSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy,const EntityHandle& _addedEntityHandle)
     : hierarchy_(_hierarchy), addedEntityHandle_(_addedEntityHandle) {}
 
 void EntityHierarchyRegion::AddSelectedEntitiesCommand::Execute() {
@@ -231,7 +231,7 @@ void EntityHierarchyRegion::AddSelectedEntitiesCommand::Undo() {
     }
 }
 
-EntityHierarchyRegion::RemoveSelectedEntitiesCommand::RemoveSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, EntityHandle _removedEntityHandle)
+EntityHierarchyRegion::RemoveSelectedEntitiesCommand::RemoveSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy,const EntityHandle& _removedEntityHandle)
     : hierarchy_(_hierarchy), removedEntityHandle_(_removedEntityHandle) {}
 
 void EntityHierarchyRegion::RemoveSelectedEntitiesCommand::Execute() {

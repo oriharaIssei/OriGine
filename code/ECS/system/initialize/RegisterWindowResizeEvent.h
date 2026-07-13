@@ -32,7 +32,7 @@ private:
     /// エンティティごとの更新処理（使用しない）
     /// </summary>
     /// <param name="_handle">エンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 
 private:
     int32_t spriteResizeEventIndex_    = -1; // スプライトのリサイズイベントのインデックス

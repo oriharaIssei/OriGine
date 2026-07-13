@@ -50,7 +50,7 @@ public:
     class AddSelectedEntitiesCommand
         : public IEditCommand {
     public:
-        AddSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, OriGine::EntityHandle _addedEntityId);
+        AddSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, const OriGine::EntityHandle& _addedEntityId);
         ~AddSelectedEntitiesCommand() override = default;
         void Execute() override;
         void Undo() override;
@@ -65,7 +65,7 @@ public:
     class RemoveSelectedEntitiesCommand
         : public IEditCommand {
     public:
-        RemoveSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, OriGine::EntityHandle _removedEntityHandle);
+        RemoveSelectedEntitiesCommand(EntityHierarchyRegion* _hierarchy, const OriGine::EntityHandle& _removedEntityHandle);
         ~RemoveSelectedEntitiesCommand() override = default;
         void Execute() override;
         void Undo() override;

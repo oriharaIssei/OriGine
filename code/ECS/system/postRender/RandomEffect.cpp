@@ -159,7 +159,7 @@ void RandomEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void RandomEffect::DispatchComponent(EntityHandle _handle) {
+void RandomEffect::DispatchComponent(const EntityHandle& _handle) {
     // activeなComponentをBlendModeごとに振り分ける
     auto& components = GetComponents<RandomEffectParam>(_handle);
 

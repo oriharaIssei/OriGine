@@ -25,7 +25,7 @@
 
 using namespace OriGine;
 
-void ParticleSystemEditor::Draw(ParticleSystem& _emitter, Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) {
+void ParticleSystemEditor::Draw(ParticleSystem& _emitter, Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) {
     if (EmitterEditor::Draw(_emitter.emitter_, _parentLabel, _scene)) {
         _emitter.CreateResource();
     }

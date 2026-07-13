@@ -36,7 +36,7 @@ void CameraActionSystem::Finalize() {}
 /// 各エンティティのカメラアクションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
+void CameraActionSystem::UpdateEntity(const EntityHandle& _handle) {
     auto action = GetComponent<CameraAction>(_handle);
     auto camera = GetComponent<CameraTransform>(_handle);
 

@@ -23,7 +23,7 @@ public:
     /// <param name="_scene">シーン</param>
     /// <param name="_entity">エンティティハンドル</param>
     /// <param name="_parentLabel">ラベルの親識別子</param>
-    static void Draw(ParticleSystem& _emitter, Scene* _scene, EntityHandle _entity, const std::string& _parentLabel);
+    static void Draw(ParticleSystem& _emitter, Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
 private:
     /// <summary>

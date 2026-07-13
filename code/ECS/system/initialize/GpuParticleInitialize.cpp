@@ -48,7 +48,7 @@ void GpuParticleInitialize::Finalize() {
     pso_ = nullptr;
 }
 
-void GpuParticleInitialize::UpdateEntity(EntityHandle _handle) {
+void GpuParticleInitialize::UpdateEntity(const EntityHandle& _handle) {
     auto& commandList = dxCommand_->GetCommandList();
 
     auto& gpuParticleVec = GetComponents<GpuParticleEmitter>(_handle);

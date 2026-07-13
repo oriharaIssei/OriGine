@@ -19,9 +19,9 @@ public:
     BoxRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
     ~BoxRenderer() override {}
 
-    void Initialize(Scene* _scene, EntityHandle _hostEntity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 };
 
 } // namespace OriGine

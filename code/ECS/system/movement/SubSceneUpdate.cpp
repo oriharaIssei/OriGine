@@ -13,7 +13,7 @@ using namespace OriGine;
 /// 各エンティティが持つサブシーンを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SubSceneUpdate::UpdateEntity(EntityHandle _handle) {
+void SubSceneUpdate::UpdateEntity(const EntityHandle& _handle) {
     auto& subScenes = GetComponents<SubScene>(_handle);
     if (subScenes.empty()) {
         return;

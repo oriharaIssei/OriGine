@@ -66,7 +66,7 @@ public:
     /// エンティティのラインレンダラーを登録し、トランスフォームを更新する
     /// </summary>
     /// <param name="_entity">対象のエンティティハンドル</param>
-    void DispatchRenderer(EntityHandle _entity) override;
+    void DispatchRenderer(const EntityHandle& _entity) override;
 
     /// <summary>
     /// レンダリングをスキップするかどうかを判定する

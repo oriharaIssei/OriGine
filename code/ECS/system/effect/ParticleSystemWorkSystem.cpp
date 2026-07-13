@@ -28,7 +28,7 @@ void ParticleSystemWorkSystem::Finalize() {
 /// 各エンティティのエミッターを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void ParticleSystemWorkSystem::UpdateEntity(EntityHandle _handle) {
+void ParticleSystemWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
 
     auto& emitters = GetComponents<ParticleSystem>(_handle);

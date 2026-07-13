@@ -46,12 +46,12 @@ protected:
     /// <summary>
     /// エンティティの包含AABBを計算
     /// </summary>
-    Bounds::AABB ComputeEntityAABB(EntityHandle _entity);
+    Bounds::AABB ComputeEntityAABB(const EntityHandle& _entity);
 
     /// <summary>
     /// エンティティペア間の衝突判定を行う
     /// </summary>
-    void CheckEntityPair(EntityHandle _aEntity, EntityHandle _bEntity);
+    void CheckEntityPair(const EntityHandle& _aEntity, const EntityHandle& _bEntity);
 
 protected:
     /// <summary>

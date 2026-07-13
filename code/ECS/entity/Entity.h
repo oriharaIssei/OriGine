@@ -28,7 +28,7 @@ class Entity {
     friend class EntityRepository;
 
 public:
-    Entity(const ::std::string& _dataType, int32_t _id, EntityHandle _handle, bool _isUnique = false)
+    Entity(const ::std::string& _dataType, int32_t _id, const EntityHandle& _handle, bool _isUnique = false)
         : dataType_(_dataType), id_(_id), handle_(_handle), isAlive_(true), isUnique_(_isUnique) {}
     Entity() = default;
 

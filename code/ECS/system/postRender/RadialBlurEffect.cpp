@@ -153,7 +153,7 @@ void RadialBlurEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void RadialBlurEffect::DispatchComponent(EntityHandle _handle) {
+void RadialBlurEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& components = GetComponents<RadialBlurParam>(_handle);
     if (components.empty()) {
         return;

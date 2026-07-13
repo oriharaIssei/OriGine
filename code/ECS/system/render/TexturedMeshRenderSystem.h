@@ -64,7 +64,7 @@ public:
     /// レンダラーを登録する
     /// </summary>
     /// <param name="_entity">対象のエンティティハンドル</param>
-    void DispatchRenderer(EntityHandle _entity) override;
+    void DispatchRenderer(const EntityHandle& _entity) override;
 
     /// <summary>
     /// レンダリング開始処理

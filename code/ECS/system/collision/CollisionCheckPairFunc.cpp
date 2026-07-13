@@ -13,7 +13,7 @@ namespace OriGine {
 /// Sphere vs Sphere の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Sphere& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f distance = (_shapeA.center_) - (_shapeB.center_);
 
@@ -60,7 +60,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// AABB vs Sphere の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _aabbEntity, EntityHandle _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const EntityHandle& _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
     Vec3f sphereCenter = _sphere.center_;
     Vec3f closest      = {0.f, 0.f, 0.f};
     Vec3f distance     = {0.f, 0.f, 0.f};
@@ -220,7 +220,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _aabbEntity, EntityHandle _s
 /// Sphere vs AABB の衝突判定の実装 (引数を入れ替えて AABB vs Sphere を呼び出す)
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::AABB, Bounds::Sphere>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 
@@ -228,7 +228,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// Sphere vs OBB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     auto& obb    = _shapeB;
     auto& sphere = _shapeA;
 
@@ -309,7 +309,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// OBB vs Sphere の衝突判定の実装 (引数を入れ替えて Sphere vs OBB を呼び出す)
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Sphere, Bounds::OBB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 };
 
@@ -317,7 +317,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// AABB vs AABB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::AABB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::AABB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f aabbAMin = _shapeA.Min();
     Vec3f aabbAMax = _shapeA.Max();
@@ -417,7 +417,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// OBB vs OBB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // === 頂点計算 ===
     auto computeVerts = [](const Bounds::OBB& obb) {
         std::array<Vec3f, 8> verts;
@@ -546,7 +546,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 /// AABB vs OBB の衝突判定の実装
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::AABB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::AABB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     // --- AABB を OBB と同じ形式に変換 ---
 
@@ -563,7 +563,7 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
 /// OBB vs AABB の衝突判定の実装 (引数を入れ替えて AABB vs OBB を呼び出す)
 /// </summary>
 template <>
-bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 順序を入れ替えて再利用
     return CheckCollisionPair<Bounds::AABB, Bounds::OBB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }

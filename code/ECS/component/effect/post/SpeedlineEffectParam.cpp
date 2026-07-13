@@ -20,14 +20,14 @@
 
 using namespace OriGine;
 
-void SpeedlineEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity) {
+void SpeedlineEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity) {
     if (isActive_) {
         cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
     LoadRadialTexture(radialTextureFilePath_);
 }
 
-void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         Play();

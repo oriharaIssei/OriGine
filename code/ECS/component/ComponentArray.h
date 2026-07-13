@@ -54,20 +54,20 @@ public:
     /// <summary>
     /// Entity登録
     /// </summary>
-    void RegisterEntity(EntityHandle _entity) override;
+    void RegisterEntity(const EntityHandle& _entity) override;
     /// <summary>
     /// Entity登録解除
     /// </summary>
     /// <param name="_scene"></param>
     /// <param name="_entity"></param>
-    void UnregisterEntity(EntityHandle _entity) override;
+    void UnregisterEntity(const EntityHandle& _entity) override;
 
     /// <summary>
     /// Entityが登録されているか
     /// </summary>
     /// <param name="_entity"></param>
     /// <returns></returns>
-    bool HasEntity(EntityHandle _entity) const override;
+    bool HasEntity(const EntityHandle& _entity) const override;
 
     // ────────────────────────────────
     //  component
@@ -75,7 +75,7 @@ public:
     /// <summary>
     /// Componentの追加
     /// </summary>
-    ComponentHandle AddComponent(Scene* _scene, EntityHandle _entity) override;
+    ComponentHandle AddComponent(Scene* _scene, const EntityHandle& _entity) override;
 
     /// <summary>
     /// Componentの挿入追加 (indexがsize以上なら最後尾に追加)
@@ -83,7 +83,7 @@ public:
     /// <param name="_entity"></param>
     /// <param name="_compIndex"></param>
     /// <returns></returns>
-    ComponentHandle InsertComponent(Scene* _scene, EntityHandle _entity, uint32_t _compIndex) override;
+    ComponentHandle InsertComponent(Scene* _scene, const EntityHandle& _entity, uint32_t _compIndex) override;
 
     /// <summary>
     /// Componentの削除
@@ -95,13 +95,13 @@ public:
     /// </summary>
     /// <param name="_handle"></param>
     /// <param name="_compIndex"></param>
-    void RemoveComponent(EntityHandle _handle, uint32_t _compIndex = 0) override;
+    void RemoveComponent(const EntityHandle& _handle, uint32_t _compIndex = 0) override;
 
     /// <summary>
     /// Entityが所有するComponent全ての削除
     /// </summary>
     /// <param name="_handle"></param>
-    void RemoveAllComponents(EntityHandle _handle) override;
+    void RemoveAllComponents(const EntityHandle& _handle) override;
 
     // ────────────────────────────────
     //  serialization
@@ -118,14 +118,14 @@ public:
     /// <param name="_handle"></param>
     /// <param name="_compIndex"></param>
     /// <param name="_outJson">保存先</param>
-    bool SaveComponent(EntityHandle _handle, uint32_t _compIndex, nlohmann::json& _outJson) override;
+    bool SaveComponent(const EntityHandle& _handle, uint32_t _compIndex, nlohmann::json& _outJson) override;
 
     /// <summary>
     /// 指定されたEntityが持つComponent全てを保存する
     /// </summary>
     /// <param name="_handle"></param>
     /// <param name="_outJson">保存先</param>
-    bool SaveComponents(EntityHandle _handle, nlohmann::json& _outJson) override;
+    bool SaveComponents(const EntityHandle& _handle, nlohmann::json& _outJson) override;
 
     /// <summary>
     /// JsonからComponentを復元し、Entityに追加する
@@ -135,7 +135,7 @@ public:
     /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
     ComponentHandle LoadComponent(
-        EntityHandle _handle,
+        const EntityHandle& _handle,
         const nlohmann::json& _inJson,
         HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
@@ -148,7 +148,7 @@ public:
     /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
     ComponentHandle LoadComponent(
-        EntityHandle _handle,
+        const EntityHandle& _handle,
         uint32_t _compIndex,
         const nlohmann::json& _inJson,
         HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
@@ -160,7 +160,7 @@ public:
     /// <param name="_inJson"></param>
     /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     void LoadComponents(
-        EntityHandle _handle,
+        const EntityHandle& _handle,
         const nlohmann::json& _inJson,
         HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
@@ -178,14 +178,14 @@ public:
     /// </summary>
     /// <param name="_component"></param>
     /// <returns></returns>
-    ComponentType* GetComponent(EntityHandle _handle, uint32_t _compIndex = 0);
+    ComponentType* GetComponent(const EntityHandle& _handle, uint32_t _compIndex = 0);
 
     /// <summary>
     /// Entityが所有するComponent全ての取得
     /// </summary>
     /// <param name="_handle"></param>
     /// <returns></returns>
-    std::vector<ComponentType>& GetComponents(EntityHandle _handle);
+    std::vector<ComponentType>& GetComponents(const EntityHandle& _handle);
 
     /// <summary>
     /// Componentの取得 (IComponent版)
@@ -198,21 +198,21 @@ public:
     /// </summary>
     /// <param name="_component"></param>
     /// <returns></returns>
-    IComponent* GetIComponent(EntityHandle _handle, uint32_t _compIndex = 0) override;
+    IComponent* GetIComponent(const EntityHandle& _handle, uint32_t _compIndex = 0) override;
 
     /// <summary>
     /// 指定したEntityが所有する全てのIComponentを取得する
     /// </summary>
     /// <param name="_handle"></param>
     /// <returns></returns>
-    std::vector<IComponent*> GetIComponents(EntityHandle _handle) override;
+    std::vector<IComponent*> GetIComponents(const EntityHandle& _handle) override;
 
     /// <summary>
     /// 指定したEntityが所有するComponent数を取得する
     /// </summary>
     /// <param name="_handle"></param>
     /// <returns></returns>
-    uint32_t GetComponentCount(EntityHandle _handle) const;
+    uint32_t GetComponentCount(const EntityHandle& _handle) const;
 
 public:
     /// <summary>

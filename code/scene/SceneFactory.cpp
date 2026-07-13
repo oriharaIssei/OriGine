@@ -231,7 +231,7 @@ nlohmann::json SceneFactory::CreateEntityJsonFromEntity(const Scene* _scene,Enti
 /// </summary>
 void SceneFactory::LoadEntitySystems(
 	Scene* _scene,
-	EntityHandle _entity,
+	const EntityHandle& _entity,
 	const nlohmann::json& _systemsJson){
 	auto& systems = _scene->systemRunner_->GetSystemsRef();
 	for(auto& sys : _systemsJson){
@@ -248,7 +248,7 @@ void SceneFactory::LoadEntitySystems(
 /// </summary>
 void SceneFactory::LoadEntityComponents(
 	Scene* _scene,
-	EntityHandle _entity,
+	const EntityHandle& _entity,
 	const nlohmann::json& _componentsJson,
 	HandleAssignMode _handleMode){
 	for(auto& [componentTypename,componentData] : _componentsJson.items()){

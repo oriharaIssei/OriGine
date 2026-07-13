@@ -55,11 +55,11 @@ public:
 
     virtual ~MeshRenderer() {}
 
-    virtual void Initialize(Scene* /*_scene*/, EntityHandle _owner) {
+    virtual void Initialize(Scene* /*_scene*/, const EntityHandle& _owner) {
         hostEntityHandle_ = _owner;
     }
 
-    void Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& /*_parentLabel*/) override {}
+    void Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& /*_parentLabel*/) override {}
 
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {

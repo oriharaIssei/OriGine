@@ -71,7 +71,7 @@ void InstancedMeshManager::Finalize() {
     primitiveTemplates_.clear();
 }
 
-InstanceHandle InstancedMeshManager::AddInstance(ModelMeshData* _modelData, EntityHandle _owner) {
+InstanceHandle InstancedMeshManager::AddInstance(ModelMeshData* _modelData, const EntityHandle& _owner) {
     InstanceHandle handle;
     handle.group = _modelData;
 

@@ -8,7 +8,7 @@
 
 using namespace OriGine;
 
-void LightTransformSyncSystem::UpdateEntity(EntityHandle _handle) {
+void LightTransformSyncSystem::UpdateEntity(const EntityHandle& _handle) {
     // PointLight の位置を Transform から同期
     {
         auto& pointLights = GetComponents<PointLight>(_handle);

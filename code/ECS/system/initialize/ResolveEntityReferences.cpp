@@ -25,7 +25,7 @@ void ResolveEntityReferences::Finalize() {}
 /// エンティティの更新（Entity間の参照を解決する）
 /// </summary>
 /// <param name="_handle">エンティティハンドル</param>
-void ResolveEntityReferences::UpdateEntity(EntityHandle _handle) {
+void ResolveEntityReferences::UpdateEntity(const EntityHandle& _handle) {
     // EntityReferenceListコンポーネントを取得
     auto& entityRefListArray = GetComponents<EntityReferenceList>(_handle);
     if (entityRefListArray.empty()) {

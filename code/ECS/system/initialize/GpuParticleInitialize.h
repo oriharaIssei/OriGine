@@ -43,7 +43,7 @@ protected:
     /// エンティティの更新（パーティクルエミッターの初期化）
     /// </summary>
     /// <param name="_handle">エンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 
     /// <summary>
     /// PSOの作成

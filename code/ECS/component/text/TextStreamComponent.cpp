@@ -6,7 +6,7 @@
 
 namespace OriGine {
 
-void TextStreamComponent::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
+void TextStreamComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
 	Reset();
 	textHash = 0;
 }
@@ -25,7 +25,7 @@ void TextStreamComponent::Skip() {
 	revealed = (std::numeric_limits<float>::max)();
 }
 
-void TextStreamComponent::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& _parentLabel) {
+void TextStreamComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& _parentLabel) {
 	std::string label = _parentLabel + "##TextStreamComponent";
 
 	ImGui::TextUnformatted("Text is owned by TextComponent.text");

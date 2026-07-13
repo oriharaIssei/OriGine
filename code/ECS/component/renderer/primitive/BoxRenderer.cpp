@@ -22,7 +22,7 @@
 
 using namespace OriGine;
 
-void BoxRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
+void BoxRenderer::Initialize(Scene* _scene, const EntityHandle& _entity) {
     MeshRenderer::Initialize(_scene, _entity);
 
     // デフォルトでインスタンシング描画を使用
@@ -48,7 +48,7 @@ void BoxRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
     }
 }
 
-void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

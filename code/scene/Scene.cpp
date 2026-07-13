@@ -283,7 +283,7 @@ void Scene::UpdateRaytracingScene() {
     meshForRaytracing_.clear();
 }
 
-void Scene::AddDeleteEntity(EntityHandle _entityId) {
+void Scene::AddDeleteEntity(const EntityHandle& _entityId) {
     if (!_entityId.IsValid()) {
         LOG_ERROR("Invalid entity ID: {}", uuids::to_string(_entityId.uuid));
         return;
@@ -300,7 +300,7 @@ ComponentRepository* Scene::GetComponentRepositoryRef() { return componentReposi
 const SystemRunner* Scene::GetSystemRunner() const { return systemRunner_.get(); }
 SystemRunner* Scene::GetSystemRunnerRef() { return systemRunner_.get(); }
 
-Entity* Scene::GetEntity(EntityHandle _handle) const {
+Entity* Scene::GetEntity(const EntityHandle& _handle) const {
     return entityRepository_->GetEntity(_handle);
 }
 
@@ -336,7 +336,7 @@ bool Scene::UnregisterUniqueEntity(Entity* _entity) {
     return false;
 }
 
-bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handle) {
+bool Scene::AddComponent(const ::std::string& _compTypeName, const EntityHandle& _handle) {
     if (!_handle.IsValid()) {
         LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;
@@ -345,7 +345,7 @@ bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handl
     return true;
 }
 
-bool Scene::RemoveComponent(const ::std::string& _compTypeName, EntityHandle _handle, int32_t _componentIndex) {
+bool Scene::RemoveComponent(const ::std::string& _compTypeName, const EntityHandle& _handle, int32_t _componentIndex) {
     if (!_handle.IsValid()) {
         LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;

@@ -31,7 +31,7 @@ void OriGine::DissolveAnimationSystem::Finalize() {}
 /// エンティティのディゾルブアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void OriGine::DissolveAnimationSystem::UpdateEntity(EntityHandle _handle) {
+void OriGine::DissolveAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
     auto* dissolveAnimComp  = GetComponent<DissolveAnimation>(_handle);
     auto* dissolveParamComp = GetComponent<DissolveEffectParam>(_handle);
 

@@ -6,10 +6,10 @@
 
 using namespace OriGine;
 
-void SquashStretchComponent::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {}
+void SquashStretchComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {}
 void SquashStretchComponent::Finalize() {}
 
-void SquashStretchComponent::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SquashStretchComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     DragGuiVectorCommand("Base Scale##" + _parentLabel, baseScale_, 0.01f);

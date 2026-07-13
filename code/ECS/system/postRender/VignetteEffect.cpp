@@ -161,7 +161,7 @@ void VignetteEffect::RenderEnd() {
 /// コンポーネントの割り当て
 /// </summary>
 /// <param name="_handle">エンティティ</param>
-void VignetteEffect::DispatchComponent(EntityHandle _handle) {
+void VignetteEffect::DispatchComponent(const EntityHandle& _handle) {
     auto& vignetteParams = GetComponents<VignetteParam>(_handle);
 
     if (vignetteParams.empty()) {

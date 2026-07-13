@@ -109,6 +109,6 @@ public:
 /// <param name="_type"></param>
 /// <param name="_isModelMesh"></param>
 /// <returns></returns>
-bool MeshIsDynamic(Scene* _scene, EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh = false);
+bool MeshIsDynamic(Scene* _scene, const EntityHandle& _entityHandle, RaytracingMeshType _type, bool _isModelMesh = false);
 
 }

@@ -8,9 +8,9 @@
 
 using namespace OriGine;
 
-void ICollider::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
+void ICollider::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
 
-void OriGine::ICollider::Edit(Scene* /*_scene*/, EntityHandle /*_handle*/, [[maybe_unused]] const std::string& _parentLabel) {
+void OriGine::ICollider::Edit(Scene* /*_scene*/, const EntityHandle& /*_handle*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);

@@ -53,11 +53,11 @@ void DebugCamera::Neutral::Update() {
     // Alt + 右クリックで回転状態へ遷移
     if (mouseInput->IsTrigger(MouseButton::LEFT) || mouseInput->IsWheel()) {
         host_->startMousePos_ = mouseInput->GetPosition();
-        host_->currentState_.reset(new TranslationState(host_));
+        host_->currentState_  = std::make_unique<TranslationState>(host_);
         return;
     } else if (mouseInput->IsTrigger(MouseButton::RIGHT)) {
         host_->startMousePos_ = mouseInput->GetPosition();
-        host_->currentState_.reset(new RotationState(host_));
+        host_->currentState_  = std::make_unique<RotationState>(host_);
         return;
     }
 }
@@ -122,7 +122,7 @@ void DebugCamera::RotationState::Update() {
     mouseInput->SetPosition(host_->startMousePos_);
 
     if (!mouseInput->IsPress(MouseButton::RIGHT) || !(keyInput->IsPress(Key::L_ALT) || keyInput->IsPress(Key::R_ALT))) {
-        host_->currentState_.reset(new Neutral(host_));
+        host_->currentState_ = std::make_unique<Neutral>(host_);
         return;
     }
 

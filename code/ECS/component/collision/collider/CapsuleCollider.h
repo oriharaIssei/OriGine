@@ -18,7 +18,7 @@ public:
     CapsuleCollider() : Collider<Bounds::Capsule>() {}
     ~CapsuleCollider() {}
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
 

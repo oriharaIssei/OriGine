@@ -8,6 +8,7 @@
 #include <memory>
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 /// engine
 #include "component/IComponent.h"
@@ -43,10 +44,10 @@ struct FormatChunk {
 struct SoundData {
     /// <summary>波形フォーマット</summary>
     WAVEFORMATEX wfex;
-    /// <summary>バッファの先頭ポインタ</summary>
-    BYTE* pBuffer = nullptr;
+    /// <summary>バッファ本体（RAII管理）</summary>
+    std::vector<BYTE> pBuffer;
     /// <summary>バッファサイズ</summary>
-    uint32_t bufferSize;
+    uint32_t bufferSize = 0;
 };
 
 /// <summary>
@@ -92,12 +93,12 @@ public:
     /// </summary>
     /// <param name="_scene">所属シーン（未使用）</param>
     /// <param name="_entity">所有者エンティティ（未使用）</param>
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
 
     /// <summary>
     /// エディタ用 UI 編集処理.
     /// </summary>
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 終了処理を行う. ソースボイスの破棄と音声データのアンロードを行う.
@@ -189,7 +190,7 @@ public:
     /// エンティティに紐付くすべての Audio コンポーネントを再生する.
     /// </summary>
     /// <param name="_entity">更新対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _entity) override;
+    void UpdateEntity(const EntityHandle& _entity) override;
 };
 
 } // namespace OriGine

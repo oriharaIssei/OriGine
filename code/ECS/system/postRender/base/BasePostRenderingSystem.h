@@ -61,7 +61,7 @@ protected:
     /// ポストエフェクトに使用するコンポーネントを有効な場合にリスト化する等の前処理
     /// </summary>
     /// <param name="_owner">エンティティハンドル</param>
-    virtual void DispatchComponent(EntityHandle /*_owner*/) {}
+    virtual void DispatchComponent(const EntityHandle& /*_owner*/) {}
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

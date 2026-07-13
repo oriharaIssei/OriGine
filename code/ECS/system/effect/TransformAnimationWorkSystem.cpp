@@ -14,7 +14,7 @@ using namespace OriGine;
 /// 各エンティティのトランスフォームアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void TransformAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+void TransformAnimationWorkSystem::UpdateEntity(const EntityHandle& _handle) {
     auto& animations = GetComponents<TransformAnimation>(_handle);
     if (animations.empty()) {
         return;

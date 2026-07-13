@@ -38,7 +38,7 @@ protected:
     /// 各エンティティのRigidbodyに基づいた物理移動を計算し、Transformを更新する
     /// </summary>
     /// <param name="_handle">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 
 protected:
     /// <summary>

@@ -59,7 +59,7 @@ void OriGine::from_json(const nlohmann::json& _j, SkinningAnimationComponent& _c
     }
 }
 
-void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _entity) {
+void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, const EntityHandle& _entity) {
     entityHandle_ = _entity;
 
     int32_t animationIndex = 0;
@@ -76,7 +76,7 @@ void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _ent
     }
 }
 
-void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

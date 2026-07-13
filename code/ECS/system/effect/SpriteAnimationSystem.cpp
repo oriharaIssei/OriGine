@@ -31,7 +31,7 @@ void SpriteAnimationSystem::Finalize() {}
 /// 各エンティティのスプライトアニメーションを更新する
 /// </summary>
 /// <param name="_handle">対象のエンティティハンドル</param>
-void SpriteAnimationSystem::UpdateEntity(EntityHandle _handle) {
+void SpriteAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
     std::vector<SpriteAnimation>& spriteAnimations = GetComponents<SpriteAnimation>(_handle);
     std::vector<SpriteRenderer>& spriteRenderers   = GetComponents<SpriteRenderer>(_handle);
 

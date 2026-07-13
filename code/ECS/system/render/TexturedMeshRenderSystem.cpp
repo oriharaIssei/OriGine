@@ -113,7 +113,7 @@ void OriGine::TexturedMeshRenderSystem::Update() {
     Rendering();
 }
 
-void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
+void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     auto entityTransform = GetComponent<Transform>(_entity);
 
     if (entityTransform) {

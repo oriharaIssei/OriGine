@@ -5,13 +5,13 @@
 
 namespace OriGine {
 
-void TextComponent::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
+void TextComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
 	dirty = true;
 }
 
 void TextComponent::Finalize() {}
 
-void TextComponent::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& _parentLabel) {
+void TextComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& _parentLabel) {
 	std::string label = _parentLabel + "##TextComponent";
 
 	char buf[256] = {};

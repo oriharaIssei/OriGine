@@ -20,7 +20,7 @@ void from_json(const nlohmann::json& _json, AABBCollider& _a) {
     }
 }
 
-void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ICollider::Edit(_scene, _handle, _parentLabel);

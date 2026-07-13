@@ -50,7 +50,7 @@ protected:
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity">対象のエンティティハンドル</param>
-    void DispatchRenderer(EntityHandle _entity) override;
+    void DispatchRenderer(const EntityHandle& _entity) override;
 
     /// <summary>
     /// BlendModeごとに描画を行う

@@ -383,15 +383,12 @@ void ModelManager::Initialize() {
     /*loadThread_ = ::std::make_unique<TaskThread<ModelManager::LoadTask>>();
     loadThread_->Initialize(1);*/
 
-    fovMa_           = ::std::make_unique<Matrix4x4>();
-    Matrix4x4* maPtr = new Matrix4x4();
-    *maPtr           = MakeMatrix4x4::PerspectiveFov(
+    fovMa_  = ::std::make_unique<Matrix4x4>();
+    *fovMa_ = MakeMatrix4x4::PerspectiveFov(
         Config::Camera::kDefaultFov,
         static_cast<float>(Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(Engine::GetInstance()->GetWinApp()->GetHeight()),
         Config::Camera::kDefaultNearClip,
         Config::Camera::kDefaultFarClip);
-    fovMa_.reset(
-        maPtr);
 
     dxCommand_ = ::std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");

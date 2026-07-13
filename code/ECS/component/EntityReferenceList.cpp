@@ -15,9 +15,9 @@ using namespace OriGine;
 EntityReferenceList::EntityReferenceList() {}
 EntityReferenceList::~EntityReferenceList() {}
 
-void EntityReferenceList:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {}
+void EntityReferenceList:: Initialize(Scene* /*_scene,*/, const EntityHandle& /*_owner*/) {}
 
-void EntityReferenceList::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void EntityReferenceList::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "##" + _parentLabel;

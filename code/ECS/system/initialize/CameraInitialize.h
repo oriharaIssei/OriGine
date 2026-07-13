@@ -28,7 +28,7 @@ private:
     /// エンティティの更新（カメラの初期化）
     /// </summary>
     /// <param name="_handle">エンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    void UpdateEntity(const EntityHandle& _handle) override;
 };
 
 } // namespace OriGine

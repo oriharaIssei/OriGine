@@ -20,7 +20,7 @@
 
 using namespace OriGine;
 
-void DissolveEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity) {
+void DissolveEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity) {
 
     if (!textureFilePath_.empty()) {
         textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(textureFilePath_);
@@ -55,7 +55,7 @@ void DissolveEffectParam::Play() {
     materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {

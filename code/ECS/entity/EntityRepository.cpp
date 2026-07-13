@@ -171,7 +171,7 @@ bool OriGine::EntityRepository::UnregisterUniqueEntity(Entity* _entity) {
 /// <summary>
 /// Entity 削除
 /// </summary>
-bool EntityRepository::RemoveEntity(EntityHandle _handle) {
+bool EntityRepository::RemoveEntity(const EntityHandle& _handle) {
     auto it = uuidToIndex_.find(_handle.uuid);
     if (it == uuidToIndex_.end()) {
         return false;
@@ -204,7 +204,7 @@ void OriGine::EntityRepository::Clear() {
 /// <summary>
 /// Entity 取得
 /// </summary>
-Entity* EntityRepository::GetEntity(EntityHandle _handle) {
+Entity* EntityRepository::GetEntity(const EntityHandle& _handle) {
     auto itr = uuidToIndex_.find(_handle.uuid);
     if (itr == uuidToIndex_.end()) {
         LOG_ERROR("Entity not fount. \n uuid : {}", uuids::to_string(_handle.uuid));
@@ -216,7 +216,7 @@ Entity* EntityRepository::GetEntity(EntityHandle _handle) {
 /// <summary>
 /// 生存チェック
 /// </summary>
-bool EntityRepository::IsAlive(EntityHandle _handle) const {
+bool EntityRepository::IsAlive(const EntityHandle& _handle) const {
     return uuidToIndex_.contains(_handle.uuid);
 }
 

@@ -21,9 +21,9 @@ public:
 	TextStreamComponent()           = default;
 	~TextStreamComponent() override = default;
 
-	void Initialize(Scene* _scene, EntityHandle _owner) override;
+	void Initialize(Scene* _scene, const EntityHandle& _owner) override;
 	void Finalize() override;
-	void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
+	void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
 
 	/// <summary>再生（一時停止からの再開）。</summary>
 	void Play() { playing = true; }

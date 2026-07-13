@@ -31,7 +31,7 @@ void TextStreamSystem::Initialize(){}
 
 void TextStreamSystem::Finalize(){}
 
-void OriGine::TextStreamSystem::UpdateEntity(EntityHandle _handle){
+void OriGine::TextStreamSystem::UpdateEntity(const EntityHandle& _handle){
 	float dt = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
 	Entity* entity = GetEntity(_handle);

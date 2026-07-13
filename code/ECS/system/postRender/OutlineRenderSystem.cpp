@@ -299,7 +299,7 @@ void OriGine::OutlineRenderSystem::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void OriGine::OutlineRenderSystem::DispatchComponent(EntityHandle _entity) {
+void OriGine::OutlineRenderSystem::DispatchComponent(const EntityHandle& _entity) {
     auto* outlineComp = GetComponent<OutlineComponent>(_entity);
 
     if (!outlineComp || !outlineComp->isActive) {

@@ -22,9 +22,9 @@ public:
     SquashStretchComponent()           = default;
     ~SquashStretchComponent() override = default;
 
-    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
     void Finalize() override;
-    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
 
 private:
     Vec3f baseScale_     = Vec3f(1.f, 1.f, 1.f);

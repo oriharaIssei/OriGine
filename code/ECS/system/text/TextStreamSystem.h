@@ -21,7 +21,7 @@ namespace OriGine {
 		void Initialize() override;
 		void Finalize() override;
 	private:
-		void UpdateEntity(EntityHandle _handle)override;
+		void UpdateEntity(const EntityHandle& _handle)override;
 
 	};
 

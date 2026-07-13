@@ -116,7 +116,7 @@ public:
     /// <param name="_modelData">共有モデルデータ（ModelManager 由来）</param>
     /// <param name="_owner">所有エンティティ</param>
     /// <returns>発行されたインスタンスハンドル</returns>
-    InstanceHandle AddInstance(ModelMeshData* _modelData, EntityHandle _owner);
+    InstanceHandle AddInstance(ModelMeshData* _modelData, const EntityHandle& _owner);
 
     /// <summary>
     /// ハンドルを指定してインスタンスを削除する.

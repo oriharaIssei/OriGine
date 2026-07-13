@@ -88,7 +88,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureCo
     }
 }
 
-void ModelMeshRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
+void ModelMeshRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
 
     if (!fileName_.empty()) {
@@ -148,7 +148,7 @@ void ModelMeshRenderer::InitializeMaterialBuffer() {
 
 void OriGine::CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
-    EntityHandle _hostEntity,
+    const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName,
     bool _usingDefaultTexture) {
@@ -190,7 +190,7 @@ void OriGine::CreateModelMeshRenderer(
 void OriGine::InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,
-    EntityHandle _hostEntity,
+    const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName) {
     if (!_renderer->GetMeshGroup()->empty()) {
@@ -241,7 +241,7 @@ void OriGine::InitializeMaterialFromModelFile(
 // ModelMeshRenderer - Editor (Debug Only)
 //==============================================================================
 
-void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "isRender##" + _parentLabel;
     CheckBoxCommand(label, isRender_);

@@ -71,7 +71,7 @@ public:
     /// エンティティに関連する描画情報をレンダリングパイプラインに登録する
     /// </summary>
     /// <param name="_entity">対象のエンティティハンドル</param>
-    virtual void DispatchRenderer(EntityHandle /*_entity*/){};
+    virtual void DispatchRenderer(const EntityHandle& /*_entity*/){};
 
     /// <summary>
     /// レンダリングをスキップするかどうかを判定する

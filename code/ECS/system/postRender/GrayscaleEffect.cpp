@@ -154,7 +154,7 @@ void GrayscaleEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void OriGine::GrayscaleEffect::DispatchComponent(EntityHandle _owner) {
+void OriGine::GrayscaleEffect::DispatchComponent(const EntityHandle& _owner) {
     auto& comps = GetComponents<GrayscaleComponent>(_owner);
     if (comps.empty()) {
         return;

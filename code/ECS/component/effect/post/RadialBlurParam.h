@@ -55,9 +55,9 @@ public:
     RadialBlurParam();
     ~RadialBlurParam();
 
-    void Initialize(Scene* _scene, EntityHandle _owner);
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
 
-    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel);
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
 
     void Finalize();
 
