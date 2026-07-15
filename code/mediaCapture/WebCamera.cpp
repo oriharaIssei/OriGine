@@ -228,7 +228,15 @@ void WebCamera::SetFrameCallback(CameraFrameCallback callback) {
 
 bool WebCamera::GetLatestFrame(std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight) {
     std::lock_guard<std::mutex> lock(frameMutex_);
-    if (latestFrame_.empty()) return false;
+    if (latestFrame_.empty() || width_ == 0 || height_ == 0) return false;
+
+    // latestFrame_ は BGRA タイトパック（width_*height_*4 バイト）である前提で
+    // 消費側（CameraGatekeeper::Evaluate 等）が cv::Mat 化して SIMD で読む。
+    // ストライド差異やフォーマット変更直後の過渡状態で curLength が想定サイズと
+    // 食い違うと、その前提が崩れてバッファ外読み取り（アクセス違反）になるため、
+    // ここで整合を検証できないフレームは破棄する（ヒープ外読み取り防止）。
+    const size_t expectedSize = static_cast<size_t>(width_) * static_cast<size_t>(height_) * 4;
+    if (latestFrame_.size() < expectedSize) return false;
 
     outBuffer = latestFrame_;
     outWidth  = width_;
