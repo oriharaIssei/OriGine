@@ -64,6 +64,12 @@ LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
 			}
 			return 0;
 
+		case WM_CHAR: // 文字入力 (IME 確定文字・Backspace(0x08)・Enter(0x0D) を含む)
+			if(pThis){
+				pThis->typedCharBuffer_.push_back(static_cast<wchar_t>(_wparam));
+			}
+			return 0;
+
 		case WM_CLOSE:
 			if(pThis && pThis->minimizeToTrayOnClose_ && pThis->trayEnabled_){
 				pThis->MinimizeToTray();
