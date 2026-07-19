@@ -84,7 +84,7 @@ namespace OriGine {
 		/// <param name="_dataType">エンティティのデータタイプ</param>
 		/// <param name="_isUnique">ユニークなエンティティとして登録するか</param>
 		/// <returns>作成されたエンティティのハンドル</returns>
-		const EntityHandle& CreateEntity(const std::string& _dataType,bool _isUnique = false);
+		EntityHandle CreateEntity(const std::string& _dataType,bool _isUnique = false);
 
 		/// <summary>
 		/// エンティティを取得する
@@ -98,7 +98,7 @@ namespace OriGine {
 		/// </summary>
 		/// <param name="_dataType">取得するエンティティのタイプ名</param>
 		/// <returns>取得したエンティティのハンドル</returns>
-		const EntityHandle& GetUniqueEntity(const std::string& _dataType);
+		EntityHandle GetUniqueEntity(const std::string& _dataType);
 
 		/// <summary>
 		/// コンポーネント配列を取得する
@@ -150,7 +150,7 @@ namespace OriGine {
 		/// <param name="_entity">対象のエンティティハンドル</param>
 		/// <returns>追加されたコンポーネントのハンドル</returns>
 		template <IsComponent ComponentType>
-		const ComponentHandle& AddComponent(const EntityHandle& _entity);
+		ComponentHandle AddComponent(const EntityHandle& _entity);
 
 		/// <summary>
 		/// コンポーネントを追加する
@@ -158,7 +158,7 @@ namespace OriGine {
 		/// <param name="_entity">対象のエンティティハンドル</param>
 		/// <param name="_typeName">型名</param>
 		/// <returns>追加されたコンポーネントのハンドル</returns>
-		const ComponentHandle& AddComponent(const EntityHandle& _entity,const ::std::string& _typeName);
+		ComponentHandle AddComponent(const EntityHandle& _entity,const ::std::string& _typeName);
 
 	protected:
 		std::vector<EntityHandle> entities_;
@@ -345,7 +345,7 @@ namespace OriGine {
 	/// <param name="_entity">対象のエンティティハンドル</param>
 	/// <returns>追加されたコンポーネントのハンドル</returns>
 	template <IsComponent ComponentType>
-	inline const ComponentHandle& ISystem::AddComponent(const EntityHandle& _entity){
+	inline ComponentHandle ISystem::AddComponent(const EntityHandle& _entity){
 		return GetComponentArray<ComponentType>()->AddComponent(scene_,_entity);
 	}
 

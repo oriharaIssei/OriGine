@@ -45,7 +45,7 @@ Entity* ISystem::GetEntity(const EntityHandle& _handle) {
 /// </summary>
 /// <param name="_dataTypeName">取得する型名</param>
 /// <returns>エンティティハンドル</returns>
-const EntityHandle& ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
+EntityHandle ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
         return EntityHandle();
@@ -59,7 +59,7 @@ const EntityHandle& ISystem::GetUniqueEntity(const ::std::string& _dataTypeName)
 /// <param name="_dataTypeName">作成する型名</param>
 /// <param name="_isUnique">ユニークなエンティティとして作成するか</param>
 /// <returns>作成したエンティティのハンドル</returns>
-const EntityHandle& ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isUnique) {
+EntityHandle ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isUnique) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
         return EntityHandle();
@@ -86,7 +86,7 @@ IComponentArray* ISystem::GetComponentArray(const ::std::string& _typeName) {
 /// <param name="_entity">対象のエンティティハンドル</param>
 /// <param name="_typeName">追加するコンポーネントの型名</param>
 /// <returns>追加したコンポーネントのハンドル</returns>
-const ComponentHandle& ISystem::AddComponent(const EntityHandle& _entity, const ::std::string& _typeName) {
+ComponentHandle ISystem::AddComponent(const EntityHandle& _entity, const ::std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not Set.");
         return ComponentHandle();
