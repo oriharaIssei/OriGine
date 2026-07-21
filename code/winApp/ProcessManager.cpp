@@ -13,28 +13,36 @@ namespace OriGine {
 
 namespace {
 
+/// <summary>
+/// EnumWindowProc からウィンドウ列挙結果の格納先とフォアグラウンドウィンドウを参照するための文脈情報.
+/// </summary>
 struct EnumContext {
     std::vector<WindowProcessInfo>* results;
     HWND foregroundHwnd;
 };
 
+/// <summary>
+/// EnumWindows に渡すコールバック. 実際に意味のある（可視・非子・非ツール）ウィンドウのみを抽出し、
+/// 所有プロセスの実行ファイル名を解決して results に追加する.
+/// </summary>
 BOOL CALLBACK EnumWindowProc(HWND hwnd, LPARAM lParam) {
-    if (!IsWindowVisible(hwnd)) return TRUE;
+    if (!IsWindowVisible(hwnd)) return TRUE; // 非表示ウィンドウは除外
 
     wchar_t title[512] = {};
     int titleLen = GetWindowTextW(hwnd, title, 512);
-    if (titleLen == 0) return TRUE;
+    if (titleLen == 0) return TRUE; // タイトルなしは除外
 
     DWORD style = static_cast<DWORD>(GetWindowLongW(hwnd, GWL_STYLE));
-    if (style & WS_CHILD) return TRUE;
+    if (style & WS_CHILD) return TRUE; // 子ウィンドウは除外
 
     DWORD exStyle = static_cast<DWORD>(GetWindowLongW(hwnd, GWL_EXSTYLE));
-    if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
+    if (exStyle & WS_EX_TOOLWINDOW) return TRUE; // ツールウィンドウ（タスクバー非表示用）は除外
 
     DWORD pid = 0;
     GetWindowThreadProcessId(hwnd, &pid);
     if (pid == 0) return TRUE;
 
+    // 実行ファイル名解決のため、必要最小限の権限でプロセスをオープン
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
     if (!hProcess) return TRUE;
 
@@ -44,7 +52,7 @@ BOOL CALLBACK EnumWindowProc(HWND hwnd, LPARAM lParam) {
     if (QueryFullProcessImageNameW(hProcess, 0, exePath, &exePathSize)) {
         std::wstring fullPath(exePath);
         auto pos = fullPath.find_last_of(L"\\/");
-        exeName = (pos != std::wstring::npos) ? fullPath.substr(pos + 1) : fullPath;
+        exeName = (pos != std::wstring::npos) ? fullPath.substr(pos + 1) : fullPath; // フルパスから実行ファイル名のみ抽出
     }
     CloseHandle(hProcess);
 
@@ -60,15 +68,21 @@ BOOL CALLBACK EnumWindowProc(HWND hwnd, LPARAM lParam) {
     info.isForeground = (hwnd == ctx->foregroundHwnd);
 
     ctx->results->push_back(std::move(info));
-    return TRUE;
+    return TRUE; // 列挙を継続
 }
 
+/// <summary>
+/// ワイド文字列（UTF-16）を UTF-8 の std::string へ変換する.
+/// WideCharToMultiByte を必要バイト数取得用と実変換用の2段階で呼び出す.
+/// </summary>
 std::string WideToUtf8(const std::wstring& wide) {
     if (wide.empty()) return {};
+    // 1回目: 変換後に必要なバイト数を取得
     int size = WideCharToMultiByte(CP_UTF8, 0, wide.data(),
         static_cast<int>(wide.size()), nullptr, 0, nullptr, nullptr);
     if (size <= 0) return {};
     std::string result(size, '\0');
+    // 2回目: 実際の変換を実施
     WideCharToMultiByte(CP_UTF8, 0, wide.data(),
         static_cast<int>(wide.size()), result.data(), size, nullptr, nullptr);
     return result;
@@ -130,12 +144,14 @@ bool ProcessManager::BringToForeground(HWND hwnd) {
     if (!IsWindow(hwnd)) return false;
 
     if (IsIconic(hwnd)) {
-        ShowWindow(hwnd, SW_RESTORE);
+        ShowWindow(hwnd, SW_RESTORE); // 最小化されている場合は元のサイズへ復元
     }
 
     DWORD foregroundThread = GetWindowThreadProcessId(::GetForegroundWindow(), nullptr);
     DWORD targetThread = GetWindowThreadProcessId(hwnd, nullptr);
 
+    // Windows の制限により、フォアグラウンドスレッド以外からの SetForegroundWindow は無視されることがあるため、
+    // 入力キューを一時的にアタッチしてから前面化し、直後にデタッチして元の状態へ戻す
     if (foregroundThread != targetThread) {
         AttachThreadInput(foregroundThread, targetThread, TRUE);
         SetForegroundWindow(hwnd);

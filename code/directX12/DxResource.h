@@ -147,5 +147,10 @@ public:
 } // namespace OriGine
 
 namespace std {
+/// <summary>
+/// DxResourceType を文字列に変換する.
+/// </summary>
+/// <param name="_type">リソースタイプ</param>
+/// <returns>タイプ名文字列</returns>
 string to_string(OriGine::DxResourceType _type);
 };

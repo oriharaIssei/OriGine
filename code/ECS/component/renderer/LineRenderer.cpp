@@ -81,6 +81,9 @@ public:
     AddLineCommand(std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& _meshGroup)
         : meshGroup_(_meshGroup), addedMeshIndex_(-1), vertex1Index_(-1), vertex2Index_(-1) {}
 
+    /// <summary>
+    /// ラインを1本追加する。末尾メッシュの空き容量が無ければ新しいメッシュを追加する
+    /// </summary>
     void Execute() override {
         Mesh<ColorVertexData>* mesh = &meshGroup_->back();
 
@@ -113,6 +116,9 @@ public:
         mesh->indexes_[vertex2Index_] = vertex2Index_;
     }
 
+    /// <summary>
+    /// Execute()で追加したラインを取り消す
+    /// </summary>
     void Undo() override {
         if (addedMeshIndex_ != -1) {
             // 新しく追加したメッシュを削除

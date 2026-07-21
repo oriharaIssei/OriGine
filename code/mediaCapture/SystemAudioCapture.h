@@ -16,11 +16,17 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 再生(レンダー)デバイス1台分の識別情報（ループバック対象の候補）。
+/// </summary>
 struct SystemAudioDeviceInfo {
     std::wstring id;
     std::wstring name;
 };
 
+/// <summary>
+/// ループバックで取得する音声フォーマット。
+/// </summary>
 struct SystemAudioFormat {
     uint32_t sampleRate    = 48000;
     uint16_t channels      = 2;
@@ -50,7 +56,13 @@ public:
     bool Open(const std::wstring& deviceId = L"");
     void Close();
 
+    /// <summary>
+    /// ポーリングキャプチャスレッドを起動する。
+    /// </summary>
     bool StartCapture();
+    /// <summary>
+    /// キャプチャスレッドを停止する。
+    /// </summary>
     void StopCapture();
 
     void SetDataCallback(SystemAudioDataCallback callback);
@@ -59,7 +71,9 @@ public:
     const SystemAudioFormat& GetFormat() const { return format_; }
 
 private:
+    // ポーリングで取得したパケットを変換・供給し、無音区間を実時間に応じて充填するワーカースレッド
     void CaptureThread();
+    // WASAPIの生バッファ（IEEE Float / PCM 8/16/24/32bit）をfloat PCMへ変換する
     void ConvertCaptureData(BYTE* data, UINT32 frameCount, DWORD flags, std::vector<float>& outBuffer) const;
 
     Microsoft::WRL::ComPtr<IMMDevice> device_;

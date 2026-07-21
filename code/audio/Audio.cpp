@@ -237,24 +237,25 @@ SoundData Audio::LoadWave(const std::string& _fileName) {
     DWORD dataSize = 0;
     std::vector<BYTE> dataBuffer;
 
+    // RIFF チャンクを先頭から順に走査し、fmt チャンク（フォーマット情報）と data チャンク（音声データ本体）を探し出す
     while (file.read(reinterpret_cast<char*>(&chunk), sizeof(chunk))) {
         std::streampos nextChunk = file.tellg();
-        nextChunk += chunk.size;
+        nextChunk += chunk.size; // 次のチャンクの開始位置を算出
 
         if (strncmp(chunk.id, "fmt ", 4) == 0) {
             foundFmt = true;
-            file.read(reinterpret_cast<char*>(&format.fmt), chunk.size);
+            file.read(reinterpret_cast<char*>(&format.fmt), chunk.size); // フォーマット情報を読み込む
         } else if (strncmp(chunk.id, "data", 4) == 0) {
             foundData = true;
             dataBuffer.resize(chunk.size);
-            file.read(reinterpret_cast<char*>(dataBuffer.data()), chunk.size);
+            file.read(reinterpret_cast<char*>(dataBuffer.data()), chunk.size); // 音声データ本体を読み込む
             dataSize = chunk.size;
         } else {
             // 未使用のチャンクはスキップ
             file.seekg(chunk.size, std::ios::cur);
         }
 
-        file.seekg(nextChunk);
+        file.seekg(nextChunk); // 次のチャンクの位置へシーク
     }
 
     if (!foundFmt || !foundData) {

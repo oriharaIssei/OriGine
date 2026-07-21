@@ -12,7 +12,7 @@ struct EntityHandle {
     EntityHandle() = default;
     EntityHandle(const uuids::uuid& _uuid) : uuid(_uuid) {}
 
-    uuids::uuid uuid{};
+    uuids::uuid uuid{}; // このHandleが指すEntityの一意なID
 
     bool operator==(const EntityHandle& _rhs) const {
         return uuid == _rhs.uuid;

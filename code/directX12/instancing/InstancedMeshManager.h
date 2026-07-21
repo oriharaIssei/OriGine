@@ -56,11 +56,11 @@ struct InstanceEntry {
 /// 同一テクスチャのインスタンスをまとめて1回の DrawIndexedInstanced で描画する.
 /// </summary>
 struct TextureBatch {
-    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = {};
-    uint32_t startInstance = 0;
-    uint32_t instanceCount = 0;
-    BlendMode blendMode    = BlendMode::Alpha;
-    bool isCulling         = true;
+    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = {}; // このバッチが参照するテクスチャのGPUハンドル
+    uint32_t startInstance = 0; // StructuredBuffer内でのバッチ開始インスタンス番号
+    uint32_t instanceCount = 0; // このバッチに含まれるインスタンス数
+    BlendMode blendMode    = BlendMode::Alpha; // このバッチのブレンドモード
+    bool isCulling         = true; // このバッチのカリング設定
 };
 
 /// <summary>

@@ -42,6 +42,10 @@ class Scene final {
     friend class SceneFactory;
 
 public:
+    /// <summary>
+    /// 指定した名前でシーンを構築する.
+    /// </summary>
+    /// <param name="_name">シーンの識別名</param>
     Scene(const ::std::string& _name);
     ~Scene();
 
@@ -106,7 +110,7 @@ protected:
     /// <summary>シーン固有の描画バッファ</summary>
     ::std::unique_ptr<RenderTexture> sceneView_ = nullptr;
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    std::unique_ptr<DxCommand> dxCommand_ = nullptr; // シーン専用の描画コマンド発行用オブジェクト
 
     /// <summary>エンティティのストレージ</summary>
     ::std::unique_ptr<EntityRepository> entityRepository_ = nullptr;
@@ -138,7 +142,9 @@ public:
     /// <summary>シーンのアクティブ状態を設定する.</summary>
     void SetActive(bool _isActive) { isActive_ = _isActive; }
 
+    /// <summary>レイトレーシングシーンを取得する.</summary>
     const RaytracingScene* GetRaytracingScene() const { return raytracingScene_.get(); }
+    /// <summary>レイトレーシングシーンを取得する (非 const 版).</summary>
     RaytracingScene* GetRaytracingSceneRef() { return raytracingScene_.get(); }
 
     /// <summary>シーンマネージャーを取得する.</summary>
@@ -227,6 +233,12 @@ public:
     template <IsComponent ComponentType>
     ComponentType* GetComponent(const EntityHandle& _handle, uint32_t _index = 0) const;
 
+    /// <summary>
+    /// コンポーネントハンドルを指定してコンポーネントを取得する.
+    /// </summary>
+    /// <typeparam name="ComponentType">取得したいコンポーネントの型</typeparam>
+    /// <param name="_handle">コンポーネントハンドル</param>
+    /// <returns>コンポーネントへのポインタ. 存在しない場合は nullptr</returns>
     template <IsComponent ComponentType>
     ComponentType* GetComponent(ComponentHandle _handle) const;
 

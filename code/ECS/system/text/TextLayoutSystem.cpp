@@ -4,6 +4,13 @@ namespace OriGine {
 
 namespace {
 
+/// <summary>
+/// UTF-8 文字列の先頭1文字をUnicodeコードポイントにデコードする。
+/// </summary>
+/// <param name="_str">デコード対象の文字列の先頭ポインタ</param>
+/// <param name="_len">_str から読み取り可能な残りバイト数</param>
+/// <param name="_outBytes">消費したバイト数の出力先</param>
+/// <returns>デコードされたコードポイント（不正な場合は 0xFFFD）</returns>
 uint32_t DecodeUtf8(const char* _str, size_t _len, size_t& _outBytes) {
 	if (_len == 0) { _outBytes = 0; return 0; }
 
@@ -30,12 +37,18 @@ uint32_t DecodeUtf8(const char* _str, size_t _len, size_t& _outBytes) {
 	return 0xFFFD;
 }
 
+/// <summary>
+/// 指定コードポイントがCJK（日本語・中国語・韓国語）文字かどうかを判定する。
+/// </summary>
 bool IsCjk(uint32_t _cp) {
 	return (_cp >= 0x3000 && _cp <= 0x9FFF) ||
 		   (_cp >= 0xF900 && _cp <= 0xFAFF) ||
 		   (_cp >= 0xFF00 && _cp <= 0xFFEF);
 }
 
+/// <summary>
+/// 指定コードポイントの直前で行折り返しが可能かどうかを判定する。
+/// </summary>
 bool CanBreakBefore(uint32_t _cp) {
 	if (IsCjk(_cp)) return true;
 	if (_cp == ' ' || _cp == '\t') return true;
@@ -44,6 +57,13 @@ bool CanBreakBefore(uint32_t _cp) {
 
 } // namespace
 
+/// <summary>
+/// テキストコンポーネントのレイアウトを計算し、グリフクアッド列を生成する。
+/// </summary>
+/// <param name="_font">使用するフォント（必要なグリフがあれば追加生成される）</param>
+/// <param name="_text">対象のテキストコンポーネント</param>
+/// <param name="_result">レイアウト結果の出力先</param>
+/// <param name="_consumeDirty">true なら計算後に TextComponent::dirty をクリアする</param>
 void TextLayoutSystem::UpdateLayout(BitmapFont& _font, TextComponent& _text, TextLayoutResult& _result, bool _consumeDirty) {
 	if (!_text.dirty && _result.valid) return;
 
@@ -144,6 +164,7 @@ void TextLayoutSystem::UpdateLayout(BitmapFont& _font, TextComponent& _text, Tex
 
 	lines.back().width = cursorX - startX;
 
+	// 左揃え以外の場合、行ごとの幅に応じて各グリフクアッドをX方向にオフセットする
 	if (_text.align != TextAlign::Left) {
 		float totalWidth = (wrapWidth > 0.0f) ? wrapWidth : (maxX - startX);
 		for (auto& line : lines) {

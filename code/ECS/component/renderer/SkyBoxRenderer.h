@@ -46,15 +46,21 @@ public:
     SkyboxRenderer() : MeshRenderer() {}
     ~SkyboxRenderer() {}
 
+    /// <summary>
+    /// メッシュ・バッファの生成やテクスチャ読み込みなど、天空箱描画に必要な初期化を行う
+    /// </summary>
     void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
+    /// <summary>
+    /// エディタ上で天空箱のテクスチャ・マテリアルを編集するGUIを描画する
+    /// </summary>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
 private:
-    std::string filePath_;
-    IConstantBuffer<Transform> transformBuff_;
-    IConstantBuffer<SkyboxMaterial> materialBuff_;
+    std::string filePath_; // 読み込んだキューブマップテクスチャのファイルパス
+    IConstantBuffer<Transform> transformBuff_; // 座標変換用定数バッファ
+    IConstantBuffer<SkyboxMaterial> materialBuff_; // 天空箱マテリアル用定数バッファ
 
-    size_t textureIndex_ = 0;
+    size_t textureIndex_ = 0; // 読み込んだテクスチャのインデックス
 
 public:
     void SetTextureIndex(size_t _textureIndex) {

@@ -68,9 +68,9 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    std::array<PipelineStateObj*, static_cast<size_t>(kBlendNum)> psoByBlendMode_ = {};
-    std::vector<RandomEffectParam*> activeParams_                                 = {};
-    BlendMode currentBlend_                                                       = BlendMode::Alpha;
+    std::array<PipelineStateObj*, static_cast<size_t>(kBlendNum)> psoByBlendMode_ = {}; // ブレンドモードごとのPSO
+    std::vector<RandomEffectParam*> activeParams_                                 = {}; // 今回の更新で描画対象となったパラメータ一覧
+    BlendMode currentBlend_                                                       = BlendMode::Alpha; // 描画中に使用しているブレンドモード
 };
 
 } // namespace OriGine

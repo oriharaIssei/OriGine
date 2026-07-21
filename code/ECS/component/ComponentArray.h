@@ -219,19 +219,19 @@ public:
     /// コンポーネントの位置情報
     /// </summary>
     struct ComponentLocation {
-        uint32_t entitySlot;
-        uint32_t componentIndex;
+        uint32_t entitySlot; // 所属するEntitySlotのDenseSlotMap上の安定ID
+        uint32_t componentIndex; // EntitySlot::components内でのインデックス
     };
     /// <summary>
     /// コンポーネントのスロット内インデックス
     /// </summary>
     struct EntitySlot {
-        EntityHandle owner{};
-        std::vector<ComponentType> components;
+        EntityHandle owner{}; // このスロットを所有するEntity
+        std::vector<ComponentType> components; // 所有するComponent本体の配列
     };
 
 private:
-    DenseSlotMap<EntitySlot> slots_;
+    DenseSlotMap<EntitySlot> slots_; // Entity単位でComponent群を保持する実データ本体
 
     // entity uuid -> DenseSlotMap stable ID
     std::unordered_map<uuids::uuid, uint32_t> entitySlotMap_;

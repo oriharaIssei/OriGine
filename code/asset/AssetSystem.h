@@ -21,10 +21,20 @@ namespace OriGine {
 /// </summary>
 class AssetSystem {
 public:
+    /// <summary>
+    /// AssetSystemのシングルトンインスタンスを取得する.
+    /// </summary>
+    /// <returns></returns>
     static AssetSystem* GetInstance();
 
 public:
+    /// <summary>
+    /// アセットシステムを初期化する.
+    /// </summary>
     void Initialize();
+    /// <summary>
+    /// アセットシステムを終了処理する.
+    /// </summary>
     void Finalize();
 
     /// <summary>
@@ -74,9 +84,14 @@ private:
     AssetSystem(const AssetSystem&)            = delete;
 
 private:
-    std::unordered_map<std::type_index, std::unique_ptr<IAssetManager>> managers_;
+    std::unordered_map<std::type_index, std::unique_ptr<IAssetManager>> managers_; // 型ごとに登録されたAssetManagerの一覧
 
 public:
+    /// <summary>
+    /// 登録済みのAssetManagerを型指定で取得する.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>未登録の場合はnullptr</returns>
     template <IsAsset T>
     AssetManager<T>* GetManager();
 };

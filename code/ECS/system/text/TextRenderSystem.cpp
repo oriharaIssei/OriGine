@@ -13,12 +13,21 @@
 
 namespace OriGine {
 
-	static constexpr uint32_t kVerticesPerQuad = 4;
-	static constexpr uint32_t kIndicesPerQuad = 6;
+	static constexpr uint32_t kVerticesPerQuad = 4; // 1クアッドあたりの頂点数
+	static constexpr uint32_t kIndicesPerQuad = 6; // 1クアッドあたりのインデックス数
 
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
 	TextRenderSystem::TextRenderSystem(): BaseRenderSystem(){}
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	TextRenderSystem::~TextRenderSystem() = default;
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void TextRenderSystem::Initialize(){
 		BaseRenderSystem::Initialize();
 
@@ -40,6 +49,7 @@ namespace OriGine {
 
 		indexBuffer_.CreateBufferResource(device,ibSize);
 
+		// 各クアッドを2つの三角形（6インデックス）として構成するインデックスを事前生成する
 		uint16_t* indexData = nullptr;
 		indexBuffer_.GetResource()->Map(0,nullptr,reinterpret_cast<void**>(&indexData));
 		for(uint32_t i = 0; i < maxQuads_; ++i){
@@ -71,6 +81,9 @@ namespace OriGine {
 		}
 	}
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void TextRenderSystem::Finalize(){
 		layoutCache_.clear();
 		constBuffer_.Finalize();
@@ -89,6 +102,11 @@ namespace OriGine {
 		BaseRenderSystem::Finalize();
 	}
 
+	/// <summary>
+	/// 指定フォントのGPUアトラスを取得する。未生成なら生成し、内容が更新されていれば再アップロードする。
+	/// </summary>
+	/// <param name="_font">対象のフォント</param>
+	/// <returns>対応するGPUアトラスへの参照</returns>
 	TextRenderSystem::FontAtlasGpu& TextRenderSystem::EnsureAtlas(BitmapFont* _font){
 		auto& gpu = atlases_[_font];
 		if(!gpu.created){
@@ -99,6 +117,9 @@ namespace OriGine {
 		return gpu;
 	}
 
+	/// <summary>
+	/// フォントのグリフアトラスからGPUテクスチャを新規作成し、アップロードする。
+	/// </summary>
 	void TextRenderSystem::CreateAtlasTexture(BitmapFont& _font, FontAtlasGpu& _gpu){
 		int w = _font.GetAtlasWidth();
 		int h = _font.GetAtlasHeight();
@@ -106,6 +127,7 @@ namespace OriGine {
 
 		auto device = Engine::GetInstance()->GetDxDevice()->device_;
 
+		// アトラスはグレースケール(A)のみを保持しているため、RGBは白固定でアルファチャンネルに展開する
 		std::vector<uint8_t> rgba(w * h * 4);
 		for(int i = 0; i < w * h; ++i){
 			rgba[i * 4 + 0] = 255;
@@ -128,6 +150,7 @@ namespace OriGine {
 		D3D12_HEAP_PROPERTIES heapProps = {};
 		heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
+		// コピー先となるデフォルトヒープ上のテクスチャリソースを作成
 		device->CreateCommittedResource(
 			&heapProps,D3D12_HEAP_FLAG_NONE,
 			&texDesc,D3D12_RESOURCE_STATE_COPY_DEST,
@@ -198,6 +221,10 @@ namespace OriGine {
 		_font.ClearAtlasDirty();
 	}
 
+	/// <summary>
+	/// 既存のGPUアトラステクスチャへ、更新されたグリフアトラスの内容を再アップロードする。
+	/// サイズが変化している場合はテクスチャを作り直す。
+	/// </summary>
 	void TextRenderSystem::ReuploadAtlasTexture(BitmapFont& _font, FontAtlasGpu& _gpu){
 		int w = _font.GetAtlasWidth();
 		int h = _font.GetAtlasHeight();
@@ -285,6 +312,10 @@ namespace OriGine {
 		_font.ClearAtlasDirty();
 	}
 
+	/// <summary>
+	/// 描画対象コンポーネントの割り当て。テキストのレイアウトを計算し、可視なクアッドがあれば描画エントリに登録する。
+	/// </summary>
+	/// <param name="_entity">エンティティハンドル</param>
 	void TextRenderSystem::DispatchRenderer(const EntityHandle& _entity){
 		auto& texts = GetComponents<TextComponent>(_entity);
 
@@ -303,6 +334,10 @@ namespace OriGine {
 		}
 	}
 
+	/// <summary>
+	/// renderEntries_ のレイアウト結果から頂点バッファを構築する。
+	/// 必要クアッド数が maxQuads_ を超える場合はバッファを拡張して作り直す。
+	/// </summary>
 	void TextRenderSystem::RebuildVertexBuffer(){
 		quadCount_ = 0;
 		for(auto& e : renderEntries_){
@@ -310,6 +345,7 @@ namespace OriGine {
 		}
 		if(quadCount_ == 0) return;
 
+		// 必要クアッド数が現在の確保サイズを超えたら、余裕を持たせて（2倍）バッファを作り直す
 		if(quadCount_ > maxQuads_){
 			vertexBuffer_.Finalize();
 			indexBuffer_.Finalize();
@@ -358,6 +394,10 @@ namespace OriGine {
 		vertexBuffer_.GetResource()->Unmap(0,nullptr);
 	}
 
+	/// <summary>
+	/// レンダリング処理。フォントアトラスを準備し、頂点バッファを構築したうえで、
+	/// 同一フォントの連続区間をまとめてドローコールを発行する。
+	/// </summary>
 	void TextRenderSystem::Rendering(){
 		// 使用される全フォントのアトラスを準備（ダーティなら再アップロード）
 		for(auto& e : renderEntries_){
@@ -426,6 +466,9 @@ namespace OriGine {
 		renderEntries_.clear();
 	}
 
+	/// <summary>
+	/// レンダリング開始処理
+	/// </summary>
 	void TextRenderSystem::StartRender(){
 		auto& cmdList = dxCommand_->GetCommandList();
 		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -434,10 +477,17 @@ namespace OriGine {
 		cmdList->SetDescriptorHeaps(1,ppHeaps);
 	}
 
+	/// <summary>
+	/// レンダリングをスキップするかどうか
+	/// </summary>
+	/// <returns>描画対象エントリがない場合は true</returns>
 	bool TextRenderSystem::ShouldSkipRender() const{
 		return renderEntries_.empty();
 	}
 
+	/// <summary>
+	/// PSO作成
+	/// </summary>
 	void TextRenderSystem::CreatePSO(){
 		ShaderManager* sm = ShaderManager::GetInstance();
 

@@ -10,8 +10,15 @@ namespace OriGine {
 /// </summary>
 class ComponentRegistry final {
 public:
+    /// <summary>
+    /// シングルトンインスタンスを取得する
+    /// </summary>
     static ComponentRegistry* GetInstance();
 
+    /// <summary>
+    /// ComponentTypeに対応するComponentArrayの複製関数を登録する
+    /// </summary>
+    /// <param name="_makeCloneFunc">ComponentArrayを生成するファクトリ関数(省略時はデフォルトのnew)</param>
     template <IsComponent ComponentType>
     void RegisterComponent(
         std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc =
@@ -19,9 +26,18 @@ public:
             return std::make_unique<ComponentArray<ComponentType>>();
         });
 
+    /// <summary>
+    /// 登録済みのファクトリ関数からComponentArrayを複製生成する(型指定版)
+    /// </summary>
+    /// <returns>生成されたComponentArray</returns>
     template <IsComponent ComponentType>
     std::unique_ptr<IComponentArray> CloneComponentArray();
 
+    /// <summary>
+    /// 登録済みのファクトリ関数からComponentArrayを複製生成する(型名指定版)
+    /// </summary>
+    /// <param name="_compTypeName">ComponentTypeの型名</param>
+    /// <returns>生成されたComponentArray</returns>
     std::unique_ptr<IComponentArray> CloneComponentArray(const std::string& _compTypeName);
 
 private:
@@ -31,10 +47,10 @@ private:
     ComponentRegistry& operator=(const ComponentRegistry&) = delete;
 
 private:
-    std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_;
+    std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_; // 型名 -> ComponentArray生成関数
 
 #ifdef _DEBUG
-    std::vector<std::string> componentTypeNames_;
+    std::vector<std::string> componentTypeNames_; // デバッグ用: 登録済みComponent型名の一覧
 #endif // _DEBUG
 
 public:
@@ -59,6 +75,7 @@ void ComponentRegistry::RegisterComponent(
     std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc) {
     std::string typeName = nameof<ComponentType>();
     if (cloneMaker_.find(typeName) != cloneMaker_.end()) {
+        // 二重登録は上書きされるだけなので警告のみ出す
         LOG_WARN("ComponentRegistry: ComponentArray already registered for type: {}", typeName);
     }
     cloneMaker_[typeName] = _makeCloneFunc;

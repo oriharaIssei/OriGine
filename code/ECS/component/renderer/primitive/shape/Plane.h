@@ -17,9 +17,9 @@ public:
     void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
-    Vec2f size_   = {1.0f, 1.0f};
-    Vec2f uv_     = {1.0f, 1.0f};
-    Vec3f normal_ = {0.0f, 0.0f, 1.0f};
+    Vec2f size_   = {1.0f, 1.0f}; // 平面の幅・高さ
+    Vec2f uv_     = {1.0f, 1.0f}; // UV座標のスケール
+    Vec3f normal_ = {0.0f, 0.0f, 1.0f}; // 平面の法線方向
 };
 
 } // namespace Primitive

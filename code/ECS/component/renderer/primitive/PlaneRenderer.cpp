@@ -35,7 +35,7 @@ void PlaneRenderer::Initialize(Scene* _scene, const EntityHandle& _entity) {
 
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();
-    mesh.Initialize(4, 6);
+    mesh.Initialize(4, 6); // 頂点4個・インデックス6個(三角形2枚)分の領域を確保
 
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);

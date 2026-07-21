@@ -18,7 +18,7 @@ namespace OriGine {
 class Scene;
 class IComponent;
 
-static constexpr uint32_t kDefaultComponentArraySize = 128;
+static constexpr uint32_t kDefaultComponentArraySize = 128; // ComponentArray初期化時のデフォルト予約サイズ
 
 //============================================================
 // IComponentArray
@@ -30,7 +30,14 @@ class IComponentArray {
 public:
     virtual ~IComponentArray() = default;
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
+    /// <param name="_reserveSize">初期Arrayサイズ</param>
     virtual void Initialize(uint32_t _reserveSize = kDefaultComponentArraySize) = 0;
+    /// <summary>
+    /// 終了化処理
+    /// </summary>
     virtual void Finalize()                                                     = 0;
 
     /// <summary>

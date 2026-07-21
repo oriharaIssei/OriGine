@@ -29,16 +29,33 @@ public:
     IComponent();
     virtual ~IComponent();
 
+    /// <summary>
+    /// 初期化処理(派生クラスで実装)
+    /// </summary>
+    /// <param name="_scene">所属するScene</param>
+    /// <param name="_owner">このComponentを所有するEntity</param>
     virtual void Initialize(Scene* _scene, const EntityHandle& _owner) = 0;
+    /// <summary>
+    /// 終了処理(派生クラスで実装)
+    /// </summary>
     virtual void Finalize()                                     = 0;
 
+    /// <summary>
+    /// エディタ上での編集UIを描画する処理(派生クラスで実装)
+    /// </summary>
+    /// <param name="_scene">所属するScene</param>
+    /// <param name="_owner">このComponentを所有するEntity</param>
+    /// <param name="_parentLabel">親階層のImGuiラベル(ID衝突回避用)</param>
     virtual void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) = 0;
+    /// <summary>
+    /// デバッグ表示処理。デフォルトではEditと同じ内容を表示する
+    /// </summary>
     virtual void Debug(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) {
         Edit(_scene, _owner, _parentLabel);
     }
 
 private:
-    ComponentHandle handle_{};
+    ComponentHandle handle_{}; // このComponent自身を一意に識別するHandle
 
 public:
     ComponentHandle GetHandle() const { return handle_; }

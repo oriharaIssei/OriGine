@@ -19,7 +19,7 @@ namespace OriGine {
 // ECS
 class EntityRepository;
 
-static constexpr int32_t kInvalidEntityID = -1;
+static constexpr int32_t kInvalidEntityID = -1; // 無効なEntity IDを表す値
 
 /// <summary>
 /// 実体を表すクラス (実際にはIDでしか無い)
@@ -35,13 +35,13 @@ public:
     ~Entity() = default;
 
 private:
-    ::std::string dataType_ = "UNKNOWN";
+    ::std::string dataType_ = "UNKNOWN"; // Entityの種別を表す文字列
 
-    int32_t id_          = kInvalidEntityID;
-    EntityHandle handle_ = EntityHandle();
-    bool isAlive_        = false;
-    bool isUnique_       = false;
-    bool shouldSave_     = true;
+    int32_t id_          = kInvalidEntityID; // 同一dataType_内での識別番号
+    EntityHandle handle_ = EntityHandle(); // このEntityを一意に識別するHandle
+    bool isAlive_        = false; // 生存フラグ
+    bool isUnique_       = false; // シーン内で唯一の存在かどうか
+    bool shouldSave_     = true; // シーン保存時に書き出す対象かどうか
 
 public:
     /// <summary>

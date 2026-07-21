@@ -75,6 +75,7 @@ void ScreenRecorder::Stop() {
     if (!active_) return;
     active_ = false;
 
+    // これ以降のフレームがレコーダへ渡らないようコールバックを解除する。
     if (screen_) {
         screen_->SetFrameCallback(nullptr);
         screen_ = nullptr;

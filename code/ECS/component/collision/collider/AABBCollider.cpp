@@ -42,6 +42,7 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const E
 
 void AABBCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
+    // ワールド行列で中心を変換し、スケールをハーフサイズに反映する
     this->worldShape_.center   = shape_.center * transform_.worldMat;
     this->worldShape_.halfSize = shape_.halfSize * transform_.GetWorldScale();
 }

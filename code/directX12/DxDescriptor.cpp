@@ -6,6 +6,7 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> OriGine::CreateHeap(Microsoft::WRL:
 
     D3D12_DESCRIPTOR_HEAP_DESC rtvDesc{};
 
+    // ヒープの種類・要素数・シェーダー可視性を設定して構築情報を組み立てる
     rtvDesc.Type           = _heapType;
     rtvDesc.NumDescriptors = _numDescriptors;
     rtvDesc.Flags          = _shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -14,6 +15,7 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> OriGine::CreateHeap(Microsoft::WRL:
         &rtvDesc,
         IID_PPV_ARGS(&descriptorHeap));
 
+    // 生成結果をログに出力（失敗時はアサートで検知）
     if (SUCCEEDED(hr)) {
         LOG_DEBUG("Create DescriptorHeap\n Type : {} \n NumDescriptors : {}", std::to_string(_heapType), std::to_string(_numDescriptors));
     } else {

@@ -162,6 +162,7 @@ inline bool ComponentRepository::RegisterComponentArray() {
     }
 
     if (ComponentRegistry::GetInstance()->HasComponentArray(typeName)) {
+        // ComponentRegistryに登録済みのファクトリからComponentArrayの実体を複製生成する
         componentArrays_[typeName] = std::move(ComponentRegistry::GetInstance()->CloneComponentArray<ComponentType>());
         componentArrays_[typeName]->Initialize(1000);
     } else {
@@ -176,6 +177,7 @@ inline ComponentArray<ComponentType>* ComponentRepository::GetComponentArray() {
     std::string typeName = nameof<ComponentType>();
     auto itr             = componentArrays_.find(typeName);
     if (itr == componentArrays_.end()) {
+        // 未登録の場合はここで遅延登録する
         if (RegisterComponentArray<ComponentType>()) {
             itr = componentArrays_.find(typeName);
         } else {
@@ -216,6 +218,7 @@ inline ComponentType* ComponentRepository::GetComponent(ComponentHandle _handle)
 
 template <IsComponent... ComponentType>
 inline void ComponentRepository::AddComponent(Scene* _scene, const EntityHandle& _handle) {
+    // フォールド式で、パラメータパック内の各型に対してAddComponentを順に呼び出す
     (this->GetComponentArray<ComponentType>()->AddComponent(_scene, _handle), ...);
 }
 

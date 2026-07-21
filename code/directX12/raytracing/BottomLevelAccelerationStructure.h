@@ -57,11 +57,11 @@ private:
     DxResource scratchResource_; // 生成時リソース (D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESCに格納されるため必要)
     DxResource resultResource_; // BLASの結果リソース
 
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs_{};
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc_{};
-    D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc_{};
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs_{}; // BLASビルドに必要な入力情報（ジオメトリ数・フラグ等）
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc_{}; // BLASビルド/更新コマンド発行用の記述子
+    D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc_{}; // 頂点・インデックスバッファを参照するジオメトリ記述子
 
-    bool allowUpdate_ = false;
+    bool allowUpdate_ = false; // 生成後にIn-Place更新（Refit）を許可するかどうか
 
 public:
     /// <summary>

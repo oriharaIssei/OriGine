@@ -32,6 +32,9 @@ using namespace OriGine;
 //===========================================================================
 // unorderedMap 用
 //===========================================================================
+/// <summary>
+/// 頂点の重複判定に使用するキー. 位置・法線・UV・色が全て一致する頂点は同一とみなす.
+/// </summary>
 struct VertexKey {
     Vec4f position;
     Vec3f normal;
@@ -52,6 +55,12 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
+/// <summary>
+/// 収集済みの頂点・インデックスデータをメッシュに転送する.
+/// </summary>
+/// <param name="_meshData">書き込み先のメッシュ</param>
+/// <param name="_vertices">頂点データ配列</param>
+/// <param name="_indices">インデックス配列</param>
 static void ProcessMeshData(TextureColorMesh& _meshData, const ::std::vector<TextureColorVertexData>& _vertices, const ::std::vector<uint32_t>& _indices) {
 
     _meshData.Initialize(static_cast<UINT>(_vertices.size()), static_cast<UINT>(_indices.size()));
@@ -64,6 +73,11 @@ static void ProcessMeshData(TextureColorMesh& _meshData, const ::std::vector<Tex
     _meshData.TransferData();
 }
 
+/// <summary>
+/// assimpのノード階層を再帰的に読み取り、ModelNode階層に変換する.
+/// </summary>
+/// <param name="_node">読み取り元のassimpノード</param>
+/// <returns>変換後のModelNode（子ノードを含む）</returns>
 static ModelNode ReadNode(aiNode* _node) {
     ModelNode result;
     /// Transform の取得
@@ -87,6 +101,13 @@ static ModelNode ReadNode(aiNode* _node) {
     return result;
 }
 
+/// <summary>
+/// ModelNode階層を再帰的にたどり、Jointを生成してリストへ追加する.
+/// </summary>
+/// <param name="_node">変換元のノード</param>
+/// <param name="_parent">親ジョイントのインデックス（ルートの場合は未設定）</param>
+/// <param name="_joints">生成したジョイントを追加するリスト</param>
+/// <returns>生成したジョイントのインデックス</returns>
 static int32_t CreateJoint(
     const ModelNode& _node,
     const ::std::optional<int32_t>& _parent,
@@ -113,6 +134,11 @@ static int32_t CreateJoint(
     return joint.index;
 }
 
+/// <summary>
+/// ノード階層のルートからSkeleton（ジョイント一式）を構築する.
+/// </summary>
+/// <param name="_rootNode">ノード階層のルート</param>
+/// <returns>構築されたSkeleton</returns>
 static Skeleton CreateSkeleton(const ModelNode& _rootNode) {
     Skeleton skeleton;
     skeleton.rootJointIndex = CreateJoint(_rootNode, {}, skeleton.joints);
@@ -127,6 +153,13 @@ static Skeleton CreateSkeleton(const ModelNode& _rootNode) {
     return skeleton;
 }
 
+/// <summary>
+/// assimpのボーン・ウェイト情報からSkinClusterを構築し、GPU用バッファを作成する.
+/// </summary>
+/// <param name="_cluster">構築先のSkinCluster</param>
+/// <param name="_device">バッファ作成に使用するデバイス</param>
+/// <param name="_loadedMesh">読み込み元のassimpメッシュ</param>
+/// <param name="_meshData">ジョイントウェイトデータ等の格納先モデルデータ</param>
 static void CreateSkinCluster(
     SkinCluster& _cluster,
     const Microsoft::WRL::ComPtr<ID3D12Device>& _device,
@@ -210,6 +243,12 @@ static void CreateSkinCluster(
     _cluster.skinningInfoBuffer_.ConvertToBuffer();
 }
 
+/// <summary>
+/// assimpを用いてモデルファイルを読み込み、ノード・スケルトン・メッシュ・スキン情報をModelMeshDataへ構築する.
+/// </summary>
+/// <param name="_data">構築先のモデルデータ</param>
+/// <param name="_directoryPath">ファイルが存在するディレクトリパス</param>
+/// <param name="_filename">モデルのファイル名</param>
 static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryPath, const ::std::string& _filename) {
     Assimp::Importer importer;
     ::std::string filePath = _directoryPath + "/" + _filename;

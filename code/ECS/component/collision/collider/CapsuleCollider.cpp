@@ -63,6 +63,7 @@ Bounds::AABB CapsuleCollider::ToWorldAABB() const {
     const Vec3f& end   = worldShape_.segment.end;
     float r            = worldShape_.radius;
 
+    // start/endを結ぶ線分の軸平行境界を求め、半径分だけ外側に拡張する
     for (int i = 0; i < 3; ++i) {
         minPt[i] = std::min(start[i], end[i]) - r;
         maxPt[i] = std::max(start[i], end[i]) + r;

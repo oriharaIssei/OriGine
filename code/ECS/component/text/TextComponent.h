@@ -10,12 +10,19 @@
 
 namespace OriGine {
 
+/// <summary>
+/// テキストの水平方向の揃え方
+/// </summary>
 enum class TextAlign : uint8_t {
 	Left,
 	Center,
 	Right,
 };
 
+/// <summary>
+/// 文字列を画面に描画するテキストコンポーネント。
+/// 表示文字列・表示位置・色・フォント・サイズやレイアウト設定（揃え・行間・字間など）を保持する。
+/// </summary>
 class TextComponent
 	: public IComponent {
 	friend void to_json(nlohmann::json& j,const TextComponent& c);
@@ -44,6 +51,9 @@ public:
 	bool showBounds = false; ///< TextBoundsRenderSystem でレイアウト枠をデバッグ描画するか
 };
 
+/// <summary>
+/// テキストのレイアウト計算結果。生成された各グリフの矩形と全体の外接サイズを保持する。
+/// </summary>
 struct TextLayoutResult {
 	std::vector<GlyphQuad> quads;
 	Vec2f boundingSize = {0.0f, 0.0f};

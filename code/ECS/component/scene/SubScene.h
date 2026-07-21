@@ -24,8 +24,17 @@ public:
     SubScene();
     ~SubScene() override;
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    /// <summary>
+    /// エディタ用編集UI
+    /// </summary>
     void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel) override;
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
     /// <summary>
@@ -37,15 +46,22 @@ public:
     /// </summary>
     void Deactivate();
 
+    /// <summary>
+    /// 指定した名前のシーンをサブシーンとして読み込む
+    /// </summary>
+    /// <param name="_sceneName">読み込むシーン名</param>
     void Load(const ::std::string& _sceneName);
+    /// <summary>
+    /// 保持しているサブシーンを解放する
+    /// </summary>
     void Unload();
 
 private:
-    bool isActive_             = false;
+    bool isActive_             = false; // サブシーンが現在アクティブかどうか
     int32_t renderingPriority_ = 0; // 描画優先度 (値が大きいほど前面に描画される)
 
-    ::std::string sceneName_           = "";
-    ::std::shared_ptr<Scene> subScene_ = nullptr;
+    ::std::string sceneName_           = ""; // ロード対象のシーン名
+    ::std::shared_ptr<Scene> subScene_ = nullptr; // 実体化されたサブシーン
 
 public:
     const Scene* GetSubScene() const { return subScene_.get(); }

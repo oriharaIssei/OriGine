@@ -33,6 +33,9 @@ enum class WindowResizeMode {
     FIXED_ASPECT = 0b10000, // 指定されたアスペクト比を維持してリサイズ
 };
 
+/// <summary>
+/// ウィンドウの表示形態（通常ウィンドウ／ボーダレス／排他フルスクリーン等）を表す列挙型.
+/// </summary>
 enum class WindowMode {
     WINDOWED,
     BORDERLESS_WINDOWED,
@@ -40,12 +43,18 @@ enum class WindowMode {
     EXCLUSIVE_FULLSCREEN,
 };
 
+/// <summary>
+/// モニタがサポートする 1 つの表示解像度・リフレッシュレートの組.
+/// </summary>
 struct DisplayMode {
     int32_t width       = 0;
     int32_t height      = 0;
     int32_t refreshRate = 0;
 };
 
+/// <summary>
+/// 接続されているモニタ 1 台分の情報（作業領域・DPI・プライマリかどうか等）.
+/// </summary>
 struct MonitorInfo {
     ::std::wstring name;
     RECT workArea{};
@@ -54,6 +63,9 @@ struct MonitorInfo {
     bool isPrimary = false;
 };
 
+/// <summary>
+/// ウィンドウ生成時に指定する各種初期設定をまとめた構造体.
+/// </summary>
 struct WindowDesc {
     const wchar_t* title     = L"OriGine Application";
     int32_t clientWidth      = Config::Window::kDefaultClientWidth;
@@ -128,7 +140,9 @@ public:
     /// <param name="_enable">true でフルスクリーン化</param>
     void ToggleFullscreen(bool _enable);
 
+    /// <summary> ウィンドウの最小サイズを設定する. </summary>
     void SetMinWindowSize(int32_t _width, int32_t _height);
+    /// <summary> ウィンドウの最大サイズを設定する. </summary>
     void SetMaxWindowSize(int32_t _width, int32_t _height);
     Vec2i GetMinWindowSize() const { return Vec2i(minWidth_, minHeight_); }
     Vec2i GetMaxWindowSize() const { return Vec2i(maxWidth_, maxHeight_); }
@@ -137,19 +151,28 @@ public:
     float GetDpiScale() const { return dpiScale_; }
     bool IsDpiAware() const { return dpiAware_; }
 
+    /// <summary> マウスカーソルの表示・非表示を切り替える. </summary>
     void ShowCursor(bool _show);
     bool IsCursorVisible() const { return cursorVisible_; }
+    /// <summary> カーソルの移動範囲をウィンドウ内に制限する（クリッピング）. </summary>
     void SetCursorClip(bool _clip);
     bool IsCursorClipped() const { return cursorClipped_; }
+    /// <summary> 指定パスの画像からカスタムカーソルを読み込み、適用する. </summary>
     void SetCustomCursor(const wchar_t* _cursorPath);
+    /// <summary> カーソルを OS 標準のものへ戻す. </summary>
     void ResetCursor();
 
+    /// <summary> 指定パスのアイコンファイルをウィンドウアイコンとして設定する. </summary>
     void SetIcon(const wchar_t* _iconPath);
+    /// <summary> リソース ID を指定してウィンドウアイコンを設定する. </summary>
     void SetIcon(int _resourceId);
 
+    /// <summary> 指定モニタがサポートする表示解像度・リフレッシュレートの一覧を取得する. </summary>
     static ::std::vector<DisplayMode> EnumerateDisplayModes(int _monitorIndex = 0);
+    /// <summary> クライアント領域の解像度を変更する. </summary>
     void ChangeResolution(int32_t _width, int32_t _height);
 
+    /// <summary> ウィンドウ表示モード（通常・ボーダレス・排他フルスクリーン等）を切り替える. </summary>
     void SetWindowMode(WindowMode _mode);
     WindowMode GetWindowMode() const { return windowMode_; }
     bool IsFullscreen() const {
@@ -157,63 +180,99 @@ public:
             || windowMode_ == WindowMode::EXCLUSIVE_FULLSCREEN;
     }
 
+    /// <summary> 現在のウィンドウ位置・サイズ・モード等の状態を保存する. </summary>
     void SaveWindowState();
+    /// <summary> 保存済みのウィンドウ状態を復元する. </summary>
+    /// <returns>復元できた場合 true</returns>
     bool RestoreWindowState();
 
+    /// <summary> ファイル・フォルダのドラッグ&ドロップ受信時に呼び出すコールバックを登録する. </summary>
     void SetDropCallback(const DropCallback& _callback);
+    /// <summary> 登録済みのドロップコールバックを解除する. </summary>
     void ClearDropCallback();
 
+    /// <summary> ウィンドウタイトルを変更する. </summary>
     void SetWindowTitle(const wchar_t* _title);
     void SetWindowTitle(const ::std::wstring& _title) { SetWindowTitle(_title.c_str()); }
     const ::std::wstring& GetWindowTitle() const { return wideWindowTitle_; }
 
+    /// <summary> 接続されているモニタの一覧情報を取得する. </summary>
     static ::std::vector<MonitorInfo> EnumerateMonitors();
+    /// <summary> ウィンドウを配置する対象モニタを指定する. </summary>
     void SetTargetMonitor(int _index);
+    /// <summary> 現在ウィンドウが表示されているモニタのインデックスを取得する. </summary>
     int GetCurrentMonitorIndex() const;
 
+    /// <summary> ウィンドウを常に最前面に表示するかどうかを設定する. </summary>
     void SetAlwaysOnTop(bool _enable);
     bool IsAlwaysOnTop() const { return alwaysOnTop_; }
 
+    /// <summary> ウィンドウ背景の半透明化（レイヤードウィンドウ）を有効・無効にする. </summary>
     void SetBackgroundTransparency(bool _enable);
     bool IsBackgroundTransparent() const { return backgroundTransparent_; }
+    /// <summary> ウィンドウ全体の不透明度を設定する. </summary>
     void SetWindowOpacity(BYTE _alpha);
     BYTE GetWindowOpacity() const { return backgroundAlpha_; }
+    /// <summary> 指定した色を透過色として扱うカラーキー透過を設定する. </summary>
     void SetTransparencyColorKey(COLORREF _colorKey, bool _enable);
     COLORREF GetTransparencyColorKey() const { return transparencyColorKey_; }
     bool IsTransparencyColorKeyEnabled() const { return useTransparencyColorKey_; }
 
     // ===== グローバルホットキー =====
+    /// <summary> OS 全体で有効なグローバルホットキーを登録する. </summary>
+    /// <param name="_id">ホットキーを識別する ID</param>
+    /// <param name="_modifiers">Ctrl/Alt 等の修飾キーフラグ</param>
+    /// <param name="_vk">仮想キーコード</param>
+    /// <returns>登録に成功したか</returns>
     bool RegisterGlobalHotkey(int _id, UINT _modifiers, UINT _vk);
+    /// <summary> 指定 ID のグローバルホットキーを解除する. </summary>
     void UnregisterGlobalHotkey(int _id);
+    /// <summary> 登録済みの全グローバルホットキーを解除する. </summary>
     void UnregisterAllHotkeys();
 
     // ===== システムトレイ =====
     using TrayMenuCallback = ::std::function<void()>;
 
+    /// <summary> システムトレイにアイコンを表示する. </summary>
     bool EnableSystemTray(const wchar_t* _tooltip, HICON _icon = nullptr);
+    /// <summary> システムトレイアイコンを非表示にする. </summary>
     void DisableSystemTray();
+    /// <summary> トレイアイコンのツールチップ文字列を変更する. </summary>
     void SetTrayTooltip(const wchar_t* _tooltip);
+    /// <summary> ウィンドウを非表示にし、システムトレイへ最小化する. </summary>
     void MinimizeToTray();
+    /// <summary> トレイに格納されたウィンドウを元の状態へ復元する. </summary>
     void RestoreFromTray();
     bool IsMinimizedToTray() const { return minimizedToTray_; }
     void SetMinimizeToTrayOnClose(bool _enable) { minimizeToTrayOnClose_ = _enable; }
     bool IsMinimizeToTrayOnClose() const { return minimizeToTrayOnClose_; }
 
+    /// <summary>
+    /// トレイアイコン右クリック時のコンテキストメニューに表示する項目.
+    /// </summary>
     struct TrayMenuItem {
         ::std::wstring label;
         TrayMenuCallback callback;
     };
+    /// <summary> トレイのコンテキストメニューに項目を追加する. </summary>
     void AddTrayMenuItem(const wchar_t* _label, TrayMenuCallback _callback);
+    /// <summary> トレイのコンテキストメニュー項目をすべて削除する. </summary>
     void ClearTrayMenu();
 
     // ===== 自動起動 =====
+    /// <summary> OS ログイン時の自動起動設定を行う（レジストリ登録）. </summary>
     static bool SetAutoStart(const wchar_t* _appName, bool _enable);
+    /// <summary> 自動起動が有効になっているかどうかを取得する. </summary>
     static bool IsAutoStartEnabled(const wchar_t* _appName);
 
 private:
+    /// <summary> cursorClipped_ の状態に応じてカーソルの移動範囲をウィンドウ内へ実際にクリップする. </summary>
     void ApplyCursorClip();
+    /// <summary> 背景透過・不透明度・カラーキーの設定をレイヤードウィンドウ属性へ反映する. </summary>
     void ApplyBackgroundTransparency();
+    /// <summary> 自前で生成・所有しているアイコンハンドルを解放する. </summary>
     void ReleaseOwnedIcons();
+    /// <summary> 指定インデックスのモニタの矩形範囲を取得する. </summary>
     RECT GetMonitorRect(int _monitorIndex) const;
 
     HWND hwnd_                              = nullptr; // ウィンドウハンドル
@@ -270,6 +329,7 @@ private:
     bool minimizedToTray_ = false;
     bool minimizeToTrayOnClose_ = false;
     ::std::vector<TrayMenuItem> trayMenuItems_;
+    /// <summary> トレイアイコン右クリック時に登録済みメニュー項目のポップアップメニューを表示する. </summary>
     void ShowTrayContextMenu();
 
     // テキスト入力 (WM_CHAR で蓄積。IME 確定文字もここに届く)。自前 UI のテキスト入力欄が消費する。

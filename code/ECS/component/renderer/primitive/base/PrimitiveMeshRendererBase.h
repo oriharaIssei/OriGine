@@ -18,8 +18,11 @@ public:
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
     virtual ~PrimitiveMeshRendererBase()                                                    = default;
+    /// <summary>初期化処理。派生クラスでバッファやメッシュの生成を行う</summary>
     virtual void Initialize(Scene* _scene, const EntityHandle& _entity)                            = 0;
+    /// <summary>終了処理。派生クラスで確保したリソースの解放を行う</summary>
     virtual void Finalize()                                                                 = 0;
+    /// <summary>エディタ上でのパラメータ編集UIを描画する</summary>
     virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) = 0;
 
     /// <summary>
@@ -38,12 +41,12 @@ public:
     void LoadTexture(const std::string& _filePath);
 
 protected:
-    IConstantBuffer<Transform> transformBuff_;
-    int32_t materialIndex_ = -1;
-    SimpleConstantBuffer<Material> materialBuff_;
+    IConstantBuffer<Transform> transformBuff_; // 座標変換用定数バッファ
+    int32_t materialIndex_ = -1; // 使用するマテリアルのインデックス
+    SimpleConstantBuffer<Material> materialBuff_; // マテリアル用定数バッファ
 
-    std::string textureFilePath_;
-    size_t textureIndex_ = 0;
+    std::string textureFilePath_; // 読み込んだテクスチャのファイルパス
+    size_t textureIndex_ = 0; // 読み込んだテクスチャのインデックス
 
     /// <summary>インスタンシング描画用ハンドル</summary>
     InstanceHandle instanceHandle_;

@@ -13,6 +13,9 @@ namespace Primitive {
 constexpr uint32_t kCylinderRadialDivisions = 36; // 円柱の分割数
 constexpr uint32_t kCylinderHeightDivisions = 8; // 高さ方向の分割数
 
+/// <summary>
+/// Cylinder(円柱)のPrimitiveクラス
+/// </summary>
 struct Cylinder
     : public IPrimitive {
 public:
@@ -35,8 +38,8 @@ public:
     Vec2f bottomRadius = Vec2f(1.f, 1.f); // 底面の半径
     float height       = 1.f; // 高さ
 
-    uint32_t radialDivisions = kCylinderRadialDivisions;
-    uint32_t heightDivisions = kCylinderHeightDivisions;
+    uint32_t radialDivisions = kCylinderRadialDivisions; // 円周方向の分割数
+    uint32_t heightDivisions = kCylinderHeightDivisions; // 高さ方向の分割数
 
     EaseType radiusEaseType = EaseType::Linear; // 半径のイージングタイプ
 };

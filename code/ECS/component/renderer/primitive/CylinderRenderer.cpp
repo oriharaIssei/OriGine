@@ -116,6 +116,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
     ImGui::Spacing();
 
     // shape
+    // 各形状パラメータが変更されたらメッシュを再生成する
     label = "TopRadius##" + _parentLabel;
     DragGuiVectorCommand<2, float>(label.c_str(), primitive_.topRadius, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
         primitive_.topRadius = *_value;

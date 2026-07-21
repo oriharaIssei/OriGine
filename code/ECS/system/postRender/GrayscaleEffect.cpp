@@ -154,6 +154,10 @@ void GrayscaleEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_owner">エンティティ</param>
 void OriGine::GrayscaleEffect::DispatchComponent(const EntityHandle& _owner) {
     auto& comps = GetComponents<GrayscaleComponent>(_owner);
     if (comps.empty()) {

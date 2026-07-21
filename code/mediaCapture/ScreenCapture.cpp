@@ -47,6 +47,8 @@ std::vector<ScreenMonitorInfo> ScreenCapture::EnumerateMonitors() {
 }
 
 bool ScreenCapture::Open(DxDevice* dxDevice, DxCommand* dxCommand, uint32_t monitorIndex) {
+    // Desktop Duplication の初期化は「対象出力のアダプター→他アダプター→既定アダプター」の順に
+    // 試行し、すべて失敗した場合にのみ GDI キャプチャへフォールバックする。
     Close();
     lastError_.clear();
 
@@ -285,6 +287,7 @@ void ScreenCapture::CaptureThreadDuplication() {
         DXGI_OUTDUPL_FRAME_INFO frameInfo;
         ComPtr<IDXGIResource> desktopResource;
 
+        // 画面更新があるまで最大100msブロックする（更新が無ければタイムアウトしてループ継続）
         HRESULT hr = duplication_->AcquireNextFrame(100, &frameInfo, &desktopResource);
         if (hr == DXGI_ERROR_WAIT_TIMEOUT) continue;
         if (FAILED(hr)) {
@@ -345,6 +348,7 @@ void ScreenCapture::CaptureThreadDuplication() {
 }
 
 void ScreenCapture::CaptureThreadGDI() {
+    // 対象モニター領域をメモリDCへBitBltし続ける、Desktop Duplication非対応環境向けの簡易実装
     MONITORINFOEXW monInfo{};
     monInfo.cbSize = sizeof(monInfo);
     if (!GetMonitorInfoW(targetMonitor_, &monInfo)) {

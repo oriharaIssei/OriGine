@@ -184,10 +184,12 @@ void SystemAudioCapture::ConvertCaptureData(BYTE* data, UINT32 frameCount, DWORD
     const uint32_t sampleCount = frameCount * format_.channels;
     outBuffer.assign(sampleCount, 0.0f);
 
+    // 無音フラグ・データ無し・サンプル無しは0埋めのまま返す
     if ((flags & AUDCLNT_BUFFERFLAGS_SILENT) != 0 || data == nullptr || sampleCount == 0) {
         return;
     }
 
+    // ミックスフォーマット（WAVE_FORMAT_EXTENSIBLEの場合はSubFormat）から実際のサンプル形式を判別する
     const bool isExtensible = mixFormat_->wFormatTag == WAVE_FORMAT_EXTENSIBLE;
     const GUID subFormat = isExtensible
         ? reinterpret_cast<WAVEFORMATEXTENSIBLE*>(mixFormat_)->SubFormat

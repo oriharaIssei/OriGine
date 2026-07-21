@@ -10,9 +10,19 @@ class EffectAutoDestroySystem
 public:
     EffectAutoDestroySystem();
     ~EffectAutoDestroySystem() override;
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 protected:
+    /// <summary>
+    /// 対象エンティティのアニメーションが全て終了しているか確認し、終了していれば破棄する
+    /// </summary>
+    /// <param name="_handle">対象エンティティのハンドル</param>
     void UpdateEntity(const OriGine::EntityHandle& _handle) override;
 };

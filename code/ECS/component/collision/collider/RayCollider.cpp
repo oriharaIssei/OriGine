@@ -62,6 +62,7 @@ Bounds::AABB RayCollider::ToWorldAABB() const {
     Vec3f center   = (minPt + maxPt) * 0.5f;
     Vec3f halfSize = (maxPt - minPt) * 0.5f;
 
+    // Rayも太さを持たないため、各軸の最小サイズを保証する
     const float kMinSize = 0.001f;
     for (int i = 0; i < 3; ++i) {
         if (halfSize[i] < kMinSize)

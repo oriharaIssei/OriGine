@@ -22,6 +22,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/
 
     std::string label = "##" + _parentLabel;
 
+    // 参照済みエンティティファイルの一覧表示 + 個別削除ボタン
     for (size_t i = 0; i < entityFileList_.size(); ++i) {
         ImGui::PushID(static_cast<int>(i));
         std::string filePath = entityFileList_[i].first + "/" + entityFileList_[i].second;
@@ -41,6 +42,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/
         ImGui::PopID();
     }
 
+    // ファイルダイアログで新規エンティティファイルを選択し、参照リストへ追加
     label = "Add Entity Reference##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory, filename;
@@ -55,10 +57,12 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/
 
 void EntityReferenceList::Finalize() {}
 
+// entityFileList_をjsonへ書き出す
 void OriGine::to_json(nlohmann::json& j, const EntityReferenceList& c) {
     j = nlohmann::json{{"entityFileList", c.entityFileList_}};
 }
 
+// jsonからentityFileList_を復元する
 void OriGine::from_json(const nlohmann::json& j, EntityReferenceList& c) {
     j.at("entityFileList").get_to(c.entityFileList_);
 }

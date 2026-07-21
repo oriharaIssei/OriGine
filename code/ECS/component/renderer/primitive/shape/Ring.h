@@ -17,10 +17,10 @@ public:
     void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
-    uint32_t division_ = 16;
+    uint32_t division_ = 16; // 円周方向の分割数
 
-    float outerRadius_ = 1.f;
-    float innerRadius_ = 0.5f;
+    float outerRadius_ = 1.f; // 外径
+    float innerRadius_ = 0.5f; // 内径
 };
 
 } // namespace Primitive

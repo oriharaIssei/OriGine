@@ -17,9 +17,9 @@ namespace OriGine {
 /// </summary>
 struct TextureAsset
     : public Asset {
-    DirectX::TexMetadata metaData;
-    DxResource resource;
-    DxSrvDescriptor srv;
+    DirectX::TexMetadata metaData; // テクスチャの幅・高さ・フォーマット等のメタ情報
+    DxResource resource; // GPU上に確保されたテクスチャリソース本体
+    DxSrvDescriptor srv; // resourceを参照するためのシェーダーリソースビュー
 };
 
 template <>

@@ -22,10 +22,10 @@ class Scene;
 /// レイトレーシング用メッシュエントリ
 /// </summary>
 struct RaytracingMeshEntry {
-    MeshHandle meshHandle;
-    TextureColorMesh* mesh;
-    bool isDynamic     = false;
-    Matrix4x4 worldMat = MakeMatrix4x4::Identity();
+    MeshHandle meshHandle; // 対応するメッシュのハンドル
+    TextureColorMesh* mesh; // 頂点・インデックスバッファを持つメッシュ本体へのポインタ
+    bool isDynamic     = false; // 毎フレームBLASを更新する必要があるか
+    Matrix4x4 worldMat = MakeMatrix4x4::Identity(); // インスタンスのワールド変換行列
 };
 
 /// <summary>
@@ -77,7 +77,7 @@ public:
 private:
     std::unordered_map<MeshHandle, BottomLevelAccelerationStructure> blasMap_; // BLAS (meshごとに1つ)
     TopLevelAccelerationStructure tlas_; // TLAS (tlasはシーンで1つ)
-    bool tlasIsCreated_ = false;
+    bool tlasIsCreated_ = false; // TLASが一度でも構築済みかどうか
 
 public:
     /// <summary>

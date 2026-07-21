@@ -12,6 +12,12 @@
 #include "directX12/DxResource.h"
 
 namespace OriGine {
+/// <summary>
+/// GPU 側で要素を追加していく UAV バッファ（AppendStructuredBuffer 相当）を管理するクラス.
+/// カウンター用バッファを併せ持ち、コンピュートシェーダーが書き込んだ件数・データを
+/// CPU 側へリードバックして openData_ として参照できるようにする.
+/// </summary>
+/// <typeparam name="BufferType">バッファ1要素の型（HasInConstantBuffer を満たす必要がある）</typeparam>
 template <HasInConstantBuffer BufferType>
 class AppendBuffer {
     constexpr static size_t defaultCapacity = 10000;
@@ -47,15 +53,15 @@ public:
     void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const;
 
 private:
-    DxUavDescriptor descriptor;
-    DxResource buffer;
+    DxUavDescriptor descriptor; // 本バッファのUAVディスクリプタ
+    DxResource buffer; // GPU側の実データバッファ
 
-    BufferType* mappingData_ = nullptr;
-    std::vector<BufferType> openData_;
+    BufferType* mappingData_ = nullptr; // マップ中の書き込み先ポインタ（未使用時はnullptr）
+    std::vector<BufferType> openData_; // ConvertFromBufferでリードバックしたCPU側データ
 
-    DxResource counterBuffer;
+    DxResource counterBuffer; // Append/Consumeの現在の要素数を保持するカウンターバッファ
 
-    size_t capacity_ = 0;
+    size_t capacity_ = 0; // バッファが保持できる最大要素数
 
 public:
     /// <summary>

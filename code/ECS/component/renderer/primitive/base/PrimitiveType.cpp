@@ -4,6 +4,7 @@ using namespace OriGine;
 
 std::string std::to_string(PrimitiveType _type) {
     int32_t index = static_cast<int32_t>(_type);
+    // 不正な値が渡された場合はkPrimitiveTypesの範囲外アクセスを防ぐ
     if (index < 0 || index >= static_cast<int32_t>(PrimitiveType::Count)) {
         return "Unknown";
     }

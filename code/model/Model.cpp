@@ -26,6 +26,7 @@ void Skeleton::Update() {
 
 void SkinCluster::UpdateMatrixPalette(const Skeleton& _skeleton) {
     for (size_t jointIndex = 0; jointIndex < _skeleton.joints.size(); ++jointIndex) {
+        // このスキンクラスターが保持するバインドポーズ逆行列の範囲外のジョイントは対象外のため処理を打ち切る
         if (jointIndex >= this->inverseBindPoseMatrices.size()) {
             return;
         }

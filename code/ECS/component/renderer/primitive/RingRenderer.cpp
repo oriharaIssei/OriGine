@@ -113,6 +113,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const E
     ImGui::Spacing();
 
     // shape
+    // 各形状パラメータが変更されたらメッシュを再生成する
     label = "Division##" + _parentLabel;
     DragGuiCommand<uint32_t>(label, primitive_.division_, 1, 1, 1000, "%d", [this](uint32_t* _value) {
         primitive_.division_ = *_value;

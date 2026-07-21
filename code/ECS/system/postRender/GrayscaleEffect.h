@@ -70,7 +70,7 @@ protected:
     }
 
 protected:
-    PipelineStateObj* pso_ = nullptr;
+    PipelineStateObj* pso_ = nullptr; // グレースケールエフェクト用PSO
     std::vector<GrayscaleComponent*> grayscaleComps_; // ポストエフェクトに使用するコンポーネントのハンドルリスト
 };
 

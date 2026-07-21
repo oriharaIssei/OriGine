@@ -156,6 +156,7 @@ void Scene::ExecuteDeleteEntities() {
 }
 
 void Scene::DispatchMeshForRaytracing() {
+    // ModelMeshRendererを持つエンティティのメッシュをレイトレーシング用リストへ収集する
     auto* modelRendererComponentArray = componentRepository_->GetComponentArray<ModelMeshRenderer>();
     if (modelRendererComponentArray) {
         for (auto& slot : modelRendererComponentArray->GetSlotsRef()) {
@@ -195,6 +196,7 @@ void Scene::DispatchMeshForRaytracing() {
         }
     }
 
+    // プリミティブ形状(Box/Cylinder/Plane/Ring/Sphere)は型ごとに処理内容が同一のため、共通処理をラムダ化して使い回す
     auto dispatchPrimitiveRenderers = [this](auto* primitiveRendererComponentArray) {
         if (!primitiveRendererComponentArray) {
             return;

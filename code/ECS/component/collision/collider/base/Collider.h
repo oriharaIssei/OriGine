@@ -46,14 +46,32 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
+    /// <summary>
+    /// コライダーの初期化処理
+    /// </summary>
     virtual void Initialize(Scene* _scene, const EntityHandle& _entity) = 0;
+    /// <summary>
+    /// コライダーの終了処理
+    /// </summary>
     virtual void Finalize()                                      = 0;
 
+    /// <summary>
+    /// デバッグ用GUIでのパラメータ編集
+    /// </summary>
     virtual void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel);
 
+    /// <summary>
+    /// ローカル形状とTransformからワールド空間の形状を再計算する
+    /// </summary>
     virtual void CalculateWorldShape() = 0;
 
+    /// <summary>
+    /// 衝突判定開始時の状態更新（前フレームの状態を保存し、ワールド形状を更新する）
+    /// </summary>
     virtual void StartCollision();
+    /// <summary>
+    /// 衝突判定終了時の状態更新（このフレームで衝突が無くなった相手をExit状態にする）
+    /// </summary>
     virtual void EndCollision();
 
     /// <summary>
@@ -68,13 +86,13 @@ public:
     virtual Bounds::AABB ToWorldAABB() const = 0;
 
 protected:
-    bool isActive_ = true;
+    bool isActive_ = true; // このコライダーが衝突判定の対象かどうか
 
-    CollisionCategory collisionCategory_ = CollisionCategory();
+    CollisionCategory collisionCategory_ = CollisionCategory(); // 所属する衝突カテゴリ
 
     Transform transform_;
-    std::unordered_map<EntityHandle, CollisionState> collisionStateMap_;
-    std::unordered_map<EntityHandle, CollisionState> preCollisionStateMap_;
+    std::unordered_map<EntityHandle, CollisionState> collisionStateMap_; // 現フレームの相手ごとの衝突状態
+    std::unordered_map<EntityHandle, CollisionState> preCollisionStateMap_; // 前フレームの相手ごとの衝突状態
 
 public: // accessor
     bool IsActive() const { return isActive_; }
@@ -87,6 +105,10 @@ public: // accessor
     void SetCollisionCategory(const CollisionCategory& _category) { collisionCategory_ = _category; }
 
     // 衝突状態の操作
+    /// <summary>
+    /// 相手エンティティとの衝突状態を更新する（前フレーム未衝突ならEnter、それ以外はStayにする）
+    /// </summary>
+    /// <param name="_otherHandle">相手エンティティのハンドル</param>
     void SetCollisionState(const EntityHandle& _otherHandle) {
         if (this->preCollisionStateMap_[_otherHandle] == CollisionState::None) {
             this->collisionStateMap_[_otherHandle] = CollisionState::Enter;
@@ -97,6 +119,9 @@ public: // accessor
     const std::unordered_map<EntityHandle, CollisionState>& GetCollisionStateMap() const { return collisionStateMap_; }
 };
 
+/// <summary>
+/// 形状(BoundsClass)を持つコライダーの共通実装。ローカル/ワールド形状の保持を担う。
+/// </summary>
 template <Bounds::IsBounds BoundsClass>
 class Collider
     : public ICollider {
@@ -115,8 +140,8 @@ public:
     virtual Bounds::AABB ToWorldAABB() const = 0;
 
 protected:
-    BoundsClass shape_;
-    BoundsClass worldShape_;
+    BoundsClass shape_; // ローカル空間での形状
+    BoundsClass worldShape_; // ワールド空間に変換された形状（CalculateWorldShapeで更新される）
 
 public:
     const BoundsClass& GetLocalShape() { return shape_; }

@@ -68,8 +68,8 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    PipelineStateObj* pso_ = nullptr;
-    std::vector<VignetteParam*> activeParams_;
+    PipelineStateObj* pso_ = nullptr; // ヴィネットエフェクト用PSO
+    std::vector<VignetteParam*> activeParams_; // 今回の更新で描画対象となったパラメータ一覧
 };
 
 } // namespace OriGine

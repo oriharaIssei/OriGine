@@ -12,13 +12,29 @@
 
 namespace OriGine {
 
+/// <summary>
+/// TrueType（stb_truetype）またはビルトインASCIIフォントからグリフアトラスを生成・管理するクラス。
+/// 必要になったグリフをオンデマンドでラスタライズしてアトラスに詰め込み（stb_rectpack）、
+/// UV等のメトリクス情報を提供する。
+/// </summary>
 class BitmapFont {
 public:
     BitmapFont() = default;
     ~BitmapFont() = default;
 
+    /// <summary>
+    /// TrueTypeを読み込まずに使う、5x7ドットのビルトインASCIIフォントでアトラスを生成する。
+    /// </summary>
+    /// <param name="_fontSize">セルサイズの目安（px）</param>
     void GenerateAsciiAtlas(int _fontSize = 16);
 
+    /// <summary>
+    /// TrueType/OpenTypeフォントファイルを読み込み、主フォントとして設定する。
+    /// 半角ASCII（32〜126）とフォールバック用グリフ(U+FFFD)を先読みでラスタライズする。
+    /// </summary>
+    /// <param name="_path">フォントファイルのパス（.ttf / .ttc）</param>
+    /// <param name="_fontSize">ベースとなるピクセルサイズ</param>
+    /// <returns>読み込みに成功したら true</returns>
     bool LoadFromFile(const std::string& _path, float _fontSize);
 
     /// <summary>
@@ -30,7 +46,20 @@ public:
     /// <returns>読み込みに成功したら true</returns>
     bool AddFallback(const std::string& _path);
 
+    /// <summary>
+    /// 指定コードポイントのグリフがアトラスに存在することを保証する。
+    /// 未登録ならラスタライズを試み、アトラスが満杯なら拡張して再試行する。
+    /// </summary>
+    /// <param name="_codepoint">Unicodeコードポイント</param>
+    /// <returns>グリフが利用可能になったら true</returns>
     bool EnsureGlyph(uint32_t _codepoint);
+
+    /// <summary>
+    /// UTF-8文字列に含まれる全文字についてグリフの存在を保証する。
+    /// </summary>
+    /// <param name="_utf8Text">UTF-8文字列</param>
+    /// <param name="_len">バイト長</param>
+    /// <returns>1つでも新規にラスタライズしたら true</returns>
     bool EnsureGlyphs(const char* _utf8Text, size_t _len);
 
     const GlyphMetrics& GetGlyph(uint32_t _codepoint) const;
@@ -46,8 +75,21 @@ public:
     bool IsTrueType() const { return ttfLoaded_; }
 
 private:
+    /// <summary>
+    /// アトラスサイズを2倍に拡張し、既存グリフを再パック・再ラスタライズする。
+    /// </summary>
+    /// <returns>kMaxAtlasSizeを超える場合は false</returns>
     bool GrowAtlas();
+
+    /// <summary>
+    /// 指定コードポイントのグリフを面（主/フォールバック）から取得し、
+    /// stb_rectpackでアトラス内の空き領域に配置してラスタライズする。
+    /// </summary>
     bool PackAndRasterizeGlyph(uint32_t _codepoint);
+
+    /// <summary>
+    /// stb_rectpackのパッキング状態を現在のアトラスサイズで初期化する。
+    /// </summary>
     void ResetPacker();
 
     /// <summary>

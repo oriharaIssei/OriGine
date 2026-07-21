@@ -38,6 +38,7 @@ void EntityRepository::Finalize() {
 /// EntityIndex の 確保
 /// </summary>
 int32_t EntityRepository::AllocateIndex() {
+    // 生存数が容量上限に達したらプールを倍のサイズに拡張する
     if (entityActiveBits_.GetTrueCount() >= size_) {
         size_ *= 2;
         entities_.resize(size_);
@@ -86,6 +87,7 @@ EntityHandle EntityRepository::CreateEntity(const std::string& _type, bool _uniq
 /// EntityHandleを指定して Entityを 作成
 /// </summary>
 EntityHandle OriGine::EntityRepository::CreateEntity(EntityHandle _handle, const std::string& _dataType, bool _unique) {
+    // 指定されたHandleが既に使用中/無効な場合は新規に生成し直す
     auto itr = uuidToIndex_.find(_handle.uuid);
     if (itr != uuidToIndex_.end() || !_handle.IsValid()) {
         LOG_WARN("EntityHandle already exists. Generating a new one. \n name : {} \n uuid : {}\n", _dataType, uuids::to_string(_handle.uuid));
@@ -187,7 +189,7 @@ bool EntityRepository::RemoveEntity(const EntityHandle& _handle) {
     uuidToIndex_.erase(it);
     entityActiveBits_.Set(index, false);
 
-    e = Entity();
+    e = Entity(); // スロットをデフォルト状態に戻し、再利用可能にする
     return true;
 }
 

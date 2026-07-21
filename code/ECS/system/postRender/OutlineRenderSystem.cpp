@@ -22,9 +22,18 @@ static const std::string kVSName = "Outline.VS";
 static const std::string kPSName = "Outline.PS";
 }
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 OriGine::OutlineRenderSystem::OutlineRenderSystem() {}
+/// <summary>
+/// デストラクタ
+/// </summary>
 OriGine::OutlineRenderSystem::~OutlineRenderSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void OriGine::OutlineRenderSystem::Initialize() {
     CreatePSO();
 
@@ -36,6 +45,9 @@ void OriGine::OutlineRenderSystem::Initialize() {
     }
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void OriGine::OutlineRenderSystem::Finalize() {
     if (!activeEntries_.empty()) {
         activeEntries_.clear();
@@ -44,6 +56,9 @@ void OriGine::OutlineRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void OriGine::OutlineRenderSystem::CreatePSO() {
     const std::string kPsoKey = "Outline";
 
@@ -169,6 +184,9 @@ void OriGine::OutlineRenderSystem::CreatePSO() {
     pso_ = shaderManager->CreatePso(kPsoKey, texShaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void OriGine::OutlineRenderSystem::RenderStart() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -190,6 +208,9 @@ void OriGine::OutlineRenderSystem::RenderStart() {
     cameraManager->SetBufferForRootParameter(GetScene(), commandList, cameraBufferIndex_);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void OriGine::OutlineRenderSystem::Rendering() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -294,11 +315,18 @@ void OriGine::OutlineRenderSystem::Rendering() {
     activeEntries_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void OriGine::OutlineRenderSystem::RenderEnd() {
     /// target の設定
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// ポストエフェクトに使用するコンポーネントを有効な場合にリスト化する等の前処理
+/// </summary>
+/// <param name="_entity">エンティティハンドル</param>
 void OriGine::OutlineRenderSystem::DispatchComponent(const EntityHandle& _entity) {
     auto* outlineComp = GetComponent<OutlineComponent>(_entity);
 
@@ -375,6 +403,10 @@ void OriGine::OutlineRenderSystem::DispatchComponent(const EntityHandle& _entity
     activeEntries_.push_back(entry);
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>true = スキップする / false = スキップしない</returns>
 bool OriGine::OutlineRenderSystem::ShouldSkipPostRender() const {
     return activeEntries_.empty();
 }

@@ -59,18 +59,22 @@ public:
     /// </summary>
     void CopyToReadback(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList);
 
+    /// <summary>
+    /// Readbackバッファをマップして CPU 側にコピーし、openData_ を更新する.
+    /// </summary>
+    /// <returns>更新後の openData_ への参照</returns>
     const std::vector<BufferType>& RetrieveData();
 
 public:
-    std::vector<BufferType> openData_ = {};
+    std::vector<BufferType> openData_ = {}; // CPU側で参照可能なリードバック済みデータ
 
 private:
-    DxUavDescriptor descriptor_ = DxUavDescriptor();
-    DxResource buffer_          = DxResource();
-    DxResource readbackBuffer_  = DxResource();
+    DxUavDescriptor descriptor_ = DxUavDescriptor(); // 本バッファのUAVディスクリプタ
+    DxResource buffer_          = DxResource(); // GPU側の実データバッファ (UAV)
+    DxResource readbackBuffer_  = DxResource(); // CPUへの読み戻し用バッファ
 
-    size_t elementCount_     = 0;
-    BufferType* mappingData_ = nullptr;
+    size_t elementCount_     = 0; // バッファが保持する要素数
+    BufferType* mappingData_ = nullptr; // マップ中の書き込み先ポインタ（未使用時はnullptr）
 
 public:
     const DxUavDescriptor& GetDescriptor() const {

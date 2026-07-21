@@ -63,14 +63,14 @@ private:
 
 private:
     // スクラッチリソース
-    DxResource instanceResource_;
-    DxResource scratchResource_;
-    DxResource resultResource_;
+    DxResource instanceResource_; // インスタンス記述子(D3D12_RAYTRACING_INSTANCE_DESC配列)を格納するリソース
+    DxResource scratchResource_; // 生成時リソース (D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESCに格納されるため必要)
+    DxResource resultResource_; // TLASの結果リソース
 
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs_;
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc_;
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs_; // TLASビルドに必要な入力情報（インスタンス数・フラグ等）
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc_; // TLASビルド/更新コマンド発行用の記述子
 
-    bool allowUpdate_;
+    bool allowUpdate_; // 生成後にIn-Place更新（Refit）を許可するかどうか
 
 public:
     /// <summary>

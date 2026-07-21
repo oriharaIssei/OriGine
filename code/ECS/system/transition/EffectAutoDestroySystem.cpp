@@ -22,6 +22,8 @@ void EffectAutoDestroySystem::Initialize() {}
 void EffectAutoDestroySystem::Finalize() {}
 
 void EffectAutoDestroySystem::UpdateEntity(const OriGine::EntityHandle& _handle) {
+    // 対象エンティティが持ちうる各種アニメーション/カメラアクションのいずれかが
+    // 再生中であれば、まだ生存させる(いずれも再生中でなければ破棄対象とする)
     bool isAlive = false;
 
     auto& materialAnimations = GetComponents<MaterialAnimation>(_handle);
@@ -59,6 +61,7 @@ void EffectAutoDestroySystem::UpdateEntity(const OriGine::EntityHandle& _handle)
         isAlive |= action.isPlaying();
     }
 
+    // 全アニメーション/アクションが終了していれば、シーンに削除を予約する
     if (!isAlive) {
         GetScene()->AddDeleteEntity(_handle);
     }

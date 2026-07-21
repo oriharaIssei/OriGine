@@ -80,6 +80,7 @@ bool OriGine::MeshIsDynamic(Scene* _scene, const EntityHandle& _entityHandle, Ra
     if (_isModelMesh) {
         auto* modelComp = _scene->GetComponent<ModelMeshRenderer>(_entityHandle);
         if (modelComp) {
+            // スキニングアニメーションを持つモデルは毎フレーム頂点位置が変化するため動的として扱う
             auto* skinningComp = _scene->GetComponent<SkinningAnimationComponent>(_entityHandle);
             if (skinningComp) {
                 return true;

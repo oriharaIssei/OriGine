@@ -91,6 +91,9 @@ public:
     ///</summary>
     void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
 
+    /// <summary>
+    /// エディタ上でスプライトのパラメータを編集するGUIを描画する
+    /// </summary>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     /// <summary>
@@ -121,30 +124,35 @@ public:
     void CalculatePosRatioAndSizeRatio(const Vec2f& _newWindowSize);
 
 private:
-    int32_t renderPriority_ = 1;
+    int32_t renderPriority_ = 1; // 描画順(値が小さいほど先に描画される)
 
-    IConstantBuffer<Transform2d> transform2dBuff_;
-    IConstantBuffer<Transform2d> uvTransform2dBuff_;
-    IConstantBuffer<SpritConstBuffer> spriteBuff_;
+    IConstantBuffer<Transform2d> transform2dBuff_; // 2D座標変換用定数バッファ
+    IConstantBuffer<Transform2d> uvTransform2dBuff_; // UV座標変換用定数バッファ
+    IConstantBuffer<SpritConstBuffer> spriteBuff_; // スプライト描画用定数バッファ
 
-    std::string texturePath_;
-    size_t textureIndex_ = 0;
+    std::string texturePath_; // 読み込んだテクスチャのファイルパス
+    size_t textureIndex_ = 0; // 読み込んだテクスチャのインデックス
 
-    Vec2f textureLeftTop_ = {0.0f, 0.0f};
-    Vec2f textureSize_    = {0.0f, 0.0f};
+    Vec2f textureLeftTop_ = {0.0f, 0.0f}; // 切り出し元テクスチャ上の左上座標(px)
+    Vec2f textureSize_    = {0.0f, 0.0f}; // 切り出し元テクスチャ上のサイズ(px)
     Vec2f size_           = {0.0f, 0.0f}; // px
 
     Vec2f defaultWindowSize_ = {0.f, 0.f}; // 画面の基準サイズ(これに対する比率で位置とサイズを決定)
     Vec2f windowRatioPos_    = {0.f, 0.f}; // 画面のサイズに対する位置(基本 0 ~ 1)
     Vec2f windowRatioSize_   = {0.f, 0.f}; // 画面のサイズに対するサイズ(基本 0 ~ 1)
 
-    Vec2f anchorPoint_ = {0.0f, 0.0f};
+    Vec2f anchorPoint_ = {0.0f, 0.0f}; // 基準点(0~1、原点からのオフセット比率)
 
-    bool isFlipX_ = false;
-    bool isFlipY_ = false;
+    bool isFlipX_ = false; // trueの場合X軸方向に反転して描画する
+    bool isFlipY_ = false; // trueの場合Y軸方向に反転して描画する
 
 public:
     size_t GetTextureIndex() const { return textureIndex_; }
+    /// <summary>
+    /// テクスチャを読み込み、必要に応じてサイズをテクスチャの実サイズに合わせる
+    /// </summary>
+    /// <param name="_texturePath">読み込むテクスチャのファイルパス</param>
+    /// <param name="_applyTextureSize">trueの場合、未設定のサイズをテクスチャの実サイズで初期化する</param>
     void SetTexture(const std::string& _texturePath, bool _applyTextureSize);
 
     int32_t GetRenderPriority() const { return renderPriority_; }

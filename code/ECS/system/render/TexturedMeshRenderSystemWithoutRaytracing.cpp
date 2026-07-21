@@ -34,6 +34,15 @@ void TexturedMeshRenderSystemWithoutRaytracing::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
+/// <summary>
+/// エンティティが持つ各レンダラー(ModelMeshRenderer/PrimitiveMeshRenderer各種)を、
+/// カリング有無×ブレンドモードの2次元バケット(activeModelMeshRenderer_ / activePrimitiveMeshRenderer_)に
+/// 振り分けて溜める。同じPSO(パイプラインステート)で描けるものをまとめておくことで、
+/// 描画時(RenderingBy)のPSO切り替え回数を減らすことが狙い。
+/// また、Transformの親設定と行列更新もここで済ませておくことで、描画ループ内では
+/// 定数バッファをバインドするだけで済むようにしている
+/// </summary>
+/// <param name="_entity">レンダラーの振り分け対象となるエンティティ</param>
 void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHandle& _entity) {
     auto entityTransform = GetComponent<Transform>(_entity);
 
@@ -53,6 +62,8 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
                 ///==============================
                 /// Transformの更新 (meshごと)
                 ///==============================
+                // メッシュ単位のTransformを所有EntityのTransformにぶら下げ(親が未設定の場合のみ)、
+                // 描画時にはこの結果(ConvertToBuffer済みのバッファ)をバインドするだけで済むようにする
                 auto& transform = renderer.GetTransformBuff(i);
 
                 if (transform->parent == nullptr) {
@@ -66,6 +77,8 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
             ///==============================
             /// push_back
             ///==============================
+            // カリング有無×ブレンドモードのバケットに積む。同じ組み合わせは同じPSOで描画できるため、
+            // RenderingBy側でバケットごとにまとめて描画することでPSO切り替えを最小限にできる
             BlendMode blendMode = renderer.GetCurrentBlend();
             int32_t blendIndex  = static_cast<int32_t>(blendMode);
             int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
@@ -73,6 +86,8 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
         }
     }
 
+    // PlaneRenderer等のプリミティブ系レンダラーは種類ごとにコンポーネント型が異なるが、
+    // 振り分け方はModelMeshRendererと同じため、ここで共通のラムダにまとめている
     auto dispatchPrimitive = [this, _entity, entityTransform](auto& renderers) {
         for (auto& renderer : renderers) {
             if (!renderer.IsRender()) {
@@ -82,6 +97,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
             ///==============================
             /// Transformの更新
             ///==============================
+            // 親が未設定の場合のみ所有EntityのTransformにぶら下げ、描画ループ内での更新を避ける
             auto& transform = renderer.GetTransformBuff();
 
             if (transform->parent == nullptr) {
@@ -91,6 +107,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
             transform->UpdateMatrix();
             transform.ConvertToBuffer();
 
+            // カリング有無×ブレンドモードのバケットに積む(ModelMeshRendererと同じ狙い)
             BlendMode blendMode = renderer.GetCurrentBlend();
             int32_t blendIndex  = static_cast<int32_t>(blendMode);
             int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
@@ -105,6 +122,13 @@ void TexturedMeshRenderSystemWithoutRaytracing::DispatchRenderer(const EntityHan
     dispatchPrimitive(GetComponents<CylinderRenderer>(_entity));
 }
 
+/// <summary>
+/// 指定されたブレンドモード×カリング設定のバケットに溜められたレンダラーだけを描画する。
+/// DispatchRendererで振り分けたバケットを、Rendering()側がブレンドモード×カリングの
+/// 全組み合わせについて呼び出すことで、同じPSOで描けるものをまとめて描画する
+/// </summary>
+/// <param name="_blendMode">描画するブレンドモード</param>
+/// <param name="_isCulling">描画するカリング設定</param>
 void TexturedMeshRenderSystemWithoutRaytracing::RenderingBy(BlendMode _blendMode, bool _isCulling) {
     int32_t cullingIndex = _isCulling ? 1 : 0;
     int32_t blendIndex   = static_cast<int32_t>(_blendMode);
@@ -112,12 +136,15 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderingBy(BlendMode _blendMode
     auto& activeModelMeshRenderers     = activeModelMeshRenderer_[cullingIndex][blendIndex];
     auto& activePrimitiveMeshRenderers = activePrimitiveMeshRenderer_[cullingIndex][blendIndex];
 
+    // 対象バケットが空ならStartRender(PSO切り替えを伴う)ごとスキップし、無駄な描画コマンドを積まないようにする
     bool isSkip = activeModelMeshRenderers.empty() && activePrimitiveMeshRenderers.empty();
     if (isSkip) {
         return;
     }
 
     auto& commandList = dxCommand_->GetCommandList();
+    // StartRenderはcurrentCulling_/currentBlendMode_を見て対応するPSOを選ぶため、
+    // 呼び出す前に「今から描画する設定」としてここで反映しておく
     currentCulling_   = _isCulling;
     currentBlendMode_ = _blendMode;
 
@@ -128,6 +155,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderingBy(BlendMode _blendMode
         for (auto& renderer : activeModelMeshRenderers) {
             RenderModelMesh(commandList, renderer);
         }
+        // バケットはフレーム単位の一時リストであり、次フレームのDispatchRendererで再構築されるためここでクリアする
         activeModelMeshRenderers.clear();
     }
     // primitive
@@ -135,10 +163,15 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderingBy(BlendMode _blendMode
         for (auto& renderer : activePrimitiveMeshRenderers) {
             RenderPrimitiveMesh(commandList, renderer);
         }
+        // 同上、次フレームのDispatchRendererで再構築されるためクリアする
         activePrimitiveMeshRenderers.clear();
     }
 }
 
+/// <summary>
+/// 全てのバケット(カリング有無×ブレンドモードの組み合わせ全て)が空であれば、
+/// 描画処理自体を丸ごとスキップするための早期リターン判定
+/// </summary>
 bool TexturedMeshRenderSystemWithoutRaytracing::ShouldSkipRender() const {
     for (size_t isCulling = 0; isCulling < 2; ++isCulling) {
         for (size_t blendIndex = 0; blendIndex < kBlendNum; ++blendIndex) {
@@ -412,6 +445,10 @@ void TexturedMeshRenderSystemWithoutRaytracing::LightUpdate() {
     LightManager::GetInstance()->Update();
 }
 
+/// <summary>
+/// 現在のカリング設定・ブレンドモード(currentCulling_/currentBlendMode_)に対応するPSOを選択してバインドし、
+/// カメラ・ライト・環境テクスチャなど、このフレームの描画に共通して必要なバッファを設定する
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -419,6 +456,8 @@ void TexturedMeshRenderSystemWithoutRaytracing::StartRender() {
     int32_t blendIndex   = static_cast<int32_t>(currentBlendMode_);
 
     // PSOとRootSignatureの設定(パラメーターを設定するため,とりあえずPSOをセット)
+    // currentCulling_/currentBlendMode_はRenderingBy側で描画対象のバケットに合わせて設定済みのため、
+    // ここではその組み合わせに対応するPSOを選ぶだけでよい
     commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -437,6 +476,7 @@ void TexturedMeshRenderSystemWithoutRaytracing::StartRender() {
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     /// 環境テクスチャ
+    // Skyboxが存在しないシーンでは環境マップ用テクスチャを取得できないため、その場合はここで処理を打ち切る
     EntityHandle skyboxEntity = GetUniqueEntity("Skybox");
     if (!skyboxEntity.IsValid()) {
         return;

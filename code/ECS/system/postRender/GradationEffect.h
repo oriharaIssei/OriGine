@@ -66,9 +66,9 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    PipelineStateObj* pso_ = nullptr;
+    PipelineStateObj* pso_ = nullptr; // グラデーションエフェクト用PSO
 
-    std::vector<GradationComponent*> activeRenderingData_ = {};
+    std::vector<GradationComponent*> activeRenderingData_ = {}; // 今回の更新で描画対象となったコンポーネント一覧
 };
 
 } // namespace OriGine

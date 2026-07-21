@@ -32,6 +32,9 @@ public:
     ///</summary>
     void Initialize(OriGine::Scene* _scene, const EntityHandle& _owner) override;
 
+    /// <summary>
+    /// エディタ上でモデルファイル・Transform・Material・テクスチャを編集するGUIを描画する
+    /// </summary>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {
@@ -45,8 +48,11 @@ public:
         }
     }
 
+    /// メッシュ数に合わせてTransform用定数バッファを作成する
     void InitializeTransformBuffer();
+    /// メッシュ数に合わせてMaterial用定数バッファを作成する(既存のMaterialハンドルは維持)
     void InitializeMaterialBuffer();
+    /// メッシュ数に合わせてMaterial用定数バッファを作成し、Materialハンドルを無効値にリセットする
     void InitializeMaterialBufferWithMaterialIndex();
     void ResizeTransformBuffer2MeshGroupSize() {
         meshTransformBuff_.resize(meshGroup_->size());
@@ -58,15 +64,15 @@ public:
     }
 
 private:
-    std::string directory_ = "";
-    std::string fileName_  = "";
+    std::string directory_ = ""; // 読み込むモデルファイルが置かれているディレクトリ
+    std::string fileName_  = ""; // 読み込むモデルファイル名
 
-    std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
+    std::vector<IConstantBuffer<Transform>> meshTransformBuff_; // メッシュごとのTransform用定数バッファ
     // first = material handle, second = constantBuffer
     std::vector<std::pair<ComponentHandle, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
 
-    std::vector<std::string> textureFilePath_ = {};
-    std::vector<size_t> meshTextureNumbers_;
+    std::vector<std::string> textureFilePath_ = {}; // メッシュごとのテクスチャファイルパス
+    std::vector<size_t> meshTextureNumbers_; // メッシュごとの読み込み済みテクスチャインデックス
 
     /// <summary>共有モデルデータへのポインタ（インスタンシング判定キー）</summary>
     ModelMeshData* modelData_ = nullptr;
@@ -166,12 +172,18 @@ public:
     void SetForceNonInstanced(bool _force) { forceNonInstanced_ = _force; }
 };
 
+/// <summary>
+/// モデルファイルを読み込み、そのメッシュ群を_rendererに設定する(読み込み完了までブロックする)
+/// </summary>
 void CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
     const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName,
     bool _usingDefaultTexture = true);
+/// <summary>
+/// モデルファイルが持つデフォルトマテリアル・テクスチャで、対象エンティティのMaterialコンポーネントを初期化(または更新)する
+/// </summary>
 void InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,

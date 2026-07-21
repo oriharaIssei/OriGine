@@ -62,6 +62,9 @@ struct MouseState {
 /// <summary>DirectInput が扱う最大マウスボタン数</summary>
 static constexpr uint32_t MOUSE_BUTTON_COUNT = 8;
 
+/// <summary>
+/// DirectInput によるマウス入力を管理するクラス.
+/// </summary>
 class MouseInput {
     friend class ReplayPlayer;
 
@@ -74,8 +77,21 @@ public:
     MouseInput(const MouseInput&)            = delete;
     MouseInput& operator=(const MouseInput&) = delete;
 
+    /// <summary>
+    /// デバイスの初期化を行う.
+    /// </summary>
+    /// <param name="_directInput">DirectInput8 インターフェース</param>
+    /// <param name="_hwnd">ウィンドウハンドル</param>
     void Initialize(IDirectInput8* _directInput, HWND _hwnd);
+
+    /// <summary>
+    /// 毎フレームのデバイス入力状態をポーリングして更新する.
+    /// </summary>
     void Update();
+
+    /// <summary>
+    /// デバイスの終了処理を行う.
+    /// </summary>
     void Finalize();
 
     /// <summary>

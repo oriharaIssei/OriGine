@@ -89,6 +89,7 @@ bool WebCamera::Open(const std::wstring& deviceId, uint32_t requestWidth, uint32
 
     ComPtr<IMFMediaSource> mediaSource;
 
+    // 指定なしは列挙結果の先頭デバイスを使用し、指定ありはシンボリックリンクが一致するものを探す
     if (deviceId.empty()) {
         IMFActivate** ppDevices = nullptr;
         UINT32 count            = 0;
@@ -276,6 +277,8 @@ void WebCamera::CaptureThread() {
             uint32_t rowBytes = width_ * 4;
 
             if (outputSubtype_ == MFVideoFormat_NV12 && curLength >= stride_ * height_ * 3 / 2) {
+                // NV12（Y平面 + インターリーブUV半解像度平面）を BT.601 の整数近似式で BGRA へ変換する。
+                // UV平面は水平・垂直とも半分解像度のため、(x & ~1u) で偶数座標に丸めて参照する。
                 latestFrame_.resize(rowBytes * height_);
                 const uint8_t* yPlane  = rawData;
                 const uint8_t* uvPlane = rawData + stride_ * height_;
@@ -301,6 +304,7 @@ void WebCamera::CaptureThread() {
                     }
                 }
             } else if (bottomUp_ && curLength >= stride_ * height_) {
+                // ボトムアップ（負ストライド）フォーマットは行順を反転してトップダウンへ揃える
                 latestFrame_.resize(rowBytes * height_);
                 for (uint32_t y = 0; y < height_; ++y) {
                     memcpy(latestFrame_.data() + y * rowBytes,
@@ -308,6 +312,7 @@ void WebCamera::CaptureThread() {
                            rowBytes);
                 }
             } else {
+                // 既にトップダウンRGB32等でそのまま使える形式はコピーのみ
                 latestFrame_.assign(rawData, rawData + curLength);
             }
         }

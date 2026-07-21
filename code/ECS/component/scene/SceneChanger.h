@@ -45,8 +45,8 @@ public:
     }
 
 private:
-    bool isSceneChanged_ = false;
-    std::string nextSceneName_;
+    bool isSceneChanged_ = false; // シーン変更が要求されたかどうか
+    std::string nextSceneName_; // 遷移先シーン名
 
 public:
     bool isChanged() const { return isSceneChanged_; }

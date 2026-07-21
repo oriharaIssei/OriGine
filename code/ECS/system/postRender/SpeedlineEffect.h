@@ -73,9 +73,9 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    PipelineStateObj* pso_ = nullptr;
+    PipelineStateObj* pso_ = nullptr; // スピードラインエフェクト用PSO
 
-    std::vector<SpeedlineEffectParam*> activeParams_;
+    std::vector<SpeedlineEffectParam*> activeParams_; // 今回の更新で描画対象となったパラメータ一覧
 };
 
 } // namespace OriGine

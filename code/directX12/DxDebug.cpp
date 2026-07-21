@@ -27,6 +27,8 @@ void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
         // GPU側でもデバッグさせる
         debugController_->SetEnableGPUBasedValidation(TRUE);
 
+        // DRED (Device Removed Extended Data) を強制的に有効化し、
+        // デバイスロスト発生時にブレッドクラムとページフォルト情報を取得できるようにする
         Microsoft::WRL::ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dredSettings;
         D3D12GetDebugInterface(IID_PPV_ARGS(&dredSettings));
         dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
@@ -38,6 +40,7 @@ void DxDebug::FinalizeDebugger() {
     infoQueue_.Reset();
     IDXGIDebug1* debug;
     if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
+        // 解放漏れしているオブジェクトをデバッグ出力へ報告する（リーク検出用）
         debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
         debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
         debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);

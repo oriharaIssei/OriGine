@@ -27,6 +27,10 @@ using namespace OriGine;
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 
+/// <summary>
+/// 現在のビルド構成（Debug / Develop / Release）を表す文字列を取得する.
+/// ログファイル名の生成に使用される.
+/// </summary>
 static std::string GetCurrentConfigString() {
 #if defined(_DEBUG)
     return "Debug";

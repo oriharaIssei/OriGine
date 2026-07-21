@@ -63,8 +63,8 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    std::vector<RadialBlurParam*> activeRadialBlurParams_ = {};
-    PipelineStateObj* pso_                                = nullptr;
+    std::vector<RadialBlurParam*> activeRadialBlurParams_ = {}; // 今回の更新で描画対象となったパラメータ一覧
+    PipelineStateObj* pso_                                = nullptr; // ラジアルブラーエフェクト用PSO
 };
 
 } // namespace OriGine

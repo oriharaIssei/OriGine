@@ -60,12 +60,15 @@ void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandL
 }
 
 void ResourceStateTracker::DirectBarrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ID3D12Resource* _resource, D3D12_RESOURCE_BARRIER _barrier) {
+    // ユーザー指定のバリアが示す遷移後状態をローカル状態として記録しておく
     localResourceStates_[_resource] = _barrier.Transition.StateAfter;
 
     _commandList->ResourceBarrier(1, &_barrier);
 }
 
 void ResourceStateTracker::CommitLocalStatesToGlobal() {
+    // このコマンドリストで確定したローカル状態をグローバルへ反映し、
+    // 次にこのリソースを参照するコマンドリストが正しい初期状態を参照できるようにする
     for (const auto& [resource, state] : localResourceStates_) {
         globalResourceStates_[resource] = state;
     }

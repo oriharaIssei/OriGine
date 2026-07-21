@@ -26,6 +26,7 @@ bool ComponentRepository::RegisterComponentArray(const std::string& _compTypeNam
     }
 
     if (ComponentRegistry::GetInstance()->HasComponentArray(_compTypeName)) {
+        // ComponentRegistryに登録済みのファクトリからComponentArrayの実体を複製生成する
         componentArrays_[_compTypeName] = std::move(ComponentRegistry::GetInstance()->CloneComponentArray(_compTypeName));
         componentArrays_[_compTypeName]->Initialize(1000);
     } else {
@@ -48,6 +49,7 @@ void ComponentRepository::UnregisterComponentArray(const std::string& _typeName,
 IComponentArray* ComponentRepository::GetComponentArray(const std::string& _typeName) {
     auto itr = componentArrays_.find(_typeName);
     if (itr == componentArrays_.end()) {
+        // 未登録の場合はここで遅延登録する
         if (RegisterComponentArray(_typeName)) {
             itr = componentArrays_.find(_typeName);
         } else {
@@ -95,6 +97,7 @@ std::unordered_map<std::string, std::vector<IComponent*>> OriGine::ComponentRepo
         if (componentArray->HasEntity(_handle)) {
             auto comps = componentArray->GetIComponents(_handle);
             if (comps.empty()) {
+                // 実体を持たない型は結果に含めない
                 continue;
             }
             result[typeName] = comps;

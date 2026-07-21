@@ -238,6 +238,9 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     return frameData.deltaTime;
 }
 
+/// <summary>
+/// 再生位置を指定フレームへ移動する. 範囲外の場合は失敗として false を返す.
+/// </summary>
 bool ReplayPlayer::Seek(size_t _frameIndex) {
     if (_frameIndex < fileData_.frameData.size()) {
         bool result        = (currentFrameIndex_ != _frameIndex);

@@ -17,6 +17,11 @@ public:
     IPrimitive(PrimitiveType _type) : type_(_type) {}
     virtual ~IPrimitive() {}
 
+    /// <summary>
+    /// 形状に応じた頂点・インデックスデータを生成し、メッシュに書き込む。
+    /// 派生クラスで具体的な形状生成処理を実装する。
+    /// </summary>
+    /// <param name="_mesh">生成結果を書き込むメッシュ</param>
     virtual void CreateMesh(TextureColorMesh* _mesh) = 0;
 
 protected:

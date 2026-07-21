@@ -69,15 +69,15 @@ public:
     }
 
 protected:
-    EntityHandle hostEntityHandle_ = {};
+    EntityHandle hostEntityHandle_ = {}; // このレンダラーを所有するエンティティのハンドル
 
-    BlendMode currentBlend_ = BlendMode::Alpha;
+    BlendMode currentBlend_ = BlendMode::Alpha; // 描画時のブレンドモード
 
-    bool isRender_  = true;
-    bool isCulling_ = true;
+    bool isRender_  = true; // 描画を行うかどうか
+    bool isCulling_ = true; // カリングを行うかどうか
 
-    std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
-    std::vector<RaytracingMeshType> meshRaytracingTypes_;
+    std::shared_ptr<std::vector<MeshTemplate>> meshGroup_; // 描画対象のメッシュ群
+    std::vector<RaytracingMeshType> meshRaytracingTypes_; // 各メッシュのレイトレーシング種別
 
 public: // ↓ Accessor
     EntityHandle GetHostEntityHandle() const {

@@ -116,6 +116,7 @@ void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const En
 
     // shape
     label = "HalfSize##" + _parentLabel;
+    // サイズが変更されたらメッシュを再生成する
     DragGuiVectorCommand<3, float>(label.c_str(), primitive_.halfSize_, 0.01f, 0.01f, {}, "%.3f", [this](Vec<3, float>* _value) {
         primitive_.halfSize_ = *_value;
         CreateMesh(&meshGroup_->back());

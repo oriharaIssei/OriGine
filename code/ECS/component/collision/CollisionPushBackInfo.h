@@ -8,6 +8,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 衝突発生時にエンティティへどう反応させるかを表す種別。
+/// </summary>
 enum class CollisionPushBackType {
     None     = 0,
     PushBack = 1, // 衝突時に押し戻す
@@ -15,8 +18,16 @@ enum class CollisionPushBackType {
 
     Count
 };
+/// <summary>
+/// CollisionPushBackType を表示用の文字列に変換する。
+/// </summary>
+/// <param name="_type">変換対象の種別</param>
+/// <returns>種別名の文字列</returns>
 const char* GetCollisionPushBackTypeName(CollisionPushBackType _type);
 
+/// <summary>
+/// 衝突時の押し戻し挙動と、エンティティごとの衝突情報を保持するコンポーネント。
+/// </summary>
 class CollisionPushBackInfo
     : public IComponent {
     friend void to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp);
@@ -28,11 +39,17 @@ public:
 
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
+    /// <summary>
+    /// 蓄積した衝突情報をすべて破棄する。
+    /// </summary>
     void ClearInfo();
 
 public:
+    /// <summary>
+    /// 1件の衝突で発生した押し戻し情報。
+    /// </summary>
     struct Info {
-        CollisionPushBackType pushBackType;
+        CollisionPushBackType pushBackType; // この衝突に適用する挙動
         Vec3f collVec; // 衝突ベクトル
         Vec3f collFaceNormal; // 衝突面の法線ベクトル
         Vec3f collPoint; // 衝突点
@@ -40,7 +57,7 @@ public:
 
 private:
     CollisionPushBackType pushBackType_ = CollisionPushBackType::None; // 衝突時の挙動
-    std::unordered_map<EntityHandle, Info> collisionInfoMap_;
+    std::unordered_map<EntityHandle, Info> collisionInfoMap_; // 衝突相手エンティティごとの衝突情報
 
 public:
     CollisionPushBackType GetPushBackType() const { return pushBackType_; }

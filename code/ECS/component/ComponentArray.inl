@@ -46,6 +46,7 @@ inline void ComponentArray<ComponentType>::UnregisterEntity(const EntityHandle& 
 
     uint32_t slotId = itr->second;
 
+    // 所有する全Componentを終了処理し、位置情報も合わせて削除する
     for (auto& comp : slots_[slotId].components) {
         comp.Finalize();
         componentLocationMap_.erase(comp.GetHandle().uuid);
@@ -77,15 +78,16 @@ inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene
     EntitySlot& slot   = slots_[slotIndex];
 
     ComponentType comp{};
-    comp.SetHandle(ComponentHandle(UuidGenerator::RandomGenerate()));
+    comp.SetHandle(ComponentHandle(UuidGenerator::RandomGenerate())); // 新規Handleを発行
 
     slot.components.emplace_back(std::move(comp));
     uint32_t compIndex = static_cast<uint32_t>(slot.components.size() - 1);
 
+    // 追加位置を検索用マップに登録
     componentLocationMap_[slot.components.back().GetHandle().uuid] =
         {slotIndex, compIndex};
 
-    slot.components.back().Initialize(_scene, _entity);
+    slot.components.back().Initialize(_scene, _entity); // マップ登録後に初期化
 
     return slot.components.back().GetHandle();
 }
@@ -414,6 +416,7 @@ inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(co
     uint32_t slotIndex = entIt->second;
     EntitySlot& slot   = slots_[slotIndex];
 
+    // 戻り値はstatic配列を使い回すため、次の呼び出しまでの間のみ有効
     static std::vector<IComponent*> iComponents;
     iComponents.clear();
     for (auto& comp : slot.components) {

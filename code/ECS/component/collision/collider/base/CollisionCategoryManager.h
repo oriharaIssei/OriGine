@@ -18,13 +18,16 @@ namespace OriGine {
 /// </summary>
 class CollisionCategoryManager {
 public:
+    /// <summary>
+    /// シングルトンインスタンスを取得する
+    /// </summary>
     static CollisionCategoryManager* GetInstance() {
         static CollisionCategoryManager instance;
         return &instance;
     }
 
 private:
-    static constexpr uint32_t kMaxCategories = 32;
+    static constexpr uint32_t kMaxCategories = 32; // 登録可能なカテゴリの最大数（ビットマスク32bit分）
 
 public:
     /// <summary>
@@ -103,15 +106,16 @@ public:
     void SaveToGlobalVariables();
 
 private:
+    // シングルトンのためコピー・代入を禁止
     CollisionCategoryManager();
     ~CollisionCategoryManager()                                          = default;
     CollisionCategoryManager(const CollisionCategoryManager&)            = delete;
     CollisionCategoryManager& operator=(const CollisionCategoryManager&) = delete;
 
 private:
-    CollisionCategory defaultCategory_;
-    std::array<std::string, kMaxCategories> indexToName_;
-    std::unordered_map<std::string, CollisionCategory> categories_;
+    CollisionCategory defaultCategory_; // 未登録カテゴリ・登録失敗時に返すデフォルト値
+    std::array<std::string, kMaxCategories> indexToName_; // ビットインデックス→カテゴリ名の逆引き用
+    std::unordered_map<std::string, CollisionCategory> categories_; // 登録済みカテゴリ本体（名前で参照）
     std::unordered_map<std::string, uint32_t> categoryMasks_; // カテゴリごとの衝突マスク
 };
 

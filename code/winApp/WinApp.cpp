@@ -329,6 +329,8 @@ void WinApp::ApplyCursorClip(){
 	ClipCursor(&rect);
 }
 
+// backgroundTransparent_ / clickThrough_ / backgroundAlpha_ / transparencyColorKey_ の各設定値を
+// WS_EX_LAYERED ウィンドウ拡張スタイルへ反映し、実際にウィンドウ背景の透過表示を行う.
 void WinApp::ApplyBackgroundTransparency(){
 	if(hwnd_ == nullptr){
 		return;
@@ -336,6 +338,7 @@ void WinApp::ApplyBackgroundTransparency(){
 
 	LONG_PTR exStyle = GetWindowLongPtr(hwnd_,GWL_EXSTYLE);
 	if(!backgroundTransparent_){
+		// 透過無効時はレイヤード/クリックスルーの拡張スタイルを外し、通常描画に戻す
 		SetWindowLongPtr(hwnd_,GWL_EXSTYLE,exStyle & ~(WS_EX_LAYERED | WS_EX_TRANSPARENT));
 		MARGINS margins{0,0,0,0};
 		DwmExtendFrameIntoClientArea(hwnd_,&margins);
@@ -346,6 +349,7 @@ void WinApp::ApplyBackgroundTransparency(){
 
 	exStyle |= WS_EX_LAYERED;
 	if(clickThrough_){
+		// クリックスルー有効時はマウス入力をウィンドウの背後へ通過させる
 		exStyle |= WS_EX_TRANSPARENT;
 	} else{
 		exStyle &= ~WS_EX_TRANSPARENT;
@@ -354,6 +358,7 @@ void WinApp::ApplyBackgroundTransparency(){
 
 	DWORD flags = LWA_ALPHA;
 	if(useTransparencyColorKey_){
+		// 指定した色 (transparencyColorKey_) を完全透明として扱うカラーキー方式を併用する
 		flags |= LWA_COLORKEY;
 	}
 	SetLayeredWindowAttributes(hwnd_,transparencyColorKey_,backgroundAlpha_,flags);
@@ -367,10 +372,11 @@ void WinApp::ApplyBackgroundTransparency(){
 RECT WinApp::GetMonitorRect(int _monitorIndex) const{
 	auto monitors = EnumerateMonitors();
 	if(monitors.empty()){
+		// モニタ情報が取得できない場合はプライマリスクリーンのサイズにフォールバック
 		return RECT{0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN)};
 	}
 
-	int index = std::clamp(_monitorIndex,0,static_cast<int>(monitors.size()) - 1);
+	int index = std::clamp(_monitorIndex,0,static_cast<int>(monitors.size()) - 1); // 範囲外指定を安全な値へ丸める
 	return monitors[index].monitorArea;
 }
 
@@ -519,6 +525,7 @@ void WinApp::ShowCursor(bool _show){
 	}
 
 	cursorVisible_ = _show;
+	// ::ShowCursor は内部表示カウンタを増減するだけなので、目的の表示状態になるまで繰り返し呼ぶ
 	if(_show){
 		while(::ShowCursor(TRUE) < 0){}
 	} else{
@@ -592,6 +599,7 @@ std::vector<DisplayMode> WinApp::EnumerateDisplayModes(int _monitorIndex){
 	DISPLAY_DEVICEW device{};
 	device.cb = sizeof(device);
 
+	// _monitorIndex 番目の「有効な（アクティブな）」ディスプレイアダプタのデバイス名を特定する
 	std::wstring deviceName;
 	for(DWORD index = 0,activeIndex = 0; EnumDisplayDevicesW(nullptr,index,&device,0); ++index){
 		if((device.StateFlags & DISPLAY_DEVICE_ACTIVE) == 0){
@@ -606,6 +614,7 @@ std::vector<DisplayMode> WinApp::EnumerateDisplayModes(int _monitorIndex){
 		device.cb = sizeof(device);
 	}
 
+	// 対象デバイスがサポートする全表示モードを列挙し、幅・高さ・リフレッシュレートの組で重複を除去する
 	const wchar_t* targetDevice = deviceName.empty() ? nullptr : deviceName.c_str();
 	std::vector<DisplayMode> modes;
 	std::set<std::tuple<int32_t,int32_t,int32_t>> uniqueModes;
@@ -657,6 +666,7 @@ void WinApp::SetWindowMode(WindowMode _mode){
 		return;
 	}
 
+	// フルスクリーンへ入る直前のウィンドウ位置・サイズを保存しておき、ウィンドウモード復帰時に使用する
 	bool wasFullscreen = IsFullscreen();
 	if(!wasFullscreen && (_mode == WindowMode::BORDERLESS_FULLSCREEN || _mode == WindowMode::EXCLUSIVE_FULLSCREEN)){
 		GetWindowRect(hwnd_,&windowRect_);
@@ -664,6 +674,7 @@ void WinApp::SetWindowMode(WindowMode _mode){
 
 	windowMode_ = _mode;
 
+	// 通常ウィンドウ: 元のウィンドウスタイル・矩形へ戻す
 	if(_mode == WindowMode::WINDOWED){
 		LONG_PTR style = static_cast<LONG_PTR>(windowStyle_ | WS_VISIBLE);
 	#ifndef _DEBUG
@@ -683,6 +694,7 @@ void WinApp::SetWindowMode(WindowMode _mode){
 		return;
 	}
 
+	// ボーダレスウィンドウ: 枠なしにするが位置・サイズは変更しない
 	if(_mode == WindowMode::BORDERLESS_WINDOWED){
 		SetWindowLongPtr(hwnd_,GWL_STYLE,WS_POPUP | WS_VISIBLE);
 		SetWindowPos(hwnd_,alwaysOnTop_ ? HWND_TOPMOST : HWND_NOTOPMOST,0,0,0,0,
@@ -690,6 +702,7 @@ void WinApp::SetWindowMode(WindowMode _mode){
 		return;
 	}
 
+	// ボーダレス/排他フルスクリーン: 枠を外し、対象モニタ全域を覆うようにウィンドウを配置する
 	RECT monitorRect = GetMonitorRect(targetMonitorIndex_);
 	SetWindowLongPtr(hwnd_,GWL_STYLE,WS_POPUP | WS_VISIBLE);
 	SetWindowPos(hwnd_,alwaysOnTop_ ? HWND_TOPMOST : HWND_TOP,
@@ -755,6 +768,8 @@ bool WinApp::RestoreWindowState(){
 	SerializedField<int32_t> mode{"Settings","WindowState","Mode"};
 	SerializedField<int32_t> monitorIndex{"Settings","WindowState","MonitorIndex"};
 
+	// 保存時のウィンドウ左上座標が、現在接続されているいずれかのモニタ範囲内にあるかを確認する.
+	// モニタ構成が変わり画面外の座標になっていた場合は復元せず、デフォルト位置での起動に委ねる
 	POINT topLeft{*posX.GetValue(),*posY.GetValue()};
 	auto monitors = EnumerateMonitors();
 	bool isInsideAnyMonitor = std::any_of(monitors.begin(),monitors.end(),[&topLeft](const MonitorInfo& monitor){
@@ -765,6 +780,8 @@ bool WinApp::RestoreWindowState(){
 	}
 
 	targetMonitorIndex_ = (std::max)(0,*monitorIndex.GetValue());
+	// 背景透過・タイトルバー表示等のウィンドウ装飾設定は、デバッグ実行時は開発しやすさのため既定値を優先し、
+	// リリースビルドのみ保存値を復元する
 #ifndef _DEBUG
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	bool* backgroundTransparent = globalVariables->AddValue<bool>(
@@ -1142,6 +1159,7 @@ void WinApp::ShowTrayContextMenu(){
 	HMENU hMenu = ::CreatePopupMenu();
 	if(!hMenu) return;
 
+	// カスタム項目には 100 番以降の ID を割り当て、選択結果からインデックスへ逆算できるようにする
 	for(size_t i = 0; i < trayMenuItems_.size(); ++i){
 		::AppendMenuW(hMenu,MF_STRING,100 + i,trayMenuItems_[i].label.c_str());
 	}

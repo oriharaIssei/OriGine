@@ -112,6 +112,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const
     ImGui::Spacing();
 
     // shape
+    // 各形状パラメータが変更されたらメッシュを再生成する
     label = "Division Latitude##" + _parentLabel;
     DragGuiCommand<uint32_t>(label.c_str(), primitive_.divisionLatitude_, 1, 1, 1000, "%d", [this](uint32_t* _value) {
         primitive_.divisionLatitude_ = *_value;

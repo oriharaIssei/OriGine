@@ -40,6 +40,7 @@ using namespace OriGine;
 // ModelMeshRenderer - Core Implementation
 //==============================================================================
 
+// メッシュ数に合わせて各種バッファをリサイズし、デフォルト値で初期化する
 ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureColorMesh>& _meshGroup)
     : MeshRenderer<TextureColorMesh, TextureColorVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
@@ -65,6 +66,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureColorMesh>& _meshG
     }
 }
 
+// メッシュ数に合わせて各種バッファをリサイズし、Transform用バッファを生成・初期化する
 ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup)
     : MeshRenderer<TextureColorMesh, TextureColorVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {

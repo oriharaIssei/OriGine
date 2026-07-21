@@ -30,6 +30,7 @@ void SceneChanger::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[may
     ImGui::Text("Next Scene Name :");
     ImGui::SameLine();
     if (ImGui::BeginCombo("##NextSceneName", nextSceneName_.c_str())) {
+        // シーンディレクトリ配下のjsonファイルを遷移先候補として列挙する
         for (const auto& [directory, sceneName] : myfs::SearchFile(kApplicationResourceDirectory + "/scene/", "json")) {
             bool isSelected = nextSceneName_ == sceneName;
             if (ImGui::Selectable(sceneName.c_str(), isSelected)) {
@@ -49,10 +50,12 @@ void SceneChanger::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[may
 
 void SceneChanger::Finalize() {}
 
+// nextSceneName_をjsonへ書き出す
 void to_json(nlohmann::json& j, const SceneChanger& r) {
     j["nextSceneName"] = r.nextSceneName_;
 }
 
+// jsonからnextSceneName_を復元する
 void from_json(const nlohmann::json& j, SceneChanger& r) {
     j.at("nextSceneName").get_to(r.nextSceneName_);
 }

@@ -245,6 +245,7 @@ void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
         spriteBuff_.ConvertToBuffer();
     }
     //-------------------------------- メッシュの更新 --------------------------------//
+    // anchorPoint_(0~1)を基準に、原点からの相対位置として頂点の四辺を求める
     float left   = -anchorPoint_[X] * size_[X];
     float right  = (1.0f - anchorPoint_[X]) * size_[X];
     float top    = -anchorPoint_[Y] * size_[Y];

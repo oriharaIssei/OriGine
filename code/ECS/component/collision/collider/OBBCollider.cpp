@@ -62,6 +62,7 @@ void OBBCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
     this->worldShape_.center_           = shape_.center_ * transform_.worldMat;
     this->worldShape_.halfSize_         = shape_.halfSize_ * transform_.GetWorldScale();
+    // ローカルの回転にワールド回転を合成してから、各軸ベクトルを再計算する
     this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
     this->worldShape_.orientations_.UpdateAxes();
 }

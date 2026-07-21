@@ -134,13 +134,13 @@ private:
     int32_t FindIndex(const uuids::uuid& _uuid) const;
 
 private:
-    uint32_t size_ = 10000;
+    uint32_t size_ = 10000; // entities_の初期確保サイズ(最大収容数)
 
-    std::vector<Entity> entities_;
-    BitArray<uint64_t> entityActiveBits_;
+    std::vector<Entity> entities_; // Entity実体のプール(インデックスで管理)
+    BitArray<uint64_t> entityActiveBits_; // 各インデックスが生存中かどうかのビット集合
 
-    std::unordered_map<uuids::uuid, int32_t> uuidToIndex_;
-    std::unordered_map<std::string, uuids::uuid> uniqueEntities_;
+    std::unordered_map<uuids::uuid, int32_t> uuidToIndex_; // uuid -> entities_内インデックス
+    std::unordered_map<std::string, uuids::uuid> uniqueEntities_; // dataType名 -> UniqueEntityのuuid
 
 public:
     /// <summary>

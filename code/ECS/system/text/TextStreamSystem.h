@@ -18,9 +18,19 @@ namespace OriGine {
 		TextStreamSystem();
 		~TextStreamSystem() override;
 
+		/// <summary>
+		/// 初期化
+		/// </summary>
 		void Initialize() override;
+		/// <summary>
+		/// 終了処理
+		/// </summary>
 		void Finalize() override;
 	private:
+		/// <summary>
+		/// 経過時間に応じて表示文字数を更新し、TextComponent に反映する
+		/// </summary>
+		/// <param name="_handle">対象エンティティ</param>
 		void UpdateEntity(const EntityHandle& _handle)override;
 
 	};

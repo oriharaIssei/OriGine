@@ -35,7 +35,7 @@ public:
     }
 
 protected:
-    PrimType primitive_;
+    PrimType primitive_; // 描画対象となる形状データ本体
 
 public:
     const PrimType& GetPrimitive() const {
@@ -48,6 +48,7 @@ public:
 
 template <Primitive::IsPrimitive PrimType>
 inline void PrimitiveMeshRenderer<PrimType>::Finalize() {
+    // メッシュ・定数バッファなど保持しているリソースを解放する
     for (auto& mesh : *meshGroup_) {
         mesh.Finalize();
     }

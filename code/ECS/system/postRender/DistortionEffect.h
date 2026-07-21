@@ -74,6 +74,9 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
+    /// <summary>
+    /// 1エンティティ分の描画に必要なデータ
+    /// </summary>
     struct RenderingData {
         DistortionEffectParam* effectParam    = nullptr;
         D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0);
@@ -82,15 +85,15 @@ protected:
 protected:
     std::unique_ptr<DistortionEffectParam> defaultParam_ = nullptr; // デフォルトパラメーター (3DObjectの適応に使う)
 
-    std::vector<RenderingData> activeRenderingData_                  = {};
-    std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {};
+    std::vector<RenderingData> activeRenderingData_                  = {}; // 今回の更新で描画対象となったエンティティの描画データ一覧
+    std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {}; // 歪みを適用する3Dオブジェクトの一覧
 
     // 静的共有リソース
     static std::unique_ptr<RenderTexture> distortionSceneTexture_; // 歪みシーンテクスチャ (全インスタンスで共有)
     static int32_t instanceCount_; // インスタンスカウント
 
-    std::unique_ptr<TexturedMeshRenderSystemWithoutRaytracing> texturedMeshRenderSystem_ = nullptr;
-    PipelineStateObj* pso_                                                               = nullptr;
+    std::unique_ptr<TexturedMeshRenderSystemWithoutRaytracing> texturedMeshRenderSystem_ = nullptr; // 歪みシーンテクスチャへの描画に使うメッシュ描画システム
+    PipelineStateObj* pso_                                                               = nullptr; // 歪みエフェクト用PSO
 
     // gpu に送る バッファーのインデックス
     int32_t distortionTextureIndex_ = 0;

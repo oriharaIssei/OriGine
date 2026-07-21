@@ -13,7 +13,7 @@ namespace OriGine {
 /// レイトレーシングインスタンス情報
 /// </summary>
 struct RayTracingInstance {
-    Matrix4x4 matrix;
+    Matrix4x4 matrix; // インスタンスのワールド変換行列
     UINT instanceID : 24; // SV_InstanceID
     UINT mask : 8; // レイマスク
     UINT hitGroupIdx : 24; // ShaderTableのHitGroupインデックス

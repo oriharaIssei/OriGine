@@ -25,6 +25,7 @@ std::shared_ptr<PrimitiveMeshRendererBase> PrimitiveMeshFactory::CreatePrimitive
 }
 
 void PrimitiveMeshFactory::Initialize() {
+    // 各PrimitiveTypeに対応する生成関数を登録する
     // Box
     RegistryFactoryFunction(PrimitiveType::Box, []() {
         return std::make_shared<BoxRenderer>();

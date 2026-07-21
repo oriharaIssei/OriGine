@@ -67,14 +67,17 @@ protected:
     void RenderCall(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
 
 protected:
+    /// <summary>
+    /// 1エンティティ分の描画に必要なデータ
+    /// </summary>
     struct RenderingData {
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = {};
-        DissolveEffectParam* dissolveParam    = nullptr;
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = {}; // 描画対象テクスチャのSRVハンドル
+        DissolveEffectParam* dissolveParam    = nullptr; // Dissolveパラメータへのポインタ
     };
 
 protected:
-    PipelineStateObj* pso_                          = nullptr;
-    std::vector<RenderingData> activeRenderingData_ = {};
+    PipelineStateObj* pso_                          = nullptr; // Dissolveエフェクト用PSO
+    std::vector<RenderingData> activeRenderingData_ = {}; // 今回の更新で描画対象となったエンティティの描画データ一覧
 };
 
 } // namespace OriGine

@@ -38,6 +38,7 @@ void OriGine::ICollider::Edit(Scene* /*_scene*/, const EntityHandle& /*_handle*/
 }
 
 void ICollider::StartCollision() {
+    // 前フレームの状態を退避してから今フレーム分をクリアし、最新のワールド形状を計算する
     this->preCollisionStateMap_ = this->collisionStateMap_;
     this->collisionStateMap_.clear();
 
@@ -45,6 +46,7 @@ void ICollider::StartCollision() {
 }
 
 void ICollider::EndCollision() {
+    // 前フレーム衝突していた相手のうち、今フレームで更新されなかったものをExit状態にする
     for (auto& [entity, state] : this->preCollisionStateMap_) {
         if (state == CollisionState::Exit)
             return;

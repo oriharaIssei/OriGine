@@ -24,13 +24,29 @@ namespace {
 	}
 } // namespace
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 TextStreamSystem::TextStreamSystem(): ISystem(SystemCategory::Effect){}
+/// <summary>
+/// デストラクタ
+/// </summary>
 TextStreamSystem::~TextStreamSystem(){}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void TextStreamSystem::Initialize(){}
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void TextStreamSystem::Finalize(){}
 
+/// <summary>
+/// 経過時間に応じて表示文字数を更新し、TextComponent に反映する（タイプライター演出）
+/// </summary>
+/// <param name="_handle">対象エンティティ</param>
 void OriGine::TextStreamSystem::UpdateEntity(const EntityHandle& _handle){
 	float dt = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 

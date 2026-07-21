@@ -22,12 +22,18 @@ public:
     ///</summary>
     void Initialize(Scene* _scene, const EntityHandle& _owner) override;
 
+    /// <summary>
+    /// エディタ上でライン描画パラメータを編集するGUIを描画する
+    /// </summary>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    /// <summary>
+    /// 保持しているリソースを解放する
+    /// </summary>
     void Finalize() override;
 
 private:
-    IConstantBuffer<Transform> transformBuff_;
-    bool lineIsStrip_ = false;
+    IConstantBuffer<Transform> transformBuff_; // 座標変換用定数バッファ
+    bool lineIsStrip_ = false; // trueの場合ラインストリップとして描画する
 
 public:
     //------------------------------ Transform ------------------------------//

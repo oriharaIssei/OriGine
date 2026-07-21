@@ -83,6 +83,7 @@ bool Microphone::Open(const std::wstring& deviceId) {
         return false;
     }
 
+    // 指定なしはデフォルトの録音(eCapture)デバイスを使用する
     if (deviceId.empty()) {
         hr = enumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &device_);
     } else {
@@ -110,6 +111,7 @@ bool Microphone::Open(const std::wstring& deviceId) {
     format_.channels      = static_cast<uint16_t>(mixFormat_->nChannels);
     format_.bitsPerSample = static_cast<uint16_t>(mixFormat_->wBitsPerSample);
 
+    // イベント駆動キャプチャ用のシグナル。バッファにデータが溜まるとOSがこれをセットする
     captureEvent_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 
     REFERENCE_TIME bufferDuration = 200000; // 20ms
@@ -259,10 +261,12 @@ void Microphone::ConvertCaptureData(BYTE* data, UINT32 frameCount, DWORD flags, 
     const uint32_t sampleCount = frameCount * format_.channels;
     outBuffer.assign(sampleCount, 0.0f);
 
+    // 無音フラグ・データ無し・サンプル無しは0埋めのまま返す
     if ((flags & AUDCLNT_BUFFERFLAGS_SILENT) != 0 || data == nullptr || sampleCount == 0) {
         return;
     }
 
+    // ミックスフォーマット（WAVE_FORMAT_EXTENSIBLEの場合はSubFormat）から実際のサンプル形式を判別する
     const bool isExtensible = mixFormat_->wFormatTag == WAVE_FORMAT_EXTENSIBLE;
     const GUID subFormat = isExtensible
         ? reinterpret_cast<WAVEFORMATEXTENSIBLE*>(mixFormat_)->SubFormat
@@ -322,6 +326,7 @@ void Microphone::ConvertCaptureData(BYTE* data, UINT32 frameCount, DWORD flags, 
 
 void Microphone::CaptureThread() {
     while (isCapturing_) {
+        // イベントがシグナルされるまで待機（タイムアウトは停止要求をポーリングするため）
         DWORD waitResult = WaitForSingleObject(captureEvent_, 100);
         if (!isCapturing_) break;
         if (waitResult != WAIT_OBJECT_0) continue;
@@ -334,6 +339,7 @@ void Microphone::CaptureThread() {
             continue;
         }
 
+        // 溜まっているパケットを全て消費するまでドレインする
         while (packetLength > 0) {
             BYTE* data          = nullptr;
             UINT32 numFrames    = 0;
@@ -394,6 +400,7 @@ void Microphone::CaptureThread() {
 }
 
 void Microphone::WriteWavHeader(std::ofstream& file, uint32_t dataSize) {
+    // 標準的な RIFF/WAVE（PCM）ヘッダを構築して書き出す
     uint16_t numChannels   = format_.channels;
     uint32_t sampleRate    = format_.sampleRate;
     uint16_t bitsPerSample = 16;

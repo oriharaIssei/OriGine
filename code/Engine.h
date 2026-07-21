@@ -119,7 +119,7 @@ private:
     LightManager* lightManager_ = nullptr; // ライト管理
     ::std::unique_ptr<DeltaTimer> deltaTimer_; // デルタタイマー
 
-    ::std::unordered_map<int32_t, int32_t> resizeEventConvertIndexMap_;
+    ::std::unordered_map<int32_t, int32_t> resizeEventConvertIndexMap_; // リサイズイベント ID の変換用マップ
     ::std::vector<::std::function<void(const Vec2f&)>> windowResizeEvents_; // ウィンドウリサイズ時のコールバックリスト
 
 public:

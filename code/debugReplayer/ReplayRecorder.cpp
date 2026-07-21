@@ -23,6 +23,7 @@ void ReplayRecorder::Initialize(const std::string& _startSceneName) {
     frames_.clear();
 }
 
+/// <summary> 記録の終了処理. フレームデータとヘッダ情報を破棄する. </summary>
 void OriGine::ReplayRecorder::Finalize() {
     // フレームデータのクリア
     frames_.clear();

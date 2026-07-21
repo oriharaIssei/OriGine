@@ -32,13 +32,13 @@ public:
     void Finalize();
 
 protected:
-    DxResource buff_;
-    std::shared_ptr<DxSrvDescriptor> srv_;
+    DxResource buff_; // GPU側の実データバッファ
+    std::shared_ptr<DxSrvDescriptor> srv_; // 本バッファのSRVディスクリプタ
 
     // bind されたデータへのポインタ
     StructuredBufferType* mappingData_ = nullptr;
 
-    uint32_t elementCount_ = 0;
+    uint32_t elementCount_ = 0; // バッファが保持する要素数
 
 public:
     /// <summary>

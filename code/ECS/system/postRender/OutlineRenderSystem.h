@@ -27,7 +27,13 @@ public:
     OutlineRenderSystem();
     ~OutlineRenderSystem() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 private:
@@ -75,7 +81,7 @@ private:
 
 private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr; // DXコマンド
-    PipelineStateObj* pso_                = nullptr;
+    PipelineStateObj* pso_                = nullptr; // アウトライン描画用PSO
 
     // アクティブなモデルメッシュレンダラーのリスト
     std::vector<OutlineEntry> activeEntries_{};

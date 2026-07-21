@@ -16,6 +16,7 @@ SubScene::SubScene() {}
 SubScene::~SubScene() {}
 
 void SubScene:: Initialize(Scene* /*_scene,*/, const EntityHandle& /*_owner*/) {
+    // アクティブ状態でシーン名が設定済みの場合は初期化時点で読み込む
     if (!sceneName_.empty() && isActive_) {
         Load(sceneName_);
     }
@@ -36,6 +37,7 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const Entit
         for (const auto& scene : sceneList) {
             bool isSelected = (sceneName_ == scene.second);
             if (ImGui::Selectable(scene.second.c_str(), isSelected)) {
+                // シーン名変更時のコールバックで、旧シーンを解放してから新シーンを読み込み直す
                 auto command = ::std::make_unique<SetterCommand<::std::string>>(&sceneName_, scene.second, [this](::std::string* _newScene) {
                     if (this) {
                         Unload();
@@ -91,6 +93,7 @@ void OriGine::to_json(nlohmann::json& j, const SubScene& scene) {
 void OriGine::from_json(const nlohmann::json& j, SubScene& scene) {
     j.at("isActive").get_to(scene.isActive_);
     j.at("sceneName").get_to(scene.sceneName_);
+    // 後方互換: 古いセーブデータにrenderingPriorityが無い場合はデフォルト値のままにする
     if (j.contains("renderingPriority")) {
         j.at("renderingPriority").get_to(scene.renderingPriority_);
     }

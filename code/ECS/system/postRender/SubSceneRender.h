@@ -60,7 +60,7 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 private:
-    std::vector<std::pair<int32_t, Scene*>> scenes_;
+    std::vector<std::pair<int32_t, Scene*>> scenes_; // 描画対象のサブシーン一覧（描画優先度, シーン）
 };
 
 } // namespace OriGine

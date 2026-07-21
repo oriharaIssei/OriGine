@@ -8,6 +8,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 生成可能なプリミティブ形状の種類。
+/// </summary>
 enum class PrimitiveType : int32_t {
     Plane, // 面
     Ring, // 環(真ん中が空洞)
@@ -21,6 +24,7 @@ enum class PrimitiveType : int32_t {
     Count
 };
 
+/// PrimitiveTypeの各値に対応する名前一覧（Countと同じ並び順）
 static const std::array<std::string, static_cast<int32_t>(PrimitiveType::Count)> kPrimitiveTypes = {
     "Plane",
     "Ring",
@@ -35,5 +39,6 @@ static const std::array<std::string, static_cast<int32_t>(PrimitiveType::Count)>
 } // namespace OriGine
 
 namespace std {
+/// PrimitiveTypeを文字列名に変換する
 std::string to_string(OriGine::PrimitiveType _type);
 }

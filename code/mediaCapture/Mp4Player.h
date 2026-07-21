@@ -40,10 +40,21 @@ public:
     Mp4Player(const Mp4Player&)            = delete;
     Mp4Player& operator=(const Mp4Player&) = delete;
 
+    /// <summary>
+    /// mp4ファイルを開き、映像/音声ストリームを解析してデコード・提示用スレッドを起動する。
+    /// </summary>
+    /// <param name="mp4Path">再生するmp4ファイルのパス</param>
+    /// <returns>成功したら true</returns>
     bool Open(const std::string& mp4Path);
     void Close();
 
+    /// <summary>
+    /// 再生を開始（またはPauseから再開）する。終端まで達していた場合は先頭から再生する。
+    /// </summary>
     void Play();
+    /// <summary>
+    /// 再生を一時停止する。
+    /// </summary>
     void Pause();
     void Stop();               // 停止して先頭へ巻き戻す
     void SetLoop(bool loop) { loop_ = loop; }
@@ -72,13 +83,20 @@ private:
         std::vector<uint8_t> bgra; // トップダウン width*height*4
     };
 
+    // 映像/音声ストリームの出力フォーマット(RGB32/PCM16)を設定し、幅・高さ・ストライド等を確定する
     bool ConfigureStreams();
+    // XAudio2の再生デバイスとソースボイスを構築する
     bool CreateAudioOutput();
+    // ファイルからサンプルを読み進め、シーク適用・先読みバッファ制御をしつつ音声/映像へ振り分ける
     void DecodeThread();
+    // 基準クロックに従い、デコード済みキューから提示すべき映像フレームをコールバックへ供給する
     void PresentThread();
     void ApplySeekLocked(LONGLONG pos100ns); // デコードスレッドから呼ぶ
+    // デコード済み音声サンプルをXAudio2ソースボイスへ送出する
     void SubmitAudio(const Microsoft::WRL::ComPtr<IMFSample>& sample);
+    // デコード済み映像サンプルをBGRAへコピーしてフレームキューへ積む
     void PushVideo(const Microsoft::WRL::ComPtr<IMFSample>& sample, LONGLONG pts);
+    // 音声再生位置（あれば）または壁時計から現在の基準再生位置(100ns単位)を求める
     LONGLONG GetMasterPts100ns();
     void Fail(const std::string& msg, HRESULT hr);
 
