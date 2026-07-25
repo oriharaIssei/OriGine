@@ -40,6 +40,10 @@ void GamepadInput::Update() {
     currentState.buttonMask |= state.Gamepad.wButtons;
 
     // アナログトリガーを正規化
+    // デッドゾーンを引いたあと、引いた分だけ狭まった範囲(triggerMax)で割り直すのが要点。
+    // 単に引くだけだと最大まで押し込んでも1.0に届かず、入力の上限が失われてしまう。
+    // max(...,0)で下限を切っているのは、デッドゾーン未満の微小な入力を完全に0にするため
+    // (この処理が無いと、指を離していてもスティックのわずかな傾きで動き続ける)
     float triggerDeadZoneVal = *triggerDeadZone_.GetValue();
     float triggerMax         = kTriggerMax - triggerDeadZoneVal;
     currentState.lTrigger    = (std::max)(static_cast<float>(state.Gamepad.bLeftTrigger) - triggerDeadZoneVal, 0.f) / triggerMax;
@@ -86,6 +90,8 @@ void GamepadInput::UpdateStickValues(XINPUT_STATE _state, GamepadState& _current
         float realX = static_cast<float>(_x) / kStickMax;
         float realY = static_cast<float>(_y) / kStickMax;
 
+        // スティックは中立を0として±に振れるため、絶対値でデッドゾーン処理をしてから
+        // 元の符号を掛け戻す。符号ごと計算すると負側でデッドゾーンが逆向きに働いてしまう
         float signX = realX >= 0.f ? 1.0f : -1.0f;
         float signY = realY >= 0.f ? 1.0f : -1.0f;
 

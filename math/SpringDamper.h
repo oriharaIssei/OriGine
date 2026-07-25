@@ -83,23 +83,38 @@ T SmoothDamp(
     using Traits = DampTraits<T>;
     using Scalar = DampTraits<T>::Scalar;
     // e^(-x) を近似するための係数 パデ近似というらしい
+    // std::expを直接呼ぶ代わりに有理式で近似することで、毎フレーム大量に呼んでも軽く済む。
+    // 係数はUnityのMathf.SmoothDampと同じもので、意味のある物理量ではないため変更しないこと
     constexpr Scalar kExpCoeff2 = static_cast<Scalar>(0.48);
     constexpr Scalar kExpCoeff3 = static_cast<Scalar>(0.235);
 
+    // smoothTimeは下でomegaの分母になるため、0以下だとゼロ除算する。
+    // GUIから0が設定されうるので必ず下限で押さえる
     smoothTime = (std::max)(Scalar(kEpsilon), smoothTime);
 
+    // omegaはバネの角振動数にあたる。smoothTimeが短いほど大きくなり、強く引き戻される
     Scalar omega = Scalar(2) / smoothTime;
     Scalar x     = omega * deltaTime;
     Scalar exp   = Scalar(1) / (Scalar(1) + x + kExpCoeff2 * x * x + kExpCoeff3 * x * x * x);
 
     T change = to - from;
 
+    // 速度の上限は「距離」に直してから掛ける。maxSpeedは1秒あたりの速さなので、
+    // smoothTimeを掛けることでこの補間が想定する時間内に進みうる最大距離になる
     Scalar maxChange = maxSpeed * smoothTime;
     change           = Traits::ClampMagnitude(change, maxChange);
 
+    // currentVelocityは参照渡しで、呼び出し側がフレームをまたいで保持する必要がある。
+    // ここに前フレームまでの勢いが蓄積されることで、目標が動いても滑らかに追従し、
+    // 単純な補間にはない「ぬるっとした」動きになる
     T temp           = (currentVelocity - omega * change) * deltaTime;
     currentVelocity = (currentVelocity - omega * temp) * exp;
 
+    // NOTE: 参考元(UnityのSmoothDamp)は目標値を基準に `to + (from - to + temp) * exp` と書く。
+    //       この実装は基準と符号が入れ替わっており、deltaTimeが0(exp=1)のとき
+    //       fromではなくtoを返す = smoothTimeが大きいほど速く収束する挙動になっている。
+    //       現状の各所のパラメータはこの挙動に合わせて調整されているため、
+    //       式を直す場合は呼び出し側の値も併せて見直すこと
     return from + (change + temp) * exp;
 }
 

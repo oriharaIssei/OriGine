@@ -87,8 +87,25 @@ void Scene::InitializeRaytracingScene() {
     }
 }
 
+/// <summary>
+/// シーンを1フレーム分更新する。
+/// </summary>
+/// <remarks>
+/// システムはカテゴリ単位で、この順に実行する。順序には依存関係があるため入れ替えないこと。
+/// ①Input           … 入力を取得する。以降の全ての判断の入力元になる
+/// ②StateTransition … 入力と前フレームの結果から状態遷移を確定させる
+/// ③Movement        … 確定した状態に従って位置・速度を更新する
+/// ④Collision       … 移動後の位置で衝突を判定し、押し戻す
+/// ⑤Effect          … 確定した最終位置に追従してエフェクトを配置する
+/// 例えばCollisionをMovementより先に回すと、移動前の位置で判定することになり
+/// 1フレーム遅れてめり込む。EffectをCollisionより先に回すと、押し戻される前の
+/// 位置にエフェクトが取り残される。
+/// </remarks>
 void Scene::Update() {
     // 削除予定のエンティティを削除
+    // フレームの先頭でまとめて処理するのは、システムがエンティティを走査している最中に
+    // 削除すると反復子が無効化されるため。削除要求は一旦deleteEntities_に溜めておき、
+    // 誰も走査していないこのタイミングで実際に消す
     ExecuteDeleteEntities();
 
     if (!systemRunner_) {
@@ -141,10 +158,15 @@ void Scene::Finalize() {
 
 void Scene::ExecuteDeleteEntities() {
     for (EntityHandle entityID : deleteEntities_) {
+        // NOTE: 不正なハンドルで continue ではなく return しているため、
+        //       1件でも壊れていると残りが削除されず、末尾の clear() も実行されない。
+        //       その結果deleteEntities_に要求が残り、毎フレーム同じエラーを繰り返す
         if (!entityID.IsValid()) {
             LOG_ERROR("Failed Delete Entity : {}", uuids::to_string(entityID.uuid));
             return;
         }
+        // 参照している側から先に外し、最後に実体を消す。
+        // 逆順にするとシステムやコンポーネントが解放済みのエンティティを指したままになる
         // コンポーネント を削除
         componentRepository_->RemoveEntity(entityID);
         // システムからエンティティを削除

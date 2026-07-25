@@ -158,14 +158,34 @@ Matrix4x4 MakeMatrix4x4::RotateZ(const float& radian) {
     return Matrix4x4({std::cosf(radian), std::sinf(radian), 0.0f, 0.0f, -std::sinf(radian), std::cosf(radian), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
+/// <summary>
+/// XYZ各軸の回転角(ラジアン)から回転行列を作る。
+/// 行列の積は順序で結果が変わるため、X→Y→Zの順に適用している。
+/// </summary>
 Matrix4x4 MakeMatrix4x4::RotateXYZ(const Vec3f& radian) {
     return MakeMatrix4x4::RotateX(radian[X]) * MakeMatrix4x4::RotateY(radian[Y]) * MakeMatrix4x4::RotateZ(radian[Z]);
 }
 
+/// <summary>
+/// 各軸の回転行列を合成する。
+/// </summary>
+/// <remarks>
+/// NOTE: 合成順が z * x * y であり、角度から作る上のRotateXYZ(X→Y→Zの順)とは一致しない。
+///       同じ角度を渡しても両者の結果は別の姿勢になるため、混在させないこと。
+/// </remarks>
 Matrix4x4 MakeMatrix4x4::RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z) {
     return z * x * y;
 }
 
+/// <summary>
+/// クォータニオンを回転行列に変換する。
+/// </summary>
+/// <remarks>
+/// q * v * q^-1 のサンドイッチ積を展開して整理すると、各要素が成分同士の積だけで
+/// 表せる形になる。積の組み合わせ(xy, wz, x2 など)を先に計算して使い回すことで、
+/// 同じ乗算を何度も行わずに済ませている。
+/// qが正規化されている前提の式で、そうでない場合はスケールが掛かった行列になる。
+/// </remarks>
 Matrix4x4 MakeMatrix4x4::RotateQuaternion(const Quaternion& q) {
     float xy = q.v[X] * q.v[Y];
     float xz = q.v[X] * q.v[Z];
@@ -186,20 +206,42 @@ Matrix4x4 MakeMatrix4x4::RotateQuaternion(const Quaternion& q) {
             0.0f, 0.0f, 0.0f, 1.0f});
 }
 
+/// <summary>
+/// 任意軸まわりの回転行列を作る(ロドリゲスの回転公式)。
+/// axisは正規化されている必要がある。
+/// </summary>
 Matrix4x4 MakeMatrix4x4::RotateAxisAngle(const Vec3f& axis, float angle) {
     float sinAngle  = sinf(angle);
     float cosAngle  = cosf(angle);
+    // (1 - cosθ) は公式中に繰り返し現れるため先に求めておく
     float mCosAngle = (1.0f - cosAngle);
     return {
         axis[X] * axis[X] * mCosAngle + cosAngle, axis[X] * axis[Y] * mCosAngle + axis[Z] * sinAngle, axis[X] * axis[Z] * mCosAngle - axis[Y] * sinAngle, 0.0f, axis[X] * axis[Y] * mCosAngle - axis[Z] * sinAngle, axis[Y] * axis[Y] * mCosAngle + cosAngle, axis[Y] * axis[Z] * mCosAngle + axis[X] * sinAngle, 0.0f, axis[X] * axis[Z] * mCosAngle + axis[Y] * sinAngle, axis[Y] * axis[Z] * mCosAngle - axis[X] * sinAngle, axis[Z] * axis[Z] * mCosAngle + cosAngle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 }
 
+/// <summary>
+/// fromVの向きをtoVの向きへ合わせる回転行列を作る。
+/// </summary>
+/// <remarks>
+/// WARNING: 内積をclampせずacosに渡しているため、両ベクトルが正規化されていないと
+///          定義域外でNaNになる。また平行/真逆の場合は外積がゼロベクトルとなり、
+///          normalizeが破綻する。呼び出し側でこれらを保証すること。
+/// </remarks>
 Matrix4x4 MakeMatrix4x4::RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV) {
     float angle = std::acosf(fromV.dot(toV));
     Vec3f axis  = fromV.cross(toV).normalize();
     return MakeMatrix4x4::RotateAxisAngle(axis, angle);
 }
 
+/// <summary>
+/// 拡大・回転・平行移動をまとめたアフィン変換行列を作る。
+/// </summary>
+/// <remarks>
+/// 拡大→回転→平行移動の順で掛けること。
+/// 回転より先に平行移動すると原点から離れた位置を中心に振り回され、
+/// 回転より後に拡大すると軸が傾いた状態で伸びて形が歪む。
+/// このエンジンは行ベクトル(v * M)規約なので、適用したい順に左から掛ける。
+/// </remarks>
 Matrix4x4 MakeMatrix4x4::Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate) {
     return MakeMatrix4x4::Scale(scale) * MakeMatrix4x4::RotateXYZ(rotate) * MakeMatrix4x4::Translate(translate);
 }
@@ -217,6 +259,9 @@ Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
     float result[4];
     DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(result), resultXM);
 
+    // 射影変換ではw成分に深度が入るため、xyzをwで割って同次座標から3次元に戻す
+    // (この除算がいわゆるパースペクティブ除算で、遠くのものを小さく見せている)。
+    // カメラ平面上の点などでwが0になると無限大に発散するため、その場合は原点を返す
     if (result[3] == 0.0f) {
         return Vec3f(0.f, 0.f, 0.f);
     }
@@ -224,6 +269,14 @@ Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
     return Vec3f(result[0] / result[3], result[1] / result[3], result[2] / result[3]);
 }
 
+/// <summary>
+/// 法線ベクトルを変換する。
+/// </summary>
+/// <remarks>
+/// 法線は「位置」ではなく「向き」なので、平行移動を適用してはいけない。
+/// 左上3x3の部分だけを使うことで、回転と拡大のみを反映させている。
+/// (位置と同じように平行移動まで掛けると、原点からの距離だけ法線がずれてしまう)
+/// </remarks>
 Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m) {
     // 平行移動を無視して計算
     Vec3f result = {
@@ -251,7 +304,18 @@ Vec3f ScreenToWorld(const Vec2f& screenPos, const float& depth, const Matrix4x4&
     return worldPos;
 }
 
+/// <summary>
+/// 透視投影行列を作る。
+/// </summary>
+/// <remarks>
+/// DirectX規約(左手系・深度0〜1)の射影行列。
+/// [2][3]に1.0が入っているのが要点で、これにより変換後のw成分にビュー空間のZ(奥行き)が
+/// コピーされ、後段のパースペクティブ除算で遠くのものほど小さく描かれる。
+/// nearClipとfarClipが同値だと分母が0になるため、必ず nearClip &lt; farClip とすること。
+/// </remarks>
+/// <param name="fovY">垂直方向の視野角(ラジアン)</param>
 Matrix4x4 MakeMatrix4x4::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {
+    // 視野角の半分のコタンジェント。視野角が広いほど小さくなり、頂点が中心寄りに圧縮される
     const float cot = 1.0f / std::tanf(fovY / 2.0f);
     return Matrix4x4(
         {(1.0f / aspectRatio) * cot, 0.0f, 0.0f, 0.0f, 0.0f, cot, 0.0f, 0.0f, 0.0f, 0.0f, farClip / (farClip - nearClip), 1.0f, 0.0f, 0.0f, (-nearClip * farClip) / (farClip - nearClip), 0.0f});
@@ -262,6 +326,13 @@ Matrix4x4 MakeMatrix4x4::Orthographic(const float& left, const float& top, const
         {2.0f / (right - left), 0.0f, 0.0f, 0.0f, 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, (left + right) / (left - right), (top + bottom) / (bottom - top), nearClip / (nearClip - farClip), 1.0f});
 }
 
+/// <summary>
+/// 正規化デバイス座標(-1〜1)をスクリーンのピクセル座標へ移すビューポート行列を作る。
+/// </summary>
+/// <remarks>
+/// Y成分のスケールだけ符号が負なのは、NDCがY上向きなのに対し
+/// スクリーン座標は左上原点でY下向きだから。ここで上下を反転させないと画面が逆さになる。
+/// </remarks>
 Matrix4x4 MakeMatrix4x4::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
     return Matrix4x4(
         {width / 2.0f, 0.0f, 0.0f, 0.0f,

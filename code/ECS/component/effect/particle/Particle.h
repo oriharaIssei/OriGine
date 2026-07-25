@@ -142,9 +142,6 @@ struct ParticleKeyFrames {
     AnimationCurve<Vec3f> uvScaleCurve;
     AnimationCurve<Vec3f> uvRotateCurve;
     AnimationCurve<Vec3f> uvTranslateCurve;
-
-    // float currentTime_ = Particle::leftTime;
-    // float duration     = Particle::lifeTime;
 };
 
 } // namespace OriGine

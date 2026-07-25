@@ -350,6 +350,17 @@ void BitmapFont::ResetPacker() {
     packerReady_ = true;
 }
 
+/// <summary>
+/// 1文字分のグリフをラスタライズし、フォントアトラス上の空き領域に配置する。
+/// </summary>
+/// <remarks>
+/// 文字ごとに個別のテクスチャを作ると描画のたびにテクスチャ切り替えが発生して重いため、
+/// 1枚の大きなテクスチャ(アトラス)に文字を詰め込み、UVで切り出して使う。
+/// 必要になった文字だけを都度詰めるので、日本語のように文字種が多くても
+/// 実際に表示した分しかメモリを使わない。
+/// 空きが無くなった場合はfalseを返し、呼び出し側(EnsureGlyph)がGrowAtlas()で
+/// アトラスを拡張してから再試行する。
+/// </remarks>
 bool BitmapFont::PackAndRasterizeGlyph(uint32_t _codepoint) {
     if (!ttfLoaded_ || !packerReady_) return false;
 
@@ -367,6 +378,9 @@ bool BitmapFont::PackAndRasterizeGlyph(uint32_t _codepoint) {
     int gw = x1 - x0;
     int gh = y1 - y0;
 
+    // 半角スペースのように描画する見た目を持たない文字は、ビットマップの幅か高さが0になる。
+    // アトラスに詰める必要はないが、次の文字の位置を決めるためにadvance(送り幅)だけは
+    // 記録しておかないと、スペースが詰まって表示されてしまう
     if (gw <= 0 || gh <= 0) {
         int advW, lsb;
         stbtt_GetGlyphHMetrics(info, glyphIndex, &advW, &lsb);
@@ -378,6 +392,9 @@ bool BitmapFont::PackAndRasterizeGlyph(uint32_t _codepoint) {
         return true;
     }
 
+    // グリフの周囲に余白を取って詰める。余白なしで隙間なく敷き詰めると、
+    // テクスチャの線形補間で隣の文字のピクセルを拾ってしまい、
+    // 文字の縁に別の文字の切れ端が滲んで見える
     int paddedW = gw + kGlyphPadding * 2;
     int paddedH = gh + kGlyphPadding * 2;
 
@@ -410,6 +427,10 @@ bool BitmapFont::PackAndRasterizeGlyph(uint32_t _codepoint) {
     m.uvMin = {destX * invW, destY * invH};
     m.uvMax = {(destX + gw) * invW, (destY + gh) * invH};
     m.size = {static_cast<float>(gw), static_cast<float>(gh)};
+    // bearingは描画位置からグリフ画像までのずれ。
+    // stbttのy0はベースラインを0とした上向き負の座標なので、ascent(ベースラインから
+    // 上端までの距離)を足して、行の上端を基準とした値に直している。
+    // これにより高さの違う文字('a'と'A'など)が同じベースライン上に揃う
     m.bearing = {static_cast<float>(x0), scaledAscent + static_cast<float>(y0)};
     m.advance = advW * scale;
     glyphMap_[_codepoint] = m;
@@ -417,6 +438,16 @@ bool BitmapFont::PackAndRasterizeGlyph(uint32_t _codepoint) {
     return true;
 }
 
+/// <summary>
+/// アトラスが満杯になったとき、一辺を2倍にして詰め直す。
+/// </summary>
+/// <remarks>
+/// 矩形詰め込みは既に配置した位置を動かせないため、拡張時はパッカーを作り直して
+/// 全グリフを配置し直す必要がある(呼び出し元でPackAndRasterizeGlyphを再実行している)。
+/// 2倍ずつ広げるのは、テクスチャサイズを2のべき乗に保つのと、
+/// 再構築の回数を対数オーダーに抑えるため。
+/// kMaxAtlasSizeを超える場合はGPUのテクスチャサイズ上限に達する恐れがあるため拡張しない。
+/// </remarks>
 bool BitmapFont::GrowAtlas() {
     int newSize = atlasWidth_ * 2;
     if (newSize > kMaxAtlasSize) return false;

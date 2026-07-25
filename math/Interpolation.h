@@ -19,6 +19,15 @@ namespace OriGine {
 /// <param name="deltaTime">1フレームの経過時間</param>
 /// <param name="speed">補間速度</param>
 /// <returns>補間後の値</returns>
+/// <remarks>
+/// 毎フレーム lerp(current, target, 0.1f) のように固定の係数で補間すると、
+/// 補間量がフレームレートに依存してしまう(60FPSと30FPSで追従の速さが変わる)。
+/// 指数関数を使うと1フレームでの減衰率が経過時間に対して連続になり、
+/// フレームレートが変動しても同じ時間で同じ距離だけ近づくようになる。
+/// speedは「1秒あたりの減衰の強さ」で、値が大きいほど速く目標へ寄る。
+/// alphaは常に0〜1に収まるためオーバーシュートせず、また厳密には目標値に到達しない
+/// (漸近するだけなので、完全一致が必要な場合は呼び出し側で打ち切ること)。
+/// </remarks>
 template <typename T>
 T LerpByDeltaTime(const T& start, const T& end, float deltaTime, float speed) {
     float alpha = 1.0f - std::exp(-speed * deltaTime);

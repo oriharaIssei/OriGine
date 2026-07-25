@@ -32,6 +32,10 @@ struct CellKey {
 struct CellKeyHash {
     size_t operator()(const CellKey& key) const {
         // 素数を使った単純なハッシュ
+        // 空間ハッシュで広く使われる3つの大きな素数。各軸を別々の素数倍してからXORすることで、
+        // 隣接するセル同士(x,y,zが1違い)のハッシュ値が大きく散らばり、衝突が起きにくくなる。
+        // 単純な加算やx+y*100のような式だと、対称な座標((1,2,3)と(3,2,1)など)が
+        // 同じ値になりやすくバケットが偏る
         return static_cast<size_t>(key.x * 73856093) ^ static_cast<size_t>(key.y * 19349663) ^ static_cast<size_t>(key.z * 83492791);
     }
 };
@@ -44,7 +48,12 @@ public:
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    /// <param name="_cellSize">セルのサイズ（オブジェクトの平均サイズの2倍程度を推奨）</param>
+    /// <param name="_cellSize">
+    /// セルのサイズ（オブジェクトの平均サイズの2倍程度を推奨）
+    /// 小さすぎると1つのオブジェクトが多数のセルに登録されて挿入・検索が重くなり、
+    /// 大きすぎると1セルに大量のオブジェクトが入って総当たりに近づく。
+    /// 0を渡すと逆数計算がゼロ除算になるため不可。
+    /// </param>
     explicit SpatialHash(float _cellSize = 100.0f);
     ~SpatialHash() = default;
 

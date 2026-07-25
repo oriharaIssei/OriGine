@@ -20,10 +20,22 @@ void Transform::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     this->UpdateMatrix();
 }
 
+/// <summary>
+/// scale/rotate/translate から worldMat を再構築する。
+/// </summary>
+/// <remarks>
+/// 親がいる場合は親のworldMatを掛けて階層を反映するため、
+/// この関数を呼ぶ前に親側のUpdateMatrix()が済んでいる必要がある。
+/// 親より先に子を更新すると、子だけ1フレーム前の親の姿勢に追従することになる。
+/// </remarks>
 void Transform::UpdateMatrix() {
+    // 回転の合成やGUIでの直接編集を繰り返すとクォータニオンの長さが1からずれ、
+    // 行列に変換した際に意図しない拡大縮小が混ざる。毎回正規化して単位長を保つ
     rotate   = Quaternion::Normalize(rotate);
     worldMat = MakeMatrix4x4::Affine(scale, rotate, translate);
     if (parent) {
+        // 行ベクトル(v * M)規約なので、ローカル変換を先に適用してから親の変換を掛ける。
+        // 順序を逆にすると親の回転が子のローカル変換より先に効いてしまい、階層がねじれる
         worldMat *= parent->worldMat;
     }
 }

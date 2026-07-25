@@ -14,16 +14,23 @@ namespace OriGine {
 /// </summary>
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::Ray& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+    // レイ上の点 P(t) = origin + direction*t が球面上にある条件 |P(t) - center| = radius を
+    // 展開すると、tについての2次方程式 a*t^2 + b*t + c = 0 になる。
+    // よって交差判定は、この方程式が実数解を持つか(判別式が0以上か)に帰着する
     Vec3f oc           = _shapeA.origin - _shapeB.center_;
     float a            = _shapeA.direction.dot(_shapeA.direction);
     float b            = 2.0f * oc.dot(_shapeA.direction);
     float c            = oc.dot(oc) - _shapeB.radius_ * _shapeB.radius_;
     float discriminant = b * b - 4.f * a * c;
 
+    // 判別式が負＝実数解なし＝レイは球をかすりもしない
     if (discriminant < 0.f) {
         return false;
     }
 
+    // 解の公式。2つの解はレイが球に入る点と出る点にあたる。
+    // 手前(小さい方)の解を優先し、それが負ならレイの始点が球の内部にあるということなので、
+    // 出口側(大きい方)の解を採用する。両方負なら交点はレイの後方にあり、前方では当たらない
     float t = (-b - std::sqrt(discriminant)) / (2.0f * a);
     if (t < 0.f) {
         t = (-b + std::sqrt(discriminant)) / (2.0f * a);
@@ -72,17 +79,27 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     Vec3f aabbMin = _shapeB.Min();
     Vec3f aabbMax = _shapeB.Max();
 
+    // スラブ法: AABBを3組の平行な板(スラブ)の共通部分とみなし、軸ごとに
+    // レイが板へ入る時刻t1と出る時刻t2を求める。
+    // 全軸の「入る時刻の最大値」tMinが「出る時刻の最小値」tMaxを超えたら、
+    // 3枚の板を同時に貫いている区間が無い＝交差しない。
+    // tMinの初期値が0なのはレイが始点より後方へ伸びないため。
+    // レイには終端が無いのでtMaxはFLT_MAXから始める
     float tMin  = 0.f;
     float tMax  = FLT_MAX;
+    // 最後にtMinを更新した軸が、最も遅く入った面＝実際に当たった面になる
     int hitAxis = -1;
     int hitSign = 0;
 
     for (int i = 0; i < 3; ++i) {
+        // この軸方向の成分がほぼ0＝板に平行に進んでいるため出入りの時刻が定まらず、
+        // 下の除算もゼロ除算になる。始点が板の外にあるなら永久に交差しない
         if (std::abs(_shapeA.direction[i]) < kEpsilon) {
             if (_shapeA.origin[i] < aabbMin[i] || _shapeA.origin[i] > aabbMax[i]) {
                 return false;
             }
         } else {
+            // ood = one over direction. 除算を1回にまとめる
             float ood = 1.0f / _shapeA.direction[i];
             float t1  = (aabbMin[i] - _shapeA.origin[i]) * ood;
             float t2  = (aabbMax[i] - _shapeA.origin[i]) * ood;

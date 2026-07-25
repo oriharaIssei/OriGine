@@ -37,7 +37,6 @@ public:
 
 public:
     bool canUseMainCamera = true;
-    // Vec3f scale;
     Quaternion rotate = Quaternion();
     Vec3f translate   = {0.0f, 0.0f, 0.0f};
     Matrix4x4 viewMat = MakeMatrix4x4::Identity();

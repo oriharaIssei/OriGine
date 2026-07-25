@@ -130,6 +130,12 @@ void OriGine::ScaleDeformSystem::UpdateEntity(const EntityHandle& _handle) {
     Vec3f targetScale = squashStretch->GetBaseScale() + stretch - squash;
 
     // 体積を一定に保つための補正
+    // スカッシュ&ストレッチでは「伸びたら細くなる」ように見せないと、
+    // 物体が膨らんだり縮んだりしているように見えてしまう。
+    // 3軸を一律にk倍すると体積はk^3倍になるので、逆に体積の立方根で割れば
+    // (=体積の-1/3乗を掛ければ)体積が1に正規化され、形だけが変わる。
+    // NOTE: 減速が強くtargetScaleの成分が0や負になるとvolumeが0/負になり、
+    //       std::powがinf/NaNを返す。これは下のisnanチェックで拾って基準値に戻している
     float volume                  = targetScale[X] * targetScale[Y] * targetScale[Z];
     constexpr float collectionPow = -1.0f / 3.0f; // 立方根
     float correction              = std::pow(volume, collectionPow);

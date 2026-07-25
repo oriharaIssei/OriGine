@@ -59,6 +59,18 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
 /// <summary>
 /// AABB vs Sphere の衝突判定の実装
 /// </summary>
+/// <remarks>
+/// 球がRigidbodyを持つ場合は連続衝突判定(スウィープ)、持たない場合は
+/// その瞬間の位置だけを見る離散判定を行う。
+///
+/// スウィープが必要なのは、高速に動く球が1フレームで薄い壁を飛び越えてしまい、
+/// 前後どちらの位置でも重なっていない＝すり抜けが起きるため。
+/// 前フレーム位置から現在位置までの移動を線分とみなし、その途中で当たったかを調べる。
+///
+/// このとき、AABBを球の半径だけ全方向へ膨らませておくと、
+/// 「球とAABBの交差」を「球の中心(点)の移動線分と膨らませたAABBの交差」に置き換えられる
+/// (ミンコフスキー和の考え方)。これにより判定がレイ vs AABB に単純化される。
+/// </remarks>
 template <>
 bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const EntityHandle& _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
     Vec3f sphereCenter = _sphere.center_;
@@ -80,11 +92,18 @@ bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const En
 
         if (useSwept) {
             // 交差を判定
+            // 速度を引くことで前フレームの位置を復元する(prePos→sphereCenterが今フレームの移動線分)
             Vec3f prePos = sphereCenter - velo;
 
+            // AABBを球の半径分だけ膨らませ、球の判定を「中心点の移動」の判定に置き換える
             aabbMin -= Vec3f(_sphere.radius_, _sphere.radius_, _sphere.radius_);
             aabbMax += Vec3f(_sphere.radius_, _sphere.radius_, _sphere.radius_);
 
+            // スラブ法。AABBを「3組の平行な板(スラブ)の共通部分」とみなし、
+            // 軸ごとに線分が板に入る時刻t1と出る時刻t2を求める。
+            // 全軸の「入る時刻の最大値」(t) が「出る時刻の最小値」(tMax) を超えたら、
+            // 3枚の板を同時に貫いている区間が存在しない＝交差していない。
+            // tは0〜1の比率で、そのまま移動のどの時点で当たったかを表す
             int32_t axis = 0;
             int32_t sign = 0;
             float t      = -FLT_MAX;
@@ -92,15 +111,22 @@ bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const En
             for (int32_t i = 0; i < 3; ++i) {
                 if (std::abs(velo[i]) < kEpsilon) {
                     // 並行
+                    // この軸方向に動いていない＝板に対して平行に進んでいるため、
+                    // 出入りの時刻が計算できない(下の除算がゼロ除算になる)。
+                    // 平行な場合は「最初から板の内側にいるか」だけで判断でき、
+                    // 外にいるなら永久に交差しないので非衝突として打ち切る
                     if (prePos[i] < aabbMin[i] || prePos[i] > aabbMax[i]) {
                         useSwept = false;
                         break;
                     }
                 } else {
+                    // ood = one over direction. 3回使う除算を1回にまとめる
                     float ood = 1.0f / velo[i];
                     float t1  = (aabbMin[i] - prePos[i]) * ood;
                     float t2  = (aabbMax[i] - prePos[i]) * ood;
                     // 必ず、t1 が小さいようにする
+                    // 負の方向へ進んでいる場合はmin側とmax側で入口と出口が逆転するため、
+                    // 入替えてt1を必ず「入る時刻」、t2を「出る時刻」に揃える
                     if (t1 > t2) {
                         std::swap(t1, t2);
                     }
@@ -119,6 +145,8 @@ bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const En
                 }
             }
 
+            // tが0〜1に収まる場合だけ、この1フレームの移動区間内で衝突したことになる。
+            // 負なら前フレームより過去、1超なら次フレーム以降の交差なので今回は当たっていない
             isCollided = t >= 0 && t <= 1.f && useSwept;
             if (isCollided) {
                 // 各軸のAABB への侵入時間が最も遅いものを採用
@@ -128,7 +156,9 @@ bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const En
 
                 sphereCollVec[axis] += collPoint[axis] - _sphere.center_[axis]; // current から衝突点までのベクトルを加味
             } else {
+                // スウィープでは当たらなかった場合、下の離散判定にフォールバックする
                 useSwept = false;
+                // 膨らませたままだと離散判定が実際より大きな箱で行われてしまうため、
                 // AABB の min,max を通常仕様に戻す
                 aabbMin = _aabb.Min();
                 aabbMax = _aabb.Max();
@@ -161,6 +191,8 @@ bool CheckCollisionPair(Scene* _scene, const EntityHandle& _aabbEntity, const En
                     std::clamp(sphereCenter[Y], aabbMin[Y], aabbMax[Y]),
                     std::clamp(sphereCenter[Z], aabbMin[Z], aabbMax[Z])};
             }
+            // 最近接点から球の中心へのベクトルのうち、最も成分が大きい軸が
+            // 「どの面に当たったか」を表す。AABBは軸に平行なので、法線は必ずいずれかの軸方向になる
             float absX = std::abs(diff[X]);
             float absY = std::abs(diff[Y]);
             float absZ = std::abs(diff[Z]);
@@ -324,6 +356,9 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     Vec3f aabbBMin = _shapeB.Min();
     Vec3f aabbBMax = _shapeB.Max();
 
+    // 分離軸判定の最も単純な形。AABBは軸に平行なので、X/Y/Zのどれか1軸でも
+    // 区間が重なっていなければ、その時点で衝突していないと確定できる。
+    // 大半の組み合わせはここで弾かれるため、重い計算の前に早期リターンする
     if (aabbAMax[X] < aabbBMin[X] || aabbAMin[X] > aabbBMax[X]) {
         return false;
     }
@@ -354,6 +389,9 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     float overlapZ = overlapMaxZ - overlapMinZ;
 
     // 最小の重なり軸を探す
+    // 重なりが最も浅い軸へ押し戻すのが、最も移動量が少なくて済む解決方法
+    // (最小移動ベクトル / MTV)。深い軸へ押し出すと、箱を突き抜けて反対側へ
+    // 飛び出したように見えてしまう
     float minOverlap = overlapX;
     int axis         = X;
     if (overlapY < minOverlap) {
@@ -378,6 +416,8 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     Vec3f bCenter   = aabbBMin + bHalfSize;
 
     // 押し出し方向を決定
+    // 中心の位置関係で符号を決める。Aの中心がBより手前にあるならAは手前(負方向)へ退く。
+    // 中心を基準にしないと、重なりの浅い側ではなく深い側へ押してしまい貫通する
     float dir = (aCenter[axis] < bCenter[axis]) ? -1.0f : 1.0f;
 
     // collVecを作成
@@ -385,6 +425,9 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     collVec[axis] = (minOverlap + kEpsilon) * dir;
 
     // 重なり部分の中心＝衝突点
+    // NOTE: 補間係数に0.5fではなくoverlapRateを使っているため、実際に中心になるのは
+    //       双方が押し戻される(overlapRate==0.5)場合だけ。片側のみの場合は1.0となり、
+    //       重なり区間の中心ではなくmax側の角が衝突点になる
     Vec3f collPoint = {
         overlapMinX + (overlapMaxX - overlapMinX) * overlapRate,
         overlapMinY + (overlapMaxY - overlapMinY) * overlapRate,
@@ -414,8 +457,21 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
 }
 
 /// <summary>
-/// OBB vs OBB の衝突判定の実装
+/// OBB vs OBB の衝突判定の実装(分離軸判定 / SAT)
 /// </summary>
+/// <remarks>
+/// 分離軸定理: 「2つの凸形状が衝突していない ⇔ 両者の射影が重ならない軸が1本でも存在する」。
+/// よって候補となる軸すべてに両OBBの頂点を射影し、1本でも隙間が空いていれば非衝突、
+/// 全ての軸で重なっていれば衝突と判定できる。
+///
+/// 候補軸は次の15本。これで漏れなく判定できることが定理として示されている。
+///   ・各OBBの面の法線 3本 × 2 = 6本 (面同士がぶつかる場合を捉える)
+///   ・両OBBの辺の組み合わせの外積 3×3 = 9本 (辺同士が斜めにぶつかる場合を捉える)
+/// 外積の軸は、対応する辺が平行だとゼロベクトルになり軸として使えないため除外する。
+///
+/// 衝突している場合、重なりが最も小さかった軸が最小移動ベクトル(MTV)の向きになり、
+/// その重なり量がめり込みの深さになる。
+/// </remarks>
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const EntityHandle& _handleB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // === 頂点計算 ===
@@ -447,6 +503,8 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     }
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
+            // 2つの軸が平行なとき外積はゼロベクトルになる。
+            // 軸として意味を成さないうえ、normalizeでゼロ除算するため除外する
             Vec3f crossAxis = _shapeA.orientations_.axis[i].cross(_shapeB.orientations_.axis[j]);
             if (crossAxis.lengthSq() > 1e-6f)
                 axes.push_back(crossAxis.normalize());
@@ -457,6 +515,8 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
     float minOverlap = FLT_MAX;
     Vec3f minAxis(0, 0, 0);
 
+    // 8頂点を軸へ内積で射影し、その軸上で box が占める区間[min,max]を求める。
+    // 凸形状なので、頂点の射影の最小・最大が形状全体の区間と一致する
     auto project = [](const std::array<Vec3f, 8>& verts, const Vec3f& axis, float& outMin, float& outMax) {
         float p = verts[0].dot(axis);
         outMin = outMax = p;
@@ -476,7 +536,9 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
         float minA, maxA, minB, maxB;
         project(vertsA, axis, minA, maxA);
         project(vertsB, axis, minB, maxB);
+        // 2区間の重なり幅。負なら区間の間に隙間がある＝この軸が分離軸
         float overlap = (std::min)(maxA, maxB) - (std::max)(minA, minB);
+        // 分離軸が1本でも見つかれば非衝突が確定するので、残りの軸は調べない
         if (overlap <= 0) {
             return false; // 分離
         }
@@ -500,10 +562,15 @@ bool CheckCollisionPair(Scene* /*_scene*/, const EntityHandle& _handleA, const E
         return best;
     };
 
+    // サポート点＝その方向に最も突き出している頂点。互いに相手へ向かって最も
+    // 食い込んでいる頂点同士なので、接触箇所の代表点として使える
     Vec3f pA = supportPoint(vertsA, minAxis);
     Vec3f pB = supportPoint(vertsB, -minAxis);
 
     // 法線の向きを補正
+    // 分離軸は外積などから作るため向きが一定せず、AからB・BからAのどちらを向くか分からない。
+    // 実際の位置関係(AのサポートからBのサポートへのベクトル)と符号を突き合わせ、
+    // 必ずAからBを向くように揃える。ここを誤ると押し戻しが逆向きになり互いを引き寄せてしまう
     Vec3f collNormal = minAxis;
     if (Vec3f(pB - pA).dot(collNormal) < 0) {
         collNormal = -collNormal;

@@ -199,6 +199,15 @@ float EaseOutBounce(float t) {
     return easedT;
 }
 
+/// <summary>
+/// 前後両端でバウンドするイージング。前半は反転したEaseOutBounce、後半はそのまま適用する。
+/// </summary>
+/// <remarks>
+/// NOTE: EaseOutBounce()の戻り値を受け取っておらず、呼び出しの結果が捨てられている。
+///       そのためeasedTは0のまま計算され、返り値は前半0.5・後半0.5の固定値になり、
+///       バウンドしない。修正には easedT = EaseOutBounce(...) への代入が必要だが、
+///       挙動が変わるため、この関数を使用している箇所の確認と併せて行うこと
+/// </remarks>
 float EaseInOutBounce(float t) {
     float easedT = 0.0f;
     if (t < 0.5f) {

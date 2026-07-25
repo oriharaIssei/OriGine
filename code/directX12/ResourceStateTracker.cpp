@@ -28,6 +28,21 @@ void ResourceStateTracker::RegisterResource2Local(ID3D12Resource* _resource, D3D
     globalResourceStates_[_resource] = _initialState;
 }
 
+/// <summary>
+/// リソースを指定の状態へ遷移させるバリアを積む。既に同じ状態なら何もしない。
+/// </summary>
+/// <remarks>
+/// DirectX12ではリソースの用途(描画先・シェーダ読み込み・コピー元など)ごとに状態があり、
+/// 用途を変えるときは必ずバリアで遷移を宣言しなければならない。
+/// 宣言した状態と実際の状態がずれるとデバイスリムーブや描画崩れになるため、
+/// 現在の状態をこのクラスで追跡している。
+///
+/// 状態をローカルとグローバルの2段で持つのが要点。
+/// コマンドリストへの記録時点ではまだGPUが実行しておらず、他のコマンドリストが
+/// 同じリソースをどう変えるかも確定していない。そこで記録中はそのリスト内での
+/// 状態遷移をローカルに閉じて追い、実行順が確定した時点で
+/// CommitLocalStatesToGlobal()によりグローバルへ反映する。
+/// </remarks>
 void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ID3D12Resource* _resource, D3D12_RESOURCE_STATES _stateAfter) {
     // まずローカルを参照
     D3D12_RESOURCE_STATES stateBefore;
@@ -41,6 +56,8 @@ void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandL
     }
 
     // 状態が同じならバリア不要
+    // 同一状態への遷移バリアはドライバに拒否され、デバッグレイヤーで警告が出る。
+    // また無駄なバリアはGPUのパイプラインを不必要に区切って性能を落とす
     if (stateBefore == _stateAfter) {
         return;
     }

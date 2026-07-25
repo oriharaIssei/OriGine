@@ -17,6 +17,9 @@ void DeltaTimer::Update() {
     deltaTime_   = static_cast<float>(std::chrono::duration<float>(currentTime_ - preTime_).count());
 
     // --- 平均計測用に追加 ---
+    // 直近kMaxHistorySize frame分だけを保持するリングバッファ。
+    // 合計値も同時に更新しておくことで、平均を求めるたびに履歴を全走査せずに済む
+    // (押し出す要素の分を引き、追加する分を足すだけで合計が保たれる)
     frameHistory_.push_back(deltaTime_);
     totalHistoryTime_ += deltaTime_;
     if (frameHistory_.size() > kMaxHistorySize) {
@@ -63,6 +66,15 @@ size_t DeltaTimer::GetAverageFPS(size_t frameCount) const {
     return static_cast<size_t>(count / total);
 }
 
+/// <summary>
+/// 指定したキーのタイムスケールを掛けたdeltaTimeを返す。
+/// </summary>
+/// <remarks>
+/// スロー演出やヒットストップを、ゲーム全体ではなく特定の対象にだけ掛けるための仕組み。
+/// 例えば"Camera"だけ等速のままプレイヤーをスローにする、といった使い分けができる。
+/// キーが未登録の場合はスケールなしのdeltaTimeを返すため、
+/// SetTimeScale()を呼び忘れても動作は止まらないが、演出は効かない。
+/// </remarks>
 float DeltaTimer::GetScaledDeltaTime(const std::string& key) const {
     auto itr = deltaTimeScaleMap_.find(key);
     if (itr != deltaTimeScaleMap_.end()) {
