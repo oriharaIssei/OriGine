@@ -54,9 +54,11 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureColorMesh>& _meshG
         textureFilePath_.resize(meshGroup_->size(), "");
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
+        // CPU側のTransformを単位行列で確定させ、その時点でGPU側の定数バッファへ書き込んでおく
         meshTransformBuff_[i]->UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
 
+        // Material用のGPUリソースを新規に確保し、デフォルト値を即座に転送する
         meshMaterialBuff_[i].second = SimpleConstantBuffer<Material>();
         meshMaterialBuff_[i].second.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
         meshMaterialBuff_[i].second.ConvertToBuffer(Material());
@@ -90,18 +92,28 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureCo
     }
 }
 
+/// <summary>
+/// モデルファイルを読み込んでメッシュ群を構築し、メッシュ数に応じたGPUバッファを確保する。
+/// バッファ確保がモデル読み込みより後になっているのは、
+/// メッシュ数が確定しないと必要なバッファ数が決まらないため
+/// </summary>
+/// <param name="_scene">所属シーン</param>
+/// <param name="_hostEntity">このコンポーネントを保持するエンティティ</param>
 void ModelMeshRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
 
     if (!fileName_.empty()) {
+        // シリアライズされたファイルパスが設定済みの場合、モデルを読み込んでmeshGroup_を構築する
         CreateModelMeshRenderer(this, _hostEntity, directory_, fileName_, false);
     }
 
+    // meshGroup_のメッシュ数が確定した後で、それに合わせてTransform/Material用のGPUバッファを作成する
     InitializeTransformBuffer();
     InitializeMaterialBuffer();
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].openData_.UpdateMatrix();
+        // CPU側で計算した行列をGPU側の定数バッファへ反映する
         meshTransformBuff_[i].ConvertToBuffer();
     }
 
@@ -113,14 +125,24 @@ void ModelMeshRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntit
     }
 }
 
+/// <summary>
+/// メッシュ1つにつき1つ、Transform用の定数バッファを確保する。
+/// メッシュごとに個別のノード変換を持たせるため、まとめて1つにはできない
+/// </summary>
 void ModelMeshRenderer::InitializeTransformBuffer() {
     meshTransformBuff_.resize(meshGroup_->size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        // メッシュ1つにつきTransform用のGPUリソースを1つ確保し、Map済みポインタを保持しておく
         meshTransformBuff_[i].CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
         meshTransformBuff_[i].ConvertToBuffer();
     }
 }
 
+/// <summary>
+/// マテリアル用バッファを確保しつつ、参照先のMaterialコンポーネントハンドルを未設定状態に初期化する。
+/// InitializeMaterialBuffer との違いは first（ComponentHandle）をリセットする点で、
+/// 外部のMaterialコンポーネントとの結び付けを張り直したい場合にこちらを使う
+/// </summary>
 void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex() {
     meshMaterialBuff_.resize(meshGroup_->size());
 
@@ -133,6 +155,11 @@ void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex() {
     }
 }
 
+/// <summary>
+/// メッシュ1つにつき1つ、マテリアル用の定数バッファを確保する。
+/// 既存のComponentHandle（マテリアルの参照先）は維持するため、
+/// シリアライズで復元済みの結び付けを壊さずにバッファだけ作り直せる
+/// </summary>
 void ModelMeshRenderer::InitializeMaterialBuffer() {
     meshMaterialBuff_.resize(meshGroup_->size());
 
@@ -148,6 +175,15 @@ void ModelMeshRenderer::InitializeMaterialBuffer() {
 // ModelMeshRenderer - Helper Functions
 //==============================================================================
 
+/// <summary>
+/// モデルファイルを読み込み、そのノード階層を辿ってレンダラのメッシュ群を構築する。
+/// 読み込み完了までブロックする同期APIとして振る舞う
+/// </summary>
+/// <param name="_renderer">メッシュ群の構築先レンダラ</param>
+/// <param name="_hostEntity">レンダラを保持するエンティティ</param>
+/// <param name="_directory">モデルファイルのあるディレクトリ</param>
+/// <param name="_fileName">モデルファイル名</param>
+/// <param name="_usingDefaultTexture">既定テクスチャを使うかどうか</param>
 void OriGine::CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
     const EntityHandle& _hostEntity,
@@ -161,8 +197,13 @@ void OriGine::CreateModelMeshRenderer(
     }
 
     // -------------------- Modelの読み込み --------------------//
+    // ModelManager::Createは非同期にモデルを読み込み、完了時にコールバックを呼ぶ実装になっている。
+    // このヘルパー関数自体は「読み込み完了までブロックする」契約のAPIなので、isLoadedフラグを
+    // コールバック内で立ててもらい、下のwhileループでポーリングして完了を待つ
     auto model = ModelManager::GetInstance()->Create(_directory, _fileName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultTexture](Model* _model) {
-        // 再帰ラムダをstd::functionとして定義
+        // ノード階層を根から葉まで再帰的に辿る処理。
+        // ラムダ自身を内部から呼ぶ必要があるため、autoではなくstd::functionで受けて
+        // 宣言と代入を分けている（auto では定義途中の自分自身を参照できないため）
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _innerModel, ModelNode* _node) {
             auto meshItr = _innerModel->meshData_->meshGroup.find(_node->name);
@@ -189,6 +230,16 @@ void OriGine::CreateModelMeshRenderer(
     }
 }
 
+/// <summary>
+/// モデルファイルに埋め込まれた既定マテリアル（色・テクスチャ等）を読み出し、
+/// エンティティのMaterialコンポーネントとして展開する。
+/// モデルを差し替えた際に、そのモデル本来の見た目を初期値として復元するために使う
+/// </summary>
+/// <param name="_renderer">対象のレンダラ</param>
+/// <param name="_scene">所属シーン（Materialコンポーネントの追加先）</param>
+/// <param name="_hostEntity">レンダラを保持するエンティティ</param>
+/// <param name="_directory">モデルファイルのあるディレクトリ</param>
+/// <param name="_fileName">モデルファイル名</param>
 void OriGine::InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,
@@ -243,6 +294,10 @@ void OriGine::InitializeMaterialFromModelFile(
 // ModelMeshRenderer - Editor (Debug Only)
 //==============================================================================
 
+/// <summary>
+/// デバッグ用GUIで、参照するモデルファイル・メッシュごとのマテリアル・テクスチャを編集する
+/// </summary>
+/// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "isRender##" + _parentLabel;
@@ -323,6 +378,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] co
                 Transform& transform = meshTransformBuff_[i].openData_;
                 // Transform
                 transform.Edit(_scene, _handle, meshName);
+                // GUIでCPU側のTransformを編集した直後にGPU側の定数バッファへ反映する
                 meshTransformBuff_[i].ConvertToBuffer();
 
                 ImGui::TreePop();
@@ -370,6 +426,12 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] co
 
 namespace OriGine {
 
+/// <summary>
+/// ModelMeshRendererの状態をjsonへ書き出す。
+/// meshGroup_自体(頂点データ)は書き出さず、再読込に必要な directory/fileName と、
+/// メッシュごとのTransform・Materialハンドル・テクスチャパスのみを保存する
+/// (モデル形状はファイルから復元する前提のため)
+/// </summary>
 void to_json(nlohmann::json& _j, const ModelMeshRenderer& _comp) {
     _j["directory"] = _comp.directory_;
     _j["fileName"]  = _comp.fileName_;
@@ -403,6 +465,11 @@ void to_json(nlohmann::json& _j, const ModelMeshRenderer& _comp) {
     _j["textureFilePath"] = textureFilePath;
 }
 
+/// <summary>
+/// jsonからModelMeshRendererの状態を復元する。
+/// meshGroup_(実際のモデル形状)はここでは復元されず、Initialize()内でdirectory_/fileName_を元に
+/// 改めてモデルファイルから読み込まれる想定。ここではTransform/Materialハンドル/テクスチャパスのみを復元する
+/// </summary>
 void from_json(const nlohmann::json& _j, ModelMeshRenderer& _comp) {
     _j.at("directory").get_to(_comp.directory_);
     _j.at("fileName").get_to(_comp.fileName_);

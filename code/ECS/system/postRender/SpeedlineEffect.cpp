@@ -82,12 +82,15 @@ void SpeedlineEffect::CreatePSO() {
     // offset を自動計算するように 設定
     sceneTexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[0] = t0 (gSceneTexture / 集中線を重ねる前のシーン)
     // DescriptorTable を使う
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(sceneTexDescriptorRange, 1, rootParameterIndex);
 
+    // RootParameter[1] = b0 (gLineEffectParam / 中心・強度・密度・色・時間・フェード)
+    // ShaderRegister を明示していないため既定値の 0 が使われる
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     shaderInfo.pushBackRootParameter(rootParameter[1]);
@@ -100,6 +103,7 @@ void SpeedlineEffect::CreatePSO() {
     // offset を自動計算するように 設定
     radialTexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[2] = t1 (gRadialTexture / 中心からの極座標(距離,角度)でサンプリングする集中線テクスチャ)
     // DescriptorTable を使う
     rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -128,6 +132,8 @@ void SpeedlineEffect::CreatePSO() {
 void SpeedlineEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
+    // renderTarget_ はダブルバッファ構成。PreDraw() でフロントバッファを書き込み対象にし、
+    // DrawTexture() で直前のバックバッファ内容をブリットしてから、このあとスピードライン用PSOへ切り替える
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
 
@@ -138,6 +144,7 @@ void SpeedlineEffect::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
+    // RootParameter[0](t0)に現在のバックバッファ(DrawTexture後の内容)をバインド
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
@@ -148,13 +155,19 @@ void SpeedlineEffect::RenderStart() {
 void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
     auto& commandList = dxCommand_->GetCommandList();
 
+    // RootParameter[1](b0)に集中線パラメータを送る。Speedline.PS.hlsl 側では、
+    // ピクセルのUVを中心(screenCenterUV)からの極座標(距離dist, 角度atan2)に変換し、
+    // 距離をradialUV.xに(density倍+時間でスクロール)、角度を[0,1]に正規化してradialUV.yに割り当てて
+    // ラジアルテクスチャをサンプリングすることで、中心から放射状に伸びる線を表現している
     _param->GetBuffer().ConvertToBuffer();
     _param->GetBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 1);
 
+    // RootParameter[2](t1)にラジアルテクスチャをバインド
     commandList->SetGraphicsRootDescriptorTable(
         2,
         AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(_param->GetRadialTextureIndex()).srv.GetGpuHandle());
 
+    // 全画面三角形2枚(6頂点)で描画
     commandList->DrawInstanced(6, 1, 0, 0);
 }
 
@@ -182,6 +195,7 @@ void SpeedlineEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void SpeedlineEffect::RenderEnd() {
+    // フロントバッファを読み取り可能な状態へ遷移し、フロント/バックのインデックスを入れ替える
     renderTarget_->PostDraw();
 }
 

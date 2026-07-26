@@ -44,6 +44,9 @@ int32_t EntityRepository::AllocateIndex() {
         entities_.resize(size_);
         entityActiveBits_.resize(size_);
     }
+    // ビット集合から未使用のビット(=空きスロット)を1つ確保する。RemoveEntityで解放されたインデックスも
+    // ここで再利用される。同じインデックスが使い回されても、識別に使うのはインデックスではなくUUIDなので
+    // 古いHandleが再利用後の別Entityを指してしまうことはない
     return static_cast<int32_t>(entityActiveBits_.allocateBit());
 }
 

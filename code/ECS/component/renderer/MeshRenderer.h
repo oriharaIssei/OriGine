@@ -37,7 +37,12 @@ template <typename MeshTenplate, typename VertexDataType>
 concept IsDerivedMesh = std::derived_from<MeshTenplate, Mesh<VertexDataType>>;
 
 /// <summary>
-/// メッシュレンダラー基底クラス
+/// メッシュレンダラー基底クラス。
+/// meshGroup_(shared_ptr&lt;vector&lt;MeshTemplate&gt;&gt;)としてCPU側の頂点/インデックスデータを保持しつつ、
+/// 各Meshは内部でGPUリソースをMapしたまま保持している(Mesh側の実装)。
+/// つまりCPU側の値を書き換えただけではGPUに反映されず、Mesh::TransferData()を明示的に呼んだ時点で初めて
+/// Map済みのGPUメモリへコピーされる。shared_ptrで持つことで、コンストラクタで既存のメッシュ群を
+/// そのまま(コピーせず)受け取って共有することもできる
 /// </summary>
 template <typename MeshTemplate, typename VertexDataType = MeshTemplate::VertexType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
@@ -55,12 +60,20 @@ public:
 
     virtual ~MeshRenderer() {}
 
+    /// <summary>
+    /// 初期化処理(派生クラスでオーバーライドされる想定の共通実装)
+    /// </summary>
+    /// <param name="_owner">このレンダラーを所有するエンティティ</param>
     virtual void Initialize(Scene* /*_scene*/, const EntityHandle& _owner) {
         hostEntityHandle_ = _owner;
     }
 
+    // 基底クラスでは編集UIを持たないため既定は何もしない(派生クラスが必要に応じてオーバーライドする)
     void Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& /*_parentLabel*/) override {}
 
+    /// <summary>
+    /// 終了処理。保持している全メッシュのGPUリソースを解放してからmeshGroup_自体を手放す
+    /// </summary>
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
             mesh.Finalize();
@@ -123,7 +136,9 @@ public: // ↓ Accessor
     }
 
     /// <summary>
-    /// 特定のメッシュを識別するためのハンドルを取得
+    /// 特定のメッシュを識別するためのハンドルを取得。
+    /// このコンポーネント自身のComponentHandleとmeshGroup_内のインデックスを組み合わせることで、
+    /// 「どのコンポーネントの何番目のメッシュか」を一意に表現する
     /// </summary>
     /// <param name="_meshIndex"></param>
     /// <returns></returns>

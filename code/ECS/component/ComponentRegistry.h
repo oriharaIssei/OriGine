@@ -7,6 +7,12 @@ namespace OriGine {
 /// Component Registry
 /// ComponentTypeは EXEにおいて一意であり,
 /// Sceneで実際に使用される実体 は ComponentRepository に格納される.
+/// ここが保持するのは「型名(文字列) -> その型専用のComponentArrayを作るファクトリ関数」の対応表のみで、
+/// 実データは持たない。型名という文字列をキーにすることで、
+/// ・シリアライズされたシーンJSONに書かれた型名から対応するComponentArrayを実行時に復元する
+/// ・エディタがコンパイル時に型を知らなくても、登録済み型名の一覧からコンポーネント追加UIを構築する
+/// ・ComponentRepositoryがSceneごとにComponentArray群を複製生成する
+/// といった、コンパイル時の型と実行時の文字列表現とを結びつける処理をすべてここに集約できる。
 /// </summary>
 class ComponentRegistry final {
 public:
@@ -55,14 +61,27 @@ private:
 
 public:
 #ifdef _DEBUG
+    /// <summary>
+    /// 登録済みComponent型名の一覧を取得する(デバッグ/エディタ表示用)
+    /// </summary>
+    /// <returns>登録済み型名の一覧</returns>
     const std::vector<std::string>& GetComponentTypeNames() const {
         return componentTypeNames_;
     }
 #endif // _DEBUG
 
+    /// <summary>
+    /// 指定した型名のComponentArrayが登録済みか(型名指定版)
+    /// </summary>
+    /// <param name="_typeName">ComponentTypeの型名</param>
+    /// <returns>登録済みであればtrue</returns>
     bool HasComponentArray(const std::string& _typeName) const {
         return cloneMaker_.find(_typeName) != cloneMaker_.end();
     }
+    /// <summary>
+    /// 指定した型のComponentArrayが登録済みか(型指定版)
+    /// </summary>
+    /// <returns>登録済みであればtrue</returns>
     template <IsComponent ComponentType>
     bool HasComponentArray() const {
         std::string typeName = nameof<ComponentType>();

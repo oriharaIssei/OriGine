@@ -7,21 +7,41 @@
 namespace OriGine {
 
 /// <summary>
-/// Capsuleコライダー
+/// Capsuleコライダー。
+/// ローカル空間の線分(start-end)と半径(radius)で形状を表し、線分の周囲radius分を膨らませた形になる。
 /// </summary>
 class CapsuleCollider
     : public Collider<Bounds::Capsule> {
+    /// <summary>
+    /// CapsuleColliderの状態をJSONへ書き出す
+    /// </summary>
     friend void to_json(nlohmann::json& _json, const CapsuleCollider& _c);
+    /// <summary>
+    /// JSONからCapsuleColliderの状態を復元する
+    /// </summary>
     friend void from_json(const nlohmann::json& _json, CapsuleCollider& _c);
 
 public:
     CapsuleCollider() : Collider<Bounds::Capsule>() {}
     ~CapsuleCollider() {}
 
+    /// <summary>
+    /// デバッグ用GUIでCapsule形状とTransformのパラメータを編集する
+    /// </summary>
+    /// <param name="_scene">対象シーン</param>
+    /// <param name="_entity">対象エンティティ</param>
+    /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
 
+    /// <summary>
+    /// ローカル形状(shape_)とTransformの現在値から、ワールド空間のCapsule(worldShape_)を再計算する
+    /// </summary>
     void CalculateWorldShape() override;
 
+    /// <summary>
+    /// ワールド空間のAABBを取得する
+    /// </summary>
+    /// <returns>広域フェーズ（空間ハッシュ登録など）に使うワールド空間の外接AABB</returns>
     Bounds::AABB ToWorldAABB() const override;
 
 public: // accessor

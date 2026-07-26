@@ -34,6 +34,19 @@ public:
     /// <typeparam name="Event">購読するイベントの型</typeparam>
     /// <param name="_callback">イベント発生時に実行されるコールバック関数</param>
     /// <returns>購読解除に使用する一意な ID</returns>
+    // 【購読のライフタイムに関する重要な注意】
+    // Subscribe に渡された _callback（多くの場合、購読側オブジェクトの this を捕捉したラムダや
+    // std::bind）は、[=] によって MessageBus 内部の std::function にコピーされ、
+    // MessageBus がシングルトンとして存在し続ける限り（Unsubscribe が呼ばれるまで）保持され続ける。
+    // つまり購読しているオブジェクト（例: あるコンポーネントやシステム）が破棄されても、
+    // MessageBus 側は購読解除されない限りそのコールバックを持ち続ける。
+    // この状態で Emit() が呼ばれると、コールバック内部で参照している破棄済みオブジェクトの
+    // ポインタ（キャプチャされた this や参照）にアクセスしてしまい、未定義動作（クラッシュ、
+    // 不正メモリアクセス）を引き起こす。
+    // そのため、購読側オブジェクトを破棄する際は、Subscribe が返した ID を保持しておき、
+    // デストラクタ等で必ず Unsubscribe<Event>(id) を呼び出す必要がある
+    // （UnsubscribeAll<Event>() や、破棄タイミングを跨がない一時的な購読であれば影響は小さいが、
+    // 長寿命の MessageBus に対して短命なオブジェクトが購読する場合は特に注意が必要）。
     template <typename Event>
     size_t Subscribe(std::function<void(const Event&)> _callback) {
         auto& vec  = listeners_[std::type_index(typeid(Event))].entries;
@@ -42,6 +55,8 @@ public:
         size_t id;
 
         // 空きスロットがある場合は再利用
+        // （Unsubscribe で解放されたインデックスを再利用することで、entries 配列が
+        //   購読・解除を繰り返すたびに際限なく肥大化するのを防ぐ）
         if (!free.empty()) {
             id = free.back();
             free.pop_back();
@@ -88,6 +103,12 @@ public:
     /// <typeparam name="Event">発行するイベントの型</typeparam>
     /// <param name="_event">通知するイベントオブジェクトのインスタンス</param>
     /// <param name="_delaySec">遅延時間（秒）</param>
+    // _event は参照ではなく値としてラムダにキャプチャされる。
+    // これは Emit と異なり発行が未来（_delaySec 秒後）まで遅延されるため、呼び出し元が
+    // 参照渡ししたオブジェクトが Update() で実際に発行されるまでに破棄・変更されている可能性が
+    // あるための対策（値コピーであればダングリング参照にはならない）。
+    // ただし、Event 型が内部にポインタや参照を持つ場合は、そのポインタ先の生存期間まではこの
+    // コピーでは保証されないため、そのようなイベント型を EmitDelayed で使う場合は注意が必要
     template <typename Event>
     void EmitDelayed(const Event& _event, float _delaySec) {
         delayedEvents_.push_back({
@@ -127,6 +148,9 @@ public:
     /// </summary>
     /// <typeparam name="Event">解除するイベントの型</typeparam>
     /// <param name="_id">Subscribe 時に返された ID</param>
+    // 購読側オブジェクトの生存期間が尽きる前（デストラクタ等）に必ず呼び出すこと。
+    // これを怠ると、上記 Subscribe の説明の通り、破棄済みオブジェクトを参照したコールバックが
+    // MessageBus 内に残り続け、次の Emit() で未定義動作を引き起こす危険がある。
     template <typename Event>
     void Unsubscribe(size_t _id) {
         auto it = listeners_.find(std::type_index(typeid(Event)));

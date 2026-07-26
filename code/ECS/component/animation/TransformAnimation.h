@@ -37,19 +37,44 @@ public:
     TransformAnimation();
     ~TransformAnimation() override;
 
+    /// <summary>
+    /// 再生時刻を 0 にリセットする
+    /// </summary>
     void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    /// <summary>
+    /// 保持しているキーフレーム・状態をすべて破棄する
+    /// </summary>
     void Finalize() override;
 
     void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel) override;
 
+    /// <summary>
+    /// 再生時刻を進め、対象の Transform にキーフレーム補間結果を反映する
+    /// </summary>
+    /// <param name="_deltaTime">前フレームからの経過時間(秒)</param>
+    /// <param name="_transform">値を書き込む対象の Transform</param>
     void Update(float _deltaTime, Transform* _transform);
 
+    /// <summary>
+    /// 再生時刻を先頭に戻して再生を開始する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// 再生を停止し、終了状態にする
+    /// </summary>
     void Stop();
 
+    /// <summary>
+    /// 各キーフレームの時刻を新しい再生時間の比率にあわせて再スケールする
+    /// (キー間の相対位置を保ったまま全体の長さだけを変更する)
+    /// </summary>
+    /// <param name="_newDuration">変更後の再生時間(秒)</param>
     void RescaleDuration(float _newDuration);
 
 private:
+    /// <summary>
+    /// 現在の補間方式・現在時刻をもとに各カーブから値を計算し、反転を適用して Transform へ書き込む
+    /// </summary>
     void UpdateTransform(Transform* _transform);
 
 private:

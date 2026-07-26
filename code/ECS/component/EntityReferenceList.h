@@ -10,7 +10,10 @@ namespace OriGine {
 
 /// <summary>
 /// エンティティ参照リストコンポーネント
-/// 他のエンティティファイルへの参照を保持するコンポーネント
+/// 他のエンティティファイルへの参照を保持するコンポーネント。
+/// 保持するのはEntityHandleそのものではなく、参照先の(ディレクトリ, ファイル名)という
+/// シーンファイル上のパス情報。実行時に解決されるHandleではなく永続化可能なパスで持つことで、
+/// シーンをまたいだ保存/読込やエディタ上でのファイル選択に対応できる
 /// </summary>
 class EntityReferenceList : public IComponent {
     friend void to_json(nlohmann::json& j, const EntityReferenceList& c);

@@ -98,23 +98,28 @@ void Engine::Initialize() {
     windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU; // リリース時は固定サイズ
 #endif // DEBUG
 
+    // ウィンドウハンドル(HWND)がこの後の DirectInput / DX12 / ImGui 等の初期化すべてで必要になるため、
+    // 最初にウィンドウを生成しておく
     window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
-    // 入力システムの初期化
+    // 入力システムの初期化（ウィンドウハンドルに DirectInput を紐付けるため、ウィンドウ生成の直後に行う）
     input_ = InputManager::GetInstance();
     input_->Initialize(window_->GetHwnd());
 
+    // オーディオエンジンは他のDX12初期化と依存関係がないため、順序に強い制約はない
     Audio::StaticInitialize();
 
-    // DX12 デバイスの初期化
+    // DX12 デバイスの初期化（以降の DX12 関連オブジェクトはすべてこのデバイスに依存するため最初に必要）
     dxDevice_ = std::make_unique<DxDevice>();
     dxDevice_->Initialize();
 
-    // メインコマンドリストの初期化
+    // メインコマンドリストの初期化（デバイス生成後でなければコマンドアロケータ/リストを作成できない）
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
     // グローバル記述子ヒープの作成
+    // スワップチェーンの RTV や DSV の生成が、それぞれのヒープからディスクリプタを確保することに依存するため、
+    // スワップチェーン・深度バッファの初期化より前に用意しておく
     srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(Config::Rendering::kDefaultSrvHeapCount);
     srvHeap_->Initialize(dxDevice_->device_);
     rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(Config::Rendering::kDefaultRtvHeapCount);
@@ -122,18 +127,20 @@ void Engine::Initialize() {
     dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(Config::Rendering::kDefaultDsvHeapCount);
     dsvHeap_->Initialize(dxDevice_->device_);
 
-    // スワップチェーンの初期化
+    // スワップチェーンの初期化（デバイス・コマンドキュー・RTVヒープが揃って初めて生成できる）
     dxSwapChain_ = std::make_unique<DxSwapChain>();
     dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
 
-    // 同期用フェンスの初期化
+    // 同期用フェンスの初期化（GPU/CPU間の同期はコマンドキュー生成後でないと意味を持たない）
     dxFence_ = std::make_unique<DxFence>();
     dxFence_->Initialize(dxDevice_->device_);
 
-    // 深度バッファの作成
+    // 深度バッファの作成（ウィンドウサイズ・DSVヒープの両方に依存するため、ここまでの初期化が終わってから行う）
     CreateDsv();
 
     // 各種エンジンスシステムの初期化
+    // ここから先は DX12 のコアオブジェクト（デバイス・コマンド・ヒープ・スワップチェーン）に依存する
+    // 上位システムの初期化フェーズであり、コアオブジェクトより後でなければ初期化できない
     ShaderManager::GetInstance()->Initialize();
     ImGuiManager::GetInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
 
@@ -151,6 +158,8 @@ void Engine::Initialize() {
     AnimationManager::GetInstance()->Initialize();
     CameraManager::GetInstance()->Initialize();
 
+    // AssetSystem はテクスチャ等の読み込みに DX12 デバイス・コマンド・SRVヒープを使用するため、
+    // それらの初期化がすべて完了した最後のタイミングで初期化する
     AssetSystem::GetInstance()->Initialize();
 
     auto* manager = OriGine::CollisionCategoryManager::GetInstance();
@@ -160,6 +169,10 @@ void Engine::Initialize() {
 /// <summary> エンジンの終了処理. 各システムの Finalize を逆順に呼び出し、DX12 リソースを安全に解放する. </summary>
 void Engine::Finalize() {
 
+    // Initialize と逆順に破棄するのが基本方針。
+    // AssetSystem はテクスチャ等の GPU リソース（SRV・DxResource）を保持しており、
+    // それらの解放には DX12 デバイス・SRVヒープがまだ生きている必要があるため、
+    // DX12 コアオブジェクトを壊す前に最初に終了させる。
     AssetSystem::GetInstance()->Finalize();
 
     AnimationManager::GetInstance()->Finalize();
@@ -173,23 +186,31 @@ void Engine::Finalize() {
     ModelManager::GetInstance()->Finalize();
     FontManager::GetInstance()->Finalize();
 
+    // 深度バッファは DSV ヒープへ登録されたディスクリプタを介して参照されているため、
+    // ヒープ本体（dsvHeap_->Finalize()）より先にリソースとディスクリプタを解放する
     dsvResource_.Finalize();
     dsvHeap_->ReleaseDescriptor(dxDsv_);
 
+    // スワップチェーン・コマンドはデバイスに依存するオブジェクトなので、デバイス解放より先に片付ける。
+    // フェンスは実行中のコマンドの完了を保証する仕組みであるため、コマンドを閉じた直後に解放する。
     dxSwapChain_->Finalize();
     dxCommand_->Finalize();
     DxCommand::ResetAll();
     dxFence_->Finalize();
 
+    // 各種グローバルディスクリプタヒープの解放（ヒープを参照しているリソース側は既に片付いている前提）
     dsvHeap_->Finalize();
     rtvHeap_->Finalize();
     srvHeap_->Finalize();
 
+    // 上記すべてのDX12オブジェクトが依存していたデバイスは最後に解放する
     dxDevice_->Finalize();
 
     input_->Finalize();
     Audio::StaticFinalize();
 
+    // フレーム間で保持していたグローバルなリソース状態追跡テーブルをクリアし、
+    // 次回起動時（あるいは再初期化時）に古い状態情報が残らないようにする
     ResourceStateTracker::ClearGlobalResourceStates();
 }
 

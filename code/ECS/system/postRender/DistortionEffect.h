@@ -53,7 +53,7 @@ protected:
     /// </summary>
     void RenderStart() override;
     /// <summary>
-    /// レンダリング処理(RenderStart,RenderEndは呼び出さない。)
+    /// レンダリング処理(3Dオブジェクト分と単一テクスチャ分、それぞれについて内部で RenderStart/RenderEnd を呼び出す)
     /// </summary>
     void Rendering() override;
     /// <summary>

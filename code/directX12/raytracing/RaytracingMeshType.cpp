@@ -1,5 +1,8 @@
 #include "RaytracingMeshType.h"
 
+/// <summary>
+/// RaytracingMeshType を文字列表現に変換する。
+/// </summary>
 const char* OriGine::RaytracingMeshTypeToString(RaytracingMeshType _type) {
     switch (_type) {
     case RaytracingMeshType::Auto:

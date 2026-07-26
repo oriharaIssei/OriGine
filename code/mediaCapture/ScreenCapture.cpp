@@ -17,6 +17,9 @@ ScreenCapture::~ScreenCapture() {
     Close();
 }
 
+/// <summary>
+/// キャプチャ可能なモニター一覧を列挙する。
+/// </summary>
 std::vector<ScreenMonitorInfo> ScreenCapture::EnumerateMonitors() {
     std::vector<ScreenMonitorInfo> monitors;
 
@@ -46,12 +49,18 @@ std::vector<ScreenMonitorInfo> ScreenCapture::EnumerateMonitors() {
     return monitors;
 }
 
+/// <summary>
+/// 指定モニターをキャプチャ対象として開く。
+/// </summary>
 bool ScreenCapture::Open(DxDevice* dxDevice, DxCommand* dxCommand, uint32_t monitorIndex) {
     // Desktop Duplication の初期化は「対象出力のアダプター→他アダプター→既定アダプター」の順に
     // 試行し、すべて失敗した場合にのみ GDI キャプチャへフォールバックする。
     Close();
     lastError_.clear();
 
+    // Desktop Duplication API は D3D11 デバイスを要求するため、エンジン本体のD3D12デバイスは使えず
+    // ここで別途D3D11デバイスを作成する。引数は将来的なD3D12連携用にAPI互換として残してあるだけで、
+    // 現状は未使用。
     (void)dxDevice;
     (void)dxCommand;
 
@@ -223,6 +232,9 @@ bool ScreenCapture::Open(DxDevice* dxDevice, DxCommand* dxCommand, uint32_t moni
     return true;
 }
 
+/// <summary>
+/// キャプチャを停止し、D3D11/Duplication 関連のリソースを解放する。
+/// </summary>
 void ScreenCapture::Close() {
     StopCapture();
 
@@ -243,6 +255,9 @@ void ScreenCapture::Close() {
     height_ = 0;
 }
 
+/// <summary>
+/// キャプチャスレッド（Duplication または GDI）を起動する。
+/// </summary>
 bool ScreenCapture::StartCapture() {
     if (isCapturing_) return false;
     if (!useGDI_ && !duplication_) return false;
@@ -257,6 +272,9 @@ bool ScreenCapture::StartCapture() {
     return true;
 }
 
+/// <summary>
+/// キャプチャスレッドを停止する。
+/// </summary>
 void ScreenCapture::StopCapture() {
     if (!isCapturing_) return;
 
@@ -267,11 +285,17 @@ void ScreenCapture::StopCapture() {
     LOG_DEBUG("ScreenCapture stopped");
 }
 
+/// <summary>
+/// 新しいフレームが取得されるたびに呼ばれるコールバックを登録する（キャプチャスレッドから呼ばれる）。
+/// </summary>
 void ScreenCapture::SetFrameCallback(ScreenFrameCallback callback) {
     std::lock_guard<std::mutex> lock(callbackMutex_);
     frameCallback_ = std::move(callback);
 }
 
+/// <summary>
+/// 最新の映像フレームをコピー取得する（ポーリング用）。
+/// </summary>
 bool ScreenCapture::GetLatestFrame(std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight) {
     std::lock_guard<std::mutex> lock(frameMutex_);
     if (latestFrame_.empty()) return false;
@@ -282,6 +306,9 @@ bool ScreenCapture::GetLatestFrame(std::vector<uint8_t>& outBuffer, uint32_t& ou
     return true;
 }
 
+/// <summary>
+/// Desktop Duplication API を使ってキャプチャを続けるスレッド関数。
+/// </summary>
 void ScreenCapture::CaptureThreadDuplication() {
     while (isCapturing_) {
         DXGI_OUTDUPL_FRAME_INFO frameInfo;
@@ -347,6 +374,9 @@ void ScreenCapture::CaptureThreadDuplication() {
     }
 }
 
+/// <summary>
+/// GDI (BitBlt) を使ってキャプチャを続けるスレッド関数。
+/// </summary>
 void ScreenCapture::CaptureThreadGDI() {
     // 対象モニター領域をメモリDCへBitBltし続ける、Desktop Duplication非対応環境向けの簡易実装
     MONITORINFOEXW monInfo{};

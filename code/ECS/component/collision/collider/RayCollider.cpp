@@ -44,7 +44,10 @@ void RayCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const En
 
 void RayCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
+    // originは位置なのでワールド行列（平行移動含む）で変換する
     this->worldShape_.origin    = shape_.origin * transform_.worldMat;
+    // directionは向きだけを持つベクトルなので、平行移動を含まない回転行列のみを適用する
+    // （worldMatをそのまま使うと平行移動成分が乗ってしまい、向きの意味が壊れる）
     this->worldShape_.direction = (shape_.direction * MakeMatrix4x4::RotateQuaternion(transform_.CalculateWorldRotate())).normalize();
 }
 

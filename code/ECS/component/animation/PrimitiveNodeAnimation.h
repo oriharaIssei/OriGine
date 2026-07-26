@@ -32,9 +32,20 @@ public:
 
     void Finalize() override;
 
+    /// <summary>
+    /// 再生時刻を進め、対象の Transform にキーフレーム補間結果を反映する
+    /// </summary>
+    /// <param name="_deltaTime">前フレームからの経過時間(秒)</param>
+    /// <param name="_transform">値を書き込む対象の Transform</param>
     void Update(float _deltaTime, Transform* _transform);
 
+    /// <summary>
+    /// 再生時刻を先頭に戻して再生を開始する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// 再生を停止する
+    /// </summary>
     void Stop();
 
 protected:

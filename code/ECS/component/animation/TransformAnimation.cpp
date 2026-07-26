@@ -47,10 +47,16 @@ Quaternion TransformAnimation::ApplyFlipQ(Quaternion _val, const FlipMask& _flip
 TransformAnimation::TransformAnimation() {}
 TransformAnimation::~TransformAnimation() {}
 
+/// <summary>
+/// 再生時刻を 0 にリセットする
+/// </summary>
 void TransformAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
+/// <summary>
+/// 保持しているキーフレーム・状態をすべて破棄する
+/// </summary>
 void TransformAnimation::Finalize() {
     animationState_ = {};
     currentTime_    = 0.0f;
@@ -226,6 +232,11 @@ void TransformAnimation::Edit(
 #endif // _DEBUG
 }
 
+/// <summary>
+/// 再生時刻を進め、対象の Transform にキーフレーム補間結果を反映する
+/// </summary>
+/// <param name="_deltaTime">前フレームからの経過時間(秒)</param>
+/// <param name="_transform">値を書き込む対象の Transform</param>
 void TransformAnimation::Update(float _deltaTime, Transform* _transform) {
     if (!IsPlaying()) {
         return;
@@ -234,6 +245,9 @@ void TransformAnimation::Update(float _deltaTime, Transform* _transform) {
     animationState_.isEnd_ = false;
     currentTime_ += _deltaTime;
 
+    // 末尾到達時の処理: ループ中ならループ先頭(0)へ戻す。
+    // ループでなければ EndAnimation() で currentTime_ を duration_ に固定して再生を止める
+    // (時刻を超過分だけ進めずに単純に折り返す。厳密な余り時間の繰り越しは行わない)
     if (currentTime_ >= duration_) {
         if (animationState_.isLoop_) {
             currentTime_ = 0.0f;
@@ -245,7 +259,14 @@ void TransformAnimation::Update(float _deltaTime, Transform* _transform) {
     UpdateTransform(_transform);
 }
 
+/// <summary>
+/// 現在の補間方式・現在時刻をもとに各カーブから値を計算し、反転を適用して Transform へ書き込む
+/// </summary>
 void TransformAnimation::UpdateTransform(Transform* _transform) {
+    // scale/rotate/translate は独立したキーフレーム配列として持っているため、
+    // それぞれ個別に現在時刻での補間値を求めてから反転(Flip)を適用する。
+    // rotate は Quaternion であり、CalculateValue 側の補間トレイトで Slerp が使われる
+    // (球面線形補間により、回転を一定角速度で最短経路で補間できるため)
     switch (interpolationType_) {
     case InterpolationType::LINEAR:
         if (!scaleCurve_.empty()) {
@@ -277,18 +298,29 @@ void TransformAnimation::UpdateTransform(Transform* _transform) {
     _transform->UpdateMatrix();
 }
 
+/// <summary>
+/// 再生時刻を先頭に戻して再生を開始する
+/// </summary>
 void TransformAnimation::PlayStart() {
     currentTime_            = 0.0f;
     animationState_.isPlay_ = true;
     animationState_.isEnd_  = false;
 }
 
+/// <summary>
+/// 再生を停止し、終了状態にする
+/// </summary>
 void TransformAnimation::Stop() {
     animationState_.isPlay_ = false;
     animationState_.isEnd_  = true;
 }
 
+/// <summary>
+/// 各キーフレームの時刻を新しい再生時間に合わせて再スケールする
+/// </summary>
 void TransformAnimation::RescaleDuration(float _newDuration) {
+    // 各キーの時刻を duration_ に対する比率に変換してから _newDuration を掛け直すことで、
+    // キー同士の相対的な間隔(タイミング)を保ったまま全体の再生時間だけを伸縮させる
     auto rescale = [_newDuration, this](auto& _curve) {
         for (auto& key : _curve) {
             key.time = (key.time / duration_) * _newDuration;
@@ -302,6 +334,9 @@ void TransformAnimation::RescaleDuration(float _newDuration) {
     duration_ = _newDuration;
 }
 
+/// <summary>
+/// TransformAnimation を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const TransformAnimation& _comp) {
     _j["duration"]             = _comp.duration_;
     _j["isLoop"]               = _comp.animationState_.isLoop_;
@@ -330,6 +365,9 @@ void OriGine::to_json(nlohmann::json& _j, const TransformAnimation& _comp) {
 
 }
 
+/// <summary>
+/// JSON から TransformAnimation を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, TransformAnimation& _comp) {
     _j.at("duration").get_to(_comp.duration_);
     _j.at("isLoop").get_to(_comp.animationState_.isLoop_);

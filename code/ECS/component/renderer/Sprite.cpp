@@ -28,10 +28,16 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// スプライト描画に必要なGPUリソース（定数バッファ・矩形メッシュ）を構築し、
+/// 設定済みのテクスチャがあれば読み込んで表示サイズを決定する
+/// </summary>
+/// <param name="_scene">所属シーン</param>
+/// <param name="_hostEntity">このコンポーネントを保持するエンティティ</param>
 void SpriteRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
 
-    // buffer作成
+    // buffer作成(定数バッファ用のGPUリソースを確保し、Map済みポインタを保持する)
     spriteBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     // メッシュの初期化
@@ -39,8 +45,10 @@ void SpriteRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
     meshGroup_->push_back(SpriteMesh());
 
     SpriteMesh& mesh = meshGroup_->at(0);
+    // スプライトは矩形1枚(頂点4個・三角形2枚=インデックス6個)だけで表現できる
     mesh.Initialize(4, 6);
     // indexData
+    // 頂点0,1,2,3を左下/左上/右下/右上として、(0,1,2)と(1,3,2)の2枚の三角形で矩形を構成する
     mesh.indexes_[0] = 0;
     mesh.indexes_[1] = 1;
     mesh.indexes_[2] = 2;
@@ -64,8 +72,16 @@ void SpriteRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
     CalculateWindowRatioPosAndSize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
 }
 
+/// <summary>
+/// デバッグ用GUIでスプライトのパラメータを編集する。
+/// px値と比率のどちらを編集しても、編集後コールバックでもう一方を再計算して同期させる
+/// </summary>
+/// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void SpriteRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    // エディタ専用のUIコードなので、リリースビルドには含めない
+
+    // px値を編集したときは比率側を、比率を編集したときはpx値側を再計算する
     auto realNumberAfterFunc = [this](Vector<2, float>* /*_newVal*/) {
         CalculatePosRatioAndSizeRatio();
     };
@@ -184,11 +200,27 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[m
 #endif // _DEBUG
 }
 
+/// <summary>
+/// 終了処理。基底が持つメッシュ資源を解放したあと、
+/// このクラス固有の定数バッファ（Map済みGPUメモリ）も解放する
+/// </summary>
 void SpriteRenderer::Finalize() {
     MeshRenderer::Finalize();
     spriteBuff_.Finalize();
 }
 
+/// <summary>
+/// 画面サイズに対する比率(0~1)を正として、px単位の絶対位置・サイズを再計算する。
+///
+/// SpriteRendererは「px単位の絶対値」と「画面サイズに対する比率」の2種類の値を併せ持つ。
+/// 比率側を正とするのがこの関数、絶対値側を正として比率を求め直すのが
+/// CalculatePosRatioAndSizeRatio で、両者は逆方向の変換になっている。
+/// 解像度が変わっても見た目の配置比率を保ちたいUI用途で、どちらから編集されても
+/// 両方の値を同期できるようにするための仕組み。
+///
+/// lengthSq() が0のときに代入をスキップしているのは、比率が未設定(ゼロ初期化のまま)の
+/// スプライトの絶対値を0で潰してしまわないため
+/// </summary>
 void SpriteRenderer::CalculateWindowRatioPosAndSize() {
     if (windowRatioSize_.lengthSq() != 0.0f) {
         size_ = {defaultWindowSize_[X] * windowRatioSize_[X], defaultWindowSize_[Y] * windowRatioSize_[Y]};
@@ -198,11 +230,20 @@ void SpriteRenderer::CalculateWindowRatioPosAndSize() {
     }
 }
 
+/// <summary>
+/// 基準となる画面サイズを更新したうえで、比率からpx単位の位置・サイズを再計算する。
+/// ウィンドウリサイズ通知を受けた際に呼ばれる
+/// </summary>
+/// <param name="_newWindowSize">新しい画面サイズ[px]</param>
 void SpriteRenderer::CalculateWindowRatioPosAndSize(const Vec2f& _newWindowSize) {
     defaultWindowSize_ = _newWindowSize;
     CalculateWindowRatioPosAndSize();
 }
 
+/// <summary>
+/// px単位の絶対位置・サイズを正として、画面サイズに対する比率を再計算する。
+/// エディタ上でpx値を直接編集した後に、比率側の値を追従させる用途で使う
+/// </summary>
 void SpriteRenderer::CalculatePosRatioAndSizeRatio() {
     if (defaultWindowSize_.lengthSq() == 0.0f) {
         return;
@@ -215,11 +256,25 @@ void SpriteRenderer::CalculatePosRatioAndSizeRatio() {
     }
 }
 
+/// <summary>
+/// 基準となる画面サイズを更新したうえで、px値から比率を再計算する
+/// </summary>
+/// <param name="_newWindowSize">新しい画面サイズ[px]</param>
 void SpriteRenderer::CalculatePosRatioAndSizeRatio(const Vec2f& _newWindowSize) {
     defaultWindowSize_ = _newWindowSize;
     CalculatePosRatioAndSizeRatio();
 }
 
+/// <summary>
+/// 表示するテクスチャを差し替える
+/// </summary>
+/// <param name="_texturePath">読み込むテクスチャのパス</param>
+/// <param name="_applyTextureSize">
+/// trueなら、読み込んだテクスチャの実サイズをスプライトの既定サイズとして採用する。
+/// ただし既に textureSize_ / size_ が設定済み（lengthSqが0でない）の場合は上書きしない。
+/// これは、エディタやJSONで明示的に指定した切り出し範囲・表示サイズを、
+/// テクスチャ差し替えのたびに実サイズで潰してしまわないため
+/// </param>
 void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyTextureSize) {
     texturePath_ = _texturePath;
     // テクスチャの読み込みとサイズの適応
@@ -237,11 +292,22 @@ void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyText
     }
 }
 
+/// <summary>
+/// CPU側で保持しているスプライトの状態をGPUバッファへ転送する。
+///
+/// 毎フレーム描画システムから呼ばれ、ワールド行列/UV行列(定数バッファ)と
+/// 頂点位置・UV座標(頂点バッファ)の両方を更新する。
+/// つまりGPUへの反映タイミングは「フレームごとにUpdateBufferが呼ばれたとき」であり、
+/// Setter(SetScale等)を呼んだ直後に即座に反映されるわけではない点に注意
+/// </summary>
+/// <param name="_viewPortMat">スクリーン座標をクリップ空間へ変換するビューポート行列</param>
 void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
     //-------------------------------- ConstBufferの更新 --------------------------------//
     {
+        // スケール/回転/移動からワールド行列を再計算し、CPU側(openData_)を更新する
         spriteBuff_->Update(_viewPortMat);
 
+        // 更新したCPU側の値をMap済みのGPUメモリへコピーする
         spriteBuff_.ConvertToBuffer();
     }
     //-------------------------------- メッシュの更新 --------------------------------//
@@ -276,9 +342,14 @@ void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
     mesh.vertexes_[2].texcoord = {texRight, texBottom};
     mesh.vertexes_[3].texcoord = {texRight, texTop};
 
+    // 位置・UV座標を書き換えたCPU側の頂点データをGPU側の頂点バッファへ転送する
     mesh.TransferData();
 }
 
+/// <summary>
+/// SpriteRendererの状態をjsonへ書き出す。矩形形状(meshGroup_)は固定のため保存せず、
+/// テクスチャパスやTransform/UV情報など再構築に必要なパラメータのみ保存する
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const SpriteRenderer& _comp) {
     _j = nlohmann::json{
         {"isRender", _comp.isRender_},
@@ -302,6 +373,11 @@ void OriGine::to_json(nlohmann::json& _j, const SpriteRenderer& _comp) {
         {"uvTranslate", _comp.spriteBuff_->uvTranslate_}};
 }
 
+/// <summary>
+/// jsonからSpriteRendererの状態を復元する。
+/// defaultWindowSize/windowRatioSize/windowRatioPosは後から追加されたフィールドのため、
+/// 保存データに存在しない場合は絶対値側(size_/translate_)から比率側を逆算して補う(後方互換のため)
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, SpriteRenderer& _comp) {
     _j.at("isRender").get_to(_comp.isRender_);
     _j.at("renderingPriority").get_to(_comp.renderPriority_);

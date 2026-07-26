@@ -76,7 +76,7 @@ private:
     static void DirectInfo(const ::std::string& _message, const char* _file, const char* _function, int _line);
 
     /// <summary>
-    /// DEBUG レベルেরログを直接書き込む.
+    /// DEBUG レベルのログを直接書き込む.
     /// </summary>
     static void DirectDebug(const ::std::string& _message, const char* _file, const char* _function, int _line);
 

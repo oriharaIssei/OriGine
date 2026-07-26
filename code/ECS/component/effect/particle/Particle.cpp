@@ -39,6 +39,7 @@ void Particle::Initialize(
 
     isAlive_ = true;
 
+    // 初期値が [min, max] レンジのどの位置にあるかを 0〜1 相当の比率として保持しておく
     scaleRatio_    = transform_.scale / (_maxScale - _minScale);
     rotateRatio_   = transform_.rotate / (_maxRotate - _minRotate);
     velocityRatio_ = velocity_ / (_maxVelocity - _minVelocity);
@@ -51,22 +52,33 @@ void Particle::Initialize(
     uvInterpolationType_        = _uv;
 }
 
+/// <summary>
+/// 寿命・位置・各カーブ駆動パラメータを1フレーム分更新する
+/// </summary>
+/// <param name="_deltaTime">前フレームからの経過時間(秒)</param>
 void Particle::Update(float _deltaTime) {
     deltaTime_ = _deltaTime;
     if (!isAlive_) {
         return;
     }
     currentTime_ += deltaTime_;
+    // 寿命切れなら以降の更新は行わず即終了する
     if (currentTime_ >= lifeTime_) {
         isAlive_ = false;
         return;
     }
 
+    // SetKeyFrames() で updateSettings に応じて積み上げられたラムダ群を実行する。
+    // 毎フレーム if 分岐で更新項目を判定する代わりに、有効な更新処理だけを
+    // 生成時に一度だけ選別しておくことで、更新コストを必要な分だけに抑えている
     for (auto& update : updateByCurves_) {
         update();
     }
 
     if (velocityRotateForward_) {
+        // axisZ(基準前方向) から direction_(パーティクルの進行方向) への回転を求め、
+        // その回転を velocity_ にも適用してから移動量に加算する
+        // (速度ベクトル自体を進行方向に追従して回転させたい場合の処理)
         Vec3f rotationAxis  = axisZ.cross(direction_).normalize();
         float angle         = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
         Quaternion rotation = Quaternion::RotateAxisAngle(rotationAxis, angle);
@@ -86,6 +98,8 @@ void Particle::Update(float _deltaTime) {
         }
         Vec3f forward = rotatedVelocity.normalize();
         float dot     = Vec3f(axisZ * forward).dot();
+        // dot がほぼ 1 (axisZ と forward がほぼ平行) の場合、外積で求める回転軸が
+        // ほぼゼロベクトルになり不定になるため、その場合は回転を適用しない
         if (dot < 1.0f - std::numeric_limits<float>::epsilon()) {
             Vec3f axis        = axisZ.cross(forward).normalize();
             float rotateAngle = std::acos(dot);
@@ -96,6 +110,11 @@ void Particle::Update(float _deltaTime) {
     transform_.UpdateMatrix();
 }
 
+/// <summary>
+/// updateSettings のビットフラグに応じて、毎フレーム実行する更新処理(ラムダ)を
+/// updateByCurves_ に積み上げる。フラグが立っていない項目は登録されないため、
+/// Update() 側は分岐を意識せず updateByCurves_ を順に呼ぶだけで済む
+/// </summary>
 void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrames) {
     if (updateSettings == 0 || !_keyFrames) {
         return;

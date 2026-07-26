@@ -11,11 +11,21 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory::Initialize) {}
 
+/// <summary>
+/// ウィンドウリサイズ時のコールバックをEngineへ登録する。
+/// シーンビュー・スプライト・サブシーンそれぞれについて、新しいウィンドウサイズに追従させる処理を登録する
+/// </summary>
 void RegisterWindowResizeEvent::Initialize() {
     Engine* engine = Engine::GetInstance();
 
+    // コールバックはEngine側に保持され続けるため、thisの生ポインタを直接捕捉すると
+    // このシステムが破棄された後にダングリングポインタを呼び出す危険がある。
+    // weak_ptrで捕捉し、呼び出し時にlock()で生存確認してから使うことで安全にする
     auto shared                                       = shared_from_this();
     std::weak_ptr<RegisterWindowResizeEvent> weakSelf = shared;
 
@@ -68,6 +78,9 @@ void RegisterWindowResizeEvent::Initialize() {
     subSceneResizeEventIndex_ = engine->AddWindowResizeEvent(subSceneResizeEvent);
 }
 
+/// <summary>
+/// Initialize()で登録したウィンドウリサイズイベントを全て解除する
+/// </summary>
 void RegisterWindowResizeEvent::Finalize() {
     Engine* engine = Engine::GetInstance();
     if (subSceneResizeEventIndex_ != -1) {
@@ -88,5 +101,8 @@ void RegisterWindowResizeEvent::Finalize() {
 #endif // _DEBUG
 }
 
+/// <summary>
+/// エンティティごとの更新処理（このシステムはイベント登録専用のため使用しない）
+/// </summary>
 void RegisterWindowResizeEvent::UpdateEntity(const EntityHandle& /*_owner*/) {
 }

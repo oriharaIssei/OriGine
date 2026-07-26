@@ -63,6 +63,8 @@ void SkinningMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
         }
 
         RenderingData data{&skinningAnimation, renderer, entityTransform};
+        // ブレンドモードごとにPSOが切り替わるため、描画時にPSOの張り替え回数を減らせるよう
+        // 事前にブレンドモード別のリストへ振り分けておく
         int32_t blendIndex = static_cast<int32_t>(renderer->GetCurrentBlend());
         activeRenderersByBlendMode_[blendIndex].push_back(data);
     }
@@ -217,6 +219,8 @@ void SkinningMeshRenderSystem::CreatePSO() {
     environmentTextureBufferIndex_    = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[8]);
 
     // raytracingScene ... 9
+    // インラインレイトレーシングによるシャドウレイ判定(TraceShadowRay)のため、
+    // シーンのTLAS(高速化構造)をSRVとしてピクセルシェーダへ渡す(t5、ShadowUtility.hlsli側で使用)
     rootParameter[9].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
     rootParameter[9].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[9].Descriptor.ShaderRegister = 5; // t5
@@ -375,6 +379,8 @@ void SkinningMeshRenderSystem::StartRender() {
     LightManager::GetInstance()->SetForRootParameter(
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
+    // このあとテクスチャ・環境テクスチャをディスクリプタテーブル経由でバインドするため、
+    // 描画コマンド発行前にSRVヒープをコマンドリストへセットしておく必要がある
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
@@ -407,6 +413,8 @@ void SkinningMeshRenderSystem::RenderModelMesh(
         return;
     }
 
+    // メッシュ単位(index)でテクスチャ・Transform・マテリアル・スキニング済み頂点バッファが
+    // それぞれ個別に管理されているため、メッシュごとに1回ずつ描画コマンドを積む
     uint32_t index = 0;
 
     auto& meshGroup = _renderer->GetMeshGroup();
@@ -418,10 +426,14 @@ void SkinningMeshRenderSystem::RenderModelMesh(
         ComponentHandle materialHandle            = _renderer->GetMaterialHandle(index);
 
         // ============================= Viewのセット ============================= //
+        // 頂点バッファはCPU側の元メッシュではなく、SkinningAnimationSystemがGPU上で
+        // スキニング済みに書き換えた後の頂点バッファを使う(インデックスバッファは形状が変わらないため元のまま)
         _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->GetSkinnedVertexBuffer(index).vbView);
         _commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // ============================= Transformのセット ============================= //
+        // メッシュ単体のTransformにエンティティのTransformを親として繋ぎ、
+        // エンティティの位置・回転・スケールがメッシュ全体へ伝播するようにする(初回のみ設定)
         if (meshTransform->parent == nullptr) {
             meshTransform->parent = _entityTransform;
         }

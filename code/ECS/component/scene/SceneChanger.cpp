@@ -31,6 +31,7 @@ void SceneChanger::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[may
     ImGui::SameLine();
     if (ImGui::BeginCombo("##NextSceneName", nextSceneName_.c_str())) {
         // シーンディレクトリ配下のjsonファイルを遷移先候補として列挙する
+        // (実際のシーン切り替えは SceneTransitionSystem 側で nextSceneName_ を読み取って行う)
         for (const auto& [directory, sceneName] : myfs::SearchFile(kApplicationResourceDirectory + "/scene/", "json")) {
             bool isSelected = nextSceneName_ == sceneName;
             if (ImGui::Selectable(sceneName.c_str(), isSelected)) {

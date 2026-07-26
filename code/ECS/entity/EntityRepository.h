@@ -21,7 +21,11 @@
 
 namespace OriGine {
 /// <summary>
-/// Entity Repository(登録, 削除, 取得などを行う)
+/// Entity Repository(登録, 削除, 取得などを行う)。
+/// Entity実体はあらかじめ確保した固定長プール(entities_)にインデックスで格納し、
+/// 生存状態はBitArrayで、UUID(EntityHandle)からプール内インデックスへの変換はハッシュマップ(uuidToIndex_)で管理する。
+/// 削除は該当インデックスのビットを落として対応表からuuidを消すだけなので、
+/// 同じインデックスが将来再利用されても、UUIDが異なる限り古いHandleで誤った実体にアクセスすることはない
 /// </summary>
 class EntityRepository final {
 public:

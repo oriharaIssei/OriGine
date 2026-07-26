@@ -15,12 +15,33 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ。
+/// エンティティの生存/破棄を決める処理なので、StateTransition カテゴリに属する
+/// （描画やエフェクト更新がすべて終わった後に実行させるため）
+/// </summary>
 EffectAutoDestroySystem::EffectAutoDestroySystem() : ISystem(SystemCategory::StateTransition) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 EffectAutoDestroySystem::~EffectAutoDestroySystem() {}
 
+/// <summary>
+/// 初期化処理。保持する状態が無いため何もしない
+/// </summary>
 void EffectAutoDestroySystem::Initialize() {}
+
+/// <summary>
+/// 終了処理。保持する状態が無いため何もしない
+/// </summary>
 void EffectAutoDestroySystem::Finalize() {}
 
+/// <summary>
+/// 再生中のアニメーションが1つも残っていないエンティティを、破棄対象としてシーンに登録する。
+/// 使い捨てのエフェクト用エンティティを、再生完了後に自動で片付けるためのシステム
+/// </summary>
+/// <param name="_handle">判定対象のエンティティハンドル</param>
 void EffectAutoDestroySystem::UpdateEntity(const OriGine::EntityHandle& _handle) {
     // 対象エンティティが持ちうる各種アニメーション/カメラアクションのいずれかが
     // 再生中であれば、まだ生存させる(いずれも再生中でなければ破棄対象とする)

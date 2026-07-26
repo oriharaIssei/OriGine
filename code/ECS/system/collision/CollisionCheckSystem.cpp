@@ -40,6 +40,7 @@ CollisionCheckSystem::~CollisionCheckSystem() {}
 /// 初期化処理
 /// </summary>
 void CollisionCheckSystem::Initialize() {
+    // 想定される最大エンティティ数の目安。事前確保しておくことでUpdate中の再アロケーションを避ける
     constexpr size_t reserveSize = 100;
     entities_.reserve(reserveSize);
 
@@ -179,6 +180,8 @@ Bounds::AABB CollisionCheckSystem::ComputeEntityAABB(const EntityHandle& _entity
     Vec3f minPoint   = Vec3f(FLT_MAX, FLT_MAX, FLT_MAX);
     Vec3f maxPoint   = Vec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
+    // 各コライダーのワールドAABBをmin/maxの更新という形で合成し、
+    // エンティティが持つ全コライダーを包含する1つのAABBを作る(ブロードフェーズ登録用)
     auto mergeAABB = [&](const Bounds::AABB& aabb) {
         if (aabb.halfSize.lengthSq() <= 0.0f) {
             return;
@@ -272,7 +275,9 @@ void CollisionCheckSystem::CheckEntityPair(const EntityHandle& _aEntity, const E
     auto& bEntitySegmentColliders = GetComponents<SegmentCollider>(_bEntity);
     auto& bEntityRayColliders     = GetComponents<RayCollider>(_bEntity);
 
-    // 2つのリスト間の衝突判定をまとめる
+    // 2つの形状リスト間で総当たり判定を行う共通処理
+    // CanCollideWithでレイヤー等によるフィルタを行い、当たった場合は各コライダーへ
+    // 「今フレームこの相手と衝突した」という状態を記録する(EndCollisionでの前フレーム比較に使う)
     auto checkCollisions = [&](
                                const EntityHandle& aEntity,
                                const EntityHandle& bEntity,
@@ -299,6 +304,7 @@ void CollisionCheckSystem::CheckEntityPair(const EntityHandle& _aEntity, const E
         }
     };
 
+    // AABB vs All
     if (!aEntityAabbColliders.empty()) {
         if (!bEntityAabbColliders.empty()) {
             checkCollisions(_aEntity, _bEntity, aEntityAabbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
@@ -319,6 +325,7 @@ void CollisionCheckSystem::CheckEntityPair(const EntityHandle& _aEntity, const E
             checkCollisions(_aEntity, _bEntity, aEntityAabbColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
         }
     }
+    // Sphere vs All
     if (!aEntitySphereColliders.empty()) {
         if (!bEntityAabbColliders.empty()) {
             checkCollisions(_aEntity, _bEntity, aEntitySphereColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
@@ -339,6 +346,7 @@ void CollisionCheckSystem::CheckEntityPair(const EntityHandle& _aEntity, const E
             checkCollisions(_aEntity, _bEntity, aEntitySphereColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
         }
     }
+    // OBB vs All
     if (!aEntityObbColliders.empty()) {
         if (!bEntityAabbColliders.empty()) {
             checkCollisions(_aEntity, _bEntity, aEntityObbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);

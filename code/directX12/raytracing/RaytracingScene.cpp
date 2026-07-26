@@ -10,6 +10,9 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 初期化。BLASマップを空にし、TLASを初期化する。
+/// </summary>
 void RaytracingScene::Initialize() {
     if (!blasMap_.empty()) {
         blasMap_.clear();
@@ -17,6 +20,9 @@ void RaytracingScene::Initialize() {
     tlas_.Initialize();
 }
 
+/// <summary>
+/// 終了処理。全メッシュ分のBLASとTLASを解放する。
+/// </summary>
 void RaytracingScene::Finalize() {
     if (!blasMap_.empty()) {
         for (auto& [meshHandle, blas] : blasMap_) {
@@ -27,6 +33,15 @@ void RaytracingScene::Finalize() {
     tlas_.Finalize();
 }
 
+/// <summary>
+/// BLAS (Bottom Level Acceleration Structure) を更新する。
+/// </summary>
+/// <remarks>
+/// BLASはメッシュ単体（頂点・インデックスバッファ）が持つ三角形群の空間構造で、メッシュ1つにつき1つ持つ。
+/// 同じメッシュを使い回すインスタンスが複数あっても、頂点データそのものが変化しない限りBLASは共有できるため、
+/// メッシュハンドル単位でキャッシュ(blasMap_)しておき、初回のみ構築し以降は更新のみを行う。
+/// スキニングアニメーション等で頂点位置が変化するメッシュ(isDynamic)は毎フレームUpdateが必要になる。
+/// </remarks>
 void RaytracingScene::UpdateBlases(
     ID3D12Device8* _device,
     ID3D12GraphicsCommandList6* _commandList,
@@ -52,6 +67,16 @@ void RaytracingScene::UpdateBlases(
     }
 }
 
+/// <summary>
+/// TLAS (Top Level Acceleration Structure) を更新する。
+/// </summary>
+/// <remarks>
+/// TLASは「どのBLAS(メッシュ)を、どのワールド変換行列で、シーン上のどこに配置するか」をまとめた
+/// シーン全体で1つの構造体で、各BLASへの参照とインスタンスごとの変換行列を保持する。
+/// レイトレーシングはこのTLASを起点にBLAS階層をたどって交差判定を行うため、
+/// オブジェクトの位置やBLASの中身が変わるたびに再構築・更新する必要がある。
+/// 初回のみCreateResource(フル構築)し、以降は差分更新(Update)で済ませることでコストを抑える。
+/// </remarks>
 void RaytracingScene::UpdateTlas(ID3D12Device8* _device, ID3D12GraphicsCommandList6* _commandList, const std::vector<RayTracingInstance>& _instances) {
     if (_instances.empty()) {
         return;
@@ -65,10 +90,16 @@ void RaytracingScene::UpdateTlas(ID3D12Device8* _device, ID3D12GraphicsCommandLi
     }
 }
 
+/// <summary>
+/// TLASが未構築、またはBLASが1つも無ければ「シーンが空」とみなす。
+/// </summary>
 bool OriGine::RaytracingScene::IsEmpty() const {
     return !tlasIsCreated_ || blasMap_.empty();
 }
 
+/// <summary>
+/// 指定したエンティティのメッシュをBLASの動的更新対象として扱うべきか判定する。
+/// </summary>
 bool OriGine::MeshIsDynamic(Scene* _scene, const EntityHandle& _entityHandle, RaytracingMeshType _type, bool _isModelMesh) {
     if (_type == RaytracingMeshType::Dynamic) {
         return true;

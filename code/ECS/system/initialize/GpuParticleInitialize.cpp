@@ -12,17 +12,29 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 GpuParticleInitialize::GpuParticleInitialize()
     : ISystem(SystemCategory::Initialize) {}
 
+/// <summary>
+/// デストラクタ
+/// </summary>
 GpuParticleInitialize::~GpuParticleInitialize() {}
 
+/// <summary>
+/// 初期化処理。Compute Shader実行用のコマンドリストとPSOを準備する
+/// </summary>
 void GpuParticleInitialize::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
+/// <summary>
+/// 登録エンティティ全てについて、GPUパーティクルバッファの初期化ディスパッチをまとめて発行する
+/// </summary>
 void GpuParticleInitialize::Update() {
     if (entities_.empty()) {
         return;
@@ -35,11 +47,16 @@ void GpuParticleInitialize::Update() {
     for (auto& id : entities_) {
         UpdateEntity(id);
     }
+    // 1件もDispatchしていない場合はコマンドリストが空のままなので、
+    // わざわざExecuteCS(GPU実行~完了待ち)を行わずコストを避ける
     if (usingCS_) {
         ExecuteCS();
     }
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void GpuParticleInitialize::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -48,6 +65,11 @@ void GpuParticleInitialize::Finalize() {
     pso_ = nullptr;
 }
 
+/// <summary>
+/// エンティティが持つ各GpuParticleEmitterについて、初期化用Compute Shaderをディスパッチし、
+/// パーティクルバッファとフリーリスト(空きスロット管理用バッファ)を初期状態へ書き込む
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void GpuParticleInitialize::UpdateEntity(const EntityHandle& _handle) {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -62,14 +84,18 @@ void GpuParticleInitialize::UpdateEntity(const EntityHandle& _handle) {
             continue; // 非アクティブなパーティクルはスキップ
         }
 
+        // u0: パーティクル本体のデータ配列
         commandList->SetComputeRootDescriptorTable(
             kParticleBufferIndex_,
             gpuParticleEmitter.GetParticleUavDescriptor().GetGpuHandle());
 
+        // u1: フリーリストのスタックポインタ(先頭インデックス)。
+        // 発生時にここをデクリメントして空きスロットを1つ取り出し、消滅時にインクリメントして返却する
         commandList->SetComputeRootDescriptorTable(
             kFreeIndexBufferIndex_,
             gpuParticleEmitter.GetFreeIndexUavDescriptor().GetGpuHandle());
 
+        // u2: 未使用パーティクルのインデックスを積んだフリーリスト本体
         commandList->SetComputeRootDescriptorTable(
             kFreeListBufferIndex_,
             gpuParticleEmitter.GetFreeListUavDescriptor().GetGpuHandle());
@@ -79,6 +105,8 @@ void GpuParticleInitialize::UpdateEntity(const EntityHandle& _handle) {
             commandList.Get(),
             kEmitterShapeIndex);
 
+        // 最大パーティクル数をスレッドグループサイズ(1024)で割り切り上げ、
+        // 全パーティクル分を1回のディスパッチで初期化できるグループ数を求める
         UINT dispatchCount = (gpuParticleEmitter.GetParticleSize() + 1023) / 1024;
         commandList->Dispatch(
             dispatchCount, // 1ワークグループあたり1024頂点を処理
@@ -89,6 +117,9 @@ void GpuParticleInitialize::UpdateEntity(const EntityHandle& _handle) {
     }
 }
 
+/// <summary>
+/// パーティクル初期化用のパイプラインステートオブジェクト(PSO)を作成する
+/// </summary>
 void GpuParticleInitialize::CreatePSO() {
     constexpr const char* psoKey = "InitializeGpuParticle.CS";
 
@@ -168,6 +199,10 @@ void GpuParticleInitialize::CreatePSO() {
     /// ==========================================
     pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 };
+
+/// <summary>
+/// Compute Shaderの実行を開始する（ディスクリプタヒープ・PSO・ルートシグネチャの設定）
+/// </summary>
 void GpuParticleInitialize::StartCS() {
     if (!pso_) {
         LOG_ERROR("PSO is not created for SkinningAnimationSystem");
@@ -181,6 +216,10 @@ void GpuParticleInitialize::StartCS() {
     dxCommand_->GetCommandList()->SetPipelineState(pso_->pipelineState.Get());
     dxCommand_->GetCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
 };
+
+/// <summary>
+/// Compute Shaderを実行(コマンドを発行)する
+/// </summary>
 void GpuParticleInitialize::ExecuteCS() {
     HRESULT hr;
     DxFence* fence = Engine::GetInstance()->GetDxFence();

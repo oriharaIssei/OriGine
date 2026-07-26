@@ -62,10 +62,12 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
     if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
+        // kBlendModeStrはBlendMode enumと同じ並び順の名前一覧。名前を突き合わせて選択中判定を行う
         for (auto& blendModeName : kBlendModeStr) {
             isSelected = blendModeName == kBlendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
+                // currentBlend_へ直接代入せずCommand経由にすることで、エディタのUndo/Redo対象にする
                 OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 break;
@@ -83,6 +85,8 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
     int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
+    // materialIndex_ == -1は「マテリアル未選択」を表す番兵値。
+    // マテリアル配列の増減で範囲外を指さないよう、範囲を[-1, 現在の最大index]にクランプする
     materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
     if (materialIndex_ >= 0) {
         label = "Material##" + _parentLabel;
@@ -197,6 +201,7 @@ void OriGine::from_json(const nlohmann::json& _j, CylinderRenderer& _comp) {
     if (_j.contains("textureFilePath")) {
         _j.at("textureFilePath").get_to(_comp.textureFilePath_);
     } else {
+        // 過去のセーブ形式(directory/fileNameを別フィールドで保持)からの読み込み互換処理
         std::string directory, fileName;
         _j.at("textureDirectory").get_to(directory);
         _j.at("textureFileName").get_to(fileName);

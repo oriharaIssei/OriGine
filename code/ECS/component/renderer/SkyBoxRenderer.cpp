@@ -28,6 +28,7 @@ void SkyboxRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
     /// mesh
     meshGroup_->push_back(Mesh<SkyboxVertex>());
     auto& mesh = meshGroup_->back();
+    // 立方体は頂点8個・三角形12枚(インデックス36個)で表現できるため、その固定サイズで確保する
     mesh.Initialize(8, 36);
 
     // 前
@@ -41,6 +42,8 @@ void SkyboxRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
     mesh.vertexes_[6].position = {-1.f, -1.f, -1.f, 1.f};
     mesh.vertexes_[7].position = {1.f, -1.f, -1.f, 1.f};
 
+    // 天空箱はカメラが立方体の内側に入り込んで内壁を見る形になるため、
+    // 各面のインデックス順は、通常の外向き立方体とは反対に「内側から見て」表となる巻き順で並べている
     mesh.indexes_ = {
         // 前
         0,
@@ -86,13 +89,16 @@ void SkyboxRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
         3,
     };
 
+    // 固定形状の頂点/インデックスデータをGPU側の頂点・インデックスバッファへ転送する(以降変化しない)
     mesh.TransferData();
 
     if (!filePath_.empty()) {
+        // シリアライズ済みのファイルパスがあれば、そのキューブマップテクスチャを読み込む
         textureIndex_ = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(filePath_);
     }
 
     transformBuff_->Initialize(_scene, _hostEntity);
+    // Transform/Material用の定数バッファのGPUリソースを確保する
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
@@ -123,22 +129,34 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /* _entity*/, [
 #endif // _DEBUG
 }
 
+/// <summary>
+/// SkyboxRendererの状態をjsonへ書き出す。立方体形状は固定なのでmeshGroup_は保存しない
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const SkyboxRenderer& _comp) {
     _j["filePath"]      = _comp.filePath_;
     _j["transformBuff"] = _comp.transformBuff_.openData_;
     _j["materialBuff"]  = _comp.materialBuff_.openData_;
 }
 
+/// <summary>
+/// jsonからSkyboxRendererの状態を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, SkyboxRenderer& _comp) {
     _j.at("filePath").get_to(_comp.filePath_);
     _j.at("transformBuff").get_to(_comp.transformBuff_.openData_);
     _j.at("materialBuff").get_to(_comp.materialBuff_.openData_);
 }
 
+/// <summary>
+/// SkyboxMaterialの状態をjsonへ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const SkyboxMaterial& _comp) {
     _j["color"] = _comp.color;
 }
 
+/// <summary>
+/// jsonからSkyboxMaterialの状態を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, SkyboxMaterial& _comp) {
     _j.at("color").get_to(_comp.color);
 }

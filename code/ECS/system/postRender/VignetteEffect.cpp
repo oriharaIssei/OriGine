@@ -28,6 +28,7 @@ VignetteEffect::~VignetteEffect() {}
 /// 初期化
 /// </summary>
 void VignetteEffect::Initialize() {
+    // BasePostRenderingSystem::Initialize() を呼ばず、ここで dxCommand_ の生成とCreatePSOを直接行っている
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
@@ -85,12 +86,15 @@ void VignetteEffect::CreatePSO() {
     // offset を自動計算するように 設定
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[0] = t0 (gTexture / ヴィネットをかける前のシーン)
     // DescriptorTable を使う
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
+    // RootParameter[1] = b0 (gVignetteParams / 縁の色・強さscale・べき乗pow)
+    // ShaderRegister を明示していないため既定値の 0 が使われる
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     shaderInfo.pushBackRootParameter(rootParameter[1]);
@@ -117,6 +121,9 @@ void VignetteEffect::CreatePSO() {
 void VignetteEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
+    // renderTarget_ を書き込み可能な状態へ遷移。
+    // 他のエフェクトと異なり SetDescriptorHeaps をここで呼んでいないが、
+    // PreDraw() の内部で SRV ヒープのバインドを行っているため問題ない
     renderTarget_->PreDraw();
 
     /// ================================================
@@ -138,6 +145,10 @@ void VignetteEffect::Rendering() {
         RenderStart();
 
         // 描画処理
+        // RootParameter[0](t0)に現在のバックバッファ、[1](b0)にヴィネットパラメータを送る。
+        // Vignette.PS.hlsl は UV(0~1)の x*(1-x) と y*(1-y) の積(画面中心で最大、四辺で0になる放物線状の値)を
+        // scale倍・pow乗してから0~1にクランプし、その値でシーン色と縁の色を lerp することで
+        // 画面端が暗く(あるいは指定色に)なるヴィネットを表現している
         commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
         param->GetVignetteBuffer().SetForRootParameter(commandList, 1);
         commandList->DrawInstanced(6, 1, 0, 0);
@@ -154,6 +165,7 @@ void VignetteEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void VignetteEffect::RenderEnd() {
+    // renderTarget_ を読み取り可能な状態へ遷移
     renderTarget_->PostDraw();
 }
 

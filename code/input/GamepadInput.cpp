@@ -26,6 +26,10 @@ void GamepadInput::Initialize() {
 /// </summary>
 void GamepadInput::Update() {
     // XInput更新
+    // XInputGetState の第1引数はコントローラーのスロット番号(0~3)。
+    // このエンジンでは常に 0 番（1P固定）のみを扱う設計になっている。
+    // 戻り値が ERROR_SUCCESS でない場合はそのスロットにコントローラーが接続されていないことを意味するため、
+    // isActive_ の判定に使う
     XINPUT_STATE state{};
     isActive_ = (XInputGetState(0, &state) == ERROR_SUCCESS);
 
@@ -61,12 +65,21 @@ void GamepadInput::Update() {
     }
 }
 
+/// <summary>
+/// 解放処理. 入力履歴をクリアする.
+/// </summary>
 void GamepadInput::Finalize() {
     if (!inputHistory_.empty()) {
         inputHistory_.clear();
     }
 }
 
+/// <summary>
+/// 履歴をクリアする.
+/// シーン切り替え等で「前フレームの入力」が新しい文脈と無関係になるタイミングに呼び出すことで、
+/// 直後の IsTrigger/IsRelease が古い状態と比較して誤判定するのを防ぐ.
+/// クリア後に空状態を1つ積んでおくことで、GetState(0) が即座に有効な値を返せるようにしている.
+/// </summary>
 void OriGine::GamepadInput::ClearHistory() {
     // 履歴を全てクリアし、空の状態を1つ積んでおく
     if (!inputHistory_.empty()) {
@@ -110,6 +123,11 @@ void GamepadInput::UpdateStickValues(XINPUT_STATE _state, GamepadState& _current
     _currentState.rStick = normalizeStick(_state.Gamepad.sThumbRX, _state.Gamepad.sThumbRY);
 }
 
+/// <summary>
+/// 仮想スティックボタンの状態をスティックの値から更新する.
+/// アナログ入力であるスティックの傾きを、IsPress/IsTrigger 等のデジタルボタン判定APIでも
+/// 扱えるようにするため、閾値(kEpsilon)を超えた傾きを仮想ボタンのビットマスクへ変換する.
+/// </summary>
 void GamepadInput::UpdateVirtualStickButtons(GamepadState& _currentState) {
     // 仮想左スティックボタン
     if (_currentState.lStick[Y] > kEpsilon) {
@@ -139,6 +157,11 @@ void GamepadInput::UpdateVirtualStickButtons(GamepadState& _currentState) {
     }
 }
 
+/// <summary>
+/// 仮想トリガーボタンの状態をトリガーの値から更新する.
+/// アナログトリガーの押し込み量が正規化後に 0 より大きければ「押されている」とみなし、
+/// L_TRIGGER/R_TRIGGER の仮想ボタンビットを立てる.
+/// </summary>
 void OriGine::GamepadInput::UpdateVirtualTriggerButtons(GamepadState& _currentState) {
     // アナログトリガーをボタン扱いに変換
     if (_currentState.lTrigger > kEpsilon) {
@@ -153,6 +176,12 @@ void OriGine::GamepadInput::UpdateVirtualTriggerButtons(GamepadState& _currentSt
 // 1. 基本的な状態取得
 // ==========================================
 
+/// <summary>
+/// 最新フレーム（履歴インデックス0）の生状態を取得する.
+/// 履歴が空（未初期化・未接続で一度も Update されていない等）の場合は静的な空状態を返し、
+/// 呼び出し側で毎回 nullptr チェックをしなくても済むようにしている.
+/// </summary>
+/// <returns>最新のゲームパッド状態</returns>
 const GamepadState& OriGine::GamepadInput::GetCurrentState() const {
     const auto* state = GetState(0);
     if (state) {
@@ -162,6 +191,11 @@ const GamepadState& OriGine::GamepadInput::GetCurrentState() const {
     return emptyState;
 }
 
+/// <summary>
+/// ボタンが押されているか (Hold) を判定する. 現在フレームの状態のみを見る（前フレームとの比較はしない）.
+/// </summary>
+/// <param name="_button">判定対象のボタン</param>
+/// <returns>押されていれば true</returns>
 bool GamepadInput::IsPress(GamepadButton _button) const {
     // 最新のフレーム (index 0) を見る
     const auto* current = GetState(0);
@@ -172,21 +206,29 @@ bool GamepadInput::IsPress(GamepadButton _button) const {
     return (current->buttonMask & static_cast<uint32_t>(_button)) != 0;
 }
 
+/// <summary> 左スティックの正規化済み入力値を取得する. </summary>
+/// <returns>デッドゾーン適用・正規化済みの XY 値（-1.0～1.0）</returns>
 Vec2f GamepadInput::GetLeftStick() const {
     const auto* current = GetState(0);
     return current ? current->lStick : Vec2f{0.0f, 0.0f};
 }
 
+/// <summary> 右スティックの正規化済み入力値を取得する. </summary>
+/// <returns>デッドゾーン適用・正規化済みの XY 値（-1.0～1.0）</returns>
 Vec2f GamepadInput::GetRightStick() const {
     const auto* current = GetState(0);
     return current ? current->rStick : Vec2f{0.0f, 0.0f};
 }
 
+/// <summary> 左トリガーの正規化済み入力値を取得する. </summary>
+/// <returns>デッドゾーン適用・正規化済みの押し込み量（0.0～1.0）</returns>
 float GamepadInput::GetLeftTrigger() const {
     const auto* current = GetState(0);
     return current ? current->lTrigger : 0.0f;
 }
 
+/// <summary> 右トリガーの正規化済み入力値を取得する. </summary>
+/// <returns>デッドゾーン適用・正規化済みの押し込み量（0.0～1.0）</returns>
 float GamepadInput::GetRightTrigger() const {
     const auto* current = GetState(0);
     return current ? current->rTrigger : 0.0f;

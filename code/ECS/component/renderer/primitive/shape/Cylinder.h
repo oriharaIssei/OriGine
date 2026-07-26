@@ -10,7 +10,7 @@
 namespace OriGine {
 namespace Primitive {
 
-constexpr uint32_t kCylinderRadialDivisions = 36; // 円柱の分割数
+constexpr uint32_t kCylinderRadialDivisions = 36; // 円柱の分割数 (10度刻みで一周する滑らかさの目安値)
 constexpr uint32_t kCylinderHeightDivisions = 8; // 高さ方向の分割数
 
 /// <summary>
@@ -25,6 +25,8 @@ public:
         heightDivisions = _heightDivisions;
 
         // 頂点数とインデックス数の設定
+        // (円周方向・高さ方向とも、UVの継ぎ目を成立させるためリング/段を+1して確保する。
+        //  詳細な算出根拠はCylinder::CreateMeshのコメントを参照)
         vertexSize_ = (radialDivisions + 1) * (heightDivisions + 1);
         indexSize_  = radialDivisions * heightDivisions * 6 + radialDivisions * 6;
     }

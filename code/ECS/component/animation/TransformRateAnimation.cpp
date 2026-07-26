@@ -19,6 +19,9 @@ TransformRateAnimation::~TransformRateAnimation() {}
 
 void TransformRateAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
 
+/// <summary>
+/// 再生状態・速度・加速度パラメータをすべてリセットする
+/// </summary>
 void TransformRateAnimation::Finalize() {
     isPlay_              = false;
     targetTransformIndex_ = -1;
@@ -71,6 +74,10 @@ void TransformRateAnimation::Edit(
 #endif // _DEBUG
 }
 
+// 速度・加速度を前進オイラー法（Semi-implicit Euler）で積分する:
+// 1. velocity += acceleration * deltaTime  で先に速度を更新し、
+// 2. value    += velocity     * deltaTime  で更新後の速度を使って値を進める。
+// キーフレームを持たず、加速度が一定であれば毎フレーム同じ計算で滑らかな加減速が表現できる。
 void TransformRateAnimation::Update(float _deltaTime, Transform* _transform) {
     if (!isPlay_) {
         return;
@@ -84,6 +91,8 @@ void TransformRateAnimation::Update(float _deltaTime, Transform* _transform) {
     rotateRate_.velocity    = rotateRate_.velocity + rotateRate_.acceleration * _deltaTime;
     Vec3f angleDelta        = rotateRate_.velocity * _deltaTime;
     Quaternion rotationStep = Quaternion::FromEulerAngles(angleDelta);
+    // 現在の回転に対して今フレーム分の微小回転を右から掛けることで、
+    // ローカル軸周りの回転として累積していく（掛ける順序が逆だとワールド軸基準の回転になる）
     _transform->rotate      = _transform->rotate * rotationStep;
 
     // Translate: velocity 更新 → 値に加算
@@ -97,6 +106,9 @@ void TransformRateAnimation::Update(float _deltaTime, Transform* _transform) {
 // JSON シリアライズ
 // =============================================================================
 
+/// <summary>
+/// TransformRateAnimation を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const TransformRateAnimation& _comp) {
     _j["targetTransformIndex"] = _comp.targetTransformIndex_;
     _j["isPlay"]               = _comp.isPlay_;
@@ -112,6 +124,9 @@ void OriGine::to_json(nlohmann::json& _j, const TransformRateAnimation& _comp) {
     writeRate("translateRate", _comp.translateRate_);
 }
 
+/// <summary>
+/// JSON から TransformRateAnimation を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, TransformRateAnimation& _comp) {
     _j.at("targetTransformIndex").get_to(_comp.targetTransformIndex_);
     _j.at("isPlay").get_to(_comp.isPlay_);

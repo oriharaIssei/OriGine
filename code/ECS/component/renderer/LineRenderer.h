@@ -5,7 +5,11 @@
 namespace OriGine {
 
 ///< summary>
-/// ライン描画コンポーネント
+/// ライン描画コンポーネント。
+/// 頂点バッファはMeshRenderer基底クラスのmeshGroup_(GPU上にMapしたまま保持するMesh)、
+/// 座標変換用の定数バッファはtransformBuff_(IConstantBuffer)としてそれぞれCPU側ミラーを持つ。
+/// GPUへの転送は都度発生するのではなく、値を書き換えた後にMesh::TransferData()/
+/// IConstantBuffer::ConvertToBuffer()を明示的に呼んだタイミングでのみ行われる
 ///</summary>
 class LineRenderer
     : public MeshRenderer<Mesh<ColorVertexData>, ColorVertexData> {

@@ -9,6 +9,9 @@ namespace OriGine {
 /// <summary>
 /// Componentを一意に識別するためのハンドル。
 /// 内部的にはuuidをラップし、Component検索・保存/復元のキーとして使用する。
+/// EntityHandleと同様にインデックス+世代カウンタ方式ではなくUUIDを直接使う設計で、
+/// ComponentArrayが持つ uuid -> 格納位置 のマップから削除時にエントリを消すだけで
+/// 古いハンドルを自然に無効化できる。
 /// </summary>
 struct ComponentHandle {
     friend void to_json(nlohmann::json& _j, const ComponentHandle& _c);

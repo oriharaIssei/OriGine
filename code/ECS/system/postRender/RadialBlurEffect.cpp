@@ -78,12 +78,15 @@ void RadialBlurEffect::CreatePSO() {
     // offset を自動計算するように 設定
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[0] = t0 (gTexture / ブラー適用前のシーンテクスチャ)
     // DescriptorTable を使う
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
+    // RootParameter[1] = b0 (gRadialBlurParams / ブラー中心 center と 減衰幅 kBulerWidth)
+    // ShaderRegister を明示していないため既定値の 0 が使われる
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     shaderInfo.pushBackRootParameter(rootParameter[1]);
@@ -110,6 +113,8 @@ void RadialBlurEffect::CreatePSO() {
 void RadialBlurEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
+    // renderTarget_ はダブルバッファ構成。PreDraw() でフロントバッファを書き込み対象にし、
+    // DrawTexture() で直前のバックバッファ内容をブリットしてから、このあとブラー用PSOへ切り替える
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
 
@@ -123,6 +128,7 @@ void RadialBlurEffect::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
+    // RootParameter[0](t0)に現在のバックバッファ(DrawTexture後の内容)をバインド
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
@@ -134,6 +140,12 @@ void RadialBlurEffect::Rendering() {
 
         RenderStart();
 
+        // RootParameter[1](b0)にブラー中心・幅を送る
+        // NOTE: RenderStart() 内の DrawTexture() はここでバインドした RadialBlur 用 PSO/
+        //       RootParameter[0] を設定するより前に、renderTarget_ 自身の別PSOで描画してしまっている。
+        //       このあとに RadialBlur.PS を使う DrawInstanced 呼び出しが見当たらず、
+        //       ブラーパラメータをセットしても実際にはブラーシェーダーが実行されていないように見える。
+        //       ロジック修正は本コメント付与作業の対象外のため変更していない。要レビュー。
         param->GetConstantBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 1);
 
         RenderEnd();
@@ -146,6 +158,7 @@ void RadialBlurEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void RadialBlurEffect::RenderEnd() {
+    // フロントバッファを読み取り可能な状態へ遷移し、フロント/バックのインデックスを入れ替える
     renderTarget_->PostDraw();
 }
 

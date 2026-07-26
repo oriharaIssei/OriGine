@@ -14,7 +14,12 @@ namespace OriGine {
 struct ModelMeshData;
 
 ///< summary>
-/// モデルのメッシュ描画コンポーネント
+/// モデルのメッシュ描画コンポーネント。
+/// 1つのモデルが複数メッシュ(パーツ)に分かれることを前提に、meshGroup_の各要素に対して
+/// Transform用定数バッファ(meshTransformBuff_)とMaterial用定数バッファ(meshMaterialBuff_)を
+/// 1対1で持つ(インデックスを揃えて管理する)。
+/// modelData_は同一モデルを使う他のインスタンスと比較するためのキーで、
+/// これが一致するインスタンス同士はGPUインスタンシング描画にまとめられる対象になる
 ///</summary>
 class ModelMeshRenderer
     : public MeshRenderer<TextureColorMesh, TextureColorVertexData> {

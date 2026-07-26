@@ -21,6 +21,7 @@ void OverlayRenderSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
+    // (ShaderManagerに既にPSOが登録済みなら、新規作成せずBlendMode/カリング有無ごとに取得して使い回す)
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
         bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {

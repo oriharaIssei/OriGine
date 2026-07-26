@@ -9,6 +9,10 @@ using namespace OriGine;
 void SquashStretchComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {}
 void SquashStretchComponent::Finalize() {}
 
+/// <summary>
+/// エディタ用編集UI。実際の伸縮計算(速度・加速度に応じたバネ的な伸縮)は
+/// このコンポーネントを参照するシステム側で行われ、ここではパラメータの調整のみを行う
+/// </summary>
 void SquashStretchComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
@@ -38,6 +42,9 @@ void SquashStretchComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owne
 #endif // _DEBUG
 }
 
+/// <summary>
+/// SquashStretchComponent を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const SquashStretchComponent& _component) {
     _j = nlohmann::json{
         {"baseScale", _component.baseScale_},
@@ -56,6 +63,9 @@ void OriGine::to_json(nlohmann::json& _j, const SquashStretchComponent& _compone
     };
 }
 
+/// <summary>
+/// JSON から SquashStretchComponent を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, SquashStretchComponent& _component) {
     _j.at("baseScale").get_to(_component.baseScale_);
     _j.at("velocityStretchThresholdEnter").get_to(_component.velocityStretchThresholdEnter_);

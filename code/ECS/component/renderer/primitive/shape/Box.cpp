@@ -19,6 +19,8 @@ void Box::CreateMesh(TextureColorMesh* _mesh) {
 
     // 頂点データを設定
     std::vector<TextureColorMesh::VertexType> vertices;
+    // Boxは6面 x 4頂点で頂点数が固定のため、事前にvertexSize_分をreserveして
+    // 各面追加のたびに発生する再確保・コピーを避ける
     vertices.reserve(vertexSize_);
     // インデックスデータを設定
     std::vector<uint32_t> indices;
@@ -37,6 +39,7 @@ void Box::CreateMesh(TextureColorMesh* _mesh) {
         Vec3f(0, -1, 0) // bottom
     };
 
+    // 1面(4頂点)を追加し、2枚の三角形としてインデックスを積むヘルパー
     auto addFace = [&](int _normalIndex,
                        const Vec3f& _p0, const Vec3f& _p1,
                        const Vec3f& _p2, const Vec3f& _p3) {
@@ -44,11 +47,15 @@ void Box::CreateMesh(TextureColorMesh* _mesh) {
         uint32_t base  = static_cast<uint32_t>(vertices.size());
 
         // p0-p1-p2-p3 は必ず CCW にする
+        // (このエンジンは法線方向から見て反時計回りの面を表として描画するため、
+        //  各面の4点は法線nの方向から見てCCWになる順序で呼び出し側が渡す)
         vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p0, 1), Vec2f(0.f, 0.f), n, kWhite));
         vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p1, 1), Vec2f(1.f, 0.f), n, kWhite));
         vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p2, 1), Vec2f(0.f, 1.f), n, kWhite));
         vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p3, 1), Vec2f(1.f, 1.f), n, kWhite));
 
+        // p0,p1,p2,p3 を頂点とする四角形を、対角線p1-p2で2枚の三角形に分割する
+        // (0,1,2)と(2,1,3)はどちらもCCW巻き順を保ったまま四角形全体を覆う
         indices.insert(indices.end(),
             {base + 0, base + 1, base + 2,
                 base + 2, base + 1, base + 3});

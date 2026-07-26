@@ -35,7 +35,11 @@ struct SkyboxMaterial {
 };
 
 /// <summary>
-/// 天空箱レンダラーコンポーネント
+/// 天空箱レンダラーコンポーネント。
+/// 立方体1つ分の頂点/インデックスを持つ固定形状のメッシュ(meshGroup_)と、
+/// 座標変換用(transformBuff_)・色用(materialBuff_)の2つの定数バッファを持つ。
+/// いずれもCPU側のopenData_を書き換えただけでは反映されず、ConvertToBuffer()/TransferData()を
+/// 呼んだタイミングでGPU側のMap済みメモリへコピーされる
 /// </summary>
 class SkyboxRenderer
     : public MeshRenderer<Mesh<SkyboxVertex>, SkyboxVertex> {

@@ -15,7 +15,7 @@ using namespace OriGine;
 SubScene::SubScene() {}
 SubScene::~SubScene() {}
 
-void SubScene:: Initialize(Scene* /*_scene,*/, const EntityHandle& /*_owner*/) {
+void SubScene:: Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     // アクティブ状態でシーン名が設定済みの場合は初期化時点で読み込む
     if (!sceneName_.empty() && isActive_) {
         Load(sceneName_);
@@ -55,12 +55,16 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const Entit
 #endif // _DEBUG
 }
 
+/// <summary>
+/// 保持しているサブシーンを解放する
+/// </summary>
 void SubScene::Finalize() {
     Unload();
 }
 
 void SubScene::Activate() {
     isActive_ = true;
+    // 既にロード済みのサブシーンがあれば使い回し、無い場合のみ新規にロードする
     if (!subScene_) {
         Load(sceneName_);
     }
@@ -68,11 +72,14 @@ void SubScene::Activate() {
 
 void SubScene::Deactivate() {
     isActive_ = false;
+    // 非アクティブ化と同時にサブシーンを解放する
+    // (SceneManager の管理下ではないため、ここで明示的に解放しないとメモリ上に残り続ける)
     Unload();
 }
 
 void SubScene::Load(const ::std::string& _sceneName) {
     sceneName_ = _sceneName;
+    // このコンポーネントが Scene インスタンスを所有する(SceneManager には登録されない)
     subScene_  = ::std::make_unique<Scene>(sceneName_);
     subScene_->Initialize();
 }
@@ -83,6 +90,9 @@ void SubScene::Unload() {
     }
 }
 
+/// <summary>
+/// SubScene を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& j, const SubScene& scene) {
     j = nlohmann::json{
         {"isActive", scene.isActive_},
@@ -90,6 +100,9 @@ void OriGine::to_json(nlohmann::json& j, const SubScene& scene) {
         {"renderingPriority", scene.renderingPriority_},
     };
 }
+/// <summary>
+/// JSON から SubScene を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& j, SubScene& scene) {
     j.at("isActive").get_to(scene.isActive_);
     j.at("sceneName").get_to(scene.sceneName_);

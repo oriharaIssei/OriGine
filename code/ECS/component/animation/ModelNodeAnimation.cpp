@@ -28,6 +28,9 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 再生時刻をリセットし、必要ならアニメーションファイルを読み込む
+/// </summary>
 void ModelNodeAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
     // 初期化
     currentAnimationTime_  = 0.0f;
@@ -237,6 +240,12 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
 void ModelNodeAnimation::Finalize() {
 }
 
+/// <summary>
+/// 再生時刻を進め、モデルの全ノードにアニメーションを適用する
+/// </summary>
+/// <param name="_deltaTime">前フレームからの経過時間(秒)</param>
+/// <param name="_model">対象モデル</param>
+/// <param name="_parentTransform">ルートノードの親となるワールド行列</param>
 void ModelNodeAnimation::UpdateModel(float _deltaTime, Model* _model, const Matrix4x4& _parentTransform) {
     {
         // isLoop_ が false の場合,一度終了したら return
@@ -251,6 +260,11 @@ void ModelNodeAnimation::UpdateModel(float _deltaTime, Model* _model, const Matr
         currentAnimationTime_ += _deltaTime;
 
         // リピート
+        // fmod で duration_ を超えた分を切り捨てず余りとして次周期の先頭からの経過時間に持ち越す
+        // (単純に 0 へリセットすると、1フレームだけ長く経過したぶんの時間がロストしてしまう)
+        // 注意: isLoop_ が true の場合でもここで isPlay_ が false になる。
+        // 呼び出し側が IsPlay() を見て Update を呼ぶかどうかを判断しているなら、
+        // ループ再生が一周目で止まって見える挙動になり得る点に留意する。
         if (currentAnimationTime_ > duration_) {
             animationState_.isEnd_  = true;
             animationState_.isPlay_ = false;
@@ -263,6 +277,9 @@ void ModelNodeAnimation::UpdateModel(float _deltaTime, Model* _model, const Matr
     }
 }
 
+/// <summary>
+/// Nodeアニメーションの現在のローカル行列を計算
+/// </summary>
 Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& _nodeName) const {
     auto it = data_->animationNodes_.find(_nodeName);
     if (it == data_->animationNodes_.end()) {
@@ -276,6 +293,10 @@ Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& _nodeName) c
     Quaternion rotate;
     Vec3f translate;
 
+    // ノードごとに独立したキーフレーム配列を持つため、ノード単位で現在時刻の値を都度計算する。
+    // LINEAR は内部で Quaternion 用に Slerp を使った補間になる。
+    // Normalize は、Slerp の結果や連続する補間の積み重ねで生じる誤差により
+    // クォータニオンの長さが 1 からずれ、行列化した際に意図しない拡縮が混ざるのを防ぐため
     switch (nodeAnimation.interpolationType) {
     case InterpolationType::LINEAR:
         scale     = CalculateValue::Linear(nodeAnimation.scale, currentAnimationTime_);
@@ -292,11 +313,16 @@ Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& _nodeName) c
     return MakeMatrix4x4::Affine(scale, rotate, translate);
 }
 
+/// <summary>
+/// ノードにアニメーションを適用
+/// </summary>
 void ModelNodeAnimation::ApplyAnimationToNodes(
     ModelNode& _node,
     const Matrix4x4& _parentTransform,
     const ModelNodeAnimation* _animation) {
     _node.localMatrix         = _animation->CalculateNodeLocal(_node.name);
+    // 親のワールド行列 × 自身のローカル行列で、このノードのワールド行列を求める。
+    // その結果を子ノードへ渡すことで、ルートから葉ノードへ向けて変換が順に伝播していく
     Matrix4x4 globalTransform = _parentTransform * _node.localMatrix;
 
     // 子ノードに再帰的に適用
@@ -305,6 +331,9 @@ void ModelNodeAnimation::ApplyAnimationToNodes(
     }
 }
 
+/// <summary>
+/// 指定ノードの現在時刻でのスケール値を取得(アニメーションが無ければ等倍)
+/// </summary>
 Vec3f ModelNodeAnimation::GetCurrentScale(const std::string& _nodeName) const {
     auto itr = data_->animationNodes_.find(_nodeName);
     if (itr == data_->animationNodes_.end()) {
@@ -317,6 +346,9 @@ Vec3f ModelNodeAnimation::GetCurrentScale(const std::string& _nodeName) const {
     return CalculateValue::Linear(itr->second.scale, currentAnimationTime_);
 }
 
+/// <summary>
+/// 指定ノードの現在時刻での回転値を取得(アニメーションが無ければ単位クォータニオン)
+/// </summary>
 Quaternion ModelNodeAnimation::GetCurrentRotate(const std::string& _nodeName) const {
     auto itr = data_->animationNodes_.find(_nodeName);
     if (itr == data_->animationNodes_.end()) {
@@ -329,6 +361,9 @@ Quaternion ModelNodeAnimation::GetCurrentRotate(const std::string& _nodeName) co
     return CalculateValue::Linear(itr->second.rotate, currentAnimationTime_);
 }
 
+/// <summary>
+/// 指定ノードの現在時刻での平行移動値を取得(アニメーションが無ければゼロベクトル)
+/// </summary>
 Vec3f ModelNodeAnimation::GetCurrentTranslate(const std::string& _nodeName) const {
     auto itr = data_->animationNodes_.find(_nodeName);
     if (itr == data_->animationNodes_.end()) {
@@ -340,6 +375,9 @@ Vec3f ModelNodeAnimation::GetCurrentTranslate(const std::string& _nodeName) cons
     return CalculateValue::Linear(itr->second.translate, currentAnimationTime_);
 }
 
+/// <summary>
+/// ModelNodeAnimation を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const ModelNodeAnimation& _comp) {
     _j = nlohmann::json{
         {"directory", _comp.directory_},
@@ -350,6 +388,9 @@ void OriGine::to_json(nlohmann::json& _j, const ModelNodeAnimation& _comp) {
         {"currentAnimationTime", _comp.currentAnimationTime_}};
 }
 
+/// <summary>
+/// JSON から ModelNodeAnimation を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, ModelNodeAnimation& _comp) {
     _j.at("directory").get_to(_comp.directory_);
     _j.at("fileName").get_to(_comp.fileName_);

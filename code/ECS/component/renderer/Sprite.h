@@ -45,13 +45,22 @@ struct SpritConstBuffer {
     Vec2f uvTranslate_ = {0.f, 0.f};
     Matrix4x4 uvMat_   = MakeMatrix4x4::Identity();
 
+    /// <summary>
+    /// scale_/rotate_/translate_(2Dアフィン変換)からワールド行列を、
+    /// uvScale_/uvRotate_/uvTranslate_からUV変換行列を再計算する。
+    /// ワールド行列はここでビュー・プロジェクション行列(_vpMat)まで合成済みにしてしまうことで、
+    /// シェーダ側では追加の行列合成をせず1回の乗算で済むようにしている
+    /// </summary>
     void Update(const Matrix4x4& _vpMat) {
         worldMat_ = MakeMatrix4x4::Affine({scale_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f}) * _vpMat;
         uvMat_    = MakeMatrix4x4::Affine({uvScale_, 1.f}, {0.f, uvRotate_, 0.f}, {uvTranslate_, 0.f});
     }
 
     /// <summary>
-    /// スプライト定数バッファ -> 定数バッファのみの構造体変換
+    /// スプライト定数バッファ -> 定数バッファのみの構造体変換。
+    /// SpritConstBuffer自体にはエディタ編集用のscale_/rotate_/translate_等も含まれるが、
+    /// シェーダに実際に渡すのはcolor_/worldMat_(mat_)/uvMat_の3つだけなので、
+    /// GPUへ転送する定数バッファのレイアウトをこの内側の構造体で必要最小限に絞っている
     /// </summary>
     struct ConstantBuffer {
         ConstantBuffer()  = default;

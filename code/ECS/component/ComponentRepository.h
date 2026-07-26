@@ -223,13 +223,12 @@ inline void ComponentRepository::AddComponent(Scene* _scene, const EntityHandle&
 }
 
 template <IsComponent ComponentType>
-inline void ComponentRepository::RemoveComponent(const EntityHandle& _handle, bool _doFinalize) {
+inline void ComponentRepository::RemoveComponent(const EntityHandle& _handle, [[maybe_unused]] bool _doFinalize) {
     auto componentArray = GetComponentArray<ComponentType>();
     if (componentArray) {
+        // ComponentArray::RemoveComponent が内部で対象コンポーネントの Finalize() を必ず呼ぶため、
+        // ここで別途終了処理を行う必要はない(_doFinalize は呼び出し側の互換のために残している)
         componentArray->RemoveComponent(_handle);
-        if (_doFinalize) {
-            componentArray->clearComponent(_handle);
-        }
     } else {
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());
     }

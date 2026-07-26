@@ -32,6 +32,7 @@ void SmoothingEffect::Initialize() {
 /// 終了処理
 /// </summary>
 void SmoothingEffect::Finalize() {
+    // BasePostRenderingSystem::Finalize() とは異なり dxCommand_ の nullptr チェックを行っていない点に注意
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
@@ -69,6 +70,7 @@ void SmoothingEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // boxFilterSize
+    // RootParameter[0] = b0 (gFilterBoxSize / ぼかしに使うボックスカーネルの幅・高さ)
     D3D12_ROOT_PARAMETER boxFilterSizeParam{};
     // Transform ... 0
     boxFilterSizeParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -77,6 +79,7 @@ void SmoothingEffect::CreatePSO() {
     shaderInfo.pushBackRootParameter(boxFilterSizeParam);
 
     // Texture
+    // RootParameter[1] = t0 (gTexture / ぼかし対象のシーンテクスチャ)
     D3D12_ROOT_PARAMETER rootParameter        = {};
     D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
     descriptorRange[0].BaseShaderRegister     = 0;
@@ -138,6 +141,9 @@ void SmoothingEffect::Rendering() {
         RenderStart();
 
         // 描画
+        // RootParameter[0](b0)にボックスカーネルサイズ、[1](t0)に現在のバックバッファを送る。
+        // ピクセルシェーダー側は boxFilterSize.x * boxFilterSize.y 回テクスチャをサンプリングし、
+        // 中心からの距離に応じたガウス重み(gauss関数)で加重平均することでぼかしをかけている
         param->boxFilterSize_.ConvertToBuffer();
         param->boxFilterSize_.SetForRootParameter(commandList, 0);
 
@@ -156,6 +162,7 @@ void SmoothingEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void SmoothingEffect::RenderEnd() {
+    // renderTarget_ を読み取り可能な状態へ遷移
     renderTarget_->PostDraw();
 }
 

@@ -293,6 +293,9 @@ LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
 	return DefWindowProc(_hwnd,_msg,_wparam,_lparam); // デフォルトの処理
 }
 
+/// <summary>
+/// 登録済みホットキー・トレイアイコン・アイコンハンドル・カーソルを解放し、ウィンドウを閉じる.
+/// </summary>
 WinApp::~WinApp(){
 	UnregisterAllHotkeys();
 	DisableSystemTray();
@@ -301,6 +304,9 @@ WinApp::~WinApp(){
 	CloseWindow(hwnd_);
 }
 
+/// <summary>
+/// 自前で生成・所有しているアイコンハンドルを解放する.
+/// </summary>
 void WinApp::ReleaseOwnedIcons(){
 	if(!ownsIcons_){
 		iconLarge_ = nullptr;
@@ -318,6 +324,9 @@ void WinApp::ReleaseOwnedIcons(){
 	ownsIcons_ = false;
 }
 
+/// <summary>
+/// cursorClipped_ が有効な場合に、カーソルの移動範囲をクライアント領域内へ実際にクリップする.
+/// </summary>
 void WinApp::ApplyCursorClip(){
 	if(!cursorClipped_ || hwnd_ == nullptr || GetForegroundWindow() != hwnd_){
 		return;
@@ -329,8 +338,10 @@ void WinApp::ApplyCursorClip(){
 	ClipCursor(&rect);
 }
 
-// backgroundTransparent_ / clickThrough_ / backgroundAlpha_ / transparencyColorKey_ の各設定値を
-// WS_EX_LAYERED ウィンドウ拡張スタイルへ反映し、実際にウィンドウ背景の透過表示を行う.
+/// <summary>
+/// backgroundTransparent_ / clickThrough_ / backgroundAlpha_ / transparencyColorKey_ の各設定値を
+/// WS_EX_LAYERED ウィンドウ拡張スタイルへ反映し、実際にウィンドウ背景の透過表示を行う.
+/// </summary>
 void WinApp::ApplyBackgroundTransparency(){
 	if(hwnd_ == nullptr){
 		return;
@@ -369,6 +380,9 @@ void WinApp::ApplyBackgroundTransparency(){
 				 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
+/// <summary>
+/// 指定インデックスのモニタの矩形範囲を取得する.
+/// </summary>
 RECT WinApp::GetMonitorRect(int _monitorIndex) const{
 	auto monitors = EnumerateMonitors();
 	if(monitors.empty()){
@@ -401,6 +415,10 @@ void WinApp::CreateGameWindow(const wchar_t* _title,UINT _windowStyle,int32_t _c
 	CreateGameWindow(desc);
 }
 
+/// <summary>
+/// ゲーム用ウィンドウを生成し、表示を開始する.
+/// COM の初期化、ウィンドウクラスの登録、CreateWindowAPI の呼び出しを実施する.
+/// </summary>
 void WinApp::CreateGameWindow(const WindowDesc& _desc){
 	if(_desc.enableDpiAwareness){
 		dpiAware_ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) != FALSE;
@@ -595,6 +613,9 @@ void WinApp::SetIcon(int _resourceId){
 	}
 }
 
+/// <summary>
+/// 指定モニタがサポートする表示解像度・リフレッシュレートの一覧を取得する.
+/// </summary>
 std::vector<DisplayMode> WinApp::EnumerateDisplayModes(int _monitorIndex){
 	DISPLAY_DEVICEW device{};
 	device.cb = sizeof(device);
@@ -642,6 +663,9 @@ std::vector<DisplayMode> WinApp::EnumerateDisplayModes(int _monitorIndex){
 	return modes;
 }
 
+/// <summary>
+/// クライアント領域の解像度を変更する.
+/// </summary>
 void WinApp::ChangeResolution(int32_t _width,int32_t _height){
 	clientWidth_  = (std::max)(1,_width);
 	clientHeight_ = (std::max)(1,_height);
@@ -660,6 +684,9 @@ void WinApp::ChangeResolution(int32_t _width,int32_t _height){
 				 SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
+/// <summary>
+/// ウィンドウ表示モード（通常・ボーダレス・排他フルスクリーン等）を切り替える.
+/// </summary>
 void WinApp::SetWindowMode(WindowMode _mode){
 	if(hwnd_ == nullptr){
 		windowMode_ = _mode;
@@ -712,6 +739,9 @@ void WinApp::SetWindowMode(WindowMode _mode){
 				 SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 }
 
+/// <summary>
+/// 現在のウィンドウ位置・サイズ・モード等の状態をシリアライズしてファイルへ保存する.
+/// </summary>
 void WinApp::SaveWindowState(){
 	if(hwnd_ == nullptr){
 		return;
@@ -744,6 +774,9 @@ void WinApp::SaveWindowState(){
 	GlobalVariables::GetInstance()->SaveFile("Settings","WindowState");
 }
 
+/// <summary>
+/// 保存済みのウィンドウ状態を復元する.
+/// </summary>
 bool WinApp::RestoreWindowState(){
 	auto* scene = GlobalVariables::GetInstance()->GetScene("Settings");
 	if(scene == nullptr){
@@ -845,6 +878,9 @@ void WinApp::SetWindowTitle(const wchar_t* _title){
 	}
 }
 
+/// <summary>
+/// 接続されているモニタの一覧情報を取得する.
+/// </summary>
 std::vector<MonitorInfo> WinApp::EnumerateMonitors(){
 	std::vector<MonitorInfo> monitors;
 	EnumDisplayMonitors(nullptr,nullptr,
@@ -1153,6 +1189,9 @@ void WinApp::ClearTrayMenu(){
 	trayMenuItems_.clear();
 }
 
+/// <summary>
+/// トレイアイコン右クリック時に登録済みメニュー項目のポップアップメニューを表示する.
+/// </summary>
 void WinApp::ShowTrayContextMenu(){
 	if(!hwnd_) return;
 

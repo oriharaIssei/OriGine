@@ -24,6 +24,9 @@ using namespace OriGine;
 OutlineComponent::OutlineComponent() {}
 OutlineComponent::~OutlineComponent() {}
 
+/// <summary>
+/// アウトライン色・太さを渡すための定数バッファを GPU 上に確保する
+/// </summary>
 void OutlineComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     paramData.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
@@ -51,6 +54,7 @@ void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
     if (materials.empty()) {
         ImGui::Text("Material is not assigned!");
     } else {
+        // usingMaterialHandle が未設定/無効なら、所有エンティティの先頭マテリアルにフォールバックする
         Material* material = nullptr;
         if (usingMaterialHandle.IsValid()) {
             material = _scene->GetComponent<Material>(usingMaterialHandle);
@@ -71,6 +75,7 @@ void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
         int32_t materialIndex = preMaterialIndex;
         ImGui::InputInt(("Material Index##" + _parentLabel).c_str(), &materialIndex);
         materialIndex = std::clamp(materialIndex, 0, static_cast<int32_t>(materials.size()) - 1);
+        // インデックスが変更された場合のみ、アンドゥ可能なコマンドとしてハンドル変更を発行する
         if (materialIndex != preMaterialIndex) {
             ComponentHandle newMaterialHandle;
             if (materialIndex != -1) {
@@ -86,6 +91,9 @@ void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] con
 #endif // DEBUG
 }
 
+/// <summary>
+/// OutlineComponent を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const OutlineComponent& _comp) {
     _j["isActive"]            = _comp.isActive;
     _j["usingMaterialHandle"] = _comp.usingMaterialHandle;
@@ -93,6 +101,9 @@ void OriGine::to_json(nlohmann::json& _j, const OutlineComponent& _comp) {
     _j["outlineColor"]        = _comp.paramData.openData_.outlineColor;
 }
 
+/// <summary>
+/// JSON から OutlineComponent を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, OutlineComponent& _comp) {
     _j.at("isActive").get_to(_comp.isActive);
     _j.at("usingMaterialHandle").get_to(_comp.usingMaterialHandle);

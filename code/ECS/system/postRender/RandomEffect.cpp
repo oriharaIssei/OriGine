@@ -75,6 +75,10 @@ void RandomEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
+    // RootParameter[0] = b0 (gRandomParams / ノイズのシードとなる time)。
+    // ShaderRegister を明示していないため既定値の 0 が使われる。
+    // Random.PS.hlsl はシーンテクスチャを一切参照せず、texCoords*time を sin/frac ベースの
+    // ハッシュ関数(Random.hlsli の rand2dTo1d)に通した白色ノイズをそのまま出力する
     D3D12_ROOT_PARAMETER rootParameter[1] = {};
 
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -94,6 +98,8 @@ void RandomEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
+    // ブレンドモードごとに別々のPSOを事前に作っておく。描画時に param->GetBlendMode() の値で
+    // psoByBlendMode_ から引くだけにすることで、描画中の動的なブレンドステート変更を避けている
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
         BlendMode blendMode   = static_cast<BlendMode>(i);
         shaderInfo.blendMode_ = blendMode;
@@ -108,12 +114,15 @@ void RandomEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
     // RenderTargetのセット
+    // renderTarget_ はダブルバッファ構成。PreDraw() でフロントバッファを書き込み対象にし、
+    // DrawTexture() で直前のバックバッファ内容をブリットしてから、このあとランダムエフェクト用PSOへ切り替える
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
 
     /// ================================================
     /// pso Set
     /// ================================================
+    // currentBlend_ (Rendering() で描画するパラメータごとに更新される) に対応するPSOを選択
     int32_t blendIndex = static_cast<int32_t>(currentBlend_);
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
@@ -136,9 +145,10 @@ void RandomEffect::Rendering() {
         RenderStart();
 
         // constant buffer の更新
+        // RootParameter[0](b0) にノイズパラメータ(time)を送る
         param->GetConstantBuffer().ConvertToBuffer();
         param->GetConstantBuffer().SetForRootParameter(commandList, 0);
-        // 描画
+        // 描画 (全画面三角形2枚)
         commandList->DrawInstanced(6, 1, 0, 0);
 
         // レンダリング終了処理
@@ -152,6 +162,7 @@ void RandomEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void RandomEffect::RenderEnd() {
+    // フロントバッファを読み取り可能な状態へ遷移し、フロント/バックのインデックスを入れ替える
     renderTarget_->PostDraw();
 }
 

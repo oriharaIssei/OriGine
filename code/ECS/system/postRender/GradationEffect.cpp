@@ -27,6 +27,8 @@ GradationEffect::~GradationEffect() {}
 /// 初期化
 /// </summary>
 void GradationEffect::Initialize() {
+    // BasePostRenderingSystem::Initialize() を呼ばず、ここで dxCommand_ の生成とCreatePSOを直接行っている
+    // (コマンドリスト種別を省略したオーバーロードを使う点のみ他のエフェクトと異なる)
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
@@ -83,15 +85,18 @@ void GradationEffect::CreatePSO() {
     // offset を自動計算するように 設定
     sceneViewRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[0] = t0 (gSceneTexture)
     // DescriptorTable を使う
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t sceneViewParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(sceneViewRange, 1, sceneViewParamIdx);
+    // RootParameter[1] = b0 (gGradationParam / 中心・方向・スケール・べき乗・書き込みチャンネル・グラデ種別)
     // Gradation Parameter
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     shaderInfo.pushBackRootParameter(rootParameter[1]);
+    // RootParameter[2] = b1 (gMaterial)。b0 と衝突しないよう ShaderRegister を明示的に 1 に設定
     // Material
     rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -120,6 +125,7 @@ void GradationEffect::CreatePSO() {
 void GradationEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
+    // renderTarget_ を書き込み可能な状態へ遷移
     renderTarget_->PreDraw();
 
     /// ================================================
@@ -146,6 +152,7 @@ void GradationEffect::Rendering() {
         auto& paramBuff   = data->GetParamBuff();
         auto& uvTransBuff = data->GetMaterialBuff();
 
+        // RootParameter[0](t0)=現在のバックバッファ, [1](b0)=グラデーションパラメータ, [2](b1)=マテリアル
         commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
         paramBuff.SetForRootParameter(commandList, 1);
         uvTransBuff.SetForRootParameter(commandList, 2);
@@ -164,6 +171,7 @@ void GradationEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void GradationEffect::RenderEnd() {
+    // renderTarget_ を読み取り可能な状態へ遷移
     renderTarget_->PostDraw();
 }
 

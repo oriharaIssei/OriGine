@@ -91,6 +91,12 @@ void OriGine::OutlineRenderSystem::CreatePSO() {
     texShaderInfo.psKey = kPSName;
 
 #pragma region "RootParameter"
+    // 各ルートパラメータと Outline.VS.hlsl / Outline.PS.hlsl 側のレジスタの対応:
+    //   [0] Transform      -> VS b0 (gWorldTransform.world)
+    //   [1] CameraTransform-> ALL b2 (Object3dTextureColor.hlsli の gViewProjection)
+    //   [2] Material       -> PS b0 (gMaterial)
+    //   [3] Texture        -> PS t0 (gTexture)
+    //   [4] outlineBuffer  -> VS b1 (gOutlineParam: outlineWidth, outlineColor) を意図
     D3D12_ROOT_PARAMETER rootParameter[5]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -109,10 +115,17 @@ void OriGine::OutlineRenderSystem::CreatePSO() {
     materialBufferIndex_                       = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[2]);
     // Texture ... 3
     // DescriptorTable を使う
+    // NOTE: 下記 pushBackRootParameter(rootParameter[7]) は rootParameter[3] を渡す意図と思われるが、
+    //       実際には rootParameter は要素数5([0]~[4])の配列であり [7] は範囲外アクセスになっている。
+    //       ロジック修正は本コメント付与作業の対象外のため変更していない。要レビュー。
     rootParameter[3].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     textureBufferIndex_               = static_cast<int32_t>(texShaderInfo.pushBackRootParameter(rootParameter[7]));
     // outlineBuffer ... 4
+    // NOTE: 次行は rootParameter[4].Descriptor.ShaderRegister を設定する意図と思われるが、
+    //       実際には rootParameter[2](Material用)の ShaderRegister を書き換えてしまっている。
+    //       さらに直後の pushBackRootParameter(rootParameter[8]) も配列範囲外アクセス。
+    //       いずれもロジック修正は対象外のため変更していない。要レビュー。
     rootParameter[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameter[2].Descriptor.ShaderRegister = 1;
@@ -179,7 +192,8 @@ void OriGine::OutlineRenderSystem::CreatePSO() {
     /// BlendMode ごとの Psoを作成
     ///=================================================
 
-    // カリングなし
+    // 背面法アウトライン: 頂点シェーダで法線方向に頂点を外側へ膨らませたモデルを描画し、
+    // 表面(FRONT)を消して裏返った面だけを見せることで、輪郭部分にだけ拡大コピーがはみ出して見える
     texShaderInfo.changeCullMode(D3D12_CULL_MODE_FRONT);
     pso_ = shaderManager->CreatePso(kPsoKey, texShaderInfo, dxDevice->device_);
 }
@@ -191,6 +205,8 @@ void OriGine::OutlineRenderSystem::RenderStart() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
     /// target の設定
+    // renderTarget_ はダブルバッファ構成。PreDraw() でフロントバッファを書き込み対象にし、
+    // DrawTexture() で直前のバックバッファ内容をブリットしてから、このあとアウトライン用PSOへ切り替える
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
 
@@ -202,7 +218,7 @@ void OriGine::OutlineRenderSystem::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    // Cameraのセット
+    // Cameraのセット (RootParameter[cameraBufferIndex_] = b2 の gViewProjection)
     CameraManager* cameraManager = CameraManager::GetInstance();
     cameraManager->DataConvertToBuffer(GetScene());
     cameraManager->SetBufferForRootParameter(GetScene(), commandList, cameraBufferIndex_);
@@ -217,6 +233,11 @@ void OriGine::OutlineRenderSystem::Rendering() {
     RenderStart();
 
     for (auto& entry : activeEntries_) {
+        // NOTE: outlineWidth/outlineColor (Outline.VS.hlsl の gOutlineParam, 本来は
+        //       outlineParamBufferIndex_ に対応するはず)を、ここでは cameraBufferIndex_ に
+        //       バインドしている。RenderStart() で一度カメラ用バッファを同じスロットにセット済みのため、
+        //       この呼び出しでカメラ用バッファの内容がアウトラインパラメータで上書きされてしまう。
+        //       ロジック修正は本コメント付与作業の対象外のため変更していない。要レビュー。
         entry.outlineComp->paramData.SetForRootParameter(commandList, cameraBufferIndex_);
 
         // modelMesh
@@ -236,6 +257,7 @@ void OriGine::OutlineRenderSystem::Rendering() {
                 commandList->IASetIndexBuffer(&mesh.GetIBView());
 
                 // ============================= Transformのセット ============================= //
+                // RootParameter[transformBufferIndex_] = VS b0 (gWorldTransform)
                 meshTransform.ConvertToBuffer();
                 meshTransform.SetForRootParameter(commandList, transformBufferIndex_);
 
@@ -250,10 +272,12 @@ void OriGine::OutlineRenderSystem::Rendering() {
                     }
                 }
 
+                // RootParameter[materialBufferIndex_] = PS b0 (gMaterial)
                 materialBuff.SetForRootParameter(commandList, materialBufferIndex_);
 
                 // ============================= テクスチャの設定 ============================= //
-
+                // RootParameter[textureBufferIndex_] = PS t0 (gTexture)。
+                // マテリアルが専用テクスチャを持つ場合はそちらを優先する
                 commandList->SetGraphicsRootDescriptorTable(
                     textureBufferIndex_, textureHandle);
 
@@ -320,6 +344,7 @@ void OriGine::OutlineRenderSystem::Rendering() {
 /// </summary>
 void OriGine::OutlineRenderSystem::RenderEnd() {
     /// target の設定
+    // フロントバッファを読み取り可能な状態へ遷移し、フロント/バックのインデックスを入れ替える
     renderTarget_->PostDraw();
 }
 
@@ -367,6 +392,7 @@ void OriGine::OutlineRenderSystem::DispatchComponent(const EntityHandle& _entity
         }
     }
 
+    // 各プリミティブ形状のレンダラー(Plane/Ring/Box/Sphere/Cylinder)を共通処理でエントリーに追加するヘルパー
     auto dispatchPrimitive = [this, _entity, entityTransform, &entry](auto& renderers) {
         for (auto& renderer : renderers) {
             if (!renderer.IsRender()) {

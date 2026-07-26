@@ -34,6 +34,7 @@ void GrayscaleEffect::Initialize() {
 /// 終了処理
 /// </summary>
 void GrayscaleEffect::Finalize() {
+    // BasePostRenderingSystem::Finalize() とは異なり dxCommand_ の nullptr チェックを行っていない点に注意
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
@@ -71,6 +72,8 @@ void GrayscaleEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
+    // RootParameter[0] = b0 (gGrayScaleBuff / グレースケール化の適用度 grayscaleAmount)
+    // ShaderRegister を明示していないため既定値の 0 が使われる
     D3D12_ROOT_PARAMETER rootParameter[2] = {};
 
     rootParameter[0].ParameterType        = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -85,6 +88,7 @@ void GrayscaleEffect::CreatePSO() {
     // offset を自動計算するように 設定
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+    // RootParameter[1] = t0 (gTexture / 変換前のシーンテクスチャ)
     // DescriptorTable を使う
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -115,9 +119,13 @@ void GrayscaleEffect::RenderStart() {
 
     // Setting
 
+    // renderTarget_ はダブルバッファ構成になっており、PreDraw() でフロントバッファをクリア&書き込み対象にする。
+    // DrawTexture() は renderTarget_ 自身が持つブリット用PSOで、直前のバックバッファの内容を
+    // 新しいフロントバッファへコピーしておく(この後グレースケールPSOへ切り替えて上書き描画する)。
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
 
+    // ここから本エフェクト(グレースケール)用の PSO / ルートシグネチャに切り替える
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -125,6 +133,7 @@ void GrayscaleEffect::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
+    // RootParameter[1](t0) に DrawTexture() 済みの現在のバックバッファ内容をバインド
     commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->GetBackBufferSrvHandle());
 }
 
@@ -137,8 +146,10 @@ void GrayscaleEffect::Rendering() {
     for (auto* grayscaleComp : grayscaleComps_) {
         RenderStart();
 
+        // RootParameter[0](b0) にグレースケール適用度(grayscaleAmount)を送る
         grayscaleComp->GetConstantBuffer().SetForRootParameter(commandList.Get(), 0);
 
+        // 全画面三角形2枚(6頂点)でグレースケール変換を適用
         commandList->DrawInstanced(6, 1, 0, 0);
 
         RenderEnd();
@@ -151,6 +162,7 @@ void GrayscaleEffect::Rendering() {
 /// レンダリング終了処理
 /// </summary>
 void GrayscaleEffect::RenderEnd() {
+    // フロントバッファを読み取り可能な状態へ遷移し、フロント/バックのインデックスを入れ替える
     renderTarget_->PostDraw();
 }
 

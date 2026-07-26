@@ -23,11 +23,22 @@ static constexpr int32_t kInvalidEntityID = -1; // 無効なEntity IDを表す�
 
 /// <summary>
 /// 実体を表すクラス (実際にはIDでしか無い)
+/// コンポーネントは持たず、EntityRepository のプール内スロットとしてのみ存在する。
+/// 実際のコンポーネントデータは ComponentRepository 側が EntityHandle をキーにして保持する。
 /// </summary>
 class Entity {
+    // プール内のスロットへ直接アクセス(id_/handle_/isAlive_等の書き換え)できるようにするための friend。
+    // 通常の利用者は必ず EntityRepository の API 経由でのみ Entity を操作する。
     friend class EntityRepository;
 
 public:
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    /// <param name="_dataType">エンティティの種別を表す文字列</param>
+    /// <param name="_id">同一dataType_内での識別番号</param>
+    /// <param name="_handle">このEntityを一意に識別するハンドル</param>
+    /// <param name="_isUnique">シーン内で唯一の存在として登録するか</param>
     Entity(const ::std::string& _dataType, int32_t _id, const EntityHandle& _handle, bool _isUnique = false)
         : dataType_(_dataType), id_(_id), handle_(_handle), isAlive_(true), isUnique_(_isUnique) {}
     Entity() = default;
@@ -38,7 +49,9 @@ private:
     ::std::string dataType_ = "UNKNOWN"; // Entityの種別を表す文字列
 
     int32_t id_          = kInvalidEntityID; // 同一dataType_内での識別番号
-    EntityHandle handle_ = EntityHandle(); // このEntityを一意に識別するHandle
+    EntityHandle handle_ = EntityHandle(); // このEntityを一意に識別するHandle。世代カウンタは持たず、UUIDそのものが世界的に一意なため、
+                                            // 削除時に EntityRepository 側の uuid->index 対応表からこの値を消すだけで、
+                                            // 古いHandleを持つ呼び出し元は以後ずっと「見つからない」扱いになりダングリング参照を防げる
     bool isAlive_        = false; // 生存フラグ
     bool isUnique_       = false; // シーン内で唯一の存在かどうか
     bool shouldSave_     = true; // シーン保存時に書き出す対象かどうか

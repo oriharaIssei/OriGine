@@ -33,6 +33,8 @@ void SpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
+    // スプライトは3D的な遠近感を持たない画面固定のUI要素のため、透視投影ではなく
+    // 平行投影(Orthographic)を使い、ウィンドウの解像度(ピクセル単位)をそのままクリップ空間へ対応させる
     WinApp* window = Engine::GetInstance()->GetWinApp();
     viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), Config::Rendering::kMinDepth, Config::Camera::kDefaultFarClip);
 }
@@ -51,6 +53,8 @@ void SpriteRenderSystem::Rendering() {
     ///=========================================================
     // Priorityが低い順に
     ///=========================================================
+    // priorityが小さいものを先に描く=後から描かれるものほど手前(上)に重なって見える。
+    // スプライトは半透明合成されることが多いため、描画順が結果の見た目に直結する
     std::sort(
         rendererHandles_.begin(),
         rendererHandles_.end(),
@@ -80,6 +84,8 @@ void SpriteRenderSystem::Rendering() {
         }
 
         // BlendModeごとにPSOを切り替え
+        // 直前と同じブレンドモードであれば、PSO/RootSignatureの再設定を省略する
+        // (描画順はPriority優先のため、ブレンドモードが毎回切り替わることもある)
         if (currentBlendMode != renderer->GetCurrentBlend()) {
             currentBlendMode = renderer->GetCurrentBlend();
             blendIndex       = static_cast<int32_t>(currentBlendMode);
@@ -151,6 +157,7 @@ void SpriteRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     // 登録されているかどうかをチェック
+    // (既に他のSpriteRenderSystemインスタンス等がPSOを作成済みなら、作り直さず取得だけ行う)
     if (shaderManager->IsRegisteredPipelineStateObj("Sprite_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
@@ -188,12 +195,14 @@ void SpriteRenderSystem::CreatePSO() {
     ///================================================
     /// RootParameter の設定
     ///================================================
+    // 0: スプライトのTransform(平行投影後の頂点座標などを含む定数バッファ、b0)
     D3D12_ROOT_PARAMETER rootParameters[2]      = {};
     rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[0].Descriptor.ShaderRegister = 0;
     shaderInfo.pushBackRootParameter(rootParameters[0]);
 
+    // 1: スプライト用テクスチャ(SRV、t0)
     D3D12_DESCRIPTOR_RANGE descriptorRange = {};
     descriptorRange.BaseShaderRegister     = 0;
     descriptorRange.NumDescriptors         = 1;
@@ -247,6 +256,7 @@ void SpriteRenderSystem::StartRender() {
 
     dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    // テクスチャをディスクリプタテーブル経由でバインドするため、SRVヒープをコマンドリストへセットする
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }

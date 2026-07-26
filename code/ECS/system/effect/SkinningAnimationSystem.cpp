@@ -17,6 +17,14 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 単一アニメーションを指定時刻でサンプリングし、各Jointのローカル変換(scale/rotate/translate)へ書き込む
+/// </summary>
+/// <remarks>
+/// ここで求めた joint.transform は、この後 Skeleton::Update() で
+/// ローカル行列(localMatrix)へ組み立てられ、親子関係をたどってスケルトン空間行列へ連鎖する。
+/// キーフレーム間の補間には CalculateValue::Linear を使い、時間軸上の中間値を線形補間で求めている。
+/// </remarks>
 static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, float _animationTime) {
     for (Joint& joint : _skeleton.joints) {
         auto itr = _animationData->animationNodes_.find(joint.name);
@@ -31,6 +39,17 @@ static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, f
     }
 }
 
+/// <summary>
+/// 2つのアニメーションをそれぞれの時刻でサンプリングし、blendWeightで補間しながら
+/// 各Jointのローカル変換へ書き込む（アニメーション遷移中に使用）
+/// </summary>
+/// <remarks>
+/// scale/translateは通常の線形空間の値なのでLerpで問題ないが、
+/// rotateはクォータニオンで表現された回転であるため、Lerpでは
+/// 補間の途中で回転速度が不均一になったり、大きな角度差で不自然な軌道を描く。
+/// Slerp(球面線形補間)を使うことで、2つの回転の間を単位クォータニオン球面上の
+/// 最短弧に沿って等角速度で補間でき、自然な回転の遷移になる。
+/// </remarks>
 static void ApplyBlendedAnimation(
     Skeleton& _skeleton,
     AnimationData* _animA, float _timeA,
@@ -41,6 +60,8 @@ static void ApplyBlendedAnimation(
         auto itA     = _animA->animationNodes_.find(joint.name);
         auto itB     = _animB->animationNodes_.find(joint.name);
 
+        // 片方のアニメーションにしかこのJointの情報が無い場合は、ブレンドできないので
+        // 情報がある側の値をそのまま採用する
         if (itA == _animA->animationNodes_.end() || itB == _animB->animationNodes_.end()) {
             if (itA != _animA->animationNodes_.end()) {
                 const ModelAnimationNode& nodeAnimation = itA->second;
@@ -59,6 +80,8 @@ static void ApplyBlendedAnimation(
         const ModelAnimationNode& nodeA = itA->second;
         const ModelAnimationNode& nodeB = itB->second;
 
+        // scale/translateは線形補間、rotateだけ球面線形補間(Slerp)にすることで
+        // 回転を自然に、位置・拡縮を単純に混ぜ合わせる
         joint.transform.scale     = Lerp(CalculateValue::Linear(nodeA.scale, _timeA), CalculateValue::Linear(nodeB.scale, _timeB), blendWeight);
         joint.transform.rotate    = Slerp(CalculateValue::Linear(nodeA.rotate, _timeA), CalculateValue::Linear(nodeB.rotate, _timeB), blendWeight);
         joint.transform.translate = Lerp(CalculateValue::Linear(nodeA.translate, _timeA), CalculateValue::Linear(nodeB.translate, _timeB), blendWeight);
@@ -187,6 +210,9 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
                 animationComponent.GetAnimationData(currentAnimationIndex).get(),
                 currentTime);
         }
+        // Skeleton::Update()（model/Model.cpp）は、上で書き込んだ各Jointのローカル変換(scale/rotate/translate)から
+        // localMatrixを組み立て、親JointのskeletonSpaceMatrixに掛け合わせて子から根へ連鎖させることで、
+        // 各Jointの「スケルトン空間(モデルのルートを基準にした空間)」での現在の姿勢行列を求める
         skeleton.Update();
 
         auto& commandList = dxCommand_->GetCommandList();
@@ -210,8 +236,21 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
                 continue;
             }
             auto& clusterData = clusterItr->second;
+            // SkinCluster::UpdateMatrixPalette()（model/Model.cpp）が、このメッシュに対応する
+            // 「行列パレット」(Joint毎のスキニング行列の配列)を作り直す。
+            // 各Jointについて inverseBindPoseMatrix * skeletonSpaceMatrix を計算しているが、
+            // これは「バインドポーズ(モデリング時の初期姿勢)からJointのローカル空間へ戻す(inverseBindPoseMatrix)→
+            // 現在のアニメーション後の姿勢へ変換する(skeletonSpaceMatrix)」という2段の変換を1本の行列に合成したもの。
+            // 頂点はバインドポーズの座標のまま保持されているため、この行列を掛けることで
+            // 「バインドポーズを打ち消してから現在のポーズを適用する」ことになり、初めて正しく動く。
+            // 加えて、法線は位置と違い平行移動の影響を受けず、非一様スケールや剪断があると
+            // 単純に同じ行列を掛けると面に対して垂直でなくなってしまうため、
+            // 逆転置行列(Transpose(Inverse(...)))を別途用意し、法線専用にGPU側へ渡している。
             clusterData.UpdateMatrixPalette(skeleton);
 
+            // Compute Shaderの各ルートパラメータに、スキニングに必要なバッファを紐付ける。
+            // 出力先の頂点バッファ(UAV)・入力元の元頂点バッファ(SRV)・行列パレット(SRV)・
+            // 頂点ごとのJoint影響度(SRV)をシェーダから参照できるようにする
             commandList->SetComputeRootDescriptorTable(
                 kOutputVertexBufferIndex_,
                 skinnedVertexBuffer.descriptor.GetGpuHandle());
@@ -233,10 +272,14 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
                 kSkinningInformationBufferIndex_,
                 clusterData.skinningInfoBuffer_.GetResource().GetResource()->GetGPUVirtualAddress());
 
+            // 出力頂点バッファは直前まで頂点/定数バッファとして読まれていたので、
+            // Compute ShaderがUAVとして書き込めるようUNORDERED_ACCESS状態へ遷移させる
             dxCommand_->ResourceBarrier(
                 skinnedVertexBuffer.buffer.GetResource(),
                 D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
+            // 頂点数をシェーダ側のスレッドグループサイズ(1024)で割って必要なグループ数を求める。
+            // 端数がある場合も1グループ分余分に確保するため+1023してから割る(切り上げ)
             UINT dispatchCount = (clusterData.skinningInfoBuffer_->vertexSize + 1023) / 1024;
 
             commandList->Dispatch(
@@ -244,6 +287,8 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
                 1,
                 1); // X方向に分割、YとZは1
 
+            // Compute Shaderでの書き込みが終わったので、以降レンダリングパスで
+            // 頂点バッファ/定数バッファとして読めるよう状態を戻す
             dxCommand_->ResourceBarrier(
                 skinnedVertexBuffer.buffer.GetResource(),
                 D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);

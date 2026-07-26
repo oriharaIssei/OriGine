@@ -33,14 +33,27 @@ static const std::string kVSName = "Object3dTextureColor.VS";
 static const std::string kPSName = "Object3dTextureColorWithRaytracing.PS";
 }
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 TexturedMeshRenderSystem::TexturedMeshRenderSystem() : BaseRenderSystem() {}
+/// <summary>
+/// デストラクタ
+/// </summary>
 TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
 
+/// <summary>
+/// 初期化
+/// </summary>
 void TexturedMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
     instancedMeshManager_.Initialize();
 }
 
+/// <summary>
+/// 毎フレームの更新処理。死んだエンティティのインスタンス解放、同一モデル数の集計、
+/// レンダラーの振り分け、レイトレーシングシーン/インスタンシングバッファの更新、描画までを一括して行う
+/// </summary>
 void OriGine::TexturedMeshRenderSystem::Update() {
     // レンダリング対象が無ければスキップ
     if (entities_.empty()) {
@@ -48,6 +61,8 @@ void OriGine::TexturedMeshRenderSystem::Update() {
     }
 
     // 死んだエンティティのインスタンスをクリーンアップ
+    // (通常のコンポーネント破棄だけでは、GPU側インスタンスバッファに残った枠が解放されないため、
+    //  ここで明示的にinstancedMeshManager_からインスタンスハンドルを取り除く)
     for (auto& entityID : entities_) {
         Entity* entity = GetEntity(entityID);
         if (!entityID.IsValid() || !entity || !entity->IsAlive()) {
@@ -81,6 +96,8 @@ void OriGine::TexturedMeshRenderSystem::Update() {
     EraseDeadEntity();
 
     // カウントプレパス: 同一モデルのエンティティ数を集計
+    // DispatchRenderer側で「インスタンシングする価値があるか(kAutoInstanceThreshold以上か)」を
+    // 判定するために、先に全エンティティを1回走査してモデルごとの出現数を数えておく
     modelInstanceCounts_.clear();
     for (auto& entityID : entities_) {
         auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(entityID);
@@ -113,6 +130,11 @@ void OriGine::TexturedMeshRenderSystem::Update() {
     Rendering();
 }
 
+/// <summary>
+/// エンティティが持つ各レンダラーを、インスタンシング描画パスと個別描画パス(カリング×ブレンドモード別バケット)
+/// のどちらかへ振り分ける
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     auto entityTransform = GetComponent<Transform>(_entity);
 
@@ -133,6 +155,9 @@ void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
 
             ModelMeshData* modelData = renderer.GetModelData();
             auto countItr = modelData ? modelInstanceCounts_.find(modelData) : modelInstanceCounts_.end();
+            // 同一モデルを使うエンティティがkAutoInstanceThreshold体以上いる場合のみインスタンシングする。
+            // 少数しかいないモデルまでインスタンシング用バッファを確保すると、
+            // 1回のDrawIndexedInstancedで済ませられる効果よりバッファ管理コストの方が大きくなるため
             bool shouldInstance = modelData
                 && !renderer.IsForceNonInstanced()
                 && countItr != modelInstanceCounts_.end()
@@ -146,6 +171,8 @@ void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
                 }
 
                 // Material / Texture / BlendMode / Culling 同期
+                // インスタンスは複数エンティティで実体を共有するGPUバッファ上のエントリなので、
+                // 描画のたびにこのエンティティ固有のマテリアル・テクスチャ設定を都度書き戻して同期する
                 InstanceEntry& entry = instancedMeshManager_.GetInstance(renderer.GetInstanceHandle());
                 entry.blendMode  = renderer.GetCurrentBlend();
                 entry.isCulling  = renderer.IsCulling();
@@ -172,6 +199,8 @@ void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
                 }
             } else {
                 // 閾値未満に戻った場合：インスタンスを解除
+                // (同一モデルのエンティティが減った、または個別描画が強制された場合、
+                //  インスタンシング用バッファに残っていた分を解放し、通常の個別描画パスへ戻す)
                 if (renderer.GetInstanceHandle().IsValid()) {
                     instancedMeshManager_.RemoveInstance(renderer.GetInstanceHandle());
                     renderer.SetInstanceHandle(InstanceHandle{});
@@ -275,6 +304,11 @@ void TexturedMeshRenderSystem::DispatchRenderer(const EntityHandle& _entity) {
     dispatchPrimitive(GetComponents<CylinderRenderer>(_entity));
 }
 
+/// <summary>
+/// 指定されたブレンドモード×カリング設定について、非インスタンス描画とインスタンシング描画の両方を行う
+/// </summary>
+/// <param name="_blendMode">描画するブレンドモード</param>
+/// <param name="_isCulling">描画するカリング設定</param>
 void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling) {
     int32_t cullingIndex = _isCulling ? 1 : 0;
     int32_t blendIndex   = static_cast<int32_t>(_blendMode);
@@ -354,6 +388,10 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
     }
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool TexturedMeshRenderSystem::ShouldSkipRender() const {
     // インスタンシング描画がある場合はスキップしない
     if (!instancedMeshManager_.IsEmpty()) {
@@ -369,6 +407,9 @@ bool TexturedMeshRenderSystem::ShouldSkipRender() const {
     return true;
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void TexturedMeshRenderSystem::Finalize() {
     for (auto& activeRendererByCulling : activeModelMeshRenderer_) {
         for (auto& activeRenderers : activeRendererByCulling) {
@@ -385,6 +426,9 @@ void TexturedMeshRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する（非インスタンス描画用。インスタンシング用はCreateInstancedPSOで別途作成）
+/// </summary>
 void TexturedMeshRenderSystem::CreatePSO() {
     const std::string kPsoKey        = "TextureMeshWithRaytracing_";
     const std::string kCullingPsoKey = "CullingTextureMeshWithRaytracing_";
@@ -609,6 +653,9 @@ void TexturedMeshRenderSystem::CreatePSO() {
     CreateInstancedPSO();
 }
 
+/// <summary>
+/// ライトの情報を更新してバインドする
+/// </summary>
 void TexturedMeshRenderSystem::LightUpdate() {
     auto* directionalLight = GetComponentArray<DirectionalLight>();
     auto* pointLight       = GetComponentArray<PointLight>();
@@ -651,6 +698,10 @@ void TexturedMeshRenderSystem::LightUpdate() {
     LightManager::GetInstance()->Update();
 }
 
+/// <summary>
+/// 現在のカリング設定・ブレンドモードに対応するPSOを選択してバインドし、
+/// カメラ・ライト・レイトレーシングシーン・環境テクスチャなど描画に共通して必要なバッファを設定する
+/// </summary>
 void TexturedMeshRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -691,6 +742,9 @@ void TexturedMeshRenderSystem::StartRender() {
         AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
 }
 
+/// <summary>
+/// メッシュを描画する
+/// </summary>
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureColorMesh& _mesh,
@@ -721,6 +775,9 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
+/// <summary>
+/// メッシュを描画する (マテリアルバッファをSimpleConstantBufferで渡す版)
+/// </summary>
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureColorMesh& _mesh,
@@ -749,7 +806,12 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
+/// <summary>
+/// ModelMeshRendererを個別描画パスで描画する(インスタンシング対象外のもの)
+/// </summary>
 void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
+    // メッシュ単位(index)でテクスチャ・Transform・マテリアルが個別に管理されているため、
+    // メッシュごとに1回ずつ描画コマンドを積む
     uint32_t index = 0;
 
     auto& meshGroup = _renderer->GetMeshGroup();
@@ -793,6 +855,9 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
     }
 }
 
+/// <summary>
+/// PrimitiveMeshRendererを個別描画パスで描画する(インスタンシング対象外のもの)
+/// </summary>
 void TexturedMeshRenderSystem::RenderPrimitiveMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     PrimitiveMeshRendererBase* _renderer) {
@@ -829,6 +894,12 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
 // TexturedMeshRenderSystem - Instanced PSO
 //==============================================================================
 
+/// <summary>
+/// インスタンシング描画用のパイプラインステートオブジェクト(PSO)を作成する。
+/// 通常描画用(CreatePSO)とはVS/PSが異なり、Transform/Materialを個別の定数バッファではなく
+/// StructuredBuffer(構造化バッファ)としてまとめて渡し、頂点シェーダ側でSV_InstanceIDに応じて
+/// 該当インデックスの要素を読み出すことで、1回のDrawIndexedInstanced呼び出しで多数のインスタンスを描画する
+/// </summary>
 void TexturedMeshRenderSystem::CreateInstancedPSO() {
     const std::string kInstancedVSName = "Object3dTextureColorInstanced.VS";
     const std::string kInstancedPSName = "Object3dTextureColorInstancedWithRaytracing.PS";
@@ -933,6 +1004,10 @@ void TexturedMeshRenderSystem::CreateInstancedPSO() {
     [[maybe_unused]] int32_t instRaytracingIdx = static_cast<int32_t>(shaderInfo.pushBackRootParameter(rootParameter[9]));
 
     // [10] InstanceOffset (Root Constants, b6) - テクスチャバッチ描画時のオフセット
+    // 同じStructuredBuffer(全インスタンス分)をまとめて確保しているため、SV_InstanceIDだけでは
+    // 「今回のDrawIndexedInstancedが何番目のインスタンスから描画しているか」が分からない。
+    // このオフセットをSV_InstanceIDに加算することで、バッチ(ブレンドモード/カリング/テクスチャ単位)ごとに
+    // バッファ内の正しい開始位置を参照できるようにする
     rootParameter[10].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
     rootParameter[10].ShaderVisibility         = D3D12_SHADER_VISIBILITY_VERTEX;
     rootParameter[10].Constants.ShaderRegister = 6; // b6

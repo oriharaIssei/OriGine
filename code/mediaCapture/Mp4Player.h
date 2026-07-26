@@ -46,6 +46,9 @@ public:
     /// <param name="mp4Path">再生するmp4ファイルのパス</param>
     /// <returns>成功したら true</returns>
     bool Open(const std::string& mp4Path);
+    /// <summary>
+    /// 再生を停止し、デコード/提示スレッドを終了させてリソースを解放する.
+    /// </summary>
     void Close();
 
     /// <summary>
@@ -57,6 +60,7 @@ public:
     /// </summary>
     void Pause();
     void Stop();               // 停止して先頭へ巻き戻す
+    /// <summary> ループ再生の有効/無効を設定する. </summary>
     void SetLoop(bool loop) { loop_ = loop; }
     bool Seek(double seconds); // 指定秒へシーク
 
@@ -71,6 +75,7 @@ public:
 
     // 最新の映像フレーム（トップダウン BGRA, size = width*height*4）をコピー取得する。
     bool GetLatestFrame(std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight);
+    // 新しい映像フレームが提示されるたびに呼ばれるコールバックを登録する（PresentThread から呼ばれる）。
     void SetFrameCallback(Mp4VideoFrameCallback callback);
 
     const std::string& GetLastError() const { return lastError_; }
@@ -98,6 +103,7 @@ private:
     void PushVideo(const Microsoft::WRL::ComPtr<IMFSample>& sample, LONGLONG pts);
     // 音声再生位置（あれば）または壁時計から現在の基準再生位置(100ns単位)を求める
     LONGLONG GetMasterPts100ns();
+    // エラーメッセージとHRESULTをログへ出力し、lastError_へ格納する
     void Fail(const std::string& msg, HRESULT hr);
 
     Microsoft::WRL::ComPtr<IMFSourceReader> reader_;

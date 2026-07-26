@@ -116,10 +116,13 @@ void DistortionEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // distortion Texture
+    // shaderInfo.pushBackRootParameter の戻り値(挿入されたインデックス)をメンバに保持しておき、
+    // 描画時に SetGraphicsRootDescriptorTable / SetForRootParameter へそのまま使う。
+    // こうすることでルートパラメータの並びを変えてもここ1箇所を直せば済むようにしている。
     D3D12_ROOT_PARAMETER rootParameter[4] = {};
     D3D12_DESCRIPTOR_RANGE texRange[2]    = {};
 
-    // distortion texture (t0)
+    // distortion texture (t0) : Distortion.PS.hlsl の gDistortionTexture (UVをずらす量を格納したテクスチャ)
     texRange[0].BaseShaderRegister                = 0;
     texRange[0].NumDescriptors                    = 1;
     texRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -130,7 +133,7 @@ void DistortionEffect::CreatePSO() {
     distortionTextureIndex_           = (int32_t)shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(&texRange[0], 1, distortionTextureIndex_);
 
-    // scene texture (t1)
+    // scene texture (t1) : Distortion.PS.hlsl の gSceneViewTexture (ずらしたUVでサンプリングする元シーン)
     texRange[1].BaseShaderRegister                = 1;
     texRange[1].NumDescriptors                    = 1;
     texRange[1].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -141,12 +144,13 @@ void DistortionEffect::CreatePSO() {
     sceneTextureIndex_                = (int32_t)shaderInfo.pushBackRootParameter(rootParameter[1]);
     shaderInfo.SetDescriptorRange2Parameter(&texRange[1], 1, sceneTextureIndex_);
 
-    // distortion param
+    // distortion param (b0) : gEffectParam (歪みのバイアス・強度)
     rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[2].Descriptor.ShaderRegister = 0;
     distortionParamIndex_                      = (int32_t)shaderInfo.pushBackRootParameter(rootParameter[2]);
 
+    // material (b1) : gMaterial (色 と 歪みテクスチャ サンプリング用のUV変換行列)
     rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[3].Descriptor.ShaderRegister = 1;
@@ -183,9 +187,13 @@ void DistortionEffect::RenderStart() {
     /// ----------------------------------------------------------
     /// 3dオブジェクトシーンテクスチャへの描画開始
     /// ----------------------------------------------------------
+    // 歪みを起こす3Dオブジェクト(炎・水面等)を一旦専用のオフスクリーンテクスチャへまとめて描画し、
+    // それを後段のポストエフェクトパス(Rendering)で歪み量マップ(t0)として使う。
+    // 全インスタンス共有の distortionSceneTexture_ を使い回すことで、テクスチャ確保コストを抑えている。
     if (!activeDistortionObjects_.empty()) {
         distortionSceneTexture_->PreDraw();
 
+        // 半透明合成 + 両面描画で、歪みを起こすメッシュ(パーティクル等)を素直に重ね描きする
         texturedMeshRenderSystem_->SetBlendMode(BlendMode::Alpha);
         texturedMeshRenderSystem_->SetCulling(false);
 
@@ -234,6 +242,10 @@ void DistortionEffect::Rendering() {
         RenderStart();
 
         // Set buffer
+        // t0: RenderStart内で焼き込んだ distortionSceneTexture_ を歪み量マップとして使用
+        // t1: renderTarget_ の現在のバックバッファ(歪ませたい元シーン)
+        // b0/b1: defaultParam_ を使用。各オブジェクトの強度・バイアスは DispatchComponent 側で
+        //        マテリアルカラーへ事前に焼き込み済みのため、ここでは実質無加工の既定値でよい
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->GetBackBufferSrvHandle());
         commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->GetBackBufferSrvHandle());
         defaultParam_->GetEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
@@ -248,12 +260,14 @@ void DistortionEffect::Rendering() {
         activeDistortionObjects_.clear();
     }
 
+    // 単一テクスチャ指定のエフェクト(2Dの歪みテクスチャを直接使うケース)
     for (auto& renderingData : activeRenderingData_) {
         // 開始処理
         RenderStart();
 
         // Set buffer
         renderingData.effectParam->GetEffectParamBuffer().ConvertToBuffer();
+        // t0: 指定された歪みテクスチャ、t1: 現在のバックバッファ
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, renderingData.srvHandle);
         commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->GetBackBufferSrvHandle());
         renderingData.effectParam->GetEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
@@ -275,6 +289,7 @@ void DistortionEffect::Rendering() {
 /// </summary>
 void DistortionEffect::RenderEnd() {
     // 終了処理
+    // renderTarget_ を RENDER_TARGET から読み取り可能な状態へ遷移させる
     renderTarget_->PostDraw();
 }
 
@@ -314,6 +329,8 @@ void DistortionEffect::DispatchComponent(const EntityHandle& _handle) {
                     // 歪み強度・バイアスの反映
                     // 後に すべての Objectを描画し一度だけシーンテクスチャに描画するため、
                     // 前もってエフェクトパラメータを反映させておく
+                    // (Distortion.PS.hlsl の distortionOffset = (color.rg*color.a - bias) * strength と同じ計算を、
+                    //  ここではオブジェクトごとに異なる bias/strength をマテリアルカラーへ焼き込む形で先に適用している)
                     Material data  = *material;
                     data.color_[X] = (data.color_[X] - paramData.distortionBias[X]) * paramData.distortionStrength[X];
                     data.color_[Y] = (data.color_[Y] - paramData.distortionBias[Y]) * paramData.distortionStrength[Y];

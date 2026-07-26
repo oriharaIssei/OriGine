@@ -27,9 +27,18 @@ namespace {
 static const std::string kShaderName = "Object3dTextureColor";
 }
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 TexturedMeshRenderSystemWithoutRaytracing::TexturedMeshRenderSystemWithoutRaytracing() : BaseRenderSystem() {}
+/// <summary>
+/// デストラクタ
+/// </summary>
 TexturedMeshRenderSystemWithoutRaytracing::~TexturedMeshRenderSystemWithoutRaytracing() {};
 
+/// <summary>
+/// 初期化
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::Initialize() {
     BaseRenderSystem::Initialize();
 }
@@ -183,10 +192,16 @@ bool TexturedMeshRenderSystemWithoutRaytracing::ShouldSkipRender() const {
     return true;
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// PSOの作成
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::CreatePSO() {
     const std::string kPsoKey        = "TextureMesh_";
     const std::string kCullingPsoKey = "CullingTextureMesh_";
@@ -403,6 +418,9 @@ void TexturedMeshRenderSystemWithoutRaytracing::CreatePSO() {
     }
 }
 
+/// <summary>
+/// ライトの情報を更新してバインドする
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::LightUpdate() {
     auto* directionalLight = GetComponentArray<DirectionalLight>();
     auto* pointLight       = GetComponentArray<PointLight>();
@@ -487,6 +505,9 @@ void TexturedMeshRenderSystemWithoutRaytracing::StartRender() {
         AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(skybox->GetTextureIndex()).srv.GetGpuHandle());
 }
 
+/// <summary>
+/// メッシュを描画する
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureColorMesh& _mesh,
@@ -517,6 +538,9 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
+/// <summary>
+/// メッシュを描画する (マテリアルバッファをSimpleConstantBufferで渡す版)
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureColorMesh& _mesh,
@@ -545,7 +569,12 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
+/// <summary>
+/// ModelMeshRendererを描画する
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
+    // メッシュ単位(index)でテクスチャ・Transform・マテリアルが個別に管理されているため、
+    // メッシュごとに1回ずつ描画コマンドを積む
     uint32_t index = 0;
 
     auto& meshGroup = _renderer->GetMeshGroup();
@@ -589,6 +618,9 @@ void TexturedMeshRenderSystemWithoutRaytracing::RenderModelMesh(Microsoft::WRL::
     }
 }
 
+/// <summary>
+/// PrimitiveMeshRendererを描画する
+/// </summary>
 void TexturedMeshRenderSystemWithoutRaytracing::RenderPrimitiveMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     PrimitiveMeshRendererBase* _renderer) {

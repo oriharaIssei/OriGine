@@ -19,6 +19,9 @@ public:
 
     ~PrimitiveMeshRenderer() override {}
 
+    // PrimitiveMeshRendererBaseで既にpure virtualだが、ここで改めて= 0とすることで
+    // 「PrimitiveMeshRenderer<T>自身も引き続き抽象クラスである」ことを明示している
+    // (BoxRenderer等の具象クラス側で実装を提供する必要がある)
     void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _entity) = 0;
 
     virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override = 0;

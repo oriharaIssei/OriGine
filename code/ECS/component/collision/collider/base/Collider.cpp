@@ -8,10 +8,18 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コライダーの初期化処理（ICollider既定実装。派生クラスが個別処理を持つ場合は上書きする）
+/// </summary>
 void ICollider::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
 
+/// <summary>
+/// デバッグ用GUIで有効/無効フラグと衝突カテゴリを編集する（各派生コライダーのEditから呼ばれる共通部分）
+/// </summary>
+/// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void OriGine::ICollider::Edit(Scene* /*_scene*/, const EntityHandle& /*_handle*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    // エディタ専用のUIコードなので、リリースビルドには含めない
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);
 
@@ -48,19 +56,33 @@ void ICollider::StartCollision() {
 void ICollider::EndCollision() {
     // 前フレーム衝突していた相手のうち、今フレームで更新されなかったものをExit状態にする
     for (auto& [entity, state] : this->preCollisionStateMap_) {
+        // 前フレームで既にExitを通知済みの相手は、Exitを二重に発火させないようスキップする。
+        // ここでreturnしてしまうと、残りの相手のExit判定まで打ち切られてしまう
         if (state == CollisionState::Exit)
-            return;
+            continue;
         if (this->collisionStateMap_[entity] == CollisionState::None)
             this->collisionStateMap_[entity] = CollisionState::Exit;
     }
 }
 
+/// <summary>
+/// ICollider共通部分（有効フラグ・衝突カテゴリ名）をJSONへ書き出す
+/// </summary>
+/// <param name="_j">書き込み先のJSON</param>
+/// <param name="_c">シリアライズ対象のICollider</param>
 void OriGine::to_json(nlohmann::json& _j, const ICollider& _c) {
     _j["isActive"]          = _c.isActive_;
     _j["collisionCategory"] = _c.collisionCategory_.GetName();
 }
 
+/// <summary>
+/// JSONからICollider共通部分（有効フラグ・衝突カテゴリ）を復元する
+/// </summary>
+/// <param name="_j">読み込み元のJSON</param>
+/// <param name="_c">復元先のICollider</param>
 void OriGine::from_json(const nlohmann::json& _j, ICollider& _c) {
+    // 古いセーブデータにキーが無い場合でも読み込みが壊れないよう、
+    // 各項目の存在をcontains()で確認してから取得する
     if (_j.contains("isActive")) {
         _c.isActive_ = _j["isActive"].get<bool>();
     }
@@ -72,6 +94,11 @@ void OriGine::from_json(const nlohmann::json& _j, ICollider& _c) {
     }
 }
 
+/// <summary>
+/// 相手のコライダーと衝突可能か判定する
+/// </summary>
+/// <param name="_other">相手のコライダー</param>
+/// <returns>双方のカテゴリマスクが互いを許可していればtrue</returns>
 bool ICollider::CanCollideWith(const ICollider& _other) const {
     uint32_t maskA = collisionCategory_.GetMaskBits();
     uint32_t maskB = _other.collisionCategory_.GetMaskBits();

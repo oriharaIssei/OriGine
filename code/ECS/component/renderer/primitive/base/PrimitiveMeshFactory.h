@@ -44,7 +44,7 @@ private:
     void Initialize();
 
 private:
-    bool initialized_ = false; // 呼び出し回数
+    bool initialized_ = false; // 初期化処理(Initialize)を既に実行したかどうかのフラグ（コンストラクタの多重初期化防止）
     std::unordered_map<PrimitiveType, std::function<std::shared_ptr<PrimitiveMeshRendererBase>()>>
         primitiveMeshFactory_; // PrimitiveTypeごとの生成関数を保持するマップ
 

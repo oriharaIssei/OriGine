@@ -22,7 +22,11 @@ class Entity;
 class Scene;
 
 ///< summary>
-/// 1コンポーネントを表すクラス(基底クラス)
+/// 1コンポーネントを表すクラス(基底クラス)。
+/// すべての具象コンポーネントはこれを継承することで、ComponentArray/ComponentRepository が
+/// 具体的な型を知らなくても IComponent* として一様に初期化・編集・破棄できるようになる(型消去の要)。
+/// 実際の格納は ComponentArray<T> がテンプレートで型付きの配列を保持し、
+/// IComponentArray インターフェース越しに ComponentRepository から型を意識せず扱われる。
 ///</summary>
 class IComponent {
 public:
@@ -58,11 +62,17 @@ private:
     ComponentHandle handle_{}; // このComponent自身を一意に識別するHandle
 
 public:
+    /// <summary>
+    /// このコンポーネント自身を識別するハンドルを取得する
+    /// </summary>
+    /// <returns>コンポーネントハンドル</returns>
     ComponentHandle GetHandle() const { return handle_; }
     /// <summary>
-    /// 禁止: コンポーネントハンドルの設定
+    /// 禁止: コンポーネントハンドルの設定。
+    /// 格納先の配列インデックスと不整合になるため、ComponentArray が生成・格納時に設定する目的でのみ使用し、
+    /// 利用者コード側から呼び出してはならない。
     /// </summary>
-    /// <param name="_handle"></param>
+    /// <param name="_handle">設定するコンポーネントハンドル</param>
     void SetHandle(ComponentHandle _handle) { handle_ = _handle; }
 };
 

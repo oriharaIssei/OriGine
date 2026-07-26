@@ -125,19 +125,22 @@ public:
     void PlayStop();
 
 private:
+    /// <summary>
+    /// spawnShape_ が未生成(shapeType_ 変更直後など)の場合に、shapeType_ に応じた形状を生成する
+    /// </summary>
     void EnsureShape();
 
 private:
-    bool isActive_            = false;
-    bool isLoop_              = false;
-    bool interpolateSpawnPos_ = false;
+    bool isActive_            = false; // 現在アクティブ(スポーン処理中)かどうか
+    bool isLoop_              = false; // activeTime_ 経過後も繰り返しスポーンし続けるか
+    bool interpolateSpawnPos_ = false; // 1フレーム内の複数スポーンをスポーン原点の移動に沿って補間するか
 
-    float activeTime_     = 0.f;
-    float leftActiveTime_ = 0.f;
+    float activeTime_     = 0.f; // アクティブ状態を維持する時間(秒)。isLoop_ が false のとき使用
+    float leftActiveTime_ = 0.f; // activeTime_ の残り時間(秒)。0 以下で IsExpired() が true になる
 
-    int32_t spawnCount_    = 1;
-    float spawnCoolTime_   = 0.f;
-    float currentCoolTime_ = 0.f;
+    int32_t spawnCount_    = 1; // 1回のクールタイム経過ごとにスポーンする数
+    float spawnCoolTime_   = 0.f; // 次のスポーンまでのクールタイム(秒)
+    float currentCoolTime_ = 0.f; // クールタイムの残り時間(秒)
 
     Vec3f originPos_         = {};
     Vec3f worldOriginPos_    = {};

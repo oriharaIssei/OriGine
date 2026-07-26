@@ -13,6 +13,9 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// DXCの各インターフェースを初期化する。
+/// </summary>
 void ShaderCompiler::Initialize() {
     // DxCの各種インスタンスを生成する
     HRESULT hr;
@@ -26,6 +29,9 @@ void ShaderCompiler::Initialize() {
     assert(SUCCEEDED(hr));
 }
 
+/// <summary>
+/// HLSLシェーダーをコンパイルする。
+/// </summary>
 IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& _filePath, const wchar_t* _profile) {
     LOG_DEBUG("Begin CompileShader, path : {}, profile : {}\n", ConvertString(_filePath), ConvertString(_profile));
 
@@ -96,12 +102,18 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& _filePath, const wch
     return shaderBlob;
 }
 
+/// <summary>
+/// DXC関連オブジェクトを解放する。
+/// </summary>
 void ShaderCompiler::Finalize() {
     dxcUtils_.Reset();
     dxcCompiler_.Reset();
     includeHandler_.Reset();
 }
 
+/// <summary>
+/// シェーダーファイルを読み込み、DXCのバッファ形式に変換する。
+/// </summary>
 void ShaderCompiler::LoadShaderFile(const std::wstring& _filePath, IDxcBlobEncoding* _shaderSource, DxcBuffer& _buf) {
     // hlslファイルを読み込む
     HRESULT hr = dxcUtils_->LoadFile(

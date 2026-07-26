@@ -6,19 +6,31 @@
 
 namespace OriGine {
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SpatialHash::SpatialHash(float _cellSize)
     : cellSize_(_cellSize), inverseCellSize_(1.0f / _cellSize) {}
 
+/// <summary>
+/// セルサイズを設定する（除算を避けるため逆数もここで計算し直す）
+/// </summary>
 void SpatialHash::SetCellSize(float _cellSize) {
     cellSize_        = _cellSize;
     inverseCellSize_ = 1.0f / _cellSize;
 }
 
+/// <summary>
+/// 登録済みの全セル・全エンティティをクリアする（毎フレームの再構築のために使う）
+/// </summary>
 void SpatialHash::Clear() {
     cells_.clear();
     entityCells_.clear();
 }
 
+/// <summary>
+/// エンティティのAABBが属するセルすべてに登録する
+/// </summary>
 void SpatialHash::Insert(const EntityHandle& _entity, const Bounds::AABB& _aabb) {
     CellKey minCell, maxCell;
     GetCellRange(_aabb, minCell, maxCell);
@@ -41,6 +53,9 @@ void SpatialHash::Insert(const EntityHandle& _entity, const Bounds::AABB& _aabb)
     }
 }
 
+/// <summary>
+/// 指定AABBがカバーするセルに登録されているエンティティを収集する
+/// </summary>
 void SpatialHash::Query(const Bounds::AABB& _aabb, std::unordered_set<EntityHandle>& _outEntities) const {
     CellKey minCell, maxCell;
     GetCellRange(_aabb, minCell, maxCell);
@@ -116,6 +131,9 @@ CellKey SpatialHash::PositionToCell(const Vec3f& _position) const {
         static_cast<int32_t>(std::floor(_position[Z] * inverseCellSize_))};
 }
 
+/// <summary>
+/// AABBの最小点・最大点それぞれが属するセルを求め、AABBがカバーするセル範囲とする
+/// </summary>
 void SpatialHash::GetCellRange(const Bounds::AABB& _aabb, CellKey& _min, CellKey& _max) const {
     Vec3f minPos = _aabb.Min();
     Vec3f maxPos = _aabb.Max();

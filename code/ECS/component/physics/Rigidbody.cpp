@@ -14,6 +14,10 @@ Rigidbody::Rigidbody() {}
 
 void Rigidbody::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
 
+/// <summary>
+/// エディタ用編集UI。速度・加速度の積分そのものはこのコンポーネントではなく、
+/// このデータを参照する物理更新システム側で行われる
+/// </summary>
 void Rigidbody::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
@@ -46,6 +50,9 @@ void Rigidbody::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe
 #endif // _DEBUG
 }
 
+/// <summary>
+/// 現在の速度・加速度などを読み取り専用で表示するデバッグ表示
+/// </summary>
 void Rigidbody::Debug() {
 #ifdef _DEBUG
     ImGui::DragFloat3("acceleration", acceleration_.v, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
@@ -60,6 +67,9 @@ void Rigidbody::Debug() {
 
 void Rigidbody::Finalize() {}
 
+/// <summary>
+/// Rigidbody を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
     _j["isActive"]     = _comp.isActive_;
     _j["acceleration"] = _comp.acceleration_;
@@ -73,6 +83,10 @@ void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
     _j["isUsingLocalDeltaTime"] = _comp.isUsingLocalDeltaTime_;
     _j["localDeltaTimeName"]    = _comp.localDeltaTimeName_;
 }
+/// <summary>
+/// JSON から Rigidbody を復元する。フィールド追加前の旧セーブデータとの互換性のため、
+/// 新しく追加された項目は contains() で存在確認してから読み込む
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, Rigidbody& _comp) {
     if (_j.contains("isActive")) {
         _j.at("isActive").get_to(_comp.isActive_);
@@ -89,6 +103,7 @@ void OriGine::from_json(const nlohmann::json& _j, Rigidbody& _comp) {
         _j.at("maxFallSpeed").get_to(_comp.maxFallSpeed_);
     }
 
+    // restitution が存在しない旧セーブデータでも読み込みに失敗しないよう、value() でデフォルト値付き取得する
     _comp.restitution_ = _j.value("restitution", 0.0f); // デフォルト値を 0.0f に設定
 
     if (_j.contains("isUsingLocalDeltaTime")) {

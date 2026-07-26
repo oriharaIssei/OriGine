@@ -27,6 +27,9 @@ class SystemAudioCapture;
 // Stop で解除する。録画中は他用途のコールバックと排他になる。
 class ScreenRecorder {
 public:
+    /// <summary>
+    /// 録画時のエンコード設定.
+    /// </summary>
     struct Config {
         uint32_t fps          = 30;
         uint32_t videoBitrate = 8'000'000; // bps（画面は解像度が大きいので既定を高めに）
@@ -40,18 +43,31 @@ public:
     ScreenRecorder(const ScreenRecorder&)            = delete;
     ScreenRecorder& operator=(const ScreenRecorder&) = delete;
 
-    // screen は Open 済み（幅/高さ確定）である必要がある。systemAudio は recordAudio 時のみ必須。
+    /// <summary>
+    /// 画面キャプチャとシステム音声のコールバックを Mp4Recorder に結線し、録画を開始する.
+    /// screen は Open 済み（幅/高さ確定）である必要がある。systemAudio は recordAudio 時のみ必須。
+    /// </summary>
+    /// <param name="screen">Open 済みの画面キャプチャ</param>
+    /// <param name="systemAudio">システム音声キャプチャ（recordAudio が false の場合は未使用）</param>
+    /// <param name="mp4Path">出力先 mp4 ファイルパス</param>
+    /// <param name="config">エンコード設定</param>
+    /// <returns>開始に成功したら true</returns>
     bool Start(ScreenCapture* screen, SystemAudioCapture* systemAudio, const std::string& mp4Path, const Config& config = {});
+    /// <summary>
+    /// 録画を停止し、結線したコールバックを解除する.
+    /// </summary>
     void Stop();
 
+    /// <summary> 現在録画中かどうかを取得する. </summary>
     bool IsRecording() const { return active_; }
+    /// <summary> 直近に発生したエラーメッセージを取得する. </summary>
     const std::string& GetLastError() const { return recorder_.GetLastError(); }
 
 private:
     Mp4Recorder        recorder_;
-    ScreenCapture*     screen_      = nullptr;
-    SystemAudioCapture* systemAudio_ = nullptr;
-    std::atomic<bool>  active_{false};
+    ScreenCapture*     screen_      = nullptr; // 結線対象の画面キャプチャ（非所有）
+    SystemAudioCapture* systemAudio_ = nullptr; // 結線対象のシステム音声キャプチャ（非所有）
+    std::atomic<bool>  active_{false}; // 録画中フラグ
 };
 
 } // namespace OriGine

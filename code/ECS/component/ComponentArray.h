@@ -25,7 +25,11 @@
 namespace OriGine {
 
 /// <summary>
-/// コンポーネント配列
+/// コンポーネント配列。
+/// ComponentType ごとに実体化されるテンプレートクラスで、実データ(vector&lt;ComponentType&gt;)を型付きのまま保持する。
+/// 外部(ComponentRepositoryなど)からは基底の IComponentArray インターフェース越しにしか触れないため、
+/// 呼び出し側は具体的な型を知らなくても AddComponent/GetIComponent 等で扱える(=型消去)。
+/// 型が必要な箇所(GetComponent等)だけこのテンプレートを直接使い、静的にComponentType*を返す。
 /// </summary>
 /// <typeparam name="ComponentType"></typeparam>
 template <IsComponent ComponentType>
@@ -216,14 +220,16 @@ public:
 
 public:
     /// <summary>
-    /// コンポーネントの位置情報
+    /// コンポーネントの位置情報。
+    /// ComponentHandle(uuid)から実データへ辿り着くための間接参照で、componentLocationMap_の値として使う。
     /// </summary>
     struct ComponentLocation {
         uint32_t entitySlot; // 所属するEntitySlotのDenseSlotMap上の安定ID
         uint32_t componentIndex; // EntitySlot::components内でのインデックス
     };
     /// <summary>
-    /// コンポーネントのスロット内インデックス
+    /// コンポーネントのスロット内インデックス。
+    /// 1つのEntityが同種コンポーネントを複数持てる設計のため、Entity単位でまとめて配列(vector)に格納する。
     /// </summary>
     struct EntitySlot {
         EntityHandle owner{}; // このスロットを所有するEntity
@@ -231,11 +237,16 @@ public:
     };
 
 private:
-    DenseSlotMap<EntitySlot> slots_; // Entity単位でComponent群を保持する実データ本体
+    // Entity単位でComponent群を保持する実データ本体。
+    // DenseSlotMapを使うことで、削除時に発生する要素の詰め替え(swap-and-pop等)後も
+    // 「安定ID」経由であれば同じ要素を指し続けられる(生配列のインデックスをそのままキーにはできないため)
+    DenseSlotMap<EntitySlot> slots_;
 
     // entity uuid -> DenseSlotMap stable ID
+    // EntityHandleから該当EntitySlotを定数時間で引くための逆引きテーブル
     std::unordered_map<uuids::uuid, uint32_t> entitySlotMap_;
     // component uuid -> (stable ID, component index)
+    // ComponentHandleから実データ(EntitySlot::components内の要素)を定数時間で引くための逆引きテーブル
     std::unordered_map<uuids::uuid, ComponentLocation> componentLocationMap_;
 
 public:

@@ -36,6 +36,8 @@ using namespace OriGine;
 LineRenderer::LineRenderer() : MeshRenderer() {
     meshGroup_->push_back(Mesh<ColorVertexData>());
     auto& mesh = meshGroup_->back();
+    // 頂点/インデックスバッファを100個分の容量で確保しておき(頻繁な再確保を避けるための予約)、
+    // 実際に使用中のサイズは0から始めてラインが追加されるたびに増やしていく
     mesh.Initialize(100, 100);
     mesh.SetVertexSize(0);
     mesh.SetIndexSize(0);
@@ -51,9 +53,11 @@ LineRenderer::~LineRenderer() {}
 
 void LineRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) {
     MeshRenderer::Initialize(_scene, _hostEntity);
+    // GPU上に定数バッファリソースを確保し、Map済みポインタを保持する(以降はMap/Unmapし直さず書き込むだけで済む)
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     transformBuff_.openData_.UpdateMatrix();
+    // CPU側の行列データ(openData_)をMap済みのGPUメモリへコピーする。この呼び出しをしない限りGPU側には反映されない
     transformBuff_.ConvertToBuffer();
 }
 
@@ -87,7 +91,8 @@ public:
     void Execute() override {
         Mesh<ColorVertexData>* mesh = &meshGroup_->back();
 
-        // 新しいメッシュが必要な場合
+        // 末尾メッシュの予約容量(Initializeで確保した100個分)を使い切っている場合は
+        // 新しいメッシュを追加してそちらにラインを積んでいく
         if (mesh->GetIndexCapacity() - mesh->GetIndexSize() <= 0) {
             meshGroup_->emplace_back();
             mesh = &meshGroup_->back();
@@ -121,7 +126,8 @@ public:
     /// </summary>
     void Undo() override {
         if (addedMeshIndex_ != -1) {
-            // 新しく追加したメッシュを削除
+            // Execute()で新しいメッシュを追加していた場合は、それをそのまま末尾から取り除くだけで元に戻せる
+            // (常に末尾への追加のみを行うため、popによる取り消しでインデックスがずれる心配はない)
             meshGroup_->pop_back();
         } else {
             Mesh<ColorVertexData>* mesh = &meshGroup_->back();
@@ -183,6 +189,9 @@ void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const E
             }
             ImGui::TreePop();
 
+            // ImGuiは毎フレーム再描画される即時モードGUIのため、TreeNodeが開いている間は
+            // 変更の有無に関わらず毎フレームここを通る。エディタ専用パス(_DEBUGビルドのみ)で
+            // メッシュサイズも小さいため、都度TransferData()でGPU側頂点バッファへ反映しても問題にならない
             mesh.TransferData();
             ++meshIndex;
         }
@@ -202,6 +211,9 @@ void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const E
 
 namespace OriGine {
 
+/// <summary>
+/// LineRendererの状態をjsonへ書き出す。GPU側バッファではなくCPU側ミラー(openData_やvertexes_/indexes_)を書き出す
+/// </summary>
 void to_json(nlohmann::json& _j, const LineRenderer& _comp) {
     _j["isRender"]  = _comp.isRender_;
     _j["blendMode"] = static_cast<int32_t>(_comp.currentBlend_);
@@ -243,6 +255,10 @@ void to_json(nlohmann::json& _j, const LineRenderer& _comp) {
     _j["meshGroupDatas"] = meshGroupDatas;
 }
 
+/// <summary>
+/// jsonからLineRendererの状態を復元する。
+/// meshGroup_の各要素をemplace_backで積み増していく(既存要素をclearしていない点に注意)
+/// </summary>
 void from_json(const nlohmann::json& _j, LineRenderer& _comp) {
     _j.at("isRender").get_to(_comp.isRender_);
     int32_t blendMode = 0;

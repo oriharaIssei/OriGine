@@ -2,6 +2,11 @@
 
 namespace OriGine {
 
+/// <summary>
+/// CapsuleColliderの状態をJSONへ書き出す
+/// </summary>
+/// <param name="_json">書き込み先のJSON</param>
+/// <param name="_c">シリアライズ対象のCapsuleCollider</param>
 void to_json(nlohmann::json& _json, const CapsuleCollider& _c) {
     to_json(_json, static_cast<const ICollider&>(_c));
     _json["start"]     = _c.shape_.segment.start;
@@ -10,8 +15,15 @@ void to_json(nlohmann::json& _json, const CapsuleCollider& _c) {
     _json["transform"] = _c.transform_;
 }
 
+/// <summary>
+/// JSONからCapsuleColliderの状態を復元する
+/// </summary>
+/// <param name="_json">読み込み元のJSON</param>
+/// <param name="_c">復元先のCapsuleCollider</param>
 void from_json(const nlohmann::json& _json, CapsuleCollider& _c) {
     from_json(_json, static_cast<ICollider&>(_c));
+    // 古いセーブデータにキーが無い場合でも読み込みが壊れないよう、
+    // 各項目の存在をcontains()で確認してから取得する
     if (_json.contains("start")) {
         _json.at("start").get_to(_c.shape_.segment.start);
     }
@@ -26,8 +38,15 @@ void from_json(const nlohmann::json& _json, CapsuleCollider& _c) {
     }
 }
 
+/// <summary>
+/// デバッグ用GUIでCapsule形状とTransformのパラメータを編集する
+/// </summary>
+/// <param name="_scene">対象シーン</param>
+/// <param name="_handle">対象エンティティ</param>
+/// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void CapsuleCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    // エディタ専用のUIコードなので、リリースビルドには含めない
 
     ICollider::Edit(_scene, _handle, _parentLabel);
 
@@ -47,16 +66,25 @@ void CapsuleCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] cons
 #endif // _DEBUG
 }
 
+/// <summary>
+/// ローカル形状(shape_)とTransformの現在値から、ワールド空間のCapsule(worldShape_)を再計算する
+/// </summary>
 void CapsuleCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
+    // start/endは位置なので、平行移動を含むワールド行列全体で変換する
     this->worldShape_.segment.start = shape_.segment.start * transform_.worldMat;
     this->worldShape_.segment.end   = shape_.segment.end * transform_.worldMat;
-    // スケールの最大値を半径に適用
+    // 半径はスカラーなので軸ごとに異なるスケールをそのまま反映することはできない。
+    // 非一様スケールがかかっていても判定が小さくなりすぎないよう、各軸スケールの最大値を採用する
     Vec3f scale              = transform_.GetWorldScale();
     float maxScale           = std::max({scale[X], scale[Y], scale[Z]});
     this->worldShape_.radius = shape_.radius * maxScale;
 }
 
+/// <summary>
+/// ワールド空間のAABBを取得する
+/// </summary>
+/// <returns>広域フェーズ（空間ハッシュ登録など）に使うワールド空間の外接AABB</returns>
 Bounds::AABB CapsuleCollider::ToWorldAABB() const {
     Vec3f minPt, maxPt;
     const Vec3f& start = worldShape_.segment.start;

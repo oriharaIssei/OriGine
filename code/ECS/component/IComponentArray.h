@@ -24,7 +24,10 @@ static constexpr uint32_t kDefaultComponentArraySize = 128; // ComponentArray初
 // IComponentArray
 //============================================================
 /// <summary>
-/// コンポーネント配列インターフェース
+/// コンポーネント配列インターフェース。
+/// ComponentArray&lt;T&gt; を具体的な型を知らずに扱うための基底インターフェースで、
+/// ComponentRepositoryはこのインターフェース越しに(型名文字列をキーとして)全ての種類の
+/// ComponentArrayを一様に初期化・追加・削除・シリアライズできる(型消去)
 /// </summary>
 class IComponentArray {
 public:

@@ -12,6 +12,9 @@ using namespace OriGine;
 ComponentRepository::ComponentRepository()  = default;
 ComponentRepository::~ComponentRepository() = default;
 
+/// <summary>
+/// 全てのコンポーネント配列をクリアする.
+/// </summary>
 void ComponentRepository::Clear() {
     for (auto& [typeName, componentArray] : componentArrays_) {
         componentArray->Finalize();
@@ -19,6 +22,9 @@ void ComponentRepository::Clear() {
     componentArrays_.clear();
 }
 
+/// <summary>
+/// 指定した型名のコンポーネント配列を登録する
+/// </summary>
 bool ComponentRepository::RegisterComponentArray(const std::string& _compTypeName) {
     if (componentArrays_.find(_compTypeName) != componentArrays_.end()) {
         LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", _compTypeName);
@@ -36,6 +42,9 @@ bool ComponentRepository::RegisterComponentArray(const std::string& _compTypeNam
     return true;
 }
 
+/// <summary>
+/// 指定した型名のコンポーネント配列を登録解除する
+/// </summary>
 void ComponentRepository::UnregisterComponentArray(const std::string& _typeName, bool _isFinalize) {
     auto itr = componentArrays_.find(_typeName);
     if (itr != componentArrays_.end()) {
@@ -46,6 +55,9 @@ void ComponentRepository::UnregisterComponentArray(const std::string& _typeName,
     }
 }
 
+/// <summary>
+/// 指定した型名のコンポーネント配列を取得する
+/// </summary>
 IComponentArray* ComponentRepository::GetComponentArray(const std::string& _typeName) {
     auto itr = componentArrays_.find(_typeName);
     if (itr == componentArrays_.end()) {
@@ -60,6 +72,9 @@ IComponentArray* ComponentRepository::GetComponentArray(const std::string& _type
     return itr->second.get();
 }
 
+/// <summary>
+/// 指定したエンティティにコンポーネントを追加する
+/// </summary>
 void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTypeName, const EntityHandle& _handle) {
     auto* componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
@@ -69,12 +84,18 @@ void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTy
     }
 }
 
+/// <summary>
+/// 指定したエンティティにコンポーネント群を追加する
+/// </summary>
 void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, const EntityHandle& _handle) {
     for (const auto& compTypeName : _compTypeNames) {
         AddComponent(_scene, compTypeName, _handle);
     }
 }
 
+/// <summary>
+/// 指定したエンティティからコンポーネントを削除する
+/// </summary>
 void ComponentRepository::RemoveComponent(const std::string& _compTypeName, const EntityHandle& _handle, int32_t _compIndex) {
     auto componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
@@ -84,12 +105,22 @@ void ComponentRepository::RemoveComponent(const std::string& _compTypeName, cons
     }
 }
 
+/// <summary>
+/// 指定したエンティティから全てのコンポーネントを削除する。
+/// 型ごとの ComponentArray を1つずつ回り、各配列に「このEntityの分だけ消して」と依頼する形を取る。
+/// 呼び出し側(Scene::ExecuteDeleteEntities)は、このコンポーネント一括削除 -> システムからの登録解除 ->
+/// EntityRepositoryでのEntity実体削除、という順序を守って呼び出す。逆順にすると、
+/// システムやコンポーネントが解放済み/無効化済みのエンティティを指したままになってしまう
+/// </summary>
 void ComponentRepository::RemoveEntity(const EntityHandle& _handle) {
     for (auto& [typeName, componentArray] : componentArrays_) {
         componentArray->RemoveAllComponents(_handle);
     }
 }
 
+/// <summary>
+/// 指定したエンティティが持つ全てのコンポーネントを取得する
+/// </summary>
 std::unordered_map<std::string, std::vector<IComponent*>> OriGine::ComponentRepository::GetAllComponentsOfEntity(const EntityHandle& _handle) {
     std::unordered_map<std::string, std::vector<IComponent*>> result;
 

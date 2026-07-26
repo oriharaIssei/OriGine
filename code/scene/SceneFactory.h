@@ -39,6 +39,11 @@ namespace OriGine {
 				return;
 			}
 
+				// Systems を Entities より先にロードする必要がある。
+				// LoadEntities -> LoadEntitySystems は「そのエンティティがどのシステムに所属するか」を
+				// Scene の SystemRunner に既に登録済みのシステムから検索して紐付けるため、
+				// 先にシステム自体が登録されていないと紐付け先が見つからず、
+				// エンティティをどのシステムにも所属させられなくなってしまう
 			if(_data.contains("Systems") && _data.contains("CategoryActivity")){
 				LoadSystems(_scene,_data["Systems"],_data["CategoryActivity"]);
 			}

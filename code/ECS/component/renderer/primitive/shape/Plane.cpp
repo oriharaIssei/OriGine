@@ -20,7 +20,7 @@ void Plane::CreateMesh(TextureColorMesh* _mesh) {
         _mesh->indexes_.clear();
     }
 
-    // XZ 平面を作成
+    // XY 平面を作成 (Z=0固定でX,Yのみを変化させているため。デフォルト法線はnormal_=(0,0,1)で+Z方向)
     _mesh->SetVertexData({{Vec4f(-size_[X], size_[Y], 0.0f, 1.0f), Vec2f(0.0f, 0.0f), normal_,kWhite},
         {Vec4f(size_[X], size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], 0.0f), normal_, kWhite},
         {Vec4f(-size_[X], -size_[Y], 0.0f, 1.0f), Vec2f(0.0f, uv_[Y]), normal_, kWhite},

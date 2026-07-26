@@ -15,11 +15,25 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 OriGine::ScaleDeformSystem::ScaleDeformSystem() : ISystem(SystemCategory::Effect) {}
 
+/// <summary>
+/// 初期化処理（このシステムは状態を持たないため何もしない）
+/// </summary>
 void OriGine::ScaleDeformSystem::Initialize() {}
+/// <summary>
+/// 終了処理（このシステムは状態を持たないため何もしない）
+/// </summary>
 void OriGine::ScaleDeformSystem::Finalize() {}
 
+/// <summary>
+/// 速度・加速度に応じてSquashStretchComponentのターゲットスケールを求め、
+/// バネ運動としてTransformのscaleへ滑らかに追従させる
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void OriGine::ScaleDeformSystem::UpdateEntity(const EntityHandle& _handle) {
     float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
@@ -92,7 +106,7 @@ void OriGine::ScaleDeformSystem::UpdateEntity(const EntityHandle& _handle) {
             // exit 確認
             hasAccelImpactByAxis[i] = false;
         }
-        squashStretch->SetVelocityStretchActive(AxisIndex(i), hasAccelImpactByAxis[i]);
+        squashStretch->SetAccelSquashActive(AxisIndex(i), hasAccelImpactByAxis[i]);
     }
 
     /// バネによる計算

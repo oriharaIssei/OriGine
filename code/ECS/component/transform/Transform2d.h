@@ -47,6 +47,9 @@ public:
 
 public:
     Vec2f scale     = {1.0f, 1.0f};
+    // 2D では回転がXY平面内の1自由度(スクリーンに垂直な軸周りの回転)しかないため、
+    // 3D の Transform のようにクォータニオンを使わず、角度(ラジアン)そのものを保持する。
+    // 角度同士は単純な加算で合成できる(CalculateWorldRotate 参照)ため、この方が軽量
     float rotate    = 0.0f; // ラジアン
     Vec2f translate = {0.0f, 0.0f};
 
@@ -56,6 +59,7 @@ public:
 
 public:
     Vec2f GetWorldTranslate() const {
+        // 3x3 のアフィン行列(行ベクトル規約)では、平行移動成分は3行目(インデックス2)に入る
         return {worldMat[2][X], worldMat[2][Y]};
     }
 

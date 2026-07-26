@@ -11,6 +11,9 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// グレースケール度合いを渡すための定数バッファを GPU 上に確保する
+/// </summary>
 void OriGine::GrayscaleComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
     constantBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
@@ -23,6 +26,9 @@ void OriGine::GrayscaleComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*
 #endif // _DEBUG
 }
 
+/// <summary>
+/// GrayscaleComponent を JSON へ書き出す
+/// </summary>
 void OriGine::to_json(nlohmann::json& _j, const GrayscaleComponent& _component) {
     _j = nlohmann::json{
         {"isEnabled", _component.isEnabled_},
@@ -30,6 +36,9 @@ void OriGine::to_json(nlohmann::json& _j, const GrayscaleComponent& _component) 
     };
 }
 
+/// <summary>
+/// JSON から GrayscaleComponent を復元する
+/// </summary>
 void OriGine::from_json(const nlohmann::json& _j, GrayscaleComponent& _component) {
     _component.isEnabled_                       = _j.at("isEnabled").get<bool>();
     _component.constantBuffer_.openData_.amount = _j.at("amount").get<float>();

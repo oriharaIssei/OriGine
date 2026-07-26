@@ -16,6 +16,10 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// デバッグレイヤーとGPUベース検証を有効化する。ID3D12Deviceの生成より前に呼び出す必要がある
+/// （デバイス生成後にレイヤーを有効化しても、生成済みデバイスには適用されないため）。
+/// </summary>
 void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
     if (debugController_) {
         LOG_CRITICAL("DebugController is already initialized.");
@@ -24,7 +28,8 @@ void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController_)))) {
         // デバッグレイヤーの有効化
         debugController_->EnableDebugLayer();
-        // GPU側でもデバッグさせる
+        // GPU側でもデバッグさせる（CPU側の検証だけでは検出できない、実行順序に依存する
+        // リソース破壊やバリア漏れなどをGPU実行時にも検証させる。ただし負荷が高いためデバッグ時のみ）
         debugController_->SetEnableGPUBasedValidation(TRUE);
 
         // DRED (Device Removed Extended Data) を強制的に有効化し、
@@ -36,6 +41,10 @@ void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
     }
 }
 
+/// <summary>
+/// 終了処理。全てのDirectX12/DXGIオブジェクトが解放された後に呼び出すことで、
+/// 解放し忘れているオブジェクト（リーク）をデバッグ出力に一覧表示できる。
+/// </summary>
 void DxDebug::FinalizeDebugger() {
     infoQueue_.Reset();
     IDXGIDebug1* debug;
@@ -48,6 +57,10 @@ void DxDebug::FinalizeDebugger() {
     }
 }
 
+/// <summary>
+/// ID3D12InfoQueueを生成する。ID3D12Deviceの生成後でなければ取得できないため、
+/// InitializeDebugger()とは別関数として、デバイス生成直後に呼び出す想定になっている。
+/// </summary>
 void DxDebug::CreateInfoQueue() {
     // ID3D12InfoQueueの取得
     if (debugController_) {
@@ -76,6 +89,9 @@ DxDebug::~DxDebug() {
     FinalizeDebugger();
 }
 
+/// <summary>
+/// ブレーク対象とする最小重要度を設定する。
+/// </summary>
 void DxDebug::SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY _severity) {
     if (infoQueue_) {
         infoQueue_->SetBreakOnSeverity(_severity, TRUE);
