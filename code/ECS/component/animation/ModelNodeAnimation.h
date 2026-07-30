@@ -7,8 +7,11 @@
 #include <string>
 
 /// engin
-#include "component/animation/AnimationData.h"
+// asset
+#include "asset/AnimationAsset.h"
+#include "asset/manager/AssetManager.h"
 // component
+#include "component/animation/AnimationData.h"
 #include "component/IComponent.h"
 
 /// math
@@ -66,7 +69,11 @@ private:
     std::string directory_ = ""; // アニメーションファイルのディレクトリ
     std::string fileName_  = ""; // アニメーションファイル名
 
-    std::shared_ptr<AnimationData> data_ = nullptr;
+    // アニメーション本体は AnimationAssetManager が一元管理する。
+    // ここでは参照するアセットのインデックスだけを持ち、
+    // 実体は GetData() でその都度引き直す（同じファイルを使う他の
+    // コンポーネントとデータが共有される点は従来の shared_ptr と同じ挙動）
+    size_t animationAssetIndex_ = kInvalidAssetIndex;
 
     //* アニメーションの再生時間(data にも あるが instance 毎に変更できるようにこちらで管理する)
     float duration_             = 0.0f; // (秒)
@@ -90,8 +97,34 @@ public:
     float GetCurrentAnimationTime() const { return currentAnimationTime_; }
     void SetCurrentAnimationTime(float _currentAnimationTime) { currentAnimationTime_ = _currentAnimationTime; }
 
-    AnimationData* GetData() const { return data_.get(); }
-    void SetData(std::shared_ptr<AnimationData> _data) { data_ = std::move(_data); }
+    /// <summary>
+    /// 参照中のアニメーションデータを取得する.
+    /// </summary>
+    /// <returns>未読み込み・解放済みの場合は nullptr</returns>
+    AnimationData* GetData() const;
+
+    /// <summary>参照している アニメーションアセットのインデックスを取得する.</summary>
+    size_t GetAnimationAssetIndex() const { return animationAssetIndex_; }
+
+private:
+    /// <summary>
+    /// 参照中のアニメーションアセットを解放し、参照を無効化する.
+    /// </summary>
+    void ReleaseAnimationAsset();
+
+    /// <summary>
+    /// directory_ / fileName_ に従ってアニメーションアセットを取得し直す.
+    /// </summary>
+    void ReloadAnimationAsset();
+
+    /// <summary>
+    /// アニメーションデータが未参照であれば、空のアニメーションを新規登録して参照する.
+    /// エディタ上でモデルのノードツリーから手作業でアニメーションを組み立てる用.
+    /// </summary>
+    /// <returns>参照中のアニメーションデータ</returns>
+    AnimationData* GetOrCreateData();
+
+public:
 
     Vec3f GetCurrentScale(const std::string& _nodeName) const;
     Quaternion GetCurrentRotate(const std::string& _nodeName) const;

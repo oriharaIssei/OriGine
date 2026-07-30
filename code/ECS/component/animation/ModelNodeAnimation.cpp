@@ -4,8 +4,9 @@
 #define RESOURCE_DIRECTORY
 #include "editor/EditorController.h"
 #include "EngineInclude.h"
-// module
-#include "AnimationManager.h"
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/manager/AnimationAssetManager.h"
 
 // assets
 #include "model/Model.h"
@@ -28,6 +29,85 @@
 
 using namespace OriGine;
 
+namespace {
+/// <summary>
+/// AnimationAssetManager を取得する（未登録なら nullptr）.
+/// </summary>
+AssetManager<AnimationAsset>* GetAnimationAssetManager() {
+    return AssetSystem::GetInstance()->GetManager<AnimationAsset>();
+}
+} // namespace
+
+/// <summary>
+/// 参照中のアニメーションデータを取得する.
+/// </summary>
+AnimationData* ModelNodeAnimation::GetData() const {
+    if (animationAssetIndex_ == kInvalidAssetIndex) {
+        return nullptr;
+    }
+    auto* manager = GetAnimationAssetManager();
+    if (manager == nullptr) {
+        return nullptr;
+    }
+    AnimationAsset* asset = manager->GetMutableAsset(animationAssetIndex_);
+    return asset ? &asset->data : nullptr;
+}
+
+/// <summary>
+/// 参照中のアニメーションアセットを解放し、参照を無効化する.
+/// </summary>
+void ModelNodeAnimation::ReleaseAnimationAsset() {
+    if (animationAssetIndex_ == kInvalidAssetIndex) {
+        return;
+    }
+    if (auto* manager = GetAnimationAssetManager()) {
+        manager->ReleaseAsset(animationAssetIndex_);
+    }
+    animationAssetIndex_ = kInvalidAssetIndex;
+}
+
+/// <summary>
+/// directory_ / fileName_ に従ってアニメーションアセットを取得し直す.
+/// </summary>
+void ModelNodeAnimation::ReloadAnimationAsset() {
+    ReleaseAnimationAsset();
+
+    if (fileName_.empty()) {
+        return;
+    }
+    auto* manager = GetAnimationAssetManager();
+    if (manager == nullptr) {
+        LOG_ERROR("AnimationAssetManager is not registered.");
+        return;
+    }
+    animationAssetIndex_ = manager->LoadAsset(directory_ + "/" + fileName_);
+}
+
+/// <summary>
+/// アニメーションデータが未参照であれば、空のアニメーションを新規登録して参照する.
+/// </summary>
+AnimationData* ModelNodeAnimation::GetOrCreateData() {
+    if (AnimationData* data = GetData()) {
+        return data;
+    }
+
+    auto* manager = GetAnimationAssetManager();
+    if (manager == nullptr) {
+        LOG_ERROR("AnimationAssetManager is not registered.");
+        return nullptr;
+    }
+
+    // まだファイルを持たない新規アニメーション。
+    // ファイルパスが決まっていない場合でも一意なキーが要るため、
+    // 未保存であることが分かる論理パスを組み立てて登録する
+    const std::string logicalPath = fileName_.empty()
+                                        ? "memory://ModelNodeAnimation/" + std::to_string(reinterpret_cast<uintptr_t>(this))
+                                        : directory_ + "/" + fileName_;
+
+    animationAssetIndex_ = manager->RegisterAsset(logicalPath, AnimationAsset{});
+    return GetData();
+}
+
 /// <summary>
 /// 再生時刻をリセットし、必要ならアニメーションファイルを読み込む
 /// </summary>
@@ -36,12 +116,8 @@ void ModelNodeAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_en
     currentAnimationTime_  = 0.0f;
     animationState_.isEnd_ = false;
 
-    if (!data_ || data_->animationNodes_.empty()) {
-        return;
-    }
-
     if (!fileName_.empty()) {
-        data_ = AnimationManager::GetInstance()->Load(directory_, fileName_);
+        ReloadAnimationAsset();
     }
 }
 
@@ -61,9 +137,11 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory));
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
             commandCombo->SetFuncOnAfterCommand([this]() {
-                data_ = AnimationManager::GetInstance()->Load(directory_, fileName_);
+                ReloadAnimationAsset();
 
-                duration_ = data_->duration;
+                if (const AnimationData* data = GetData()) {
+                    duration_ = data->duration;
+                }
             },
                 true);
 
@@ -73,25 +151,26 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
 
     ImGui::SameLine();
     if (ImGui::Button(("Save##" + _parentLabel).c_str())) {
-        if (data_ && !fileName_.empty()) {
-            data_->duration = duration_;
-            AnimationManager::GetInstance()->SaveAnimation(directory_, fileName_, *data_);
+        AnimationData* data = GetData();
+        if (data && !fileName_.empty()) {
+            data->duration = duration_;
+            AnimationSerializer::Save(directory_, fileName_, *data);
         }
     }
 
     ImGui::SameLine();
     if (ImGui::Button(("Save As##" + _parentLabel).c_str())) {
-        if (data_) {
+        if (AnimationData* data = GetData()) {
             std::string directory, filename;
             if (MyFileSystem::SelectFileDialog(
                     kApplicationResourceDirectory,
                     directory,
                     filename,
                     {"anm"})) {
-                directory_ = kApplicationResourceDirectory + "/" + directory;
-                fileName_  = filename;
-                data_->duration = duration_;
-                AnimationManager::GetInstance()->SaveAnimation(directory_, fileName_, *data_);
+                directory_     = kApplicationResourceDirectory + "/" + directory;
+                fileName_      = filename;
+                data->duration = duration_;
+                AnimationSerializer::Save(directory_, fileName_, *data);
             }
         }
     }
@@ -114,15 +193,13 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
 
         if (modelData) {
             if (ImGui::TreeNode(("Node Tree##" + _parentLabel).c_str())) {
-                // data_ がなければ作成
-                if (!data_) {
-                    data_ = std::make_shared<AnimationData>();
-                }
+                // アニメーションデータがなければ空のものを新規登録して参照する
+                AnimationData* data = GetOrCreateData();
 
                 // 再帰的にノードツリーを表示
                 std::function<void(const ModelNode&)> showNodeTree;
                 showNodeTree = [&](const ModelNode& node) {
-                    bool hasAnim = data_->animationNodes_.count(node.name) > 0;
+                    bool hasAnim = data->animationNodes_.count(node.name) > 0;
 
                     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
                     if (node.children.empty()) {
@@ -145,13 +222,13 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
                     if (!hasAnim) {
                         ImGui::SameLine();
                         if (ImGui::SmallButton(("+##Add" + node.name + _parentLabel).c_str())) {
-                            data_->animationNodes_[node.name] = ModelAnimationNode();
+                            data->animationNodes_[node.name] = ModelAnimationNode();
                         }
                     } else {
                         // 削除ボタン
                         ImGui::SameLine();
                         if (ImGui::SmallButton(("-##Remove" + node.name + _parentLabel).c_str())) {
-                            data_->animationNodes_.erase(node.name);
+                            data->animationNodes_.erase(node.name);
                         }
                     }
 
@@ -163,7 +240,9 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
                     }
                 };
 
-                showNodeTree(modelData->rootNode);
+                if (data) {
+                    showNodeTree(modelData->rootNode);
+                }
                 ImGui::TreePop();
             }
         }
@@ -175,13 +254,12 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
             ImGui::SameLine();
             if (ImGui::Button(("Add##NewNode" + _parentLabel).c_str())) {
                 if (strlen(newNodeName) > 0) {
-                    if (!data_) {
-                        data_ = std::make_shared<AnimationData>();
-                    }
+                    // アニメーションデータがなければ空のものを新規登録して参照する
+                    AnimationData* data = GetOrCreateData();
                     std::string name(newNodeName);
-                    if (data_->animationNodes_.find(name) == data_->animationNodes_.end()) {
-                        data_->animationNodes_[name] = ModelAnimationNode();
-                        newNodeName[0]               = '\0';
+                    if (data && data->animationNodes_.find(name) == data->animationNodes_.end()) {
+                        data->animationNodes_[name] = ModelAnimationNode();
+                        newNodeName[0]              = '\0';
                     }
                 }
             }
@@ -191,8 +269,9 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
     ImGui::Separator();
 
     // ノードごとのキーフレーム編集
-    if (data_ && !data_->animationNodes_.empty()) {
-        for (auto& [nodeName, nodeAnim] : data_->animationNodes_) {
+    AnimationData* editingData = GetData();
+    if (editingData && !editingData->animationNodes_.empty()) {
+        for (auto& [nodeName, nodeAnim] : editingData->animationNodes_) {
             if (!ImGui::TreeNode((nodeName + "##" + _parentLabel).c_str())) {
                 continue;
             }
@@ -238,6 +317,8 @@ void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[mayb
 }
 
 void ModelNodeAnimation::Finalize() {
+    // 参照カウントを戻しておかないと、コンポーネント破棄後もアセットが解放されない
+    ReleaseAnimationAsset();
 }
 
 /// <summary>
@@ -281,8 +362,13 @@ void ModelNodeAnimation::UpdateModel(float _deltaTime, Model* _model, const Matr
 /// Nodeアニメーションの現在のローカル行列を計算
 /// </summary>
 Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& _nodeName) const {
-    auto it = data_->animationNodes_.find(_nodeName);
-    if (it == data_->animationNodes_.end()) {
+    const AnimationData* data = GetData();
+    if (data == nullptr) {
+        return MakeMatrix4x4::Identity();
+    }
+
+    auto it = data->animationNodes_.find(_nodeName);
+    if (it == data->animationNodes_.end()) {
         // ノードに対応するアニメーションがない場合、単位行列を返す
         return MakeMatrix4x4::Identity();
     }
@@ -335,8 +421,13 @@ void ModelNodeAnimation::ApplyAnimationToNodes(
 /// 指定ノードの現在時刻でのスケール値を取得(アニメーションが無ければ等倍)
 /// </summary>
 Vec3f ModelNodeAnimation::GetCurrentScale(const std::string& _nodeName) const {
-    auto itr = data_->animationNodes_.find(_nodeName);
-    if (itr == data_->animationNodes_.end()) {
+    const AnimationData* data = GetData();
+    if (data == nullptr) {
+        return Vec3f(1.0f, 1.0f, 1.0f);
+    }
+
+    auto itr = data->animationNodes_.find(_nodeName);
+    if (itr == data->animationNodes_.end()) {
         return Vec3f(1.0f, 1.0f, 1.0f);
     }
 
@@ -350,8 +441,13 @@ Vec3f ModelNodeAnimation::GetCurrentScale(const std::string& _nodeName) const {
 /// 指定ノードの現在時刻での回転値を取得(アニメーションが無ければ単位クォータニオン)
 /// </summary>
 Quaternion ModelNodeAnimation::GetCurrentRotate(const std::string& _nodeName) const {
-    auto itr = data_->animationNodes_.find(_nodeName);
-    if (itr == data_->animationNodes_.end()) {
+    const AnimationData* data = GetData();
+    if (data == nullptr) {
+        return Quaternion::Identity();
+    }
+
+    auto itr = data->animationNodes_.find(_nodeName);
+    if (itr == data->animationNodes_.end()) {
         return Quaternion::Identity();
     }
 
@@ -365,8 +461,13 @@ Quaternion ModelNodeAnimation::GetCurrentRotate(const std::string& _nodeName) co
 /// 指定ノードの現在時刻での平行移動値を取得(アニメーションが無ければゼロベクトル)
 /// </summary>
 Vec3f ModelNodeAnimation::GetCurrentTranslate(const std::string& _nodeName) const {
-    auto itr = data_->animationNodes_.find(_nodeName);
-    if (itr == data_->animationNodes_.end()) {
+    const AnimationData* data = GetData();
+    if (data == nullptr) {
+        return Vec3f(0.0f, 0.0f, 0.0f);
+    }
+
+    auto itr = data->animationNodes_.find(_nodeName);
+    if (itr == data->animationNodes_.end()) {
         return Vec3f(0.0f, 0.0f, 0.0f);
     }
     if (itr->second.interpolationType == InterpolationType::STEP) {

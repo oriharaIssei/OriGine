@@ -20,10 +20,12 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+// asset
+#include "asset/manager/AssetManager.h"
+#include "asset/ShaderAsset.h"
 // dx12object
 #include "directX12/BlendMode.h"
 #include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderCompiler.h"
 
 namespace OriGine {
 
@@ -164,7 +166,13 @@ public:
 using ShaderInfo = ShaderInformation;
 
 /// <summary>
-/// シェーダーのコンパイル結果と、それに基づく PSO の一元管理を行うシングルトンクラス.
+/// パイプラインステートオブジェクト (PSO) の一元管理を行うシングルトンクラス.
+///
+/// シェーダーバイナリそのものの読み込み・コンパイル・キャッシュは
+/// ShaderAssetManager が担当する. このクラスは
+///   - 「短いキー名 ("Object3dTexture.VS" 等) → シェーダーアセット」の対応付け
+///   - ShaderInformation から生成した PSO のキャッシュ
+/// を受け持つ.
 /// </summary>
 class ShaderManager {
 public:
@@ -178,12 +186,15 @@ public:
 
 public:
     /// <summary>
-    /// マネージャの初期化を行う. シェーダーコンパイラの生成などを含む.
+    /// マネージャの初期化を行う.
+    /// シェーダーのコンパイラ本体は ShaderAssetManager 側が保持するため、
+    /// ここで行うのはキャッシュのクリアのみ.
     /// </summary>
     void Initialize();
 
     /// <summary>
-    /// 全てのキャッシュ（シェーダーブロブ、PSO）を解放する.
+    /// PSO を解放し、参照していたシェーダーアセットを手放す.
+    /// AssetSystem::Finalize より先に呼ぶこと.
     /// </summary>
     void Finalize();
 
@@ -198,9 +209,10 @@ public:
     PipelineStateObj* CreatePso(const std::string& _key, const ShaderInformation& _shaderInfo, Microsoft::WRL::ComPtr<ID3D12Device> _device);
 
     /// <summary>
-    /// 指定されたシェーダーファイルを読み込み、コンパイルしてメモリにキャッシュする.
+    /// 指定されたシェーダーファイルを読み込み、コンパイル結果を ShaderAssetManager 経由でキャッシュする.
+    /// 同じファイル・同じプロファイルの組み合わせは再コンパイルされない.
     /// </summary>
-    /// <param name="_fileName">シェーダーファイル名</param>
+    /// <param name="_fileName">シェーダーファイル名（拡張子 .hlsl は付けない。これがそのままキーになる）</param>
     /// <param name="_directory">ファイルが存在するディレクトリのパス</param>
     /// <param name="_profile">コンパイルプロファイル（vs_6_0, ps_6_0 など）</param>
     /// <returns>成功した場合は true</returns>
@@ -212,39 +224,25 @@ private:
     ShaderManager(const ShaderManager&)                  = delete;
     const ShaderManager& operator=(const ShaderManager&) = delete;
 
+    /// <summary>
+    /// ShaderAssetManager を取得する.
+    /// </summary>
+    /// <returns>未登録の場合は nullptr</returns>
+    static AssetManager<ShaderAsset>* GetShaderAssetManager();
+
 private:
-    /// <summary>ファイル名（またはキー）とコンパイル済みシェーダーブロブのマップ</summary>
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<IDxcBlob>> shaderBlobMap_;
-    /// <summary>コンパイル処理を行うヘルパークラス</summary>
-    std::unique_ptr<ShaderCompiler> shaderCompiler_;
+    /// <summary>短いキー名（"Object3dTexture.VS" 等）とシェーダーアセットインデックスのマップ</summary>
+    std::unordered_map<std::string, size_t> shaderKeyToAssetIndex_;
     /// <summary>キー名と生成済み PSO のマップ</summary>
     std::unordered_map<std::string, std::unique_ptr<PipelineStateObj>> psoMap_;
 
 public:
     /// <summary>
-    /// シェーダーコンパイラへのポインタを取得する.
+    /// 指定されたシェーダーが既に読み込み済みかを確認する.
     /// </summary>
-    ShaderCompiler* GetShaderCompiler() const { return shaderCompiler_.get(); }
-
-    /// <summary>
-    /// コンパイル済みのシェーダーブロブを外部から登録する.
-    /// </summary>
-    /// <param name="_fileName">登録名（キー）</param>
-    /// <param name="_shaderBlob">コンパイル済みデータ</param>
-    /// <returns>新規登録された場合は true</returns>
-    bool RegisterShaderBlob(const std::string& _fileName, Microsoft::WRL::ComPtr<IDxcBlob> _shaderBlob);
-
-    /// <summary>
-    /// 指定されたシェーダーが既にコンパイル・登録されているかを確認する.
-    /// </summary>
-    bool IsRegisteredShaderBlob(const std::string& _fileName) const;
-
-    /// <summary>
-    /// シェーダーブロブを強制的に上書き、または新規登録する.
-    /// </summary>
-    void ForciblyRegisterShaderBlob(const std::string& _fileName, Microsoft::WRL::ComPtr<IDxcBlob> _shaderBlob) {
-        shaderBlobMap_[_fileName] = std::move(_shaderBlob);
-    };
+    bool IsRegisteredShaderBlob(const std::string& _key) const {
+        return shaderKeyToAssetIndex_.find(_key) != shaderKeyToAssetIndex_.end();
+    }
 
     /// <summary>
     /// 指定されたキーの PSO が登録済みかを確認する.
@@ -261,11 +259,11 @@ public:
     PipelineStateObj* GetPipelineStateObj(const std::string& _key);
 
     /// <summary>
-    /// 登録済みのシェーダーブロブを取得する.
+    /// 読み込み済みのシェーダーバイナリを取得する.
     /// </summary>
-    /// <param name="_key">識別キー（ファイル名など）</param>
-    /// <returns>ブロブデータポインタ. 存在しない場合は nullptr.</returns>
-    Microsoft::WRL::ComPtr<IDxcBlob>* GetShaderBlob(const std::string& _key);
+    /// <param name="_key">識別キー（LoadShader に渡したファイル名）</param>
+    /// <returns>ブロブポインタ. 存在しない場合は nullptr.</returns>
+    IDxcBlob* GetShaderBlob(const std::string& _key) const;
 };
 
 } // namespace OriGine

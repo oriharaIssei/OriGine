@@ -6,6 +6,10 @@
 #include <string>
 
 /// engine
+// asset
+#include "asset/AnimationAsset.h"
+#include "asset/manager/AssetManager.h"
+// component
 #include "AnimationData.h"
 #include "model/Model.h"
 
@@ -85,9 +89,11 @@ public:
 
 private:
     struct AnimationCombo {
-        std::string directory                        = "";
-        std::string fileName                         = "";
-        std::shared_ptr<AnimationData> animationData = nullptr;
+        std::string directory = "";
+        std::string fileName  = "";
+        // アニメーション本体は AnimationAssetManager が一元管理する。
+        // ここでは参照するアセットのインデックスだけを持つ
+        size_t animationAssetIndex = kInvalidAssetIndex;
 
         bool prePlay                  = false; // 前のアニメーションの状態
         AnimationState animationState = {false, false, false}; // アニメーションの状態
@@ -100,6 +106,25 @@ private:
         float blendDuration          = 0.1f; // ブレンドにかかる時間
         float currentTime            = 0.0f; // 現在のブレンド時間
     };
+
+private:
+    /// <summary>
+    /// アセットインデックスからアニメーションデータを解決する.
+    /// </summary>
+    /// <returns>未読み込み・解放済みの場合は nullptr</returns>
+    static const AnimationData* ResolveAnimationData(size_t _assetIndex);
+
+    /// <summary>
+    /// AnimationCombo の directory / fileName に従ってアセットを取得し直す.
+    /// 旧アセットは解放されるため、参照カウントの辻褄が合う.
+    /// </summary>
+    /// <returns>読み込まれたアニメーションデータ. 失敗時は nullptr</returns>
+    static const AnimationData* LoadAnimationAsset(AnimationCombo& _combo);
+
+    /// <summary>
+    /// AnimationCombo が参照しているアセットを解放する.
+    /// </summary>
+    static void ReleaseAnimationAsset(AnimationCombo& _combo);
 
 private:
     EntityHandle entityHandle_         = EntityHandle();
@@ -184,7 +209,9 @@ public:
 
     const std::string& GetDirectory(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].directory; }
     const std::string& GetFileName(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].fileName; }
-    const std::shared_ptr<AnimationData>& GetAnimationData(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationData; }
+    const AnimationData* GetAnimationData(int32_t _animationIndex = 0) const {
+        return ResolveAnimationData(animationTable_[_animationIndex].animationAssetIndex);
+    }
     const Skeleton& GetSkeleton() const {
         return skeleton_;
     }
@@ -228,13 +255,12 @@ public:
         return empty;
     }
 
-    const std::shared_ptr<AnimationData>& GetAnimationData(const std::string& name) const {
+    const AnimationData* GetAnimationData(const std::string& name) const {
         int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
-            return animationTable_[idx].animationData;
+            return ResolveAnimationData(animationTable_[idx].animationAssetIndex);
         }
-        static const std::shared_ptr<AnimationData> nullData = nullptr;
-        return nullData;
+        return nullptr;
     }
 
     bool IsPlay(const std::string& name) const {

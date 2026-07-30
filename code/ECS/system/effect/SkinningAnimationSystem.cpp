@@ -25,7 +25,7 @@ using namespace OriGine;
 /// ローカル行列(localMatrix)へ組み立てられ、親子関係をたどってスケルトン空間行列へ連鎖する。
 /// キーフレーム間の補間には CalculateValue::Linear を使い、時間軸上の中間値を線形補間で求めている。
 /// </remarks>
-static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, float _animationTime) {
+static void ApplyAnimation(Skeleton& _skeleton, const AnimationData* _animationData, float _animationTime) {
     for (Joint& joint : _skeleton.joints) {
         auto itr = _animationData->animationNodes_.find(joint.name);
         if (itr == _animationData->animationNodes_.end()) {
@@ -52,8 +52,8 @@ static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, f
 /// </remarks>
 static void ApplyBlendedAnimation(
     Skeleton& _skeleton,
-    AnimationData* _animA, float _timeA,
-    AnimationData* _animB, float _timeB,
+    const AnimationData* _animA, float _timeA,
+    const AnimationData* _animB, float _timeB,
     float blendWeight) {
     for (size_t i = 0; i < _skeleton.joints.size(); ++i) {
         Joint& joint = _skeleton.joints[i];
@@ -162,7 +162,13 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
             return;
         }
 
-        auto& clusterDataMap = ModelManager::GetInstance()->GetModelMeshData(modelRenderer->GetDirectory(), modelRenderer->GetFileName())->skinClusterDataMap;
+        ModelMeshData* modelMeshData = ModelManager::GetInstance()->GetModelMeshData(modelRenderer->GetDirectory(), modelRenderer->GetFileName());
+        if (!modelMeshData) {
+            LOG_ERROR("ModelMeshData not found for entity: {}", uuids::to_string(_handle.uuid));
+            return;
+        }
+
+        auto& clusterDataMap = modelMeshData->skinClusterDataMap;
         auto& skeleton       = animationComponent.GetSkeletonRef();
 
         // アニメーションが遷移しているかどうか
@@ -199,15 +205,15 @@ void SkinningAnimationSystem::UpdateEntity(const EntityHandle& _handle) {
 
             ApplyBlendedAnimation(
                 skeleton,
-                animationComponent.GetAnimationData(currentAnimationIndex).get(),
+                animationComponent.GetAnimationData(currentAnimationIndex),
                 currentTime,
-                animationComponent.GetAnimationData(nextAnimationIndex).get(),
+                animationComponent.GetAnimationData(nextAnimationIndex),
                 nextAnimationCurrentTime,
                 transitionCurrentTime / animationComponent.GetBlendTime());
         } else {
             ApplyAnimation(
                 skeleton,
-                animationComponent.GetAnimationData(currentAnimationIndex).get(),
+                animationComponent.GetAnimationData(currentAnimationIndex),
                 currentTime);
         }
         // Skeleton::Update()（model/Model.cpp）は、上で書き込んだ各Jointのローカル変換(scale/rotate/translate)から

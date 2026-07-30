@@ -3,6 +3,11 @@
 /// api
 #include <Windows.h>
 
+/// engine
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/manager/ShaderAssetManager.h"
+
 /// assert (log)
 #include "logger/Logger.h"
 #include <cassert>
@@ -12,9 +17,15 @@
 
 using namespace OriGine;
 
+AssetManager<ShaderAsset>* ShaderManager::GetShaderAssetManager() {
+    return AssetSystem::GetInstance()->GetManager<ShaderAsset>();
+}
+
 void ShaderManager::Initialize() {
-    shaderCompiler_ = std::make_unique<ShaderCompiler>();
-    shaderCompiler_->Initialize();
+    // シェーダーのコンパイラ本体は ShaderAssetManager 配下の ShaderLoader が保持するため、
+    // ここでは PSO 用のキャッシュを空にするだけでよい
+    psoMap_.clear();
+    shaderKeyToAssetIndex_.clear();
 }
 
 void ShaderManager::Finalize() {
@@ -23,10 +34,17 @@ void ShaderManager::Finalize() {
         pso.second->Finalize();
         pso.second.reset();
     }
-    for (auto& blob : shaderBlobMap_) {
-        blob.second.Reset();
+    psoMap_.clear();
+
+    // 参照していたシェーダーアセットを解放する。
+    // AssetSystem::Finalize が先に走っているとマネージャは既に居ないので、
+    // その場合はインデックスを捨てるだけでよい
+    if (auto* manager = GetShaderAssetManager()) {
+        for (const auto& [key, assetIndex] : shaderKeyToAssetIndex_) {
+            manager->ReleaseAsset(assetIndex);
+        }
     }
-    shaderCompiler_->Finalize();
+    shaderKeyToAssetIndex_.clear();
 }
 
 PipelineStateObj* ShaderManager::CreatePso(const std::string& _key,
@@ -104,10 +122,14 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& _key,
     ///=================================================
     // cs か graphics pipeline state かを判定
     if (!_shaderInfo.csKey.empty()) {
+        IDxcBlob* csBlob = GetShaderBlob(_shaderInfo.csKey);
+        if (csBlob == nullptr) {
+            LOG_ERROR("Shader blob not found: {} (pso: {})", _shaderInfo.csKey, _key);
+            return nullptr;
+        }
+
         D3D12_COMPUTE_PIPELINE_STATE_DESC computeStateDesc{};
-        computeStateDesc.CS = {
-            shaderBlobMap_[_shaderInfo.csKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.csKey]->GetBufferSize()};
+        computeStateDesc.CS             = {csBlob->GetBufferPointer(), csBlob->GetBufferSize()};
         computeStateDesc.pRootSignature = pso->rootSignature.Get();
 
         result = _device->CreateComputePipelineState(
@@ -131,30 +153,31 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& _key,
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 
-    if (!_shaderInfo.vsKey.empty()) {
-        pipelineStateDesc.VS = {
-            shaderBlobMap_[_shaderInfo.vsKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.vsKey]->GetBufferSize()};
-    }
-    if (!_shaderInfo.psKey.empty()) {
-        pipelineStateDesc.PS = {
-            shaderBlobMap_[_shaderInfo.psKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.psKey]->GetBufferSize()};
-    }
-    if (!_shaderInfo.dsKey.empty()) {
-        pipelineStateDesc.DS = {
-            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferSize()};
-    }
-    if (!_shaderInfo.hsKey.empty()) {
-        pipelineStateDesc.HS = {
-            shaderBlobMap_[_shaderInfo.hsKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.hsKey]->GetBufferSize()};
-    }
-    if (!_shaderInfo.dsKey.empty()) {
-        pipelineStateDesc.DS = {
-            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferPointer(),
-            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferSize()};
+    // 各ステージのバイナリを引き当てる。
+    // キーが指定されているのに未読み込みなら PSO は組めないので、その場で打ち切る
+    // （以前は未読み込みでもマップに空要素を作って参照し、nullptr 参照で落ちていた）
+    bool hasMissingShader = false;
+    auto bindStage        = [&](const std::string& _stageKey, D3D12_SHADER_BYTECODE& _outByteCode) {
+        if (_stageKey.empty()) {
+            return;
+        }
+        IDxcBlob* blob = GetShaderBlob(_stageKey);
+        if (blob == nullptr) {
+            LOG_ERROR("Shader blob not found: {} (pso: {})", _stageKey, _key);
+            hasMissingShader = true;
+            return;
+        }
+        _outByteCode = {blob->GetBufferPointer(), blob->GetBufferSize()};
+    };
+
+    bindStage(_shaderInfo.vsKey, pipelineStateDesc.VS);
+    bindStage(_shaderInfo.psKey, pipelineStateDesc.PS);
+    bindStage(_shaderInfo.dsKey, pipelineStateDesc.DS);
+    bindStage(_shaderInfo.hsKey, pipelineStateDesc.HS);
+    bindStage(_shaderInfo.gsKey, pipelineStateDesc.GS);
+
+    if (hasMissingShader) {
+        return nullptr;
     }
 
     pipelineStateDesc.pRootSignature = pso->rootSignature.Get();
@@ -191,23 +214,38 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& _key,
 }
 
 bool ShaderManager::LoadShader(const std::string& _fileName, const std::string& _directory, const wchar_t* _profile) {
-    return RegisterShaderBlob(_fileName, shaderCompiler_->CompileShader(ConvertString(_directory + '/' + _fileName + ".hlsl"), _profile));
-}
-
-bool ShaderManager::RegisterShaderBlob(const std::string& _fileName, Microsoft::WRL::ComPtr<IDxcBlob> _shaderBlob) {
-    auto it = shaderBlobMap_.find(_fileName);
-    if (it != shaderBlobMap_.end()) {
+    // 同じキーで既に読み込み済みなら何もしない（従来どおり false を返す）
+    if (shaderKeyToAssetIndex_.find(_fileName) != shaderKeyToAssetIndex_.end()) {
         return false;
     }
-    shaderBlobMap_.emplace(_fileName, std::move(_shaderBlob));
-    return true;
-}
-bool ShaderManager::IsRegisteredShaderBlob(const std::string& _fileName) const {
-    auto it = shaderBlobMap_.find(_fileName);
-    if (it != shaderBlobMap_.end()) {
-        return true;
+
+    auto* manager = GetShaderAssetManager();
+    if (manager == nullptr) {
+        LOG_ERROR("ShaderAssetManager is not registered. (shader: {})", _fileName);
+        return false;
     }
-    return false;
+
+    // プロファイルはバリアントとして渡す。
+    // 同じ HLSL でもプロファイルが違えば別バイナリになるため、
+    // AssetManager 側では「パス + プロファイル」でキャッシュされる
+    const std::string assetPath = _directory + '/' + _fileName + ".hlsl";
+    const std::string profile   = ConvertString(std::wstring(_profile));
+
+    const size_t assetIndex = manager->LoadAsset(assetPath, profile);
+    if (!manager->IsAlive(assetIndex)) {
+        LOG_ERROR("Failed to load shader: {} (profile: {})", assetPath, profile);
+        return false;
+    }
+    if (manager->GetAsset(assetIndex).blob == nullptr) {
+        // スロットは確保できたがコンパイルに失敗しているケース。
+        // キーを登録すると壊れたアセットを掴み続けることになるので、参照を返して打ち切る
+        LOG_ERROR("Failed to compile shader: {} (profile: {})", assetPath, profile);
+        manager->ReleaseAsset(assetIndex);
+        return false;
+    }
+
+    shaderKeyToAssetIndex_.emplace(_fileName, assetIndex);
+    return true;
 }
 
 PipelineStateObj* ShaderManager::GetPipelineStateObj(const std::string& _key) {
@@ -218,10 +256,14 @@ PipelineStateObj* ShaderManager::GetPipelineStateObj(const std::string& _key) {
     return it->second.get();
 }
 
-Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::GetShaderBlob(const std::string& _key) {
-    auto it = shaderBlobMap_.find(_key);
-    if (it == shaderBlobMap_.end()) {
+IDxcBlob* ShaderManager::GetShaderBlob(const std::string& _key) const {
+    auto it = shaderKeyToAssetIndex_.find(_key);
+    if (it == shaderKeyToAssetIndex_.end()) {
         return nullptr;
     }
-    return &it->second;
+    auto* manager = GetShaderAssetManager();
+    if (manager == nullptr || !manager->IsAlive(it->second)) {
+        return nullptr;
+    }
+    return manager->GetAsset(it->second).blob.Get();
 }

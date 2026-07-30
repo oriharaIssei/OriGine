@@ -2,11 +2,13 @@
 
 /// stl
 #include <cassert>
-#include <fstream>
 #include <iostream>
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/manager/SoundAssetManager.h"
 /// util
 #include "EngineConfig.h"
 #include "myFileSystem/MyFileSystem.h"
@@ -77,6 +79,12 @@ void Audio::StaticFinalize() {
 void Audio::PlayTrigger() {
     HRESULT result;
 
+    const SoundAsset* soundAsset = GetSoundAsset();
+    if (soundAsset == nullptr) {
+        LOG_ERROR("Audio has no sound asset to play. (file: {})", fileName_);
+        return;
+    }
+
     if (pSourceVoice_) {
         // 再生を停止し、バッファをクリア
         pSourceVoice_->Stop(0);
@@ -85,7 +93,7 @@ void Audio::PlayTrigger() {
         pSourceVoice_ = nullptr;
     }
 
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &soundAsset->data.wfex);
     if (FAILED(result)) {
         LOG_CRITICAL("Failed to create source voice: {}", result);
         assert(false);
@@ -95,8 +103,8 @@ void Audio::PlayTrigger() {
     pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
-    buffer.pAudioData     = audioClip_.data_.pBuffer.data();
-    buffer.AudioBytes     = audioClip_.data_.bufferSize;
+    buffer.pAudioData     = soundAsset->data.pBuffer.data();
+    buffer.AudioBytes     = soundAsset->data.bufferSize;
     buffer.Flags          = XAUDIO2_END_OF_STREAM;
 
     result = pSourceVoice_->SubmitSourceBuffer(&buffer);
@@ -121,6 +129,12 @@ void Audio::PlayTrigger() {
 void Audio::PlayLoop() {
     HRESULT result;
 
+    const SoundAsset* soundAsset = GetSoundAsset();
+    if (soundAsset == nullptr) {
+        LOG_ERROR("Audio has no sound asset to play. (file: {})", fileName_);
+        return;
+    }
+
     if (pSourceVoice_) {
         // 再生を停止し、バッファをクリア
         pSourceVoice_->Stop(0);
@@ -129,7 +143,7 @@ void Audio::PlayLoop() {
         pSourceVoice_ = nullptr;
     }
 
-    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &soundAsset->data.wfex);
     if (FAILED(result)) {
         LOG_CRITICAL("Failed to create source voice: {}", result);
         assert(false);
@@ -139,8 +153,8 @@ void Audio::PlayLoop() {
     pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
-    buffer.pAudioData     = audioClip_.data_.pBuffer.data();
-    buffer.AudioBytes     = audioClip_.data_.bufferSize;
+    buffer.pAudioData     = soundAsset->data.pBuffer.data();
+    buffer.AudioBytes     = soundAsset->data.bufferSize;
     buffer.Flags          = XAUDIO2_END_OF_STREAM;
     buffer.LoopBegin      = 0;
     buffer.LoopLength     = 0;
@@ -181,11 +195,67 @@ void Audio::Pause() {
 
 /// <summary>
 /// 音声データを読み込む.
+/// 実際のファイル読み込みとキャッシュは SoundAssetManager が担当するため、
+/// ここでは参照するアセットの差し替え（旧アセットの解放 → 新アセットの取得）だけを行う.
 /// </summary>
 /// <param name="_fileName">読み込む WAVE ファイルのパス</param>
 void Audio::Load(const std::string& _fileName) {
-    fileName_        = _fileName;
-    audioClip_.data_ = LoadWave(_fileName);
+    // 同じファイルを既に参照しているなら参照カウントを増減させる必要はない
+    if (fileName_ == _fileName && audioClip_.soundAssetIndex_ != kInvalidAssetIndex) {
+        return;
+    }
+
+    fileName_ = _fileName;
+    ReloadSoundAsset();
+}
+
+/// <summary>
+/// 現在の fileName_ に従って音声アセットを取得し直す.
+/// 旧アセットを解放してから読み込むため、参照カウントの辻褄が合う.
+/// </summary>
+void Audio::ReloadSoundAsset() {
+    ReleaseSoundAsset();
+
+    if (fileName_.empty()) {
+        return;
+    }
+
+    auto* manager = AssetSystem::GetInstance()->GetManager<SoundAsset>();
+    if (manager == nullptr) {
+        LOG_ERROR("SoundAssetManager is not registered.");
+        return;
+    }
+    audioClip_.soundAssetIndex_ = manager->LoadAsset(fileName_);
+}
+
+/// <summary>
+/// 参照中の音声アセットを解放し、参照を無効化する.
+/// </summary>
+void Audio::ReleaseSoundAsset() {
+    if (audioClip_.soundAssetIndex_ == kInvalidAssetIndex) {
+        return;
+    }
+    if (auto* manager = AssetSystem::GetInstance()->GetManager<SoundAsset>()) {
+        manager->ReleaseAsset(audioClip_.soundAssetIndex_);
+    }
+    audioClip_.soundAssetIndex_ = kInvalidAssetIndex;
+}
+
+/// <summary>
+/// 参照中の音声アセットを取得する.
+/// </summary>
+/// <returns>未読み込み・解放済みの場合は nullptr</returns>
+const SoundAsset* Audio::GetSoundAsset() const {
+    if (audioClip_.soundAssetIndex_ == kInvalidAssetIndex) {
+        return nullptr;
+    }
+    auto* manager = AssetSystem::GetInstance()->GetManager<SoundAsset>();
+    if (manager == nullptr) {
+        return nullptr;
+    }
+    return manager->IsAlive(audioClip_.soundAssetIndex_)
+               ? &manager->GetAsset(audioClip_.soundAssetIndex_)
+               : nullptr;
 }
 
 /// <summary>
@@ -213,9 +283,11 @@ bool Audio::isPlaying() const {
 /// <param name="_scene">所属シーン（未使用）</param>
 /// <param name="_entity">所有者エンティティ（未使用）</param>
 void Audio::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
-    // ファイル名が設定されていれば音声データを読み込む
+    // ファイル名が設定されていれば音声データを読み込む。
+    // デシリアライズ直後は soundAssetIndex_ が未設定なので、Load の
+    // 「同じファイルなら何もしない」早期 return には引っかからない
     if (!fileName_.empty()) {
-        audioClip_.data_ = LoadWave(fileName_);
+        Load(fileName_);
     }
 };
 
@@ -230,10 +302,17 @@ void Audio::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unu
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory;
-        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
-            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
+        std::string fileName;
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"wav"})) {
+            const std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + fileName;
 
-            audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);
+            auto commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filePath));
+            // アセットの差し替えはコマンド確定後に行う。
+            // こうしておくと Undo / Redo で fileName_ が巻き戻ったときも、
+            // 同じ後処理が走って参照するアセットが追従する
+            commandCombo->SetFuncOnAfterCommand([this]() { ReloadSoundAsset(); }, true);
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -266,83 +345,7 @@ void Audio::Finalize() {
         pSourceVoice_->DestroyVoice();
         pSourceVoice_ = nullptr;
     }
-    SoundUnLoad();
-}
-
-/// <summary>
-/// 指定されたパスの WAVE ファイルをロードする.
-/// RIFF/WAVE 形式のチャンク構造を先頭から順に走査し、"fmt "チャンクから波形フォーマット(WAVEFORMATEX)を、
-/// "data"チャンクから実際の音声データ本体を取り出す。両方が見つかるまでファイル終端まで走査し、
-/// それ以外の未知のチャンク（メタデータ等）は読み飛ばす。
-/// </summary>
-/// <param name="_fileName">読み込む WAVE ファイルのパス</param>
-/// <returns>読み込まれた音声データ（失敗時は空の SoundData）</returns>
-SoundData Audio::LoadWave(const std::string& _fileName) {
-    std::ifstream file(_fileName, std::ios::binary);
-    if (!file.is_open()) {
-        LOG_ERROR("Failed to open file: {}", _fileName);
-        return {};
-    }
-
-    RiffHeader riff;
-    file.read(reinterpret_cast<char*>(&riff), sizeof(riff));
-
-    if (strncmp(riff.chunk.id, "RIFF", 4) != 0 || strncmp(riff.type, "WAVE", 4) != 0) {
-        LOG_ERROR("Invalid RIFF or WAVE header");
-        return {};
-    }
-
-    FormatChunk format{};
-    ChunkHeader chunk;
-
-    bool foundFmt  = false;
-    bool foundData = false;
-    DWORD dataSize = 0;
-    std::vector<BYTE> dataBuffer;
-
-    // RIFF チャンクを先頭から順に走査し、fmt チャンク（フォーマット情報）と data チャンク（音声データ本体）を探し出す
-    while (file.read(reinterpret_cast<char*>(&chunk), sizeof(chunk))) {
-        std::streampos nextChunk = file.tellg();
-        nextChunk += chunk.size; // 次のチャンクの開始位置を算出
-
-        if (strncmp(chunk.id, "fmt ", 4) == 0) {
-            foundFmt = true;
-            file.read(reinterpret_cast<char*>(&format.fmt), chunk.size); // フォーマット情報を読み込む
-        } else if (strncmp(chunk.id, "data", 4) == 0) {
-            foundData = true;
-            dataBuffer.resize(chunk.size);
-            file.read(reinterpret_cast<char*>(dataBuffer.data()), chunk.size); // 音声データ本体を読み込む
-            dataSize = chunk.size;
-        } else {
-            // 未使用のチャンクはスキップ
-            file.seekg(chunk.size, std::ios::cur);
-        }
-
-        file.seekg(nextChunk); // 次のチャンクの位置へシーク
-    }
-
-    if (!foundFmt || !foundData) {
-        LOG_ERROR("Required fmt or data chunk not found");
-        return {};
-    }
-
-    SoundData soundData{};
-    soundData.wfex       = format.fmt;
-    soundData.pBuffer    = std::move(dataBuffer);
-    soundData.bufferSize = dataSize;
-
-    return soundData;
-}
-
-/// <summary>
-/// 音声データをメモリから解放する.
-/// バッファを clear() だけでなく shrink_to_fit() まで行い、確保済みキャパシティも実際に解放する.
-/// </summary>
-void Audio::SoundUnLoad() {
-    audioClip_.data_.pBuffer.clear();
-    audioClip_.data_.pBuffer.shrink_to_fit();
-    audioClip_.data_.bufferSize = 0;
-    audioClip_.data_.wfex       = {};
+    ReleaseSoundAsset();
 }
 
 /// <summary> Audio コンポーネントを JSON にシリアライズする. </summary>

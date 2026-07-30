@@ -214,6 +214,14 @@ struct ModelMeshData {
     ModelNode rootNode;
     /// <summary>ボーン構造データ（任意）</summary>
     std::optional<Skeleton> skeleton = std::nullopt;
+
+    /// <summary>
+    /// モデルファイルに埋め込まれていた既定マテリアル（メッシュ順）.
+    /// Model インスタンス生成時の初期値として複製される。
+    /// ここに置かれる IConstantBuffer はバッファ未生成の「値だけ」の状態であり、
+    /// GPU バッファはインスタンス側で作成する
+    /// </summary>
+    std::vector<TexturedMaterial> defaultMaterials;
 };
 
 /// <summary>

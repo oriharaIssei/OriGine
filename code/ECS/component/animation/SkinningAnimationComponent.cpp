@@ -6,10 +6,12 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #define ENGINE_INCLUDE
-#include "AnimationManager.h"
 #include "EngineInclude.h"
 #include "model/ModelManager.h"
 #include "scene/Scene.h"
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/manager/AnimationAssetManager.h"
 /// ECS
 #include "entity/Entity.h"
 // component
@@ -22,6 +24,60 @@
 #endif // _DEBUG
 
 using namespace OriGine;
+
+/// <summary>
+/// アセットインデックスからアニメーションデータを解決する.
+/// </summary>
+const AnimationData* SkinningAnimationComponent::ResolveAnimationData(size_t _assetIndex) {
+    if (_assetIndex == kInvalidAssetIndex) {
+        return nullptr;
+    }
+    auto* manager = AssetSystem::GetInstance()->GetManager<AnimationAsset>();
+    if (manager == nullptr) {
+        return nullptr;
+    }
+    return manager->IsAlive(_assetIndex) ? &manager->GetAsset(_assetIndex).data : nullptr;
+}
+
+/// <summary>
+/// AnimationCombo が参照しているアセットを解放する.
+/// </summary>
+void SkinningAnimationComponent::ReleaseAnimationAsset(AnimationCombo& _combo) {
+    if (_combo.animationAssetIndex == kInvalidAssetIndex) {
+        return;
+    }
+    if (auto* manager = AssetSystem::GetInstance()->GetManager<AnimationAsset>()) {
+        manager->ReleaseAsset(_combo.animationAssetIndex);
+    }
+    _combo.animationAssetIndex = kInvalidAssetIndex;
+}
+
+/// <summary>
+/// AnimationCombo の directory / fileName に従ってアセットを取得し直す.
+/// </summary>
+const AnimationData* SkinningAnimationComponent::LoadAnimationAsset(AnimationCombo& _combo) {
+    ReleaseAnimationAsset(_combo);
+
+    if (_combo.fileName.empty()) {
+        return nullptr;
+    }
+    auto* manager = AssetSystem::GetInstance()->GetManager<AnimationAsset>();
+    if (manager == nullptr) {
+        LOG_ERROR("AnimationAssetManager is not registered.");
+        return nullptr;
+    }
+
+    // AnimationCombo::directory はシーンJSONに保存される値であり、
+    // アプリのリソースディレクトリからの相対パスとして扱う（絶対パスを入れないこと）
+    std::string assetPath = kApplicationResourceDirectory;
+    if (!_combo.directory.empty()) {
+        assetPath += "/" + _combo.directory;
+    }
+    assetPath += "/" + _combo.fileName;
+
+    _combo.animationAssetIndex = manager->LoadAsset(assetPath);
+    return ResolveAnimationData(_combo.animationAssetIndex);
+}
 
 void OriGine::to_json(nlohmann::json& _j, const SkinningAnimationComponent& _comp) {
     _j["bindModeMeshRendererIndex"] = _comp.bindModeMeshRendererIndex_;
@@ -68,8 +124,7 @@ void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, const EntityHandl
         animation.currentTime           = 0.0f;
         animation.animationState.isEnd_ = false;
 
-        animation.animationData = AnimationManager::GetInstance()->Load(
-            kApplicationResourceDirectory + "/" + animation.directory, animation.fileName);
+        LoadAnimationAsset(animation);
 
         this->animationIndexBinder_[animation.fileName] = animationIndex;
         ++animationIndex;
@@ -100,9 +155,9 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, const Enti
                 newAnimation.directory = directory;
                 newAnimation.fileName  = fileName;
 
-                newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
-
-                newAnimation.duration = newAnimation.animationData->duration;
+                if (const AnimationData* data = LoadAnimationAsset(newAnimation)) {
+                    newAnimation.duration = data->duration;
+                }
 
                 auto commandCombo = std::make_unique<CommandCombo>();
                 commandCombo->AddCommand(std::make_shared<AddElementCommand<std::vector<AnimationCombo>>>(&animationTable_, newAnimation));
@@ -130,22 +185,25 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, const Enti
                 std::string directory;
                 std::string fileName;
                 if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
-                    auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory, kApplicationResourceDirectory + "/" + directory);
+                    // directory は相対パスで保持する（LoadAnimationAsset 側で
+                    // kApplicationResourceDirectory を前置するため、ここで絶対パスにしてはいけない）
+                    auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory, directory);
                     auto SetFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName, fileName);
                     CommandCombo commandCombo;
                     commandCombo.AddCommand(std::move(SetPath));
                     commandCombo.AddCommand(std::move(SetFile));
                     commandCombo.SetFuncOnAfterCommand([this, index]() {
-                        auto& animation         = animationTable_[index];
-                        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
-                        animation.duration      = animation.animationData->duration;
+                        auto& animation = animationTable_[index];
+                        if (const AnimationData* data = LoadAnimationAsset(animation)) {
+                            animation.duration = data->duration;
+                        }
                     },
                         true);
                     OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
                 }
             }
 
-            if (animation.animationData) {
+            if (ResolveAnimationData(animation.animationAssetIndex)) {
                 DragGuiCommand("Duration##" + _parentLabel, animation.duration, 0.01f, 0.0f, 100.0f);
 
                 CheckBoxCommand("Play##" + _parentLabel, animation.animationState.isPlay_);
@@ -162,6 +220,11 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, const Enti
 
 void SkinningAnimationComponent::Finalize() {
     DeleteSkinnedVertex();
+
+    // 参照カウントを戻しておかないと、コンポーネント破棄後もアセットが解放されない
+    for (auto& animation : animationTable_) {
+        ReleaseAnimationAsset(animation);
+    }
 
     animationIndexBinder_.clear();
     animationTable_.clear();
@@ -190,7 +253,7 @@ void SkinningAnimationComponent::AddLoad(const std::string& _directory, const st
     newAnimation.directory = _directory;
     newAnimation.fileName  = _fileName;
 
-    newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + _directory, _fileName);
+    LoadAnimationAsset(newAnimation);
 
     animationIndexBinder_[_fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
 }
@@ -198,8 +261,8 @@ void SkinningAnimationComponent::AddLoad(const std::string& _directory, const st
 void SkinningAnimationComponent::Play() {
     auto& animation = animationTable_[currentAnimationIndex_];
 
-    if (!animation.animationData) {
-        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
+    if (animation.animationAssetIndex == kInvalidAssetIndex) {
+        LoadAnimationAsset(animation);
     }
     animation.animationState.isPlay_ = true;
     animation.animationState.isEnd_  = false;
@@ -212,8 +275,8 @@ void SkinningAnimationComponent::Play(int32_t _index) {
         return;
     }
     auto& animation = animationTable_[_index];
-    if (!animation.animationData) {
-        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
+    if (animation.animationAssetIndex == kInvalidAssetIndex) {
+        LoadAnimationAsset(animation);
     }
     animation.animationState.isPlay_ = true;
     animation.prePlay                = false; // 前のアニメーションを停止
@@ -239,8 +302,8 @@ void SkinningAnimationComponent::PlayNext(int32_t _index, float _blendTime) {
     blendingAnimationData_ = AnimationBlendData{_index, _blendTime, 0.0f};
 
     auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex];
-    if (!nextAnimation.animationData) {
-        nextAnimation.animationData = AnimationManager::GetInstance()->Load(nextAnimation.directory, nextAnimation.fileName);
+    if (nextAnimation.animationAssetIndex == kInvalidAssetIndex) {
+        LoadAnimationAsset(nextAnimation);
     }
     nextAnimation.animationState.isPlay_ = true;
     nextAnimation.prePlay                = false; // 前のアニメーションを停止

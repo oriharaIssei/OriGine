@@ -5,6 +5,10 @@
 
 /// engine
 // asset
+#include "asset/manager/AnimationAssetManager.h"
+#include "asset/manager/ModelAssetManager.h"
+#include "asset/manager/ShaderAssetManager.h"
+#include "asset/manager/SoundAssetManager.h"
 #include "asset/manager/TextureAssetManager.h"
 
 using namespace OriGine;
@@ -25,12 +29,31 @@ void OriGine::AssetSystem::Initialize() {
     // デフォルトのAssetManager郡を登録する
     // 各 AssetManager は Initialize() の中でデフォルトアセット(white1x1.png 等)の読み込みを行うため、
     // RegisterManager に渡す前に必ず Initialize() を済ませておく
+    //
+    // アセットの型(TextureAsset 等)をキーとして IAssetManager を登録する。
+    // 以後、型ごとの AssetManager は GetManager<T>() 等でこのレジストリから取得される
+
+    // テクスチャは他のアセット(モデルのマテリアル等)から参照されるため、必ず最初に登録する
     auto textureManager = std::make_unique<TextureAssetManager>();
     textureManager->Initialize();
-
-    // アセットの型(TextureAsset)をキーとして IAssetManager を登録する。
-    // 以後、型ごとの AssetManager は GetManager<T>() 等でこのレジストリから取得される
     RegisterManager<TextureAsset>(std::move(textureManager));
+
+    // モデルの読み込みはマテリアルのテクスチャ読み込みを伴うため、テクスチャの後に登録する
+    auto modelManager = std::make_unique<ModelAssetManager>();
+    modelManager->Initialize();
+    RegisterManager<ModelAsset>(std::move(modelManager));
+
+    auto animationManager = std::make_unique<AnimationAssetManager>();
+    animationManager->Initialize();
+    RegisterManager<AnimationAsset>(std::move(animationManager));
+
+    auto soundManager = std::make_unique<SoundAssetManager>();
+    soundManager->Initialize();
+    RegisterManager<SoundAsset>(std::move(soundManager));
+
+    auto shaderManager = std::make_unique<ShaderAssetManager>();
+    shaderManager->Initialize();
+    RegisterManager<ShaderAsset>(std::move(shaderManager));
 }
 
 /// <summary>

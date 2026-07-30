@@ -19,6 +19,9 @@
 // manager
 #include "model/ModelManager.h"
 
+/// util
+#include "logger/Logger.h"
+
 #ifdef _DEBUG
 /// editor
 #include "editor/EditorController.h"
@@ -186,48 +189,44 @@ void ModelMeshRenderer::InitializeMaterialBuffer() {
 /// <param name="_usingDefaultTexture">既定テクスチャを使うかどうか</param>
 void OriGine::CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
-    const EntityHandle& _hostEntity,
+    [[maybe_unused]] const EntityHandle& _hostEntity,
     const std::string& _directory,
     const std::string& _fileName,
-    bool _usingDefaultTexture) {
-    bool isLoaded = false;
+    [[maybe_unused]] bool _usingDefaultTexture) {
 
     if (!_renderer->GetMeshGroup()->empty()) {
         _renderer->GetMeshGroup()->clear();
     }
 
     // -------------------- Modelの読み込み --------------------//
-    // ModelManager::Createは非同期にモデルを読み込み、完了時にコールバックを呼ぶ実装になっている。
-    // このヘルパー関数自体は「読み込み完了までブロックする」契約のAPIなので、isLoadedフラグを
-    // コールバック内で立ててもらい、下のwhileループでポーリングして完了を待つ
-    auto model = ModelManager::GetInstance()->Create(_directory, _fileName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultTexture](Model* _model) {
-        // ノード階層を根から葉まで再帰的に辿る処理。
-        // ラムダ自身を内部から呼ぶ必要があるため、autoではなくstd::functionで受けて
-        // 宣言と代入を分けている（auto では定義途中の自分自身を参照できないため）
-        std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
-        CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _innerModel, ModelNode* _node) {
-            auto meshItr = _innerModel->meshData_->meshGroup.find(_node->name);
-            if (meshItr != _innerModel->meshData_->meshGroup.end()) {
-                _meshRenderer->PushBackMesh(meshItr->second);
-            }
-            for (auto& child : _node->children) {
-                CreateMeshGroupFormNode(_meshRenderer, _innerModel, &child);
-            }
-        };
-
-        // メッシュグループの作成
-        CreateMeshGroupFormNode(_renderer, _model, &_model->meshData_->rootNode);
-
-        // インスタンシング判定用に ModelMeshData を保持
-        _renderer->SetModelData(_model->meshData_);
-
-        isLoaded = true;
-    });
-
-    // ロードが完了するまで待機
-    while (!isLoaded) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // モデル本体の読み込み・キャッシュは ModelAssetManager が行い、
+    // ModelManager::Create は共有アセットを参照する Model インスタンスを
+    // 同期的に組み立てて返す
+    auto model = ModelManager::GetInstance()->Create(_directory, _fileName);
+    if (!model || model->meshData_ == nullptr) {
+        LOG_ERROR("Failed to create ModelMeshRenderer. path : {}/{}", _directory, _fileName);
+        return;
     }
+
+    // ノード階層を根から葉まで再帰的に辿る処理。
+    // ラムダ自身を内部から呼ぶ必要があるため、autoではなくstd::functionで受けて
+    // 宣言と代入を分けている（auto では定義途中の自分自身を参照できないため）
+    std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
+    CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _innerModel, ModelNode* _node) {
+        auto meshItr = _innerModel->meshData_->meshGroup.find(_node->name);
+        if (meshItr != _innerModel->meshData_->meshGroup.end()) {
+            _meshRenderer->PushBackMesh(meshItr->second);
+        }
+        for (auto& child : _node->children) {
+            CreateMeshGroupFormNode(_meshRenderer, _innerModel, &child);
+        }
+    };
+
+    // メッシュグループの作成
+    CreateMeshGroupFormNode(_renderer, model.get(), &model->meshData_->rootNode);
+
+    // インスタンシング判定用に ModelMeshData を保持
+    _renderer->SetModelData(model->meshData_);
 }
 
 /// <summary>

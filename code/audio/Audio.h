@@ -11,6 +11,10 @@
 #include <vector>
 
 /// engine
+// asset
+#include "asset/manager/AssetManager.h"
+#include "asset/SoundAsset.h"
+// ecs
 #include "component/IComponent.h"
 #include "EngineConfig.h"
 #include "system/ISystem.h"
@@ -18,45 +22,14 @@
 namespace OriGine {
 
 /// <summary>
-/// チャンクヘッダ
-/// </summary>
-struct ChunkHeader {
-    char id[4];
-    int32_t size;
-};
-/// <summary>
-/// RIFFヘッダ
-/// </summary>
-struct RiffHeader {
-    ChunkHeader chunk;
-    char type[4];
-};
-/// <summary>
-/// fmtチャンク
-/// </summary>
-struct FormatChunk {
-    ChunkHeader chunk;
-    WAVEFORMATEX fmt;
-};
-/// <summary>
-/// 音声データ
-/// </summary>
-struct SoundData {
-    /// <summary>波形フォーマット</summary>
-    WAVEFORMATEX wfex;
-    /// <summary>バッファ本体（RAII管理）</summary>
-    std::vector<BYTE> pBuffer;
-    /// <summary>バッファサイズ</summary>
-    uint32_t bufferSize = 0;
-};
-
-/// <summary>
-/// オーディオクリップ情報. 音声データと再生設定を保持する.
+/// オーディオクリップ情報. 参照する音声アセットと再生設定を保持する.
+/// 波形データそのものは SoundAssetManager が一元管理しており、ここでは
+/// そのインデックスだけを持つ（同じ WAVE を複数コンポーネントが使っても実体は共有される）.
 /// </summary>
 class AudioClip {
 public:
-    /// <summary>音声データ</summary>
-    SoundData data_;
+    /// <summary>参照している音声アセットのインデックス</summary>
+    size_t soundAssetIndex_ = kInvalidAssetIndex;
     /// <summary>ループ再生するか</summary>
     bool isLoop_ = false;
     /// <summary>音量 (0.0 ～ 2.0)</summary>
@@ -127,16 +100,20 @@ private:
     void PlayLoop();
 
     /// <summary>
-    /// 指定されたパスの WAVE ファイルをロードする.
+    /// 参照中の音声アセットを解放し、参照を無効化する.
     /// </summary>
-    /// <param name="_fileName">ファイルパス</param>
-    /// <returns>読み込まれた音声データ</returns>
-    SoundData LoadWave(const std::string& _fileName);
+    void ReleaseSoundAsset();
 
     /// <summary>
-    /// 音声データをメモリから解放する.
+    /// 現在の fileName_ に従って音声アセットを取得し直す.
     /// </summary>
-    void SoundUnLoad();
+    void ReloadSoundAsset();
+
+    /// <summary>
+    /// 参照中の音声アセットを取得する.
+    /// </summary>
+    /// <returns>未読み込み・解放済みの場合は nullptr</returns>
+    const SoundAsset* GetSoundAsset() const;
 
 private:
     /// <summary>XAudio2 エンジン</summary>
@@ -154,10 +131,13 @@ private:
 
 public:
     /// <summary>
-    /// 音声データを読み込む.
+    /// 音声データを読み込む. 実体の読み込み・キャッシュは SoundAssetManager が行う.
     /// </summary>
     /// <param name="_fileName">ファイル名</param>
     void Load(const std::string& _fileName);
+
+    /// <summary>参照している音声アセットのインデックスを取得する.</summary>
+    size_t GetSoundAssetIndex() const { return audioClip_.soundAssetIndex_; }
 
     /// <summary>
     /// 現在再生中かどうかを判定する.

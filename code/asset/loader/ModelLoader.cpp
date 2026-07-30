@@ -1,0 +1,351 @@
+#include "ModelLoader.h"
+
+/// stl
+#include <algorithm>
+#include <filesystem>
+#include <unordered_map>
+#include <vector>
+
+/// engine
+#include "Engine.h"
+// asset
+#include "asset/AssetSystem.h"
+#include "asset/TextureAsset.h"
+// dx12Object
+#include "directX12/DxDevice.h"
+
+/// util
+#include "logger/Logger.h"
+
+/// externals
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+using namespace OriGine;
+
+//===========================================================================
+// unorderedMap 用
+//===========================================================================
+namespace {
+/// <summary>
+/// 頂点の重複判定に使用するキー. 位置・法線・UV・色が全て一致する頂点は同一とみなす.
+/// </summary>
+struct VertexKey {
+    Vec4f position;
+    Vec3f normal;
+    Vec2f texCoord;
+    Vec4f color;
+
+    bool operator==(const VertexKey& _other) const {
+        return position == _other.position && normal == _other.normal && texCoord == _other.texCoord && color == _other.color;
+    }
+};
+
+struct VertexKeyHash {
+    size_t operator()(const VertexKey& _key) const {
+        return std::hash<float>()(_key.position[X]) ^ std::hash<float>()(_key.position[Y]) ^ std::hash<float>()(_key.position[Z]) ^ std::hash<float>()(_key.normal[X]) ^ std::hash<float>()(_key.normal[Y]) ^ std::hash<float>()(_key.normal[Z]) ^ std::hash<float>()(_key.texCoord[X]) ^ std::hash<float>()(_key.texCoord[Y]) ^ std::hash<float>()(_key.color[X]) ^ std::hash<float>()(_key.color[Y]) ^ std::hash<float>()(_key.color[Z]) ^ std::hash<float>()(_key.color[W]);
+    }
+};
+
+/// <summary>
+/// 収集済みの頂点・インデックスデータをメッシュに転送する.
+/// </summary>
+/// <param name="_meshData">書き込み先のメッシュ</param>
+/// <param name="_vertices">頂点データ配列</param>
+/// <param name="_indices">インデックス配列</param>
+void ProcessMeshData(TextureColorMesh& _meshData, const std::vector<TextureColorVertexData>& _vertices, const std::vector<uint32_t>& _indices) {
+
+    _meshData.Initialize(static_cast<UINT>(_vertices.size()), static_cast<UINT>(_indices.size()));
+
+    // 頂点データのコピー
+    _meshData.copyVertexData(_vertices.data(), static_cast<uint32_t>(_vertices.size()));
+    // インデックスデータのコピー
+    _meshData.copyIndexData(_indices.data(), static_cast<uint32_t>(_indices.size()));
+
+    _meshData.TransferData();
+}
+
+/// <summary>
+/// assimpのノード階層を再帰的に読み取り、ModelNode階層に変換する.
+/// </summary>
+/// <param name="_node">読み取り元のassimpノード</param>
+/// <returns>変換後のModelNode（子ノードを含む）</returns>
+ModelNode ReadNode(aiNode* _node) {
+    ModelNode result;
+    /// Transform の取得
+    aiVector3D aiScale, aiTranslate;
+    aiQuaternion aiRotate;
+    _node->mTransformation.Decompose(aiScale, aiRotate, aiTranslate);
+    result.transform.scale     = Vec3f(aiScale.x, aiScale.y, aiScale.z);
+    result.transform.rotate    = Quaternion(aiRotate.x, -aiRotate.y, -aiRotate.z, aiRotate.w); // X軸反転
+    result.transform.translate = Vec3f(-aiTranslate.x, aiTranslate.y, aiTranslate.z); // X軸反転
+    result.localMatrix         = MakeMatrix4x4::Affine(result.transform.scale, result.transform.rotate, result.transform.translate);
+
+    /// Name を Copy
+    result.name = _node->mName.C_Str();
+
+    /// Children を Copy
+    result.children.resize(_node->mNumChildren);
+    for (uint32_t childIndex = 0; childIndex < _node->mNumChildren; childIndex++) {
+        result.children[childIndex] = ReadNode(_node->mChildren[childIndex]);
+    }
+
+    return result;
+}
+
+/// <summary>
+/// ModelNode階層を再帰的にたどり、Jointを生成してリストへ追加する.
+/// </summary>
+/// <param name="_node">変換元のノード</param>
+/// <param name="_parent">親ジョイントのインデックス（ルートの場合は未設定）</param>
+/// <param name="_joints">生成したジョイントを追加するリスト</param>
+/// <returns>生成したジョイントのインデックス</returns>
+int32_t CreateJoint(
+    const ModelNode& _node,
+    const std::optional<int32_t>& _parent,
+    std::vector<Joint>& _joints) {
+    Joint joint;
+
+    joint.name  = _node.name;
+    joint.index = static_cast<int32_t>(_joints.size());
+
+    joint.transform           = _node.transform;
+    joint.localMatrix         = _node.localMatrix;
+    joint.skeletonSpaceMatrix = MakeMatrix4x4::Identity();
+
+    joint.parent = _parent;
+
+    _joints.push_back(joint);
+
+    for (const ModelNode& child : _node.children) {
+        // 子ジョイントを再帰的に作成, そのインデックスを登録
+        int32_t childIndex = CreateJoint(child, joint.index, _joints);
+        _joints[joint.index].children.push_back(childIndex);
+    }
+
+    return joint.index;
+}
+
+/// <summary>
+/// ノード階層のルートからSkeleton（ジョイント一式）を構築する.
+/// </summary>
+/// <param name="_rootNode">ノード階層のルート</param>
+/// <returns>構築されたSkeleton</returns>
+Skeleton CreateSkeleton(const ModelNode& _rootNode) {
+    Skeleton skeleton;
+    skeleton.rootJointIndex = CreateJoint(_rootNode, {}, skeleton.joints);
+
+    // 名前とIndex を バインド
+    for (const Joint& joint : skeleton.joints) {
+        skeleton.jointIndexBinder.emplace(joint.name, joint.index);
+    }
+
+    skeleton.Update();
+
+    return skeleton;
+}
+
+/// <summary>
+/// assimpのボーン・ウェイト情報からSkinClusterを構築し、GPU用バッファを作成する.
+/// </summary>
+/// <param name="_cluster">構築先のSkinCluster</param>
+/// <param name="_device">バッファ作成に使用するデバイス</param>
+/// <param name="_loadedMesh">読み込み元のassimpメッシュ</param>
+/// <param name="_meshData">ジョイントウェイトデータ等の格納先モデルデータ</param>
+void CreateSkinCluster(
+    SkinCluster& _cluster,
+    const Microsoft::WRL::ComPtr<ID3D12Device>& _device,
+    aiMesh* _loadedMesh,
+    ModelMeshData* _meshData) {
+
+    // skinClusterData を初期化
+    for (uint32_t boneIndex = 0; boneIndex < _loadedMesh->mNumBones; ++boneIndex) {
+        aiBone* bone                     = _loadedMesh->mBones[boneIndex];
+        JointWeightData& jointWeightData = _meshData->jointWeightData[bone->mName.C_Str()];
+
+        /// バインドポーズ座標系での逆行列を設定
+        // decompose
+        aiMatrix4x4 bindPoseMatAssimp = bone->mOffsetMatrix.Inverse();
+        aiVector3D scale, translate;
+        aiQuaternion rotate;
+        bindPoseMatAssimp.Decompose(scale, rotate, translate);
+        // X軸反転 して Decomposeした値から 計算
+        Matrix4x4 bindPoseMatrix = MakeMatrix4x4::Affine(
+            Vec3f(scale.x, scale.y, scale.z),
+            Quaternion(rotate.x, -rotate.y, -rotate.z, rotate.w),
+            Vec3f(-translate.x, translate.y, translate.z));
+        // 逆行列を 保持
+        jointWeightData.inverseBindPoseMat = bindPoseMatrix.inverse();
+
+        /// 頂点ウェイトの設定
+        jointWeightData.vertexWeights.resize(bone->mNumWeights);
+        for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+            aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
+            VertexWeightData& weightData = jointWeightData.vertexWeights[weightIndex];
+            weightData.weight            = vertexWeight.mWeight;
+            weightData.vertexIndex       = vertexWeight.mVertexId;
+        }
+    }
+
+    // SkinClusterData 作成
+    const Skeleton& skeleton = _meshData->skeleton.value();
+
+    // skeletonMatrixPalette Buffer 作成
+    _cluster.skeletonMatrixPaletteBuffer_.CreateBuffer(_device, uint32_t(skeleton.joints.size()));
+    _cluster.skeletonMatrixPaletteBuffer_.openData_.resize(skeleton.joints.size());
+
+    // influence Buffer 作成
+    _cluster.vertexInfluencesBuffer_.CreateBuffer(_device, _loadedMesh->mNumVertices);
+    _cluster.vertexInfluencesBuffer_.openData_.resize(_loadedMesh->mNumVertices);
+
+    // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
+    _cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
+    std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix4x4::Identity);
+
+    // ModelData を 解析, Influence を 設定
+    for (const auto& jointWeight : _meshData->jointWeightData) {
+        // skeletonに 対応するジョイントが存在するか確認
+        auto jointIndexItr = skeleton.jointIndexBinder.find(jointWeight.first);
+
+        // 存在しない場合はスキップ
+        if (jointIndexItr == skeleton.jointIndexBinder.end()) {
+            continue;
+        }
+
+        // Jointのインデックスに対応する場所に inverseBindePoseMatrix を代入
+        _cluster.inverseBindPoseMatrices[jointIndexItr->second] = jointWeight.second.inverseBindPoseMat;
+        for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
+            auto& currentInfluence = _cluster.vertexInfluencesBuffer_.openData_[vertexWeight.vertexIndex];
+            for (uint32_t i = 0; i < kNumMaxInfluence; ++i) {
+                // 空いているウェイトの場所に設定 (weight == 0 なら設定されていないとみなす)
+                if (currentInfluence.weights[i] == 0.f) {
+                    currentInfluence.weights[i]      = vertexWeight.weight;
+                    currentInfluence.jointIndices[i] = (*jointIndexItr).second;
+                    break;
+                }
+            }
+        }
+    }
+
+    _cluster.skinningInfoBuffer_.CreateBuffer(_device);
+    _cluster.skinningInfoBuffer_.openData_.vertexSize = _loadedMesh->mNumVertices;
+
+    _cluster.skeletonMatrixPaletteBuffer_.ConvertToBuffer();
+    _cluster.vertexInfluencesBuffer_.ConvertToBuffer();
+    _cluster.skinningInfoBuffer_.ConvertToBuffer();
+}
+
+} // namespace
+
+/// <summary>
+/// assimpを用いてモデルファイルを読み込み、ノード・スケルトン・メッシュ・スキン情報をModelAssetへ構築する.
+/// </summary>
+/// <param name="_assetPath">読み込むモデルファイルのパス</param>
+/// <returns>読み込まれたモデルアセット（失敗時は空のアセット）</returns>
+ModelAsset ModelLoader::LoadAsset(const std::string& _assetPath) {
+    ModelAsset asset;
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(_assetPath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_Triangulate | aiProcess_GenSmoothNormals);
+    if (scene == nullptr || !scene->HasMeshes()) {
+        LOG_ERROR("Failed to load model file: {} ({})", _assetPath, importer.GetErrorString());
+        return asset;
+    }
+
+    // テクスチャの相対パスを解決するために、モデルファイルが置かれているディレクトリを控えておく
+    const std::string directoryPath = std::filesystem::path(_assetPath).parent_path().string();
+
+    ModelMeshData* data = &asset.meshData;
+    auto& device        = Engine::GetInstance()->GetDxDevice()->device_;
+
+    std::unordered_map<VertexKey, uint32_t, VertexKeyHash> vertexMap;
+    std::vector<TextureColorVertexData> vertices;
+    std::vector<uint32_t> indices;
+
+    /// node 読み込み
+    data->rootNode = ReadNode(scene->mRootNode);
+    // スケルトンの作成
+    data->skeleton = CreateSkeleton(data->rootNode);
+
+    for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+        aiMesh* loadedMesh = scene->mMeshes[meshIndex];
+
+        auto& mesh           = data->meshGroup[loadedMesh->mName.C_Str()] = TextureColorMesh();
+        std::string meshName = loadedMesh->mName.length > 0
+                                   ? loadedMesh->mName.C_Str()
+                                   : std::to_string(meshIndex);
+        mesh.SetName(meshName);
+
+        // 頂点データとインデックスデータの処理
+        for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
+            aiFace& face = loadedMesh->mFaces[faceIndex];
+
+            for (uint32_t i = 0; i < 3; ++i) {
+                uint32_t vertexIndex = face.mIndices[i];
+
+                // 頂点データを取得
+                Vec4f pos    = {loadedMesh->mVertices[vertexIndex][X], loadedMesh->mVertices[vertexIndex][Y], loadedMesh->mVertices[vertexIndex][Z], 1.0f};
+                Vec3f normal = {0.f, 0.f, 0.f};
+                if (loadedMesh->HasNormals()) {
+                    normal = {loadedMesh->mNormals[vertexIndex][X], loadedMesh->mNormals[vertexIndex][Y], loadedMesh->mNormals[vertexIndex][Z]};
+                } else {
+                    normal = {pos[X], pos[Y], -pos[Z]};
+                    normal = Vec3f::Normalize(normal);
+                }
+                Vec2f texCoord = {0.f, 0.f};
+                if (loadedMesh->HasTextureCoords(0)) {
+                    texCoord = {loadedMesh->mTextureCoords[0][vertexIndex][X], loadedMesh->mTextureCoords[0][vertexIndex][Y]};
+                }
+                Vec4f color = kWhite;
+                if (loadedMesh->HasVertexColors(0)) {
+                    const aiColor4D& c = loadedMesh->mColors[0][vertexIndex];
+                    color              = {c.r, c.g, c.b, c.a};
+                }
+
+                // X軸反転
+                pos[X] *= -1.0f;
+                normal[X] *= -1.0f;
+
+                // VertexKeyを生成
+                VertexKey vertexKey = {pos, normal, texCoord, color};
+
+                // vertexMapに存在するか確認し、無ければ追加
+                if (vertexMap.find(vertexKey) == vertexMap.end()) {
+                    vertexMap[vertexKey] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back({pos, texCoord, normal, color});
+                }
+
+                // インデックスを追加
+                indices.push_back(vertexMap[vertexKey]);
+            }
+        }
+
+        // マテリアルとテクスチャの処理
+        aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
+        aiString textureFilePath;
+        size_t textureIndex    = 0;
+        std::string texturePath = "";
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
+            texturePath = textureFilePath.C_Str();
+            if ((texturePath.find("/") == std::string::npos)) {
+                texturePath = directoryPath + "/" + texturePath;
+            }
+            textureIndex = AssetSystem::GetInstance()->GetManager<TextureAsset>()->LoadAsset(texturePath);
+        }
+
+        data->defaultMaterials.emplace_back(TexturedMaterial{texturePath, textureIndex, IConstantBuffer<Material>()});
+
+        // メッシュデータを処理
+        ProcessMeshData(mesh, vertices, indices);
+
+        CreateSkinCluster(data->skinClusterDataMap[mesh.GetName()], device, loadedMesh, data);
+
+        // リセット
+        vertices.clear();
+        indices.clear();
+        vertexMap.clear();
+    }
+
+    return asset;
+}
