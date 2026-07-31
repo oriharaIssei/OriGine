@@ -12,13 +12,13 @@
 // module
 #include "asset/AssetSystem.h"
 #include "camera/CameraManager.h"
-#include "component/animation/AnimationManager.h"
 #include "component/collision/collider/base/CollisionCategoryManager.h"
 #include "component/material/light/LightManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "input/InputManager.h"
 #include "model/ModelManager.h"
 #include "scene/SceneManager.h"
+#include "directX12/ShaderManager.h"
 #include "text/FontManager.h"
 #include "winApp/WinApp.h"
 
@@ -36,6 +36,9 @@
 #include "logger/Logger.h"
 
 #include "EngineConfig.h"
+
+/// profiler
+#include "profiler/Profiler.h"
 
 /// util
 #include "util/StringUtil.h"
@@ -84,6 +87,9 @@ void Engine::CreateDsv() {
 /// ウィンドウの生成から DirectX12 関連の全コアオブジェクト、各種マネージャーのセットアップを行う.
 /// </summary>
 void Engine::Initialize() {
+    // 計測基盤: メインスレッドの表示名を設定しておく(Debug/Develop構成のみ意味を持つ)
+    Profiler::GetInstance()->SetCurrentThreadName("Main");
+
     window_ = std::make_unique<WinApp>();
 
     // 外部設定ファイルからウィンドウタイトルとサイズを読み込む
@@ -141,6 +147,14 @@ void Engine::Initialize() {
     // 各種エンジンスシステムの初期化
     // ここから先は DX12 のコアオブジェクト（デバイス・コマンド・ヒープ・スワップチェーン）に依存する
     // 上位システムの初期化フェーズであり、コアオブジェクトより後でなければ初期化できない
+
+    // AssetSystem はテクスチャ等の読み込みに DX12 デバイス・コマンド・SRVヒープを使用するため、
+    // それらの初期化が終わった直後に初期化する。
+    // テクスチャ・モデル・アニメーション・音声・シェーダーはいずれも AssetSystem 配下の
+    // AssetManager が管理しているため、アセットを読む処理はすべてこの行より後に置くこと
+    // （特に RenderTexture::Awake() はフルスクリーン用シェーダーを読み込む）
+    AssetSystem::GetInstance()->Initialize();
+
     ShaderManager::GetInstance()->Initialize();
     ImGuiManager::GetInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
 
@@ -155,12 +169,7 @@ void Engine::Initialize() {
     deltaTimer_ = std::make_unique<DeltaTimer>();
     deltaTimer_->Initialize();
 
-    AnimationManager::GetInstance()->Initialize();
     CameraManager::GetInstance()->Initialize();
-
-    // AssetSystem はテクスチャ等の読み込みに DX12 デバイス・コマンド・SRVヒープを使用するため、
-    // それらの初期化がすべて完了した最後のタイミングで初期化する
-    AssetSystem::GetInstance()->Initialize();
 
     auto* manager = OriGine::CollisionCategoryManager::GetInstance();
     manager->LoadFromGlobalVariables();
@@ -170,19 +179,23 @@ void Engine::Initialize() {
 void Engine::Finalize() {
 
     // Initialize と逆順に破棄するのが基本方針。
+
+    // ShaderManager は PSO と、シェーダーアセットへの参照を保持している。
+    // アセットの参照カウントを戻すには AssetSystem がまだ生きている必要があるため、
+    // AssetSystem::Finalize より先に終了させる
+    ShaderManager::GetInstance()->Finalize();
+
     // AssetSystem はテクスチャ等の GPU リソース（SRV・DxResource）を保持しており、
     // それらの解放には DX12 デバイス・SRVヒープがまだ生きている必要があるため、
-    // DX12 コアオブジェクトを壊す前に最初に終了させる。
+    // DX12 コアオブジェクトを壊す前に終了させる。
     AssetSystem::GetInstance()->Finalize();
 
-    AnimationManager::GetInstance()->Finalize();
     CameraManager::GetInstance()->Finalize();
     lightManager_->Finalize();
 
 #ifdef _DEBUG
     ImGuiManager::GetInstance()->Finalize();
 #endif // _DEBUG
-    ShaderManager::GetInstance()->Finalize();
     ModelManager::GetInstance()->Finalize();
     FontManager::GetInstance()->Finalize();
 
@@ -221,6 +234,10 @@ bool Engine::ProcessMessage() {
 
 /// <summary> フレームの開始フェーズ. 経過時間の計算、ウィンドウリサイズ検知、入力更新を行う. </summary>
 void Engine::BeginFrame() {
+    // 計測基盤のフレーム境界処理。各スレッドの計測バッファのスワップ、
+    // フレームタイム/アロケーション履歴の更新を行う(Releaseでは実質何もしない)。
+    Profiler::GetInstance()->BeginFrame();
+
     deltaTimer_->Update();
     // デルタタイムが大きすぎる場合はキャップをかける（スパイク対策）
     if (deltaTimer_->GetDeltaTime() > Config::Time::kMaxDeltaTime) {

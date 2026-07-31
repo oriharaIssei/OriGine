@@ -10,6 +10,9 @@
 /// external
 #include "logger/Logger.h"
 
+/// profiler
+#include "profiler/Profiler.h"
+
 /// gui
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
@@ -124,7 +127,12 @@ void ISystem::Run() {
         return;
     }
 
-    Update();
+    {
+        // 階層プロファイラへの計測点。システム名はSystemRunnerが登録時に設定したものを使う。
+        // (DeltaTimerによる簡易計測とは併存させ、既存の参照箇所を壊さないようにしている)
+        PROFILE_SCOPE(systemTypeName_.c_str());
+        Update();
+    }
 
 #ifndef _RELEASE
     // 計測終了

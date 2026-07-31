@@ -176,6 +176,9 @@ namespace OriGine {
 		int32_t priority_ = 0;
 		bool isActive_    = false;
 
+		// プロファイラ表示用のシステム型名. SystemRunner::RegisterSystem で設定される.
+		::std::string systemTypeName_;
+
 	public:
 		//==========================================
 		// accessor
@@ -272,6 +275,17 @@ namespace OriGine {
 		/// </summary>
 		/// <param name="_isActive">アクティブにするならtrue</param>
 		void SetIsActive(bool _isActive){ isActive_ = _isActive; }
+
+		/// <summary>
+		/// プロファイラ表示用のシステム型名を設定する(SystemRunnerが登録時に設定する)
+		/// </summary>
+		/// <param name="_name">システムの型名</param>
+		void SetSystemTypeName(const ::std::string& _name){ systemTypeName_ = _name; }
+		/// <summary>
+		/// プロファイラ表示用のシステム型名を取得する
+		/// </summary>
+		/// <returns>システムの型名</returns>
+		const ::std::string& GetSystemTypeName() const{ return systemTypeName_; }
 	};
 
 	/// <summary>
