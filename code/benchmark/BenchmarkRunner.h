@@ -18,6 +18,7 @@ struct BenchmarkResult {
     BenchmarkSummary summary_;
     std::vector<BenchmarkFrameRecord> frames_;
     std::vector<BenchmarkScopeStat> scopes_;
+    std::vector<BenchmarkCounterStat> counters_; // PROFILE_COUNTの呼び出し回数集計(Release構成では常に空)
 };
 
 /// <summary>

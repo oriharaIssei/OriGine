@@ -23,6 +23,7 @@
 
 /// profiler
 #include "profiler/AllocationCounter.h"
+#include "profiler/CallCounter.h"
 #include "profiler/Profiler.h"
 
 /// util
@@ -163,8 +164,23 @@ void BenchmarkControlRegion::ExportCsv() {
         }
     }
 
+    // 呼び出し回数の内訳もスコープ別集計と同じく「このボタンを押した瞬間の1フレーム分」のスナップショット。
+    // CallCounter::GetLastFrameStats()が返す配列はハンドル=添字で安定しているため名前検索は不要だが、
+    // ここは毎フレーム呼ばれるホットパスではない一度きりのUI操作なので、素直にvectorへ詰め替えてよい。
+    const CallCounter::FrameStat* counterStats = nullptr;
+    const size_t counterStatCount               = CallCounter::GetLastFrameStats(&counterStats);
+    std::vector<Benchmark::BenchmarkCounterStat> counterRows;
+    counterRows.reserve(counterStatCount);
+    for (size_t i = 0; i < counterStatCount; ++i) {
+        Benchmark::BenchmarkCounterStat stat;
+        stat.name_             = counterStats[i].name_;
+        stat.totalCount_       = counterStats[i].count_;
+        stat.frameSampleCount_ = 1;
+        counterRows.push_back(std::move(stat));
+    }
+
     const std::string csvPath = csvPathBuffer_;
-    if (Benchmark::WriteBenchmarkCsv(csvPath, summary, scopeRows, frameRows)) {
+    if (Benchmark::WriteBenchmarkCsv(csvPath, summary, scopeRows, frameRows, counterRows)) {
         LOG_INFO("BenchmarkControlRegion: exported CSV snapshot to '{}'.", csvPath);
     } else {
         LOG_ERROR("BenchmarkControlRegion: failed to export CSV snapshot to '{}'.", csvPath);
