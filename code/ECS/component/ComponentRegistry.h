@@ -1,5 +1,6 @@
 #pragma once
 #include "ComponentArray.h"
+#include "ComponentTypeId.h"
 
 namespace OriGine {
 
@@ -46,6 +47,30 @@ public:
     /// <returns>生成されたComponentArray</returns>
     std::unique_ptr<IComponentArray> CloneComponentArray(const std::string& _compTypeName);
 
+    /// <summary>
+    /// 型名に対応する型IDを返す。未採番なら新たに採番する。
+    /// 採番はプロセス内で一意・0始まり・密(Phase 5 のビットマスクがビット位置として使えること)。
+    /// </summary>
+    /// <param name="_typeName">コンポーネントの型名</param>
+    /// <returns>型ID。上限に達していれば kInvalidComponentTypeId</returns>
+    uint32_t AcquireTypeId(const std::string& _typeName);
+
+    /// <summary>
+    /// 型名に対応する型IDを返す。未採番でも採番しない(問い合わせだけしたい経路用)。
+    /// </summary>
+    /// <returns>型ID。未採番なら kInvalidComponentTypeId</returns>
+    uint32_t FindTypeId(const std::string& _typeName) const;
+
+    /// <summary>
+    /// 型IDから型名を逆引きする(エディタ表示・シリアライズ用の低頻度パス)。
+    /// </summary>
+    /// <returns>型名。範囲外なら空文字列</returns>
+    const std::string& GetTypeName(uint32_t _typeId) const;
+
+    /// <summary>採番済みのコンポーネント型の数</summary>
+    uint32_t GetTypeCount() const { return static_cast<uint32_t>(idToTypeName_.size()); }
+
+
 private:
     ComponentRegistry();
     ~ComponentRegistry();
@@ -54,6 +79,16 @@ private:
 
 private:
     std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_; // 型名 -> ComponentArray生成関数
+
+    // 型名 <-> 型ID の対応表。型IDは「型の identity」であり、ComponentRepository の
+    // vector の添字としてそのまま使われる。シーンごとの位置ではないので、シーンを作り直しても
+    // 配列から要素を消しても意味が変わらない。
+    //
+    // 採番は実行時の呼び出し順で決まるため、この値をファイルへ書き出してはならない。
+    // シリアライズは型名のままで行い、idToTypeName_ は逆引き専用に使う。
+    std::unordered_map<std::string, uint32_t> typeNameToId_;
+    std::vector<std::string> idToTypeName_; // 添字 = 型ID
+
 
 #ifdef _DEBUG
     std::vector<std::string> componentTypeNames_; // デバッグ用: 登録済みComponent型名の一覧
@@ -84,7 +119,7 @@ public:
     /// <returns>登録済みであればtrue</returns>
     template <IsComponent ComponentType>
     bool HasComponentArray() const {
-        std::string typeName = nameof<ComponentType>();
+        static std::string typeName = nameof<ComponentType>();
         return cloneMaker_.find(typeName) != cloneMaker_.end();
     }
 };
@@ -92,21 +127,41 @@ public:
 template <IsComponent ComponentType>
 void ComponentRegistry::RegisterComponent(
     std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc) {
-    std::string typeName = nameof<ComponentType>();
+    static std::string typeName = nameof<ComponentType>();
     if (cloneMaker_.find(typeName) != cloneMaker_.end()) {
         // 二重登録は上書きされるだけなので警告のみ出す
         LOG_WARN("ComponentRegistry: ComponentArray already registered for type: {}", typeName);
     }
     cloneMaker_[typeName] = _makeCloneFunc;
 
+    // 型IDはここで確定させる。FrameWork の明示的な登録リストから1回だけ呼ばれるので採番順が決定的になり、
+    // 静的初期化子による自己登録(このビルドではリンカに捨てられる)を使わずに済む。
+    ComponentTypeIdStorage<ComponentType>::id_ = AcquireTypeId(typeName);
+
+
 #ifdef _DEBUG
     componentTypeNames_.push_back(typeName);
 #endif // _DEBUG
 }
 
+/// <summary>
+/// コンポーネント型 T の型IDを取得する(ホットパス用)。
+/// 初回だけ ComponentRegistry へ問い合わせ、以降は定数初期化された static からの素のロードで済む。
+/// RegisterComponent<T>() を通っていない型でも、ここで採番して以降は同じIDで扱えるようにしている
+/// (テンプレート版と型名指定版で挙動が食い違うと、かつてのように片方だけ nullptr を返して落ちるため)。
+/// </summary>
+template <IsComponent ComponentType>
+inline uint32_t GetComponentTypeId() {
+    uint32_t& id = ComponentTypeIdStorage<ComponentType>::id_;
+    if (id == kInvalidComponentTypeId) {
+        id = ComponentRegistry::GetInstance()->AcquireTypeId(nameof<ComponentType>());
+    }
+    return id;
+}
+
 template <IsComponent ComponentType>
 std::unique_ptr<IComponentArray> ComponentRegistry::CloneComponentArray() {
-    std::string _typeName = nameof<ComponentType>();
+    static std::string _typeName = nameof<ComponentType>();
     auto itr              = cloneMaker_.find(_typeName);
     if (itr == cloneMaker_.end()) {
         LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _typeName);
