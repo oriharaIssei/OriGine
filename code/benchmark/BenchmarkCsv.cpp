@@ -1,6 +1,7 @@
 #include "benchmark/BenchmarkCsv.h"
 
 /// stl
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -52,18 +53,21 @@ bool WriteBenchmarkCsv(
     const std::string& _basePath,
     const BenchmarkSummary& _summary,
     const std::vector<BenchmarkScopeStat>& _scopes,
-    const std::vector<BenchmarkFrameRecord>& _frames) {
+    const std::vector<BenchmarkFrameRecord>& _frames,
+    const std::vector<BenchmarkCounterStat>& _counters) {
 
     if (_basePath.empty()) {
         LOG_ERROR("WriteBenchmarkCsv: base path is empty.");
         return false;
     }
 
-    const std::string summaryPath = InsertSuffixBeforeExtension(_basePath, ".summary");
-    const std::string scopesPath  = InsertSuffixBeforeExtension(_basePath, ".scopes");
-    const std::string framesPath  = InsertSuffixBeforeExtension(_basePath, ".frames");
+    const std::string summaryPath  = InsertSuffixBeforeExtension(_basePath, ".summary");
+    const std::string scopesPath   = InsertSuffixBeforeExtension(_basePath, ".scopes");
+    const std::string framesPath   = InsertSuffixBeforeExtension(_basePath, ".frames");
+    const std::string countersPath = InsertSuffixBeforeExtension(_basePath, ".counters");
 
-    if (!EnsureParentDirectory(summaryPath) || !EnsureParentDirectory(scopesPath) || !EnsureParentDirectory(framesPath)) {
+    if (!EnsureParentDirectory(summaryPath) || !EnsureParentDirectory(scopesPath) ||
+        !EnsureParentDirectory(framesPath) || !EnsureParentDirectory(countersPath)) {
         return false;
     }
 
@@ -121,7 +125,37 @@ bool WriteBenchmarkCsv(
         }
     }
 
-    LOG_INFO("WriteBenchmarkCsv: wrote '{}', '{}', '{}'.", summaryPath, scopesPath, framesPath);
+    // --- 呼び出し回数集計(PROFILE_COUNT) ---
+    {
+        std::ofstream ofs = OpenCsv(countersPath);
+        if (!ofs.is_open()) {
+            LOG_ERROR("WriteBenchmarkCsv: failed to open '{}'.", countersPath);
+            return false;
+        }
+
+        // 呼び出し元は CallCounterAggregator::BuildResult()(既にtotalCount_降順)と、
+        // BenchmarkWindow のライブスナップショット(1フレーム分をそのまま並べただけ、未ソート)の
+        // 2種類があるため、出力側で改めてavg_count_per_frame降順に揃える
+        // (「並び順はavg_count_per_frameの降順」という出力側の約束を、生成元によらず一箇所で保証する)。
+        std::vector<BenchmarkCounterStat> sortedCounters = _counters;
+        std::sort(sortedCounters.begin(), sortedCounters.end(),
+            [](const BenchmarkCounterStat& _a, const BenchmarkCounterStat& _b) {
+                const double denomA = _a.frameSampleCount_ > 0 ? static_cast<double>(_a.frameSampleCount_) : 1.0;
+                const double denomB = _b.frameSampleCount_ > 0 ? static_cast<double>(_b.frameSampleCount_) : 1.0;
+                return (static_cast<double>(_a.totalCount_) / denomA) > (static_cast<double>(_b.totalCount_) / denomB);
+            });
+
+        ofs << "counter_name,avg_count_per_frame,total_count,sample_frame_count\n";
+        for (const BenchmarkCounterStat& c : sortedCounters) {
+            const double denom = c.frameSampleCount_ > 0 ? static_cast<double>(c.frameSampleCount_) : 1.0;
+            ofs << c.name_ << ","
+                << (static_cast<double>(c.totalCount_) / denom) << ","
+                << c.totalCount_ << ","
+                << c.frameSampleCount_ << "\n";
+        }
+    }
+
+    LOG_INFO("WriteBenchmarkCsv: wrote '{}', '{}', '{}', '{}'.", summaryPath, scopesPath, framesPath, countersPath);
     return true;
 }
 

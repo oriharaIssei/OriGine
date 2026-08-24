@@ -6,6 +6,7 @@
 
 /// engine
 #include "Engine.h"
+#include "benchmark/BenchmarkCallCounterAggregator.h"
 #include "benchmark/BenchmarkScopeAggregator.h"
 #include "scene/Scene.h"
 
@@ -78,6 +79,7 @@ BenchmarkResult RunBenchmarkLoop(Engine* _engine, Scene* _scene, const Benchmark
     result.frames_.reserve(_config.frames);
 
     ScopeAggregator scopeAggregator;
+    CallCounterAggregator counterAggregator;
 
     using Clock = std::chrono::steady_clock;
     Clock::time_point prevTick{};
@@ -112,6 +114,7 @@ BenchmarkResult RunBenchmarkLoop(Engine* _engine, Scene* _scene, const Benchmark
 
             if (completedFrameIndex >= _config.warmup) {
                 scopeAggregator.AccumulateLastFrame();
+                counterAggregator.AccumulateLastFrame();
             }
         }
         prevTick    = now;
@@ -131,7 +134,8 @@ BenchmarkResult RunBenchmarkLoop(Engine* _engine, Scene* _scene, const Benchmark
     }
 
     ComputeSummary(result.summary_, result.frames_, _config.warmup);
-    result.scopes_ = scopeAggregator.BuildResult();
+    result.scopes_   = scopeAggregator.BuildResult();
+    result.counters_ = counterAggregator.BuildResult();
 
     LOG_INFO("RunBenchmarkLoop: {} frame(s) recorded ({} sampled after warmup). avg={:.4f}ms p99={:.4f}ms max={:.4f}ms",
         result.frames_.size(), result.summary_.sampleFrameCount_,

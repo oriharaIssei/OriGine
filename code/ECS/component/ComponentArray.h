@@ -17,6 +17,9 @@
 #include "IComponent.h"
 #include "IComponentArray.h"
 
+/// profiler
+#include "profiler/CallCounter.h"
+
 /// externals
 #include "logger/Logger.h"
 #include "uuidGenerator/UuidGenerator.h"
@@ -219,6 +222,7 @@ public:
     uint32_t GetComponentCount(const EntityHandle& _handle) const;
 
 public:
+
     /// <summary>
     /// コンポーネントの位置情報。
     /// ComponentHandle(uuid)から実データへ辿り着くための間接参照で、componentLocationMap_の値として使う。
@@ -248,6 +252,8 @@ private:
     // component uuid -> (stable ID, component index)
     // ComponentHandleから実データ(EntitySlot::components内の要素)を定数時間で引くための逆引きテーブル
     std::unordered_map<uuids::uuid, ComponentLocation> componentLocationMap_;
+
+	std::int32_t indexOnRepository_ = -1; // ComponentRepository上でのインデックス。登録時に設定される
 
 public:
     const DenseSlotMap<EntitySlot>& GetSlots() const { return slots_; }

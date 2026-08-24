@@ -39,6 +39,7 @@ inline void ComponentArray<ComponentType>::RegisterEntity(const EntityHandle& _e
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::UnregisterEntity(const EntityHandle& _entity) {
+    PROFILE_COUNT("ComponentArray::UnregisterEntity");
     auto itr = entitySlotMap_.find(_entity.uuid);
     if (itr == entitySlotMap_.end()) {
         return;
@@ -58,6 +59,7 @@ inline void ComponentArray<ComponentType>::UnregisterEntity(const EntityHandle& 
 
 template <IsComponent ComponentType>
 inline bool ComponentArray<ComponentType>::HasEntity(const EntityHandle& _entity) const {
+    PROFILE_COUNT("ComponentArray::HasEntity");
     auto itr = entitySlotMap_.find(_entity.uuid);
     if (itr == entitySlotMap_.end()) {
         return false;
@@ -68,6 +70,7 @@ inline bool ComponentArray<ComponentType>::HasEntity(const EntityHandle& _entity
 
 template <IsComponent ComponentType>
 inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene, const EntityHandle& _entity) {
+    PROFILE_COUNT("ComponentArray::AddComponent");
     auto entIt = entitySlotMap_.find(_entity.uuid);
     if (entIt == entitySlotMap_.end()) {
         RegisterEntity(_entity);
@@ -94,6 +97,7 @@ inline ComponentHandle ComponentArray<ComponentType>::AddComponent(Scene* _scene
 
 template <IsComponent ComponentType>
 inline ComponentHandle ComponentArray<ComponentType>::InsertComponent(Scene* _scene, const EntityHandle& _entity, uint32_t _compIndex) {
+    PROFILE_COUNT("ComponentArray::InsertComponent");
     auto entIt = entitySlotMap_.find(_entity.uuid);
     if (entIt == entitySlotMap_.end()) {
         RegisterEntity(_entity);
@@ -145,6 +149,7 @@ inline void ComponentArray<ComponentType>::RemoveComponent(ComponentHandle _hand
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::RemoveComponent(const EntityHandle& _handle, uint32_t _compIndex) {
+    PROFILE_COUNT("ComponentArray::RemoveComponent(EntityHandle)");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return;
@@ -169,6 +174,7 @@ inline void ComponentArray<ComponentType>::RemoveComponent(const EntityHandle& _
 
 template <IsComponent ComponentType>
 inline void ComponentArray<ComponentType>::RemoveAllComponents(const EntityHandle& _handle) {
+    PROFILE_COUNT("ComponentArray::RemoveAllComponents");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return;
@@ -201,6 +207,7 @@ inline bool ComponentArray<ComponentType>::SaveComponent(ComponentHandle _compHa
 
 template <IsComponent ComponentType>
 inline bool ComponentArray<ComponentType>::SaveComponent(const EntityHandle& _handle, uint32_t _compIndex, nlohmann::json& _outJson) {
+    PROFILE_COUNT("ComponentArray::SaveComponent(EntityHandle)");
     // エンティティが存在しない場合は失敗
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
@@ -222,6 +229,7 @@ inline bool ComponentArray<ComponentType>::SaveComponent(const EntityHandle& _ha
 
 template <IsComponent ComponentType>
 inline bool ComponentArray<ComponentType>::SaveComponents(const EntityHandle& _handle, nlohmann::json& _outJson) {
+    PROFILE_COUNT("ComponentArray::SaveComponents");
     // エンティティが存在しない場合は何もしない
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
@@ -249,6 +257,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
     const EntityHandle& _handle,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
+    PROFILE_COUNT("ComponentArray::LoadComponent");
     auto itr = entitySlotMap_.find(_handle.uuid);
     if (itr == entitySlotMap_.end()) {
         // エンティティが存在しない場合は何もしない
@@ -282,6 +291,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
     uint32_t _compIndex,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
+    PROFILE_COUNT("ComponentArray::LoadComponent(index)");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         // エンティティが見つからなかった 場合
@@ -321,6 +331,7 @@ inline void ComponentArray<ComponentType>::LoadComponents(
     const EntityHandle& _handle,
     const nlohmann::json& _inJson,
     HandleAssignMode _handleMode) {
+    PROFILE_COUNT("ComponentArray::LoadComponents");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         // エンティティが見つからなかった 場合
@@ -367,6 +378,7 @@ inline ComponentType* ComponentArray<ComponentType>::GetComponent(ComponentHandl
 
 template <IsComponent ComponentType>
 inline ComponentType* ComponentArray<ComponentType>::GetComponent(const EntityHandle& _handle, uint32_t _compIndex) {
+    PROFILE_COUNT("ComponentArray::GetComponent(EntityHandle)");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return nullptr;
@@ -383,6 +395,7 @@ inline ComponentType* ComponentArray<ComponentType>::GetComponent(const EntityHa
 
 template <IsComponent ComponentType>
 inline std::vector<ComponentType>& ComponentArray<ComponentType>::GetComponents(const EntityHandle& _handle) {
+    PROFILE_COUNT("ComponentArray::GetComponents");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         static std::vector<ComponentType> emptyComponents;
@@ -407,6 +420,7 @@ inline IComponent* ComponentArray<ComponentType>::GetIComponent(const EntityHand
 
 template <IsComponent ComponentType>
 inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(const EntityHandle& _handle) {
+    PROFILE_COUNT("ComponentArray::GetIComponents");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         static std::vector<IComponent*> emptyIComponents;
@@ -427,6 +441,7 @@ inline std::vector<IComponent*> ComponentArray<ComponentType>::GetIComponents(co
 
 template <IsComponent ComponentType>
 inline uint32_t ComponentArray<ComponentType>::GetComponentCount(const EntityHandle& _handle) const {
+    PROFILE_COUNT("ComponentArray::GetComponentCount");
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         return 0;

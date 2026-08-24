@@ -6,6 +6,7 @@
 
 /// engine
 #include "AllocationCounter.h"
+#include "CallCounter.h"
 #include "ProfileClock.h"
 
 namespace OriGine {
@@ -46,6 +47,11 @@ void Profiler::BeginFrame() {
     // アロケーションカウンタのフレーム集計
     // ------------------------------------------------------------
     AllocationCounter::OnFrameBegin();
+
+    // ------------------------------------------------------------
+    // 呼び出し回数カウンタのフレーム集計
+    // ------------------------------------------------------------
+    CallCounter::OnFrameBegin();
 #endif // !defined(_RELEASE)
 }
 

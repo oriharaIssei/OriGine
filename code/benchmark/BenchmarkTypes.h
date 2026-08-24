@@ -41,6 +41,16 @@ struct BenchmarkScopeStat {
 };
 
 /// <summary>
+/// PROFILE_COUNTで数えた呼び出し回数の集計結果(warmupを除いた対象フレームでの合計値。
+/// 平均はCSV出力時にframeSampleCount_で除算する。BenchmarkScopeStatの「回数だけ版」に相当する)
+/// </summary>
+struct BenchmarkCounterStat {
+    std::string name_; // PROFILE_COUNTに渡されたカウンタ名(CallCounter::FrameStat::name_由来。切り詰められている場合がある)
+    uint64_t totalCount_       = 0; // 対象フレーム全体での呼び出し回数の合計
+    uint32_t frameSampleCount_ = 0; // 平均を取る際の母数(集計対象になったフレーム数)
+};
+
+/// <summary>
 /// ベンチマークのサマリ結果(前後比較の起点になる代表値)
 /// </summary>
 struct BenchmarkSummary {

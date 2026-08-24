@@ -135,7 +135,7 @@ bool RunCliBenchmarkIfRequested(const std::vector<std::string>& _commandLines) {
 
     const BenchmarkResult result = RunBenchmarkLoop(engine, scene, config);
 
-    if (!WriteBenchmarkCsv(csvPath, result.summary_, result.scopes_, result.frames_)) {
+    if (!WriteBenchmarkCsv(csvPath, result.summary_, result.scopes_, result.frames_, result.counters_)) {
         LOG_ERROR("RunCliBenchmarkIfRequested: failed to write CSV to '{}'.", csvPath);
     }
 
