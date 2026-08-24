@@ -111,6 +111,17 @@ namespace Time {
 constexpr float kMaxDeltaTime    = 1.0f / 30.0f;
 constexpr size_t kFpsHistorySize = 60; // FPS表示の平均を取るサンプル数(約1秒分)
 }
+
+// Profiler
+// 計測基盤(階層プロファイラ / アロケーションカウンタ)関連の定数置き場。
+// ここに集約する値はすべて「フレーム中に動的確保を発生させない」ための
+// 固定長バッファのサイズであり、計測対象を汚染しないための設計上の要となる。
+namespace Profiler {
+constexpr size_t kFrameHistorySize = 300; // フレームタイム/アロケーション履歴として保持するフレーム数(グラフ表示用)
+constexpr size_t kEventNameCapacity = 48; // 1イベントに記録できるスコープ名の最大文字数(null終端含む)。固定長にして動的確保を回避する
+constexpr size_t kEventStreamCapacity = 8192; // スレッドごとの1フレーム分イベントバッファの最大イベント数(Begin+End合計)。超過分は記録を諦める
+constexpr size_t kMaxThreadStreams = 32; // 同時に登録できるスレッド数の上限(登録リストも固定長配列にして動的確保を回避する)
+}
 }
 
 } // namespace OriGine

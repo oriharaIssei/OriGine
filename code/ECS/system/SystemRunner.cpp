@@ -183,6 +183,8 @@ void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _prior
         }
 
         createdSystem->SetScene(scene_);
+        // プロファイラ表示用にシステムの型名を記録しておく
+        createdSystem->SetSystemTypeName(_systemName);
 
         createdSystem->SetPriority(_priority);
         if (_isInitialize) {

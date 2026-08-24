@@ -214,10 +214,13 @@ nlohmann::json SceneFactory::CreateEntityJsonFromEntity(const Scene* _scene,Enti
 	}
 
 	// エンティティが保持している全コンポーネントデータを保存
-	const auto& componentArrayMap = _scene->componentRepository_->GetComponentArrayMap();
+	// 添字は型IDで、未登録の型は nullptr の穴として残っているので飛ばす。
+	// 型名は ComponentArray::SaveComponents が nameof<T>() で自分で書き出すため、
+	// ここで型名を引き当てる必要はない(JSONに載るのは型名であって実行時の型IDではない)。
+	const auto& componentArrays = _scene->componentRepository_->GetComponentArrayMap();
 	nlohmann::json componentsData;
-	for(const auto& [componentTypeName,componentArray] : componentArrayMap){
-		if(componentArray->HasEntity(handle)){
+	for(const auto& componentArray : componentArrays){
+		if(componentArray && componentArray->HasEntity(handle)){
 			componentArray->SaveComponents(handle,componentsData);
 		}
 	}
