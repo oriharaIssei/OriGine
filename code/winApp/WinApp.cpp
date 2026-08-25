@@ -160,98 +160,112 @@ LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
 			}
 
 		case WM_SYSCOMMAND:
-			if((_wparam & 0xFFF0) == SC_MAXIMIZE){
-				if(pThis && pThis->allowFullscreenToggle_){
-					pThis->ToggleFullscreen(true);
-					return 0;
+			{
+				// 最小化からの復帰も SC_RESTORE で来る。これを横取りすると DefWindowProc が
+				// アイコン化を解除できず、以後ウィンドウをアクティブにできなくなる。
+				// アイコン化中の SC_MAXIMIZE / SC_RESTORE は OS に任せること。
+				const WPARAM command = _wparam & 0xFFF0;
+				const bool   iconic  = ::IsIconic(_hwnd) != FALSE;
+
+				if(command == SC_MAXIMIZE && !iconic){
+					if(pThis && pThis->allowFullscreenToggle_){
+						pThis->ToggleFullscreen(true);
+						return 0;
+					}
+				} else if(command == SC_RESTORE && !iconic){
+					// フルスクリーン中のときだけ「復元 = ウィンドウモードへ戻す」と解釈する。
+					if(pThis && pThis->allowFullscreenToggle_ && pThis->IsFullscreen()){
+						pThis->ToggleFullscreen(false);
+						return 0;
+					}
 				}
-			} else if((_wparam & 0xFFF0) == SC_RESTORE){
-				if(pThis && pThis->allowFullscreenToggle_){
-					pThis->ToggleFullscreen(false);
-					return 0;
-				}
+				break;
 			}
-			break;
 
 		case WM_SIZING:
 			{
 				// FIXED_ASPECT モード時、ドラッグ方向に応じてアスペクト比を維持するように矩形を補正
 				if(pThis && pThis->windowResizeMode_ == WindowResizeMode::FIXED_ASPECT){
 					RECT* rect   = reinterpret_cast<RECT*>(_lparam);
-					int width    = rect->right - rect->left;
-					int height   = rect->bottom - rect->top;
 					float aspect = pThis->aspectRatio_;
+
+					// 0 除算を避ける。比が未確定なら補正せず自由リサイズに任せる。
+					if(aspect <= 0.0f){
+						break;
+					}
+
+					// aspectRatio_ は「クライアント領域」の比だが、WM_SIZING が渡してくるのは
+					// タイトルバーと枠を含む「ウィンドウ矩形」。そのまま比を当てるとクライアント領域の
+					// 比が枠の分だけずれる。枠は固定ピクセルなので、ウィンドウが小さいほど誤差が大きくなる
+					// (クライアント 1280x720 基準で、幅 800 まで縮めると約 7% ずれる)。
+					// 非クライアント領域の余白を求め、比の計算はクライアントサイズで行う。
+					// AdjustWindowRectEx はシステム DPI 基準なので、モニタごとに DPI が違う環境では
+					// わずかに誤差が残るが、補正なしに比べれば桁違いに正確。
+					RECT frame{0,0,0,0};
+					AdjustWindowRectEx(
+						&frame,
+						static_cast<DWORD>(GetWindowLongPtr(_hwnd,GWL_STYLE)),
+						FALSE,
+						static_cast<DWORD>(GetWindowLongPtr(_hwnd,GWL_EXSTYLE)));
+					const int marginX = frame.right - frame.left; // 左右の枠の合計
+					const int marginY = frame.bottom - frame.top; // タイトルバー + 上下の枠
+
+					const int clientWidth  = (rect->right - rect->left) - marginX;
+					const int clientHeight = (rect->bottom - rect->top) - marginY;
+
+					// 最小サイズは WM_GETMINMAXINFO 側で担保されるが、念のため退化を避ける。
+					if(clientWidth <= 0 || clientHeight <= 0){
+						break;
+					}
+
+					// クライアントサイズで比を合わせてから、ウィンドウ矩形の寸法に戻す
+					const int windowHeightFromWidth = int(clientWidth / aspect) + marginY;
+					const int windowWidthFromHeight = int(clientHeight * aspect) + marginX;
 
 					switch(_wparam){
 						case WMSZ_RIGHT:
-							{
-								// 右端ドラッグ時
-								width        = rect->right - rect->left;
-								height       = int(width / aspect);
-								rect->bottom = rect->top + height;
-								break;
-							}
+							// 右端ドラッグ時 (上辺を固定)
+							rect->bottom = rect->top + windowHeightFromWidth;
+							break;
 						case WMSZ_LEFT:
-							{
-								// 左端ドラッグ時
-								width     = rect->right - rect->left;
-								height    = int(width / aspect);
-								rect->top = rect->bottom - height;
-								break;
-							}
+							// 左端ドラッグ時 (下辺を固定)
+							rect->top = rect->bottom - windowHeightFromWidth;
+							break;
 						case WMSZ_TOP:
-							{
-								// 上端ドラッグ時
-								height      = rect->bottom - rect->top;
-								width       = int(height * aspect);
-								rect->right = rect->left + width;
-								break;
-							}
 						case WMSZ_BOTTOM:
-							{
-								// 下端ドラッグ時
-								height      = rect->bottom - rect->top;
-								width       = int(height * aspect);
-								rect->right = rect->left + width;
-								break;
-							}
+							// 上端/下端ドラッグ時 (左辺を固定)
+							rect->right = rect->left + windowWidthFromHeight;
+							break;
 						case WMSZ_TOPRIGHT:
-							{
-								// 右上ドラッグ時
-								width     = rect->right - rect->left;
-								height    = int(width / aspect);
-								rect->top = rect->bottom - height;
-								break;
-							}
 						case WMSZ_TOPLEFT:
-							{
-								// 左上ドラッグ時
-								width     = rect->right - rect->left;
-								height    = int(width / aspect);
-								rect->top = rect->bottom - height;
-								break;
-							}
+							// 上側の角をドラッグ時 (下辺を固定)
+							rect->top = rect->bottom - windowHeightFromWidth;
+							break;
 						case WMSZ_BOTTOMRIGHT:
-							{
-								// 右下を動かす
-								width        = rect->right - rect->left;
-								height       = int(width / aspect);
-								rect->bottom = rect->top + height;
-								break;
-							}
 						case WMSZ_BOTTOMLEFT:
-							{
-								// 左下を動かす
-								width        = rect->right - rect->left;
-								height       = int(width / aspect);
-								rect->bottom = rect->top + height;
-								break;
-							}
+							// 下側の角をドラッグ時 (上辺を固定)
+							rect->bottom = rect->top + windowHeightFromWidth;
+							break;
+						default:
+							break;
 					}
 					return TRUE;
 				}
 				break;
 			}
+		case WM_ENTERSIZEMOVE:
+			// ここから DefWindowProc がモーダルループに入り、アプリのメインループが止まる。
+			if(pThis){
+				pThis->inSizeMove_ = true;
+			}
+			break;
+
+		case WM_EXITSIZEMOVE:
+			if(pThis){
+				pThis->inSizeMove_ = false;
+			}
+			break;
+
 		case WM_SIZE:
 			{
 				if(pThis == nullptr){
@@ -264,6 +278,14 @@ LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
 					pThis->clientHeight_ = HIWORD(_lparam);
 					pThis->windowSize_   = Vec2f(float(pThis->clientWidth_),float(pThis->clientHeight_));
 					pThis->ApplyCursorClip();
+
+					// モーダルループ中はアプリのメインループが回らないので、
+					// ここから 1 フレーム分の更新と描画を行う。
+					if(pThis->inSizeMove_ && pThis->sizeMoveFrameCallback_ && !pThis->inSizeMoveFrame_){
+						pThis->inSizeMoveFrame_ = true;
+						pThis->sizeMoveFrameCallback_();
+						pThis->inSizeMoveFrame_ = false;
+					}
 				}
 
 				break;
@@ -865,6 +887,14 @@ void WinApp::ClearDropCallback(){
 	dropCallback_ = nullptr;
 }
 
+void WinApp::SetSizeMoveFrameCallback(const SizeMoveFrameCallback& _callback){
+	sizeMoveFrameCallback_ = _callback;
+}
+
+void WinApp::ClearSizeMoveFrameCallback(){
+	sizeMoveFrameCallback_ = nullptr;
+}
+
 void WinApp::SetWindowTitle(const wchar_t* _title){
 	if(_title == nullptr){
 		return;
@@ -964,13 +994,15 @@ void WinApp::SetTransparencyColorKey(COLORREF _colorKey,bool _enable){
 bool WinApp::ProcessMessage(){
 	MSG msg{}; // メッセージ
 
-	if(PeekMessage(&msg,nullptr,0,0,PM_REMOVE)){ // メッセージがあれば取り出す
+	// キューが空になるまで捌く。
+	// 1 フレームに 1 件しか処理しないと、マウス移動などでキューが溜まったときに
+	// WM_SIZE のような重要なメッセージの処理が何フレームも遅れてしまう。
+	while(PeekMessage(&msg,nullptr,0,0,PM_REMOVE)){ // メッセージがあれば取り出す
+		if(msg.message == WM_QUIT){ // アプリケーション終了メッセージの検知
+			return true;
+		}
 		TranslateMessage(&msg); // 仮想キーメッセージを文字メッセージに変換
 		DispatchMessage(&msg); // ウィンドウプロシージャへ転送
-	}
-
-	if(msg.message == WM_QUIT){ // アプリケーション終了メッセージの検知
-		return true;
 	}
 
 	return false;

@@ -96,6 +96,10 @@ struct WindowDesc {
 class WinApp {
 public:
     using DropCallback = ::std::function<void(const ::std::vector<::std::wstring>& _paths)>;
+    /// <summary>
+    /// サイズ変更/移動のモーダルループ中に、1 フレーム分の更新と描画を行うためのコールバック.
+    /// </summary>
+    using SizeMoveFrameCallback = ::std::function<void()>;
 
     /// <summary>
     /// OS から届くウィンドウメッセージを処理するコールバック関数.
@@ -190,6 +194,16 @@ public:
     void SetDropCallback(const DropCallback& _callback);
     /// <summary> 登録済みのドロップコールバックを解除する. </summary>
     void ClearDropCallback();
+
+    /// <summary>
+    /// サイズ変更/移動のモーダルループ中に呼び出すコールバックを登録する.
+    /// Win32 はウィンドウの縁をドラッグしている間 DefWindowProc の中で独自のループを回すため、
+    /// アプリのメインループが止まり、その間 1 フレームも描画されない。
+    /// ここに 1 フレーム分の処理を渡しておくと、ドラッグ中も描画が続く。
+    /// </summary>
+    void SetSizeMoveFrameCallback(const SizeMoveFrameCallback& _callback);
+    /// <summary> 登録済みのサイズ変更/移動コールバックを解除する. </summary>
+    void ClearSizeMoveFrameCallback();
 
     /// <summary> ウィンドウタイトルを変更する. </summary>
     void SetWindowTitle(const wchar_t* _title);
@@ -311,6 +325,9 @@ private:
     WindowMode windowMode_ = WindowMode::WINDOWED;
     int targetMonitorIndex_ = 0;
     DropCallback dropCallback_;
+    SizeMoveFrameCallback sizeMoveFrameCallback_;
+    bool inSizeMove_      = false; // サイズ変更/移動のモーダルループ中か
+    bool inSizeMoveFrame_ = false; // 上記コールバックの実行中か (再入防止)
     bool alwaysOnTop_ = false;
     bool dragDropEnabled_ = false;
     bool backgroundTransparent_ = false;
