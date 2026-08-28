@@ -165,6 +165,13 @@ public:
     void SetCustomCursor(const wchar_t* _cursorPath);
     /// <summary> カーソルを OS 標準のものへ戻す. </summary>
     void ResetCursor();
+    /// <summary>
+    /// WM_SETCURSOR で使うカーソル形状を一時的に上書きする（リサイズ枠のホバー等、自作 UI が
+    /// クライアント領域内で独自のカーソルを出すために使う）。所有権は呼び出し側のまま
+    /// （LoadCursor 等で得た共有ハンドルを想定しており、このクラスは破棄しない）。
+    /// nullptr を渡すと上書きを解除し、通常のカーソル決定処理（customCursor_/defaultCursor_）に戻る。
+    /// </summary>
+    void SetCursorShapeOverride(HCURSOR _cursor) { cursorShapeOverride_ = _cursor; }
 
     /// <summary> 指定パスのアイコンファイルをウィンドウアイコンとして設定する. </summary>
     void SetIcon(const wchar_t* _iconPath);
@@ -279,6 +286,15 @@ public:
     /// <summary> 自動起動が有効になっているかどうかを取得する. </summary>
     static bool IsAutoStartEnabled(const wchar_t* _appName);
 
+    /// <summary>
+    /// このアプリが所有する追加ウィンドウを登録する.
+    /// UpdateActivity() は、メインウィンドウか登録済みのいずれかが前面ならアプリをアクティブとみなす。
+    /// 自作 UI のウィンドウを別の OS ウィンドウへ切り離す機能のために必要.
+    /// </summary>
+    void AddOwnedWindow(HWND _hwnd);
+    /// <summary> AddOwnedWindow() で登録した追加ウィンドウを解除する. </summary>
+    void RemoveOwnedWindow(HWND _hwnd);
+
 private:
     /// <summary> cursorClipped_ の状態に応じてカーソルの移動範囲をウィンドウ内へ実際にクリップする. </summary>
     void ApplyCursorClip();
@@ -317,6 +333,7 @@ private:
     bool cursorClipped_   = false;
     HCURSOR customCursor_ = nullptr;
     HCURSOR defaultCursor_ = nullptr;
+    HCURSOR cursorShapeOverride_ = nullptr; // 非 nullptr の間は WM_SETCURSOR でこれを優先して SetCursor する
 
     HICON iconLarge_ = nullptr;
     HICON iconSmall_ = nullptr;
@@ -340,6 +357,10 @@ private:
 
     // ホットキー
     ::std::vector<int> registeredHotkeyIds_;
+
+    // このアプリが所有する追加ウィンドウ (自作 UI を切り離した OS ウィンドウ)。
+    // UpdateActivity() でフォアグラウンド判定に使う。
+    ::std::vector<HWND> ownedWindows_;
 
     // システムトレイ
     bool trayEnabled_ = false;

@@ -133,6 +133,11 @@ LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
 
 		case WM_SETCURSOR:
 			if(LOWORD(_lparam) == HTCLIENT && pThis){
+				// 自作 UI (リサイズ枠のホバー等) が一時的に形状を指定しているときはそれを優先する。
+				if(pThis->cursorShapeOverride_){
+					SetCursor(pThis->cursorShapeOverride_);
+					return TRUE;
+				}
 				SetCursor(pThis->cursorVisible_ ? (pThis->customCursor_ ? pThis->customCursor_ : pThis->defaultCursor_) : nullptr);
 				return TRUE;
 			}
@@ -1012,7 +1017,34 @@ bool WinApp::ProcessMessage(){
 /// 現在このウィンドウが最前面 (フォーカスされている) かをチェックし状態を更新する.
 /// </summary>
 void WinApp::UpdateActivity(){
-	isActive_ = GetForegroundWindow() == hwnd_;
+	const HWND foreground = GetForegroundWindow();
+	isActive_ = (foreground == hwnd_);
+	if (!isActive_) {
+		// メインウィンドウ自体は前面でなくても、切り離した追加ウィンドウ (自作 UI) が
+		// 前面ならアプリはアクティブ扱いにする。何も登録されていなければ従来と同じ挙動。
+		for (HWND owned : ownedWindows_) {
+			if (owned == foreground) {
+				isActive_ = true;
+				break;
+			}
+		}
+	}
+}
+
+/// <summary>
+/// このアプリが所有する追加ウィンドウを登録する.
+/// </summary>
+void WinApp::AddOwnedWindow(HWND _hwnd){
+	ownedWindows_.push_back(_hwnd);
+}
+
+/// <summary>
+/// AddOwnedWindow() で登録した追加ウィンドウを解除する.
+/// </summary>
+void WinApp::RemoveOwnedWindow(HWND _hwnd){
+	ownedWindows_.erase(
+		std::remove(ownedWindows_.begin(), ownedWindows_.end(), _hwnd),
+		ownedWindows_.end());
 }
 
 /// <summary>
