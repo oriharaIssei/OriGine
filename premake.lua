@@ -103,6 +103,10 @@ function defineEngineProjects(engineRoot)
         filter "configurations:Develop"
             defines { "DEVELOP", "_DEVELOP" }
             symbols "On"
+            -- 計測用の構成。エンジン側が /Od だと計測対象そのものが実際の
+            -- 実行コードと違うものになり、Release で消えるはずの呼び出しコストが
+            -- 計測結果に混ざって最適化の判断を誤らせるため、アプリ側と同じく最適化を効かせる。
+            optimize "Speed"
             runtime "Release"
             libdirs { p(engineRoot, "externals/assimp/lib/Release") }
             links { "assimp-vc143-mt" }
@@ -153,6 +157,7 @@ function defineEngineProjects(engineRoot)
         filter "configurations:Develop"
             runtime "Release"
             symbols "On"
+            optimize "Speed"
             staticruntime "On"
         filter "configurations:Release"
             runtime "Release"
@@ -182,6 +187,7 @@ function defineEngineProjects(engineRoot)
         filter "configurations:Debug"
             staticruntime "On"
         filter "configurations:Develop"
+            optimize "Speed"
             staticruntime "On"
         filter "configurations:Release"
             staticruntime "On"
