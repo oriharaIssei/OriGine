@@ -10,14 +10,14 @@ using namespace OriGine;
 
 namespace OriGine::Test {
 
-int RunTestCases(const std::vector<TestCaseEntry>& _cases) {
+int RunTestCases(const std::vector<TestCaseEntry>& _cases, const std::string& _suiteName) {
     const std::string bar(60, '=');
 
     LOG_INFO("{}", bar);
-    LOG_INFO("ComponentTypeId regression suite: {} case(s)", _cases.size());
+    LOG_INFO("{} suite: {} case(s)", _suiteName, _cases.size());
     LOG_INFO("{}", bar);
     std::cout << bar << "\n";
-    std::cout << "ComponentTypeId regression suite: " << _cases.size() << " case(s)\n";
+    std::cout << _suiteName << " suite: " << _cases.size() << " case(s)\n";
     std::cout << bar << std::endl;
 
     uint32_t passedCount = 0;

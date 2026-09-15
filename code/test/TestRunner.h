@@ -44,7 +44,8 @@ struct TestCaseEntry {
 /// クラッシュした場合、この関数自体が戻ってこない(=それ以降のケースは実行されない)。
 /// </summary>
 /// <param name="_cases">実行するテストケース列。この配列の並び順がそのまま実行順序になる</param>
+/// <param name="_suiteName">見出しに出すスイート名(複数スイート対応前は"ComponentTypeId"固定だった)</param>
 /// <returns>0 = 全ケースPASS、1 = 1件以上FAIL</returns>
-int RunTestCases(const std::vector<TestCaseEntry>& _cases);
+int RunTestCases(const std::vector<TestCaseEntry>& _cases, const std::string& _suiteName);
 
 } // namespace OriGine::Test

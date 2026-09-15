@@ -7,14 +7,16 @@
 namespace OriGine::Test {
 
 /// <summary>
-/// main.cpp の ParseCommandLine() が返す引数リストに "--test" が含まれている場合、
-/// コンポーネント型IDの寿命バグを検出する回帰テスト一式(ComponentTypeIdTests)を実行して
-/// 結果をログ/標準出力に出したのち true を返す(呼び出し元はこれを合図にアプリケーションを
-/// 即座に終了させること)。
-/// "--test" が指定されていない場合は何もせず false を返す(既存の起動フローを一切変更しない)。
+/// main.cpp の ParseCommandLine() が返す引数リストに "--test" または "--test=&lt;suite&gt;" が
+/// 含まれている場合、対応するテストスイート(TestSuiteRegistry::GetAllTestSuites() を参照)を
+/// 実行して結果をログ/標準出力に出したのち true を返す(呼び出し元はこれを合図に
+/// アプリケーションを即座に終了させること)。
+/// どちらも指定されていない場合は何もせず false を返す(既存の起動フローを一切変更しない)。
 ///
 /// 対応するCLI引数:
-///   --test  : テストモードを有効化する(これが無ければ何もしない)
+///   --test           : 登録済みの全スイートを登録順に実行する(1つでもFAILがあれば全体をFAIL扱いにする)
+///   --test=&lt;suite&gt; : 指定した1スイートだけを実行する。知らないスイート名の場合は
+///                       何も実行せず、終了コードを1にする(黙って全件実行にフォールバックしない)
 /// </summary>
 /// <param name="_commandLines">main.cpp の ParseCommandLine() の戻り値</param>
 /// <returns>テストを実行した場合は true</returns>
