@@ -139,13 +139,6 @@ namespace OriGine {
 		/// <param name="_handle">コンポーネントを削除されるエンティティ</param>
 		void RemoveEntity(const EntityHandle& _handle);
 
-		/// <summary>
-		/// 指定したエンティティが持つ全てのコンポーネントを取得する
-		/// </summary>
-		/// <param name="_handle">指定するEntityのHandle</param>
-		/// <returns>first = typename, second = typeComponents </returns>
-		std::unordered_map<std::string,std::vector<IComponent*>> GetAllComponentsOfEntity(const EntityHandle& _handle);
-
 	private:
 		/// <summary>
 		/// コンポーネント配列の実体。**添字は ComponentRegistry が採番した型ID**であって、

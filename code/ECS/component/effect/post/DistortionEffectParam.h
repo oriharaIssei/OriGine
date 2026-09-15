@@ -19,9 +19,6 @@
 #include "math/Vector2.h"
 
 namespace OriGine {
-// 前方宣言
-class PrimitiveMeshRendererBase;
-enum class PrimitiveType : int32_t;
 
 /// <summary>
 /// Distortion Effectのパラメーター情報(GPUに送る)
@@ -51,17 +48,16 @@ class DistortionEffectParam
 
 public:
     DistortionEffectParam() {}
-    ~DistortionEffectParam() override {}
+    ~DistortionEffectParam() {}
 
-    void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _hostEntity);
     void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel);
     void Finalize();
 
     void LoadTexture(const std::string& _path);
 
 private:
-    bool isActive_        = true;
-    bool use3dObjectList_ = false; // distortionObjects_ を使うかどうか (false の場合 textureを使用した2dのエフェクトとなる)
+    bool isActive_ = true;
 
     int32_t materialIndex_ = -1;
 
@@ -71,14 +67,9 @@ private:
     IConstantBuffer<DistortionParamData> effectParamData_;
     SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
 
-    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>> distortionObjects_;
-
 public:
     bool GetIsActive() const { return isActive_; }
     void SetIsActive(bool _active) { isActive_ = _active; }
-
-    bool GetUse3dObjectList() const { return use3dObjectList_; }
-    void SetUse3dObjectList(bool _use) { use3dObjectList_ = _use; }
 
     const std::string& GetTexturePath() const { return texturePath_; }
     size_t GetTextureIndex() const { return textureIndex_; }
@@ -94,10 +85,6 @@ public:
     }
     SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuffer() {
         return materialBuffer_;
-    }
-
-    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>& GetDistortionObjects() {
-        return distortionObjects_;
     }
 };
 

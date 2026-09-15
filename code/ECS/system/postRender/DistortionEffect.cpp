@@ -2,27 +2,16 @@
 
 /// engine
 #include "Engine.h"
-#include "scene/SceneManager.h"
 #include "asset/AssetSystem.h"
-#include "winApp/WinApp.h"
 // asset
 #include "asset/TextureAsset.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
-#include "component/transform/Transform.h"
-// system
-#include "system/render/TexturedMeshRenderSystemWithoutRaytracing.h"
 
 // directX12
 #include "directX12/DxDevice.h"
-#include "directX12/RenderTexture.h"
 
 using namespace OriGine;
-
-// 静的メンバ変数の定義
-std::unique_ptr<RenderTexture> DistortionEffect::distortionSceneTexture_ = nullptr;
-int32_t DistortionEffect::instanceCount_                                 = 0;
 
 /// <summary>
 /// コンストラクタ
@@ -39,23 +28,6 @@ DistortionEffect::~DistortionEffect() {}
 /// </summary>
 void DistortionEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
-
-    // インスタンスカウント加算
-    ++instanceCount_;
-
-    // 最初のインスタンスの場合、共有リソースを初期化
-    if (instanceCount_ == 1) {
-        distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
-        distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
-        distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
-    }
-
-    texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystemWithoutRaytracing>();
-    texturedMeshRenderSystem_->SetScene(GetScene());
-    texturedMeshRenderSystem_->Initialize();
-
-    defaultParam_ = std::make_unique<DistortionEffectParam>();
-    defaultParam_->Initialize(nullptr, EntityHandle());
 }
 
 /// <summary>
@@ -68,19 +40,6 @@ void DistortionEffect::Finalize() {
         dxCommand_->Finalize();
         dxCommand_.reset();
         dxCommand_ = nullptr;
-    }
-
-    texturedMeshRenderSystem_->Finalize();
-
-    // インスタンスカウント減算
-    --instanceCount_;
-
-    // 最後のインスタンスの場合、共有リソースを解放
-    if (instanceCount_ == 0) {
-        if (distortionSceneTexture_) {
-            distortionSceneTexture_->Finalize();
-            distortionSceneTexture_.reset();
-        }
     }
 }
 
@@ -178,44 +137,6 @@ void DistortionEffect::CreatePSO() {
 void DistortionEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
-    // シーンテクスチャのサイズ確認
-    if (distortionSceneTexture_->GetTextureSize() != Engine::GetInstance()->GetWinApp()->GetWindowSize()) {
-        // サイズが変わったら再初期化
-        distortionSceneTexture_->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
-    }
-
-    /// ----------------------------------------------------------
-    /// 3dオブジェクトシーンテクスチャへの描画開始
-    /// ----------------------------------------------------------
-    // 歪みを起こす3Dオブジェクト(炎・水面等)を一旦専用のオフスクリーンテクスチャへまとめて描画し、
-    // それを後段のポストエフェクトパス(Rendering)で歪み量マップ(t0)として使う。
-    // 全インスタンス共有の distortionSceneTexture_ を使い回すことで、テクスチャ確保コストを抑えている。
-    if (!activeDistortionObjects_.empty()) {
-        distortionSceneTexture_->PreDraw();
-
-        // 半透明合成 + 両面描画で、歪みを起こすメッシュ(パーティクル等)を素直に重ね描きする
-        texturedMeshRenderSystem_->SetBlendMode(BlendMode::Alpha);
-        texturedMeshRenderSystem_->SetCulling(false);
-
-        texturedMeshRenderSystem_->StartRender();
-
-        for (auto& object : activeDistortionObjects_) {
-            ///==============================
-            /// Transformの更新
-            ///==============================
-            {
-                auto& transform = object->GetTransformBuff();
-                transform->UpdateMatrix();
-                transform.ConvertToBuffer();
-            }
-
-            texturedMeshRenderSystem_->RenderPrimitiveMesh(
-                commandList,
-                object);
-        }
-        distortionSceneTexture_->PostDraw();
-    }
-
     /// ----------------------------------------------------------
     /// pso Set
     /// ----------------------------------------------------------
@@ -235,30 +156,6 @@ void DistortionEffect::RenderStart() {
 /// </summary>
 void DistortionEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
-
-    // 3dオブジェクトでエフェクトをかける
-    if (!activeDistortionObjects_.empty()) {
-        // 開始処理
-        RenderStart();
-
-        // Set buffer
-        // t0: RenderStart内で焼き込んだ distortionSceneTexture_ を歪み量マップとして使用
-        // t1: renderTarget_ の現在のバックバッファ(歪ませたい元シーン)
-        // b0/b1: defaultParam_ を使用。各オブジェクトの強度・バイアスは DispatchComponent 側で
-        //        マテリアルカラーへ事前に焼き込み済みのため、ここでは実質無加工の既定値でよい
-        commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->GetBackBufferSrvHandle());
-        commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->GetBackBufferSrvHandle());
-        defaultParam_->GetEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
-        defaultParam_->GetMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
-
-        // Draw
-        commandList->DrawInstanced(6, 1, 0, 0);
-
-        // 終了処理
-        RenderEnd();
-
-        activeDistortionObjects_.clear();
-    }
 
     // 単一テクスチャ指定のエフェクト(2Dの歪みテクスチャを直接使うケース)
     for (auto& renderingData : activeRenderingData_) {
@@ -308,71 +205,26 @@ void DistortionEffect::DispatchComponent(const EntityHandle& _handle) {
             continue;
         }
 
-        auto* entityTransform = GetComponent<Transform>(_handle);
+        // 単一テクスチャを使用する場合
+        RenderingData renderingData{};
+        renderingData.effectParam = &effectParam;
+        renderingData.srvHandle   = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(effectParam.GetTextureIndex()).srv.GetGpuHandle();
 
-        // 3dオブジェクトリストを使用する場合
-        if (effectParam.GetUse3dObjectList()) {
-            auto& paramData = effectParam.GetEffectParamData();
-            for (auto& [primitiveRenderBase, type] : effectParam.GetDistortionObjects()) {
-                // activeでないならスキップ
-                if (!primitiveRenderBase->IsRender()) {
-                    continue;
-                }
+        // マテリアル情報の更新
+        int32_t materialIndex = effectParam.GetMaterialIndex();
+        auto& materialBuff    = effectParam.GetMaterialBuffer();
+        if (materialIndex >= 0) {
+            Material* material = GetComponent<Material>(_handle, materialIndex);
+            material->UpdateUvMatrix();
 
-                // マテリアル情報の更新
-                int32_t materialIndex = primitiveRenderBase->GetMaterialIndex();
-                auto& materialBuff    = primitiveRenderBase->GetMaterialBuff();
-                if (materialIndex >= 0) {
-                    Material* material = GetComponent<Material>(_handle, materialIndex);
-                    material->UpdateUvMatrix();
+            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
-                    // 歪み強度・バイアスの反映
-                    // 後に すべての Objectを描画し一度だけシーンテクスチャに描画するため、
-                    // 前もってエフェクトパラメータを反映させておく
-                    // (Distortion.PS.hlsl の distortionOffset = (color.rg*color.a - bias) * strength と同じ計算を、
-                    //  ここではオブジェクトごとに異なる bias/strength をマテリアルカラーへ焼き込む形で先に適用している)
-                    Material data  = *material;
-                    data.color_[X] = (data.color_[X] - paramData.distortionBias[X]) * paramData.distortionStrength[X];
-                    data.color_[Y] = (data.color_[Y] - paramData.distortionBias[Y]) * paramData.distortionStrength[Y];
-                    if (material->hasCustomTexture()) {
-                        data.SetCustomTexture(material->GetCustomTexture()->srv_, material->GetCustomTexture()->resource_);
-                    }
-
-                    materialBuff.ConvertToBuffer(data);
-                }
-                // Transformの更新
-                {
-                    auto& transform   = primitiveRenderBase->GetTransformBuff();
-                    transform->parent = entityTransform;
-                    transform->UpdateMatrix();
-                    transform.ConvertToBuffer();
-                }
-
-                // 追加
-                activeDistortionObjects_.push_back(primitiveRenderBase.get());
+            if (material->hasCustomTexture()) {
+                renderingData.srvHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
             }
-        } else {
-            // 単一テクスチャを使用する場合
-            RenderingData renderingData{};
-            renderingData.effectParam = &effectParam;
-            renderingData.srvHandle   = AssetSystem::GetInstance()->GetManager<TextureAsset>()->GetAsset(effectParam.GetTextureIndex()).srv.GetGpuHandle();
-
-            // マテリアル情報の更新
-            int32_t materialIndex = effectParam.GetMaterialIndex();
-            auto& materialBuff    = effectParam.GetMaterialBuffer();
-            if (materialIndex >= 0) {
-                Material* material = GetComponent<Material>(_handle, materialIndex);
-                material->UpdateUvMatrix();
-
-                materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-
-                if (material->hasCustomTexture()) {
-                    renderingData.srvHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
-                }
-            }
-            // 追加
-            activeRenderingData_.emplace_back(renderingData);
         }
+        // 追加
+        activeRenderingData_.emplace_back(renderingData);
     }
 }
 
@@ -381,5 +233,5 @@ void DistortionEffect::DispatchComponent(const EntityHandle& _handle) {
 /// </summary>
 /// <returns>描画データがない場合は true</returns>
 bool DistortionEffect::ShouldSkipPostRender() const {
-    return activeRenderingData_.empty() && activeDistortionObjects_.empty();
+    return activeRenderingData_.empty();
 }

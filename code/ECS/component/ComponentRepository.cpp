@@ -150,31 +150,6 @@ void ComponentRepository::RemoveEntity(const EntityHandle& _handle){
 	}
 }
 
-/// <summary>
-/// 指定したエンティティが持つ全てのコンポーネントを取得する
-/// </summary>
-std::unordered_map<std::string,std::vector<IComponent*>> OriGine::ComponentRepository::GetAllComponentsOfEntity(const EntityHandle& _handle){
-	std::unordered_map<std::string,std::vector<IComponent*>> result;
-
-	// 型名は ComponentRegistry からの逆引きで得る(この経路はエディタ/シリアライズ用で低頻度)
-	ComponentRegistry* registry = ComponentRegistry::GetInstance();
-	for(uint32_t typeId = 0; typeId < static_cast<uint32_t>(componentArrays_.size()); ++typeId){
-		const auto& componentArray = componentArrays_[typeId];
-		if(!componentArray || !componentArray->HasEntity(_handle)){
-			continue;
-		}
-		auto comps = componentArray->GetIComponents(_handle);
-		if(comps.empty()){
-			// 実体を持たない型は結果に含めない
-			continue;
-		}
-		result[registry->GetTypeName(typeId)] = comps;
-	}
-
-	return result;
-}
-
-
 uint32_t ComponentRepository::GetComponentCount() const{
 	// componentArrays_ は常に kMaxComponentTypes 個ぶん確保されているので、
 	// size() ではなく実体のある枠の数を数える

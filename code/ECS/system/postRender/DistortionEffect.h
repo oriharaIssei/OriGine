@@ -12,16 +12,9 @@
 #include "directX12/ShaderManager.h"
 
 namespace OriGine {
-/// engine
-// drecitX12
-class RenderTexture;
 /// ECS
 // component
-struct Transform;
 class DistortionEffectParam;
-// system
-class PrimitiveMeshRendererBase;
-class TexturedMeshRenderSystemWithoutRaytracing;
 
 /// <summary>
 /// 歪みエフェクトをかけるシステム
@@ -53,7 +46,7 @@ protected:
     /// </summary>
     void RenderStart() override;
     /// <summary>
-    /// レンダリング処理(3Dオブジェクト分と単一テクスチャ分、それぞれについて内部で RenderStart/RenderEnd を呼び出す)
+    /// レンダリング処理(テクスチャ指定のエフェクトについて、内部で RenderStart/RenderEnd を呼び出す)
     /// </summary>
     void Rendering() override;
     /// <summary>
@@ -83,17 +76,9 @@ protected:
     };
 
 protected:
-    std::unique_ptr<DistortionEffectParam> defaultParam_ = nullptr; // デフォルトパラメーター (3DObjectの適応に使う)
+    std::vector<RenderingData> activeRenderingData_ = {}; // 今回の更新で描画対象となったエンティティの描画データ一覧
 
-    std::vector<RenderingData> activeRenderingData_                  = {}; // 今回の更新で描画対象となったエンティティの描画データ一覧
-    std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {}; // 歪みを適用する3Dオブジェクトの一覧
-
-    // 静的共有リソース
-    static std::unique_ptr<RenderTexture> distortionSceneTexture_; // 歪みシーンテクスチャ (全インスタンスで共有)
-    static int32_t instanceCount_; // インスタンスカウント
-
-    std::unique_ptr<TexturedMeshRenderSystemWithoutRaytracing> texturedMeshRenderSystem_ = nullptr; // 歪みシーンテクスチャへの描画に使うメッシュ描画システム
-    PipelineStateObj* pso_                                                               = nullptr; // 歪みエフェクト用PSO
+    PipelineStateObj* pso_ = nullptr; // 歪みエフェクト用PSO
 
     // gpu に送る バッファーのインデックス
     int32_t distortionTextureIndex_ = 0;

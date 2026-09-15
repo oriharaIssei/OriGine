@@ -145,53 +145,8 @@ void EntityComponentRegion::DrawGui() {
 
     ::ImGui::Spacing();
 
-    Scene* editScene = parentArea_->GetParentWindow()->GetCurrentScene();
-
-    for (const auto& [componentTypeName, components] : editScene->GetComponentRepositoryRef()->GetAllComponentsOfEntity(editEntityHandle)) {
-        if (::ImGui::CollapsingHeader(componentTypeName.c_str())) {
-            ::ImGui::Indent();
-            if (components.size() > 1) {
-                int32_t componentIndex = 0;
-                ::std::string label    = "";
-                for (const auto& component : components) {
-                    label = componentTypeName + ::std::to_string(componentIndex);
-
-                    if (::ImGui::Button(::std::string("X##" + label).c_str())) {
-                        auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, componentIndex);
-                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(removeCommand));
-                        continue; // ボタンが押されたら次のコンポーネントへ
-                    }
-                    ::ImGui::SameLine();
-
-                    label = ::std::format("{} : [{}]##{}", componentTypeName, ::std::to_string(componentIndex), editEntity->GetUniqueID());
-                    if (::ImGui::TreeNode(label.c_str())) {
-                        component->Edit(editScene, editEntityHandle, label);
-                        ::ImGui::TreePop();
-                    }
-
-                    ++componentIndex;
-                }
-            } else if (components.size() == 1) {
-                const auto& component = components.back();
-
-                ::std::string label = "";
-                label               = componentTypeName;
-
-                if (::ImGui::Button(::std::string("X##" + label).c_str())) {
-                    auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, 0);
-                    OriGine::EditorController::GetInstance()->PushCommand(::std::move(removeCommand));
-                    continue; // ボタンが押されたら次のコンポーネントへ
-                }
-                ::ImGui::SameLine();
-
-                ::ImGui::Text("%s", componentTypeName.c_str());
-
-                label = ::std::format("{}:[{}]{}", componentTypeName, ::std::to_string(0), editEntity->GetUniqueID());
-                component->Edit(editScene, editEntityHandle, label);
-            }
-            ::ImGui::Unindent();
-        }
-    }
+    // コンポーネントの一覧と編集 UI は IComponent* 経由の Edit 呼び出しに依存していたため、
+    // IComponent の非仮想化に合わせて外している。ディスクリプタ経由の汎用ドロワーで作り直す。
 
     ::ImGui::Unindent();
 }
