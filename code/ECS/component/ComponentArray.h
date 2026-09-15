@@ -171,6 +171,14 @@ public:
         const nlohmann::json& _inJson,
         HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
+    /// <summary>
+    /// 指定したEntityが所有する、この型の全てのComponentを初期化する
+    /// (要素は具象型ComponentTypeのまま扱うため、IComponent*経由の仮想呼び出しは発生しない)
+    /// </summary>
+    /// <param name="_scene"></param>
+    /// <param name="_handle"></param>
+    void InitializeComponents(Scene* _scene, const EntityHandle& _handle) override;
+
     // ────────────────────────────────
     //  getters
     // ────────────────────────────────

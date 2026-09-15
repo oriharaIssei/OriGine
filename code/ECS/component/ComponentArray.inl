@@ -366,6 +366,24 @@ inline void ComponentArray<ComponentType>::LoadComponents(
 }
 
 template <IsComponent ComponentType>
+inline void ComponentArray<ComponentType>::InitializeComponents(Scene* _scene, const EntityHandle& _handle) {
+    PROFILE_COUNT("ComponentArray::InitializeComponents");
+    auto entIt = entitySlotMap_.find(_handle.uuid);
+    if (entIt == entitySlotMap_.end()) {
+        return;
+    }
+
+    uint32_t slotIndex = entIt->second;
+    EntitySlot& slot   = slots_[slotIndex];
+
+    // 要素は具象型ComponentTypeのまま持っているので、ここでのInitialize呼び出しは
+    // IComponent*経由の仮想呼び出しにならない(非仮想化後もこの呼び出し方は変わらない)
+    for (auto& comp : slot.components) {
+        comp.Initialize(_scene, _handle);
+    }
+}
+
+template <IsComponent ComponentType>
 inline ComponentType* ComponentArray<ComponentType>::GetComponent(ComponentHandle _handle) {
     auto itr = componentLocationMap_.find(_handle.uuid);
     if (itr == componentLocationMap_.end()) {

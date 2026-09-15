@@ -262,9 +262,8 @@ void SceneFactory::LoadEntityComponents(
 		}
 		compArray->LoadComponents(_entity,componentData,_handleMode);
 
-		auto loadedComps = compArray->GetIComponents(_entity);
-		for(auto& comp : loadedComps){
-			comp->Initialize(_scene,_entity);
-		}
+		// IComponent* 経由の Initialize は IComponent の非仮想化後に呼べなくなるため、
+		// 具象型を知っている ComponentArray<T> 側で初期化させる
+		compArray->InitializeComponents(_scene,_entity);
 	}
 }

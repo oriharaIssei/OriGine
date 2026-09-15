@@ -153,6 +153,17 @@ public:
         HandleAssignMode _handleMode = HandleAssignMode::UseSaved) = 0;
 
     /// <summary>
+    /// 指定したEntityが所有する、この型の全てのComponentを初期化する。
+    /// LoadComponents 直後のシーン構築時にのみ呼ぶ想定(型を知らない呼び出し口を
+    /// IComponent* 経由の Initialize 呼び出しから、この関数1回の呼び出しに集約するためのもの。
+    /// ComponentArray&lt;T&gt; 側では具象型 T のまま Initialize を呼べるため、仮想呼び出しは
+    /// この関数自体の1回だけで済む)
+    /// </summary>
+    /// <param name="_scene"></param>
+    /// <param name="_handle"></param>
+    virtual void InitializeComponents(Scene* _scene, const EntityHandle& _handle) = 0;
+
+    /// <summary>
     /// Componentの取得 (IComponent)
     /// </summary>
     /// <param name="_component"></param>
