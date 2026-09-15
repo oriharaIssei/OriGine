@@ -25,10 +25,10 @@ public:
     PointLight() {}
     ~PointLight() {}
 
-    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) override {}
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {}
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
-    void Finalize() override {}
+    void Finalize() {}
 
 public:
     bool isActive = true;

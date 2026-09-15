@@ -66,17 +66,17 @@ public:
     /// </summary>
     /// <param name="_scene">所属シーン（未使用）</param>
     /// <param name="_entity">所有者エンティティ（未使用）</param>
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
 
     /// <summary>
     /// エディタ用 UI 編集処理.
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
     /// <summary>
     /// 終了処理を行う. ソースボイスの破棄と音声データのアンロードを行う.
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
     /// <summary>
     /// 音声の再生を開始する.

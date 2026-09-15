@@ -61,16 +61,16 @@ struct Material
 
 public:
     Material() {}
-    ~Material() override {}
+    ~Material() {}
 
     /// <summary>
     /// UVTransformを計算してuvMat_に格納する
     /// </summary>
     void UpdateUvMatrix();
 
-    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
+    void Finalize();
 
     /// <summary>
     /// CustomTextureをTexMetadataから作成する

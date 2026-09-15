@@ -53,11 +53,11 @@ public:
     /// <summary>
     /// メッシュ・バッファの生成やテクスチャ読み込みなど、天空箱描画に必要な初期化を行う
     /// </summary>
-    void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _hostEntity);
     /// <summary>
     /// エディタ上で天空箱のテクスチャ・マテリアルを編集するGUIを描画する
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
 private:
     std::string filePath_; // 読み込んだキューブマップテクスチャのファイルパス

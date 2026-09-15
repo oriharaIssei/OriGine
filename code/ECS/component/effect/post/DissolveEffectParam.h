@@ -54,12 +54,12 @@ class DissolveEffectParam
 
 public:
     DissolveEffectParam()           = default;
-    ~DissolveEffectParam() override = default;
+    ~DissolveEffectParam() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
     void LoadTexture(const std::string& _filePath);
 

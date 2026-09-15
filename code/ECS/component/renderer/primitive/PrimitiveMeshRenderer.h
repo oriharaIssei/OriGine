@@ -17,16 +17,16 @@ public:
     PrimitiveMeshRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
     PrimitiveMeshRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
 
-    ~PrimitiveMeshRenderer() override {}
+    ~PrimitiveMeshRenderer() {}
 
     // PrimitiveMeshRendererBaseで既にpure virtualだが、ここで改めて= 0とすることで
     // 「PrimitiveMeshRenderer<T>自身も引き続き抽象クラスである」ことを明示している
     // (BoxRenderer等の具象クラス側で実装を提供する必要がある)
     void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _entity) = 0;
 
-    virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override = 0;
+    virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) = 0;
 
-    inline void Finalize() override;
+    inline void Finalize();
 
     using PrimitiveType = PrimType;
 

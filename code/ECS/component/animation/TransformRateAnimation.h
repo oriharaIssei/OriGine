@@ -34,12 +34,12 @@ public:
 
 public:
     TransformRateAnimation();
-    ~TransformRateAnimation() override;
+    ~TransformRateAnimation();
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel);
 
     /// <summary>
     /// 毎フレーム呼び出し. 速度・加速度に基づいて Transform を更新する.

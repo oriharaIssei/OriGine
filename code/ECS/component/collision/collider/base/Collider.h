@@ -127,8 +127,8 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) override {}
-    void Finalize() override {
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
+    void Finalize() {
         this->collisionStateMap_.clear();
         this->preCollisionStateMap_.clear();
     }

@@ -21,19 +21,19 @@ class EntityReferenceList : public IComponent {
 
 public:
     EntityReferenceList();
-    ~EntityReferenceList() override;
+    ~EntityReferenceList();
     /// <summary>
     /// 初期化処理(現状は特別な処理なし)
     /// </summary>
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
     /// <summary>
     /// エディタ上での編集UIを描画する処理
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     /// <summary>
     /// 終了処理(現状は特別な処理なし)
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
 private:
     // first: directory, second: filename

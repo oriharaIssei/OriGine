@@ -65,11 +65,11 @@ class GradationComponent
 
 public:
     GradationComponent()           = default;
-    ~GradationComponent() override = default;
+    ~GradationComponent() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
-    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
+    void Finalize();
 
 private:
     bool isActive_ = true;

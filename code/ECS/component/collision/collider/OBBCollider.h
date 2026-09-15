@@ -31,17 +31,17 @@ public:
     /// <param name="_scene">対象シーン</param>
     /// <param name="_entity">対象エンティティ</param>
     /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     /// <summary>
     /// ローカル形状(shape_)とTransformの現在値から、ワールド空間のOBB(worldShape_)を再計算する
     /// </summary>
-    void CalculateWorldShape() override;
+    void CalculateWorldShape();
 
     /// <summary>
     /// ワールド空間のAABBを取得する
     /// </summary>
     /// <returns>広域フェーズ（空間ハッシュ登録など）に使う、OBBを軸並行境界に投影したAABB</returns>
-    Bounds::AABB ToWorldAABB() const override;
+    Bounds::AABB ToWorldAABB() const;
 
 public: // accessor
     const Vec3f& GetLocalCenter() const { return shape_.center_; }

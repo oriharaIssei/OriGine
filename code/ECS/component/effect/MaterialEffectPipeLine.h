@@ -39,10 +39,10 @@ class MaterialEffectPipeLine
 
 public:
     MaterialEffectPipeLine();
-    ~MaterialEffectPipeLine() override;
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
-    void Finalize() override;
+    ~MaterialEffectPipeLine();
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
+    void Finalize();
 
     /// <summary>
     /// Effectをかけられるテクスチャを読み込む

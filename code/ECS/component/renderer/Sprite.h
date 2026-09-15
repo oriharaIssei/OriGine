@@ -98,12 +98,12 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(Scene* _scene, const EntityHandle& _hostEntity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _hostEntity);
 
     /// <summary>
     /// エディタ上でスプライトのパラメータを編集するGUIを描画する
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
     /// <summary>
     /// バッファ更新
@@ -112,7 +112,7 @@ public:
     /// <summary>
     /// 終了処理
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
     /// <summary>
     /// ウィンドウ比率に基づいて位置とサイズを計算

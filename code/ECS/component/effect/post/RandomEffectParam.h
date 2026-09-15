@@ -37,9 +37,9 @@ public:
 
 public:
     RandomEffectParam() {}
-    ~RandomEffectParam() override {}
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    ~RandomEffectParam() {}
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     void Finalize();
 
 private:

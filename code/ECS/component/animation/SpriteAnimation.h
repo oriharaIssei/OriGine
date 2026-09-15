@@ -25,11 +25,11 @@ class SpriteAnimation
 
 public:
     SpriteAnimation();
-    ~SpriteAnimation() override;
+    ~SpriteAnimation();
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
+    void Finalize();
 
     void UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer);
 

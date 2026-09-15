@@ -26,16 +26,16 @@ public:
     /// <summary>
     /// 初期化処理
     /// </summary>
-    virtual void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner) override;
+    virtual void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner);
     /// <summary>
     /// エディタ用編集UI
     /// </summary>
-    virtual void Edit(OriGine::Scene* _scene, const OriGine::EntityHandle& _handle, const std::string& _parentLabel) override;
+    virtual void Edit(OriGine::Scene* _scene, const OriGine::EntityHandle& _handle, const std::string& _parentLabel);
 
     /// <summary>
     /// 終了処理
     /// </summary>
-    virtual void Finalize() override;
+    virtual void Finalize();
 
     /// <summary>
     /// SceneTransitionSystem を使用する場合に呼び出す

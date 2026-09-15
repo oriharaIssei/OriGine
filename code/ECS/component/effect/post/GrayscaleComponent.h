@@ -35,12 +35,12 @@ class GrayscaleComponent
 
 public:
     GrayscaleComponent()           = default;
-    ~GrayscaleComponent() override = default;
+    ~GrayscaleComponent() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
 
 private:
     bool isEnabled_{false};

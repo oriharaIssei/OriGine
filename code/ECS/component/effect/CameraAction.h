@@ -19,9 +19,9 @@ public:
     CameraAction();
     ~CameraAction();
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
+    void Finalize();
 
     void Play() {
 #ifdef _DEBUG

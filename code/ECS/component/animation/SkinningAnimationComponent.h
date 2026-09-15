@@ -26,11 +26,11 @@ class SkinningAnimationComponent
 
 public:
     SkinningAnimationComponent()           = default;
-    ~SkinningAnimationComponent() override = default;
+    ~SkinningAnimationComponent() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
     void Edit(Scene* _scene, const EntityHandle& _handle, const std::string& _parentLabel);
-    void Finalize() override;
+    void Finalize();
 
     /// <summary>
     /// Animationを追加,読み込みする

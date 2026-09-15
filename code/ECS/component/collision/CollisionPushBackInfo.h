@@ -34,10 +34,10 @@ class CollisionPushBackInfo
     friend void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
 
 public:
-    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) override {}
-    void Finalize() override;
+    void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
     /// <summary>
     /// 蓄積した衝突情報をすべて破棄する。

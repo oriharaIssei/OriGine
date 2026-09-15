@@ -24,16 +24,16 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
 
     /// <summary>
     /// エディタ上でライン描画パラメータを編集するGUIを描画する
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     /// <summary>
     /// 保持しているリソースを解放する
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
 private:
     IConstantBuffer<Transform> transformBuff_; // 座標変換用定数バッファ

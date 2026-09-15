@@ -19,12 +19,12 @@ class DissolveAnimation
 
 public:
     DissolveAnimation();
-    ~DissolveAnimation() override;
+    ~DissolveAnimation();
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
     void Update(float _deltaTime, DissolveEffectParam* _param);
 

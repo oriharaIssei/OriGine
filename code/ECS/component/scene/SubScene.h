@@ -22,20 +22,20 @@ class SubScene
 
 public:
     SubScene();
-    ~SubScene() override;
+    ~SubScene();
 
     /// <summary>
     /// 初期化処理
     /// </summary>
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
     /// <summary>
     /// エディタ用編集UI
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel);
     /// <summary>
     /// 終了処理
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
     /// <summary>
     /// シーンをアクティブにする (必要ならロードする)

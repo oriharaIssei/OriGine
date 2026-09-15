@@ -34,11 +34,11 @@ struct SmoothingEffectParam
 
 public:
     SmoothingEffectParam()           = default;
-    ~SmoothingEffectParam() override = default;
+    ~SmoothingEffectParam() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
+    void Finalize();
 
 public:
     bool isActive_ = true;

@@ -29,11 +29,11 @@ class TextComponent
 	friend void from_json(const nlohmann::json& j,TextComponent& c);
 public:
 	TextComponent() = default;
-	~TextComponent() override = default;
+	~TextComponent() = default;
 
-	void Initialize(Scene* _scene, const EntityHandle& _owner) override;
-	void Finalize() override;
-	void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
+	void Initialize(Scene* _scene, const EntityHandle& _owner);
+	void Finalize();
+	void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
 
 	std::string text;
 	Vec2f position = {0.0f, 0.0f};

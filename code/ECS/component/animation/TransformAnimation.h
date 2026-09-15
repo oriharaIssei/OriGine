@@ -35,18 +35,18 @@ public:
 
 public:
     TransformAnimation();
-    ~TransformAnimation() override;
+    ~TransformAnimation();
 
     /// <summary>
     /// 再生時刻を 0 にリセットする
     /// </summary>
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
     /// <summary>
     /// 保持しているキーフレーム・状態をすべて破棄する
     /// </summary>
-    void Finalize() override;
+    void Finalize();
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const ::std::string& _parentLabel);
 
     /// <summary>
     /// 再生時刻を進め、対象の Transform にキーフレーム補間結果を反映する

@@ -20,7 +20,7 @@ public:
     Rigidbody();
     virtual ~Rigidbody() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
 
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     void Debug();

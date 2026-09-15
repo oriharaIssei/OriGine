@@ -44,12 +44,12 @@ class VignetteParam
 
 public:
     VignetteParam()           = default;
-    ~VignetteParam() override = default;
+    ~VignetteParam() = default;
 
-    void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner) override;
+    void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner);
 
-    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
-    void Finalize() override;
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
+    void Finalize();
 
 private:
     IConstantBuffer<VignetteBufferParam> paramBuffer;

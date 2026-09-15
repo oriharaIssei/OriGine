@@ -35,14 +35,14 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(OriGine::Scene* _scene, const EntityHandle& _owner) override;
+    void Initialize(OriGine::Scene* _scene, const EntityHandle& _owner);
 
     /// <summary>
     /// エディタ上でモデルファイル・Transform・Material・テクスチャを編集するGUIを描画する
     /// </summary>
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
-    void Finalize() override {
+    void Finalize() {
         for (auto& mesh : *meshGroup_) {
             mesh.Finalize();
         }

@@ -24,13 +24,13 @@ class PrimitiveNodeAnimation
 
 public:
     PrimitiveNodeAnimation()           = default;
-    ~PrimitiveNodeAnimation() override = default;
+    ~PrimitiveNodeAnimation() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
 
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
-    void Finalize() override;
+    void Finalize();
 
     /// <summary>
     /// 再生時刻を進め、対象の Transform にキーフレーム補間結果を反映する

@@ -69,7 +69,7 @@ public:
     }
 
     // 基底クラスでは編集UIを持たないため既定は何もしない(派生クラスが必要に応じてオーバーライドする)
-    void Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& /*_parentLabel*/) override {}
+    void Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& /*_parentLabel*/) {}
 
     /// <summary>
     /// 終了処理。保持している全メッシュのGPUリソースを解放してからmeshGroup_自体を手放す

@@ -20,11 +20,11 @@ class SquashStretchComponent
 
 public:
     SquashStretchComponent()           = default;
-    ~SquashStretchComponent() override = default;
+    ~SquashStretchComponent() = default;
 
-    void Initialize(Scene* _scene, const EntityHandle& _owner) override;
-    void Finalize() override;
-    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, const EntityHandle& _owner);
+    void Finalize();
+    void Edit(Scene* _scene, const EntityHandle& _owner, const std::string& _parentLabel);
 
 private:
     Vec3f baseScale_     = Vec3f(1.f, 1.f, 1.f);

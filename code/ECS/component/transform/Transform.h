@@ -29,12 +29,12 @@ public:
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix4x4::Identity()) {}
     ~Transform() {}
 
-    void Initialize(Scene* _scene, const EntityHandle& _entity) override;
+    void Initialize(Scene* _scene, const EntityHandle& _entity);
     void UpdateMatrix();
     Quaternion CalculateWorldRotate() const;
-    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
-    void Finalize() override {};
+    void Finalize() {};
 
 public:
     Vec3f scale        = {1.0f, 1.0f, 1.0f};
