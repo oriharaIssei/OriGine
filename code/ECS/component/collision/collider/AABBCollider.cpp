@@ -60,15 +60,15 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const E
 }
 
 /// <summary>
-/// ローカル形状(shape_)とTransformの現在値から、ワールド空間のAABB(worldShape_)を再計算する
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のAABB(_world)を再計算する。
+/// Collider&lt;Bounds::AABB&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる(Phase 3 3B)。
 /// </summary>
-void AABBCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+void Bounds::CalculateWorldShape(const Bounds::AABB& _local, Bounds::AABB& _world, const Transform& _transform) {
     // 中心は平行移動を含むワールド行列全体で変換する。
     // ハーフサイズは向きを持たない「大きさ」なので回転は反映せず、ワールドスケールのみを軸ごとに乗算する
     // （回転まで反映すると軸並行を維持できなくなり、AABBとしての前提が崩れる）
-    this->worldShape_.center   = shape_.center * transform_.worldMat;
-    this->worldShape_.halfSize = shape_.halfSize * transform_.GetWorldScale();
+    _world.center   = _local.center * _transform.worldMat;
+    _world.halfSize = _local.halfSize * _transform.GetWorldScale();
 }
 
 /// <summary>

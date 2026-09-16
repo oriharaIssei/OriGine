@@ -9,11 +9,6 @@
 using namespace OriGine;
 
 /// <summary>
-/// コライダーの初期化処理（ICollider既定実装。派生クラスが個別処理を持つ場合は上書きする）
-/// </summary>
-void ICollider::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}
-
-/// <summary>
 /// デバッグ用GUIで有効/無効フラグと衝突カテゴリを編集する（各派生コライダーのEditから呼ばれる共通部分）
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
@@ -46,11 +41,12 @@ void OriGine::ICollider::Edit(Scene* /*_scene*/, const EntityHandle& /*_handle*/
 }
 
 void ICollider::StartCollision() {
-    // 前フレームの状態を退避してから今フレーム分をクリアし、最新のワールド形状を計算する
+    // 前フレームの状態を退避してから今フレーム分をクリアする(形状によらない共通部分のみ)。
+    // ワールド形状の再計算(旧: ここでCalculateWorldShape()を仮想呼び出ししていた)は、
+    // 形状型を知らないICollider側では行えなくなったため、Collider<BoundsClass>::StartCollision()
+    // がこの関数を呼んだ直後に自分でCalculateWorldShape()を呼ぶ形に変わった(Phase 3 3B)。
     this->preCollisionStateMap_ = this->collisionStateMap_;
     this->collisionStateMap_.clear();
-
-    CalculateWorldShape();
 }
 
 void ICollider::EndCollision() {

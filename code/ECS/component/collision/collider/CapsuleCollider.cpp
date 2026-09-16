@@ -67,18 +67,18 @@ void CapsuleCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] cons
 }
 
 /// <summary>
-/// ローカル形状(shape_)とTransformの現在値から、ワールド空間のCapsule(worldShape_)を再計算する
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のCapsule(_world)を再計算する。
+/// Collider&lt;Bounds::Capsule&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる(Phase 3 3B)。
 /// </summary>
-void CapsuleCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+void Bounds::CalculateWorldShape(const Bounds::Capsule& _local, Bounds::Capsule& _world, const Transform& _transform) {
     // start/endは位置なので、平行移動を含むワールド行列全体で変換する
-    this->worldShape_.segment.start = shape_.segment.start * transform_.worldMat;
-    this->worldShape_.segment.end   = shape_.segment.end * transform_.worldMat;
+    _world.segment.start = _local.segment.start * _transform.worldMat;
+    _world.segment.end   = _local.segment.end * _transform.worldMat;
     // 半径はスカラーなので軸ごとに異なるスケールをそのまま反映することはできない。
     // 非一様スケールがかかっていても判定が小さくなりすぎないよう、各軸スケールの最大値を採用する
-    Vec3f scale              = transform_.GetWorldScale();
-    float maxScale           = std::max({scale[X], scale[Y], scale[Z]});
-    this->worldShape_.radius = shape_.radius * maxScale;
+    Vec3f scale    = _transform.GetWorldScale();
+    float maxScale = std::max({scale[X], scale[Y], scale[Z]});
+    _world.radius  = _local.radius * maxScale;
 }
 
 /// <summary>

@@ -42,13 +42,16 @@ void RayCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const En
 #endif // _DEBUG
 }
 
-void RayCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+/// <summary>
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のRay(_world)を再計算する。
+/// Collider&lt;Bounds::Ray&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる(Phase 3 3B)。
+/// </summary>
+void Bounds::CalculateWorldShape(const Bounds::Ray& _local, Bounds::Ray& _world, const Transform& _transform) {
     // originは位置なのでワールド行列（平行移動含む）で変換する
-    this->worldShape_.origin    = shape_.origin * transform_.worldMat;
+    _world.origin    = _local.origin * _transform.worldMat;
     // directionは向きだけを持つベクトルなので、平行移動を含まない回転行列のみを適用する
     // （worldMatをそのまま使うと平行移動成分が乗ってしまい、向きの意味が壊れる）
-    this->worldShape_.direction = (shape_.direction * MakeMatrix4x4::RotateQuaternion(transform_.CalculateWorldRotate())).normalize();
+    _world.direction = (_local.direction * MakeMatrix4x4::RotateQuaternion(_transform.CalculateWorldRotate())).normalize();
 }
 
 Bounds::AABB RayCollider::ToWorldAABB() const {

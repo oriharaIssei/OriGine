@@ -17,19 +17,11 @@ public:
     PrimitiveMeshRendererBase(const std::vector<TextureColorMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
-    virtual ~PrimitiveMeshRendererBase()                                                    = default;
-    /// <summary>初期化処理。派生クラスでバッファやメッシュの生成を行う</summary>
-    virtual void Initialize(Scene* _scene, const EntityHandle& _entity)                            = 0;
-    /// <summary>終了処理。派生クラスで確保したリソースの解放を行う</summary>
-    virtual void Finalize()                                                                 = 0;
-    /// <summary>エディタ上でのパラメータ編集UIを描画する</summary>
-    virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) = 0;
+    ~PrimitiveMeshRendererBase() = default;
 
-    /// <summary>
-    /// 自身のプリミティブ情報をもとにメッシュを作成する
-    /// </summary>
-    /// <param name="_mesh"></param>
-    virtual void CreateMesh(TextureColorMesh* _mesh) = 0;
+    // Initialize / Finalize / Edit / CreateMesh はここでは実装を持たない(旧: 純粋仮想)ため、
+    // 宣言ごと派生側へ移した(Phase 3 3B)。
+    // Initialize/Editは具象型(BoxRenderer等)、Finalize/CreateMeshはPrimitiveMeshRenderer<PrimType>が持つ。
 
     /// <summary>
     /// テクスチャを読み込む

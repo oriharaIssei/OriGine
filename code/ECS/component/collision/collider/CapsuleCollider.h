@@ -33,10 +33,8 @@ public:
     /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
 
-    /// <summary>
-    /// ローカル形状(shape_)とTransformの現在値から、ワールド空間のCapsule(worldShape_)を再計算する
-    /// </summary>
-    void CalculateWorldShape();
+    // CalculateWorldShape()はここにはない。計算式はCapsuleCollider.cppの
+    // Bounds::CalculateWorldShape(const Capsule&, Capsule&, const Transform&)に移した(Phase 3 3B)。
 
     /// <summary>
     /// ワールド空間のAABBを取得する

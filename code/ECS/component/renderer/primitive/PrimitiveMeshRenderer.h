@@ -19,12 +19,10 @@ public:
 
     ~PrimitiveMeshRenderer() {}
 
-    // PrimitiveMeshRendererBaseで既にpure virtualだが、ここで改めて= 0とすることで
-    // 「PrimitiveMeshRenderer<T>自身も引き続き抽象クラスである」ことを明示している
-    // (BoxRenderer等の具象クラス側で実装を提供する必要がある)
-    void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _entity) = 0;
-
-    virtual void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel) = 0;
+    // Initialize / Edit はここでは実装を持たない。BoxRenderer等の具象クラス側が
+    // 自分の非仮想メンバとして実装を提供する(Phase 3 3B。旧: ここで改めて=0と
+    // 再宣言することで「PrimitiveMeshRenderer<T>自身も引き続き抽象クラスである」ことを
+    // 明示していたが、非仮想化に伴い抽象クラスという概念自体が無くなったため削除した)。
 
     inline void Finalize();
 
@@ -33,7 +31,7 @@ public:
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成
     /// </summary>
-    virtual void CreateMesh(TextureColorMesh* _mesh) {
+    void CreateMesh(TextureColorMesh* _mesh) {
         primitive_.CreateMesh(_mesh);
     }
 

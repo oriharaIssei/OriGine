@@ -13,7 +13,7 @@ namespace Bounds {
 /// 境界形状インターフェース
 /// </summary>
 struct IBounds {
-    virtual ~IBounds() {}
+    ~IBounds() {}
 };
 
 template <typename T>

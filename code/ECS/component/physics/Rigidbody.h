@@ -18,14 +18,14 @@ class Rigidbody
 
 public:
     Rigidbody();
-    virtual ~Rigidbody() = default;
+    ~Rigidbody() = default;
 
     void Initialize(Scene* _scene, const EntityHandle& _entity);
 
     void Edit(Scene* _scene, const EntityHandle& _entity, const std::string& _parentLabel);
     void Debug();
 
-    virtual void Finalize();
+    void Finalize();
 
 private:
     bool isActive_ = true;

@@ -78,17 +78,17 @@ void OBBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const En
 };
 
 /// <summary>
-/// ローカル形状(shape_)とTransformの現在値から、ワールド空間のOBB(worldShape_)を再計算する
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のOBB(_world)を再計算する。
+/// Collider&lt;Bounds::OBB&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる(Phase 3 3B)。
 /// </summary>
-void OBBCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+void OriGine::Bounds::CalculateWorldShape(const OriGine::Bounds::OBB& _local, OriGine::Bounds::OBB& _world, const Transform& _transform) {
     // 中心は平行移動を含むワールド行列全体で変換する
-    this->worldShape_.center_           = shape_.center_ * transform_.worldMat;
+    _world.center_           = _local.center_ * _transform.worldMat;
     // ハーフサイズは向きを持たない「大きさ」なので、ワールドスケールのみを軸ごとに乗算する
-    this->worldShape_.halfSize_         = shape_.halfSize_ * transform_.GetWorldScale();
+    _world.halfSize_         = _local.halfSize_ * _transform.GetWorldScale();
     // ローカルの回転にワールド回転を合成してから、各軸ベクトルを再計算する
-    this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
-    this->worldShape_.orientations_.UpdateAxes();
+    _world.orientations_.rot = _local.orientations_.rot * _transform.CalculateWorldRotate();
+    _world.orientations_.UpdateAxes();
 }
 
 /// <summary>

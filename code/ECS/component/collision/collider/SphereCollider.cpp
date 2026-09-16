@@ -64,15 +64,20 @@ void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const
 #endif // _DEBUG
 }
 
-void SphereCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+/// <summary>
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のSphere(_world)を再計算する。
+/// Collider&lt;Bounds::Sphere&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる
+/// (旧: SphereCollider::CalculateWorldShape()の中身そのまま。transform_.UpdateMatrix()の
+/// 呼び出しだけはCollider側に共通化したのでここには無い)。
+/// </summary>
+void OriGine::Bounds::CalculateWorldShape(const OriGine::Bounds::Sphere& _local, OriGine::Bounds::Sphere& _world, const Transform& _transform) {
     // 中心は平行移動を含むワールド行列全体で変換する
-    this->worldShape_.center_ = shape_.center_ * transform_.worldMat;
+    _world.center_ = _local.center_ * _transform.worldMat;
     // 半径はスカラーなので行列を掛けられない。非一様スケールがかかっていても球の形を保てるよう、
     // CapsuleColliderと同じく各軸スケールの最大値を採用する(最小値だと本来の形状より判定が小さくなる)
-    Vec3f scale               = transform_.GetWorldScale();
-    float maxScale            = std::max({scale[X], scale[Y], scale[Z]});
-    this->worldShape_.radius_ = shape_.radius_ * maxScale;
+    Vec3f scale    = _transform.GetWorldScale();
+    float maxScale = std::max({scale[X], scale[Y], scale[Z]});
+    _world.radius_ = _local.radius_ * maxScale;
 }
 
 /// <summary>

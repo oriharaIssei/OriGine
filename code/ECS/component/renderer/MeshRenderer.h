@@ -58,23 +58,23 @@ public:
     }
     MeshRenderer(const std::shared_ptr<std::vector<MeshTemplate>>& _meshGroup) : meshGroup_(_meshGroup) {}
 
-    virtual ~MeshRenderer() {}
+    ~MeshRenderer() {}
 
     /// <summary>
-    /// 初期化処理(派生クラスでオーバーライドされる想定の共通実装)
+    /// 初期化処理(派生クラスで同名の非仮想メンバとして隠す想定の共通実装)
     /// </summary>
     /// <param name="_owner">このレンダラーを所有するエンティティ</param>
-    virtual void Initialize(Scene* /*_scene*/, const EntityHandle& _owner) {
+    void Initialize(Scene* /*_scene*/, const EntityHandle& _owner) {
         hostEntityHandle_ = _owner;
     }
 
-    // 基底クラスでは編集UIを持たないため既定は何もしない(派生クラスが必要に応じてオーバーライドする)
+    // 基底クラスでは編集UIを持たないため既定は何もしない(派生クラスが必要に応じて同名で隠す)
     void Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, const std::string& /*_parentLabel*/) {}
 
     /// <summary>
     /// 終了処理。保持している全メッシュのGPUリソースを解放してからmeshGroup_自体を手放す
     /// </summary>
-    virtual void Finalize() {
+    void Finalize() {
         for (auto& mesh : *meshGroup_) {
             mesh.Finalize();
         }

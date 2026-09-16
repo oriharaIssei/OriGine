@@ -21,21 +21,21 @@ class SceneChanger
 
 public:
     SceneChanger();
-    virtual ~SceneChanger();
+    ~SceneChanger();
 
     /// <summary>
     /// 初期化処理
     /// </summary>
-    virtual void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner);
+    void Initialize(OriGine::Scene* _scene, const OriGine::EntityHandle& _owner);
     /// <summary>
     /// エディタ用編集UI
     /// </summary>
-    virtual void Edit(OriGine::Scene* _scene, const OriGine::EntityHandle& _handle, const std::string& _parentLabel);
+    void Edit(OriGine::Scene* _scene, const OriGine::EntityHandle& _handle, const std::string& _parentLabel);
 
     /// <summary>
     /// 終了処理
     /// </summary>
-    virtual void Finalize();
+    void Finalize();
 
     /// <summary>
     /// SceneTransitionSystem を使用する場合に呼び出す

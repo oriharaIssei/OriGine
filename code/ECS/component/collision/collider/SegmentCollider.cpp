@@ -62,13 +62,13 @@ void SegmentCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] cons
 }
 
 /// <summary>
-/// ローカル形状(shape_)とTransformの現在値から、ワールド空間のSegment(worldShape_)を再計算する
+/// ローカル形状(_local)とTransformの現在値から、ワールド空間のSegment(_world)を再計算する。
+/// Collider&lt;Bounds::Segment&gt;::CalculateWorldShape()から形状型で選ばれて呼ばれる(Phase 3 3B)。
 /// </summary>
-void SegmentCollider::CalculateWorldShape() {
-    transform_.UpdateMatrix();
+void Bounds::CalculateWorldShape(const Bounds::Segment& _local, Bounds::Segment& _world, const Transform& _transform) {
     // start/endはどちらも位置なので、平行移動を含むワールド行列全体で変換する
-    this->worldShape_.start = shape_.start * transform_.worldMat;
-    this->worldShape_.end   = shape_.end * transform_.worldMat;
+    _world.start = _local.start * _transform.worldMat;
+    _world.end   = _local.end * _transform.worldMat;
 }
 
 /// <summary>
