@@ -239,8 +239,11 @@ void Engine::BeginFrame() {
     Profiler::GetInstance()->BeginFrame();
 
     deltaTimer_->Update();
-    // デルタタイムが大きすぎる場合はキャップをかける（スパイク対策）
-    if (deltaTimer_->GetDeltaTime() > Config::Time::kMaxDeltaTime) {
+    // デルタタイムが大きすぎる場合はキャップをかける（スパイク対策）。
+    // ベンチマークの固定デルタタイムモード中はこのクランプを通さない。
+    // 固定値は「毎回同じ負荷にする」という目的で明示的に選んだ値であり、
+    // ここで暗黙に書き換えてしまうと決定性が壊れるため
+    if (!deltaTimer_->IsFixedDeltaTimeEnabled() && deltaTimer_->GetDeltaTime() > Config::Time::kMaxDeltaTime) {
         deltaTimer_->SetDeltaTime(Config::Time::kMaxDeltaTime);
     }
 

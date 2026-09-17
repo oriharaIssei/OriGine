@@ -7,6 +7,19 @@
 namespace OriGine::Benchmark {
 
 /// <summary>
+/// ベンチマーク実行中に固定するデルタタイム[秒](60fps相当)。
+/// </summary>
+/// <remarks>
+/// 実時間のデルタタイムを使うと、マシンの実行速度やOSのスケジューリングジッターで
+/// 1フレームの経過時間が回ごとに変わり、それに比例して移動量や衝突判定の回数まで
+/// 変わってしまう(2026-09-17: 同一exeでフレーム時間13.3ms〜246msの幅が出て
+/// 確保回数まで揺れた)。ベンチマークが計測したいのは「このシーンをこの負荷で
+/// 動かした時のコスト」であり、負荷そのものが回ごとに揺れては前後比較ができない。
+/// そのためベンチマーク実行中だけ RunBenchmarkLoop が DeltaTimer を固定モードにする。
+/// </remarks>
+constexpr float kFixedDeltaTimeSeconds = 1.0f / 60.0f;
+
+/// <summary>
 /// ベンチマークシーンの生成・実行パラメータ.
 /// CLI(--bench-*)とエディタ(BenchmarkWindow)の両方から共通に使用する.
 /// </summary>
@@ -61,6 +74,11 @@ struct BenchmarkSummary {
     double avgAllocCountPerFrame_ = 0.0;
     double avgAllocBytesPerFrame_ = 0.0;
     uint32_t sampleFrameCount_    = 0; // 集計に使用したフレーム数(warmup除外後)
+    // このベンチが固定デルタタイムで実行されたかどうかと、その値[秒]。
+    // 後から見返したCSVが決定的な条件下で取られたものかを判別できるようにするための記録用フィールド
+    // (計測結果そのものには使わない)
+    bool fixedDeltaTimeUsed_    = false;
+    float fixedDeltaTimeSeconds_ = 0.0f;
 };
 
 } // namespace OriGine::Benchmark

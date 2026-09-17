@@ -79,7 +79,8 @@ bool WriteBenchmarkCsv(
             return false;
         }
         ofs << "entities,extent,radius,seed,frames,warmup,sample_frame_count,"
-               "avg_frame_ms,p99_frame_ms,max_frame_ms,avg_alloc_count_per_frame,avg_alloc_bytes_per_frame\n";
+               "avg_frame_ms,p99_frame_ms,max_frame_ms,avg_alloc_count_per_frame,avg_alloc_bytes_per_frame,"
+               "fixed_delta_time_used,fixed_delta_time_seconds\n";
         ofs << _summary.config_.entityCount << ","
             << _summary.config_.extent << ","
             << _summary.config_.radius << ","
@@ -91,7 +92,9 @@ bool WriteBenchmarkCsv(
             << _summary.p99FrameMs_ << ","
             << _summary.maxFrameMs_ << ","
             << _summary.avgAllocCountPerFrame_ << ","
-            << _summary.avgAllocBytesPerFrame_ << "\n";
+            << _summary.avgAllocBytesPerFrame_ << ","
+            << (_summary.fixedDeltaTimeUsed_ ? 1 : 0) << ","
+            << _summary.fixedDeltaTimeSeconds_ << "\n";
     }
 
     // --- スコープ別集計 ---

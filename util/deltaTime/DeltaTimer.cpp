@@ -12,9 +12,17 @@ void DeltaTimer::Initialize() {
 }
 
 void DeltaTimer::Update() {
-    preTime_     = currentTime_;
-    currentTime_ = std::chrono::high_resolution_clock::now();
-    deltaTime_   = static_cast<float>(std::chrono::duration<float>(currentTime_ - preTime_).count());
+    if (fixedDeltaTimeEnabled_) {
+        // ベンチマーク中は実クロックを読まず固定値を使う(EnableFixedDeltaTime参照)。
+        // currentTime_/preTime_ は更新しない。DisableFixedDeltaTime() が
+        // 実時間計測に戻す際にまとめて基準を合わせ直すため、ここで半端に触ると
+        // 解除直後の1フレームが巨大なデルタタイムになってしまう
+        deltaTime_ = fixedDeltaTimeSeconds_;
+    } else {
+        preTime_     = currentTime_;
+        currentTime_ = std::chrono::high_resolution_clock::now();
+        deltaTime_   = static_cast<float>(std::chrono::duration<float>(currentTime_ - preTime_).count());
+    }
 
     // --- 平均計測用に追加 ---
     // 直近kMaxHistorySize frame分だけを保持するリングバッファ。
@@ -86,4 +94,19 @@ float DeltaTimer::GetScaledDeltaTime(const std::string& key) const {
 
 void DeltaTimer::SetTimeScale(const std::string& key, float scale) {
     deltaTimeScaleMap_[key] = scale;
+}
+
+void DeltaTimer::EnableFixedDeltaTime(float _fixedSeconds) {
+    fixedDeltaTimeEnabled_ = true;
+    fixedDeltaTimeSeconds_ = _fixedSeconds;
+    deltaTime_             = _fixedSeconds;
+}
+
+void DeltaTimer::DisableFixedDeltaTime() {
+    fixedDeltaTimeEnabled_ = false;
+    // 固定モード中は currentTime_/preTime_ を止めていたので、そのまま実時間計測に
+    // 戻すと次のUpdate()が「固定モードに入る前」からの経過時間を巨大なデルタタイムとして
+    // 計上してしまう。基準を今に合わせ直してから戻す
+    currentTime_ = std::chrono::high_resolution_clock::now();
+    preTime_     = currentTime_;
 }

@@ -8,6 +8,7 @@
 #include "Engine.h"
 #include "benchmark/BenchmarkCallCounterAggregator.h"
 #include "benchmark/BenchmarkScopeAggregator.h"
+#include "deltaTime/DeltaTimer.h"
 #include "scene/Scene.h"
 
 /// profiler
@@ -81,6 +82,15 @@ BenchmarkResult RunBenchmarkLoop(Engine* _engine, Scene* _scene, const Benchmark
     ScopeAggregator scopeAggregator;
     CallCounterAggregator counterAggregator;
 
+    // ベンチマーク実行中だけデルタタイムを固定する(kFixedDeltaTimeSeconds参照)。
+    // GetDeltaTime()とGetScaledDeltaTime()の両方がDeltaTimer::deltaTime_を元に
+    // 計算されるため、ここを固定するだけで両方の取得経路が固定値になる。
+    // 通常のゲーム・エディタ実行はこのモードに入らない
+    DeltaTimer* deltaTimer = _engine->GetDeltaTimer();
+    deltaTimer->EnableFixedDeltaTime(kFixedDeltaTimeSeconds);
+    result.summary_.fixedDeltaTimeUsed_    = true;
+    result.summary_.fixedDeltaTimeSeconds_ = kFixedDeltaTimeSeconds;
+
     using Clock = std::chrono::steady_clock;
     Clock::time_point prevTick{};
     bool hasPrevTick = false;
@@ -128,6 +138,10 @@ BenchmarkResult RunBenchmarkLoop(Engine* _engine, Scene* _scene, const Benchmark
         _engine->ScreenPreDraw();
         _engine->ScreenPostDraw();
     }
+
+    // 早期break(abort)でも必ず戻す。以降のフレーム(通常実行に戻った後)まで
+    // 固定モードが残ると、ベンチ後のゲーム/エディタ挙動が変わってしまうため
+    deltaTimer->DisableFixedDeltaTime();
 
     if (aborted) {
         LOG_WARN("RunBenchmarkLoop: aborted early by window close/quit message. {} frame(s) were recorded.", result.frames_.size());

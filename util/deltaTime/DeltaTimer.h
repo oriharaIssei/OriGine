@@ -30,6 +30,12 @@ private:
     std::chrono::high_resolution_clock::time_point currentTime_;
     std::chrono::high_resolution_clock::time_point preTime_;
 
+    // ベンチマーク用の固定デルタタイムモード。有効な間はUpdate()が実クロックを
+    // 読まず、deltaTime_ を常に同じ値にする。GetScaledDeltaTime()もdeltaTime_を
+    // 元に計算しているため、ここを固定するだけで両方の取得経路が固定値になる
+    bool fixedDeltaTimeEnabled_   = false;
+    float fixedDeltaTimeSeconds_ = 0.0f;
+
     // --- 平均計測用に追加 ---
     std::deque<float> frameHistory_; // 履歴
     float totalHistoryTime_ = 0.0f;
@@ -83,4 +89,27 @@ public:
     /// <param name="key">キー</param>
     /// <param name="scale">スケール値</param>
     void SetTimeScale(const std::string& key, float scale);
+
+    /// <summary>
+    /// 固定デルタタイムモードを有効化する(ベンチマーク専用).
+    /// </summary>
+    /// <remarks>
+    /// マシンの実行速度やOSのスケジューリングジッターでフレーム時間が変わると、
+    /// それに比例して移動量や衝突判定の回数まで回ごとに変わってしまい、
+    /// 「同じ負荷を計測している」という前提が崩れる。有効中は Update() が
+    /// 実クロックを読まずこの値をそのまま使うため、通常実行(ゲーム・エディタ)では
+    /// 呼ばないこと。
+    /// </remarks>
+    /// <param name="_fixedSeconds">固定するデルタタイム[秒]</param>
+    void EnableFixedDeltaTime(float _fixedSeconds);
+
+    /// <summary>
+    /// 固定デルタタイムモードを解除し、実時間計測に戻す.
+    /// </summary>
+    void DisableFixedDeltaTime();
+
+    /// <summary>
+    /// 固定デルタタイムモードが有効かどうか.
+    /// </summary>
+    bool IsFixedDeltaTimeEnabled() const { return fixedDeltaTimeEnabled_; }
 };
