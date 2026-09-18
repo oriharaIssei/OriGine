@@ -1,0 +1,13 @@
+# Phase 3C (C-5) で ORIGINE_COMPONENT() を付けた10型。
+# パスは engine の code/ECS を起点にした相対パス(既存コードの #include と同じ書き方)。
+# 型を増やすときはこのファイルに1行足すだけでよい(premake.lua の変更は不要)。
+component/transform/Transform.h
+component/transform/Transform2d.h
+component/transform/CameraTransform.h
+component/material/light/DirectionalLight.h
+component/material/light/PointLight.h
+component/material/light/SpotLight.h
+component/effect/post/OutlineComponent.h
+component/effect/post/SmoothingEffectParam.h
+component/text/TextComponent.h
+component/text/TextStreamComponent.h

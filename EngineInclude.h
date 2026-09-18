@@ -111,9 +111,13 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #ifdef ENGINE_COMPONENTS
 #include "component/ComponentArray.h"
+#include "component/ComponentReflection.h"
 #include "component/ComponentRegistry.h"
 #include "component/ComponentRepository.h"
 #include "component/IComponent.h"
+// Phase 3C: 型ディスクリプタのコード生成(project/engine/tools/ReflectionCodeGen)。
+// RegisterGeneratedComponentDescriptors() の宣言はここから来る。
+#include "component/generated/ComponentDescriptors.generated.h"
 
 #include "audio/Audio.h"
 

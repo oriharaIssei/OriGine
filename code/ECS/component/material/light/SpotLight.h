@@ -24,6 +24,8 @@ struct SpotLight
     friend void from_json(const nlohmann::json& _j, SpotLight& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     SpotLight() {}
     ~SpotLight() {}
 

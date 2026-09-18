@@ -33,6 +33,8 @@ struct SmoothingEffectParam
     friend void from_json(const nlohmann::json& _j, SmoothingEffectParam& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     SmoothingEffectParam()           = default;
     ~SmoothingEffectParam() = default;
 
@@ -42,6 +44,9 @@ public:
 
 public:
     bool isActive_ = true;
+    // このフィールド自体はキー "boxFilterSize" では保存されない。実際の to_json は
+    // boxFilterSize_.openData_.size を書く(ネストしたメンバの展開は 3D まで対象外)。
+    ORIGINE_FIELD(no_save);
     IConstantBuffer<BoxFilterSize> boxFilterSize_;
 };
 

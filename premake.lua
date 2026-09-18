@@ -75,7 +75,7 @@ function defineEngineProjects(engineRoot)
 
         includedirs(getEngineIncludeDirs(engineRoot))
 
-        dependson { "DirectXTex", "imgui" }
+        dependson { "DirectXTex", "imgui", "ReflectionCodeGen" }
         links { "DirectXTex", "imgui" }
 
         defines { "_WINDOWS" }
@@ -97,6 +97,22 @@ function defineEngineProjects(engineRoot)
             if engineRoot ~= "." and engineRoot ~= "" and not os.getenv("CI") then
                 prebuildcommands {
                     'pushd "%{wks.location}\\' .. engineRoot .. '\\externals\\assetCooker" && AssetCooker.exe -no_ui && popd'
+                }
+            end
+
+        -- 型ディスクリプタ生成(Phase 3C, C-4)。ReflectionCodeGen は毎回のプリビルドで
+        -- 実行されるが、内容ハッシュが変わらない限り生成物を書き換えない(=タイムスタンプも
+        -- 変わらない)ので、"何も変えないビルド" でも OriGine の再コンパイルは起きない
+        -- (6章の罠12番)。生成物は code/ECS/component/generated/ にコミットしてあるので、
+        -- このコマンドが(standalone モードのように)走らなくてもビルド自体は通る。
+        -- AssetCooker と同じ理由で standalone モードはパスの前提が異なるためスキップする。
+        filter { "system:windows" }
+            if engineRoot ~= "." and engineRoot ~= "" then
+                prebuildcommands {
+                    '"%{wks.location}\\..\\generated\\output\\%{cfg.buildcfg}\\ReflectionCodeGen.exe"'
+                        .. ' --code-root "%{wks.location}\\' .. engineRoot .. '\\code\\ECS"'
+                        .. ' --manifest "%{wks.location}\\' .. engineRoot .. '\\tools\\ReflectionCodeGen\\targets.txt"'
+                        .. ' --out "%{wks.location}\\' .. engineRoot .. '\\code\\ECS\\component\\generated"'
                 }
             end
 
@@ -127,6 +143,47 @@ function defineEngineProjects(engineRoot)
                 "copy \"$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxcompiler.dll\" \"$(TargetDir)dxcompiler.dll\"",
                 "copy \"$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxil.dll\" \"$(TargetDir)dxil.dll\""
             }
+
+    -- ----------------------------------------------------------------------
+    -- ReflectionCodeGen (型ディスクリプタ生成ツール。Phase 3C)
+    -- エンジンのヘッダに依存しない(単体でビルドできる)単独の ConsoleApp。
+    -- OriGine のプリビルドから呼ばれ、targets.txt に列挙したヘッダを読んで
+    -- code/ECS/component/generated/ 以下の .h/.cpp を書く。
+    -- ----------------------------------------------------------------------
+    project "ReflectionCodeGen"
+        kind "ConsoleApp"
+        language "C++"
+        location(p(engineRoot, "tools/ReflectionCodeGen"))
+        targetdir "../generated/output/%{cfg.buildcfg}/"
+        objdir "../generated/obj/%{cfg.buildcfg}/ReflectionCodeGen/"
+
+        files {
+            p(engineRoot, "tools/ReflectionCodeGen/**.h"),
+            p(engineRoot, "tools/ReflectionCodeGen/**.cpp"),
+        }
+        includedirs { p(engineRoot, "tools/ReflectionCodeGen") }
+
+        warnings "Extra"
+        multiprocessorcompile "On"
+        buildoptions { "/utf-8" }
+
+        filter "system:windows"
+            cppdialect "C++20"
+            systemversion "latest"
+
+        filter "configurations:Debug"
+            symbols "On"
+            runtime "Debug"
+            staticruntime "On"
+        filter "configurations:Develop"
+            symbols "On"
+            optimize "Speed"
+            runtime "Release"
+            staticruntime "On"
+        filter "configurations:Release"
+            optimize "Full"
+            runtime "Release"
+            staticruntime "On"
 
     -- ----------------------------------------------------------------------
     -- DirectXTex

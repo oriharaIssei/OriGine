@@ -40,6 +40,8 @@ struct OutlineComponent
     friend void from_json(const nlohmann::json& _j, OutlineComponent& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     OutlineComponent();
     ~OutlineComponent();
 
@@ -50,6 +52,10 @@ public:
 public:
     bool isActive = false; // エフェクトが有効かどうか
     ComponentHandle usingMaterialHandle; // 使用するマテリアルコンポーネントハンドル(未設定時はデフォルトマテリアルを使用)
+    // このフィールド自体はキー "paramData" では保存されない。実際の to_json は
+    // paramData.openData_ の中の outlineWidth/outlineColor を個別キーで書く
+    // (ネストしたメンバの展開は 3D のシリアライズ移行までディスクリプタの対象外)。
+    ORIGINE_FIELD(no_save);
     IConstantBuffer<OutlineParamData> paramData; // アウトラインエフェクト用パラメータデータ
 };
 

@@ -9,6 +9,7 @@
 #include "entity/EntityHandle.h"
 // component
 #include "component/ComponentHandle.h"
+#include "component/ComponentReflection.h"
 
 /// externals
 #include <nlohmann/json.hpp>

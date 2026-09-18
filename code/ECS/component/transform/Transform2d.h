@@ -14,6 +14,8 @@ namespace OriGine {
 struct Transform2d
     : public IComponent {
 public:
+    ORIGINE_COMPONENT();
+
     Transform2d() = default;
 
     Transform2d(const Vec2f& _scale, float _rotate, const Vec2f& _translate)
@@ -53,8 +55,10 @@ public:
     float rotate    = 0.0f; // ラジアン
     Vec2f translate = {0.0f, 0.0f};
 
+    ORIGINE_FIELD(no_save); // 毎フレーム UpdateMatrix() で再計算されるため保存しない
     Matrix3x3 worldMat = MakeMatrix3x3::Identity();
 
+    ORIGINE_FIELD(no_save); // 実行時の生ポインタは永続化できない
     Transform2d* parent = nullptr;
 
 public:

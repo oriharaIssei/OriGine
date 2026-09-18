@@ -18,6 +18,8 @@ class TextStreamComponent
 	friend void to_json(nlohmann::json& j, const TextStreamComponent& c);
 	friend void from_json(const nlohmann::json& j, TextStreamComponent& c);
 public:
+	ORIGINE_COMPONENT();
+
 	TextStreamComponent()           = default;
 	~TextStreamComponent() = default;
 
@@ -44,10 +46,15 @@ public:
 	bool playing         = true;   ///< 再生中か
 
 	// --- ランタイム状態（保存しない） ---
+	ORIGINE_FIELD(no_save);
 	float revealed     = 0.0f;          ///< これまでに表示したコードポイント数（小数）
+	ORIGINE_FIELD(no_save);
 	float elapsedDelay = 0.0f;          ///< 経過した開始遅延
+	ORIGINE_FIELD(no_save);
 	bool finished      = false;         ///< 末尾まで表示済みか
+	ORIGINE_FIELD(no_save);
 	int lastApplied    = -1;            ///< 直近で TextComponent に設定した visibleCharCount
+	ORIGINE_FIELD(no_save);
 	size_t textHash    = 0;             ///< TextComponent.text の変化検出用ハッシュ
 };
 

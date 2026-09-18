@@ -24,6 +24,8 @@ namespace OriGine {
 struct Transform
     : public IComponent {
 public:
+    ORIGINE_COMPONENT();
+
     Transform();
     Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix4x4::Identity()) {}
@@ -40,8 +42,10 @@ public:
     Vec3f scale        = {1.0f, 1.0f, 1.0f};
     Quaternion rotate  = {0.0f, 0.0f, 0.0f, 1.0f};
     Vec3f translate    = {0.0f, 0.0f, 0.0f};
+    ORIGINE_FIELD(no_save); // 毎フレーム UpdateMatrix() で再計算されるため保存しない
     Matrix4x4 worldMat = MakeMatrix4x4::Identity();
 
+    ORIGINE_FIELD(no_save); // 実行時の生ポインタは永続化できない
     Transform* parent = nullptr;
 
 public:

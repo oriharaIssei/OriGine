@@ -28,6 +28,8 @@ class TextComponent
 	friend void to_json(nlohmann::json& j,const TextComponent& c);
 	friend void from_json(const nlohmann::json& j,TextComponent& c);
 public:
+	ORIGINE_COMPONENT();
+
 	TextComponent() = default;
 	~TextComponent() = default;
 
@@ -45,7 +47,9 @@ public:
 	float charSpacing = 0.0f;   ///< 字間（各文字の送り幅に加算するピクセル量、負値で詰める）
 	TextAlign align = TextAlign::Left;
 	int32_t renderPriority = 10;
+	ORIGINE_FIELD(no_save); // TextStreamSystem が実行時に制御するランタイム状態
 	int32_t visibleCharCount = -1; ///< 表示するコードポイント数。-1 で全文表示（TextStreamSystem が制御）
+	ORIGINE_FIELD(no_save); // 再レイアウトが必要かを示すランタイム状態
 	bool dirty = true;
 	bool visible = true;
 	bool showBounds = false; ///< TextBoundsRenderSystem でレイアウト枠をデバッグ描画するか

@@ -22,6 +22,8 @@ struct PointLight
     friend void from_json(const nlohmann::json& _j, PointLight& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     PointLight() {}
     ~PointLight() {}
 

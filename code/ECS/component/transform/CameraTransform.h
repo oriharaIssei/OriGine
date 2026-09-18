@@ -24,6 +24,8 @@ class CameraTransform
     friend void from_json(const nlohmann::json& _j, CameraTransform& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     CameraTransform() {}
     ~CameraTransform() {}
 
@@ -36,9 +38,11 @@ public:
     void UpdateMatrix();
 
 public:
+    ORIGINE_FIELD(no_save); // メインカメラとして使うかはエディタ/実行時の選択であり保存しない
     bool canUseMainCamera = true;
     Quaternion rotate = Quaternion();
     Vec3f translate   = {0.0f, 0.0f, 0.0f};
+    ORIGINE_FIELD(no_save); // UpdateMatrix() で再計算されるため保存しない
     Matrix4x4 viewMat = MakeMatrix4x4::Identity();
 
     // 垂直方向視野角
@@ -48,7 +52,8 @@ public:
     // 深度限界（手前側）
     float nearZ = 0.1f;
     // 深度限界（奥側）
-    float farZ              = 1000.0f;
+    float farZ = 1000.0f;
+    ORIGINE_FIELD(no_save); // UpdateMatrix() で再計算されるため保存しない
     Matrix4x4 projectionMat = MakeMatrix4x4::Identity();
 
 public:

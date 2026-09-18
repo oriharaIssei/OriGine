@@ -24,6 +24,8 @@ struct DirectionalLight
     friend void from_json(const nlohmann::json& _j, DirectionalLight& _comp);
 
 public:
+    ORIGINE_COMPONENT();
+
     DirectionalLight() : IComponent() {}
     ~DirectionalLight() {}
 
