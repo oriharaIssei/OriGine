@@ -1,0 +1,33 @@
+{
+    "_readme": [
+        "Phase 3 A-5の「旧形式」データ。キーが欠けたJSONを読み込んだとき、from_json の contains()/value() による",
+        "既定値補完が働くことを確認する(test/SerializeGoldenTests.cpp の RoundTrip_LegacyDefaults ケース)。",
+        "期待される出力は golden-legacy-expected.json 側に置く(欠けていたキーが既定値で埋まった結果)。",
+        "Rigidbody: from_json が .at() で必須にしているのは acceleration/velocity/mass/useGravity の4つだけ。",
+        "  それ以外(isActive/maxXZSpeed/maxFallSpeed/restitution/isUsingLocalDeltaTime/localDeltaTimeName)を",
+        "  意図的に省いてあり、既定値(それぞれ true/100.0/1000.0/0.0/false/\"\")で補われることを確認する。",
+        "DistortionEffectParam: 6章の罠7番にある綴りミスキー 'textuerPath' へのフォールバックを確認するため、",
+        "  正しいキー 'texturePath' の代わりに 'textuerPath' を使っている。isActive/materialIndex/",
+        "  distortionBias/distortionStrength も省いてあり、既定値で補われることを確認する",
+        "  (distortionStrength の既定は DistortionParamData 側のメンバ初期化子 (1,1) ではなく、",
+        "  from_json が無条件に上書きする _j.value(key, Vec2f()) の Vec2f() = (0,0) になる。",
+        "  golden-legacy-expected.json はこの実際の挙動を正解として記録している。修正はしていない)。"
+    ],
+
+    "Rigidbody": [
+        {
+            "acceleration": [1.0, 2.0, 3.0],
+            "velocity": [4.0, 5.0, 6.0],
+            "mass": 2.5,
+            "useGravity": true,
+            "Handle": "20000000-0000-0000-0000-000000000001"
+        }
+    ],
+
+    "DistortionEffectParam": [
+        {
+            "textuerPath": "resource/old/glitch.png",
+            "Handle": "20000000-0000-0000-0000-000000000002"
+        }
+    ]
+}

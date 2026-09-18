@@ -1,0 +1,33 @@
+{
+    "_readme": [
+        "golden-legacy-input.json を読み込んで書き出した結果の正解。欠けていたキーがfrom_json側の",
+        "既定値でどう補われるかを固定する(docs/materials/phase-03/A-4-fields.md に書かれた既定値と対応)。"
+    ],
+
+    "Rigidbody": [
+        {
+            "isActive": true,
+            "acceleration": [1.0, 2.0, 3.0],
+            "velocity": [4.0, 5.0, 6.0],
+            "maxXZSpeed": 100.0,
+            "useGravity": true,
+            "mass": 2.5,
+            "maxFallSpeed": 1000.0,
+            "restitution": 0.0,
+            "isUsingLocalDeltaTime": false,
+            "localDeltaTimeName": "",
+            "Handle": "20000000-0000-0000-0000-000000000001"
+        }
+    ],
+
+    "DistortionEffectParam": [
+        {
+            "isActive": true,
+            "materialIndex": -1,
+            "texturePath": "resource/old/glitch.png",
+            "distortionBias": [0.0, 0.0],
+            "distortionStrength": [0.0, 0.0],
+            "Handle": "20000000-0000-0000-0000-000000000002"
+        }
+    ]
+}

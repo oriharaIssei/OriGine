@@ -1,0 +1,185 @@
+{
+    "_readme": [
+        "Phase 3 A-5(docs/plans/phase-03.md 4章)のゴールデンJSON。",
+        "現行の手書き to_json/from_json が出す結果を正解として固定し、3D(ディスクリプタ経由への書き換え)の前後で",
+        "同じ結果になることを test/SerializeGoldenTests.cpp の RoundTrip_CurrentTypes ケースが確認する。",
+        "各型のキーはComponentArray<T>::SaveComponents()と同じ形(コンポーネント自身のフィールド + \"Handle\")。",
+        "全フィールドを既定値ではない値にしてあり、狙いは型ごとに次の通り(詳細はテストコードのコメントも参照):",
+        "Transform: scale/rotate(90度回転の正規化クォータニオン)/translate を全て非既定値に。",
+        "Transform2d: 2D版のscale/rotate(ラジアン)/translateを非既定値に。",
+        "CameraTransform: rotateは既に正規化した値を使う(from_jsonがUpdateMatrix()内でnormalize()するため、非正規化値だと往復で値が変わってしまう)。",
+        "DirectionalLight/PointLight/SpotLight: isActive/色/強度/向き等の全保存フィールドを非既定値に。PointLight/SpotLightはtargetTransformIndexも含む。",
+        "OutlineComponent: isActive/usingMaterialHandle(別コンポーネントを指すComponentHandle)/outlineWidth/outlineColorを非既定値に。",
+        "SmoothingEffectParam: 対象から除外した。理由は project/engine/code/ECS/component/effect/post/SmoothingEffectParam.cpp の",
+        "  to_json/from_json が namespace OriGine{} の外(グローバル名前空間)に定義されており、",
+        "  ADLでOriGine::to_json/OriGine::from_jsonとして解決できずLNK2019になる既存のバグのため",
+        "  (friend宣言はOriGine名前空間内でOriGine::to_jsonを宣言するが、.cpp側の定義はそれと別のシンボルになる)。",
+        "  このバグはこれまでSmoothingEffectParamがシリアライズ経路を一度も通っていなかったため気づかれていなかった。",
+        "  修正はしていない(シリアライズ本体の書き換えは3Dの範囲であり、このタスクでは行わない)。",
+        "TextComponent: text/position/color/fontHandle/fontSize/maxWidth/lineSpacing/charSpacing/align/renderPriority/visible/showBoundsを全て非既定値に。",
+        "TextStreamComponent: charsPerSecond/startDelay/loop/playingを非既定値に。",
+        "Rigidbody(手書きのまま残る型の代表): 12フィールド中保存対象10個すべてを非既定値に。",
+        "SphereCollider(手書きのまま残る型の代表): isActive/collisionCategory(GoldenTestCategoryという名前。テスト側がCollisionCategoryManagerに事前登録する)/center/radius/入れ子のtransformを非既定値に。",
+        "CollisionPushBackInfo(手書きのまま残る型の代表): pushBackTypeをNone以外(PushBack=1)に。",
+        "DistortionEffectParam(手書きのまま残る型の代表): isActive/materialIndex/texturePath/distortionBias/distortionStrengthを非既定値に。"
+    ],
+
+    "Transform": [
+        {
+            "scale": [2.0, 3.0, 4.0],
+            "rotate": [0.0, 0.0, 0.70710678, 0.70710678],
+            "translate": [10.0, -5.0, 2.5],
+            "Handle": "10000000-0000-0000-0000-000000000001"
+        }
+    ],
+
+    "Transform2d": [
+        {
+            "scale": [1.5, 2.5],
+            "rotate": 0.5235988,
+            "translate": [100.0, -50.0],
+            "Handle": "10000000-0000-0000-0000-000000000002"
+        }
+    ],
+
+    "CameraTransform": [
+        {
+            "rotate": [0.0, 0.0, 0.70710678, 0.70710678],
+            "translate": [0.0, 5.0, -10.0],
+            "fovAngleY": 1.2,
+            "aspectRatio": 1.7777778,
+            "nearZ": 0.05,
+            "farZ": 2000.0,
+            "Handle": "10000000-0000-0000-0000-000000000003"
+        }
+    ],
+
+    "DirectionalLight": [
+        {
+            "isActive": false,
+            "color": [0.2, 0.4, 0.6],
+            "intensity": 2.5,
+            "direction": [0.0, -1.0, 0.0],
+            "angularRadius": 0.05,
+            "Handle": "10000000-0000-0000-0000-000000000004"
+        }
+    ],
+
+    "PointLight": [
+        {
+            "isActive": true,
+            "color": [1.0, 0.5, 0.25],
+            "intensity": 10.0,
+            "pos": [3.0, 4.0, 5.0],
+            "radius": 15.0,
+            "decay": 2.0,
+            "angularRadius": 0.02,
+            "targetTransformIndex": 7,
+            "Handle": "10000000-0000-0000-0000-000000000005"
+        }
+    ],
+
+    "SpotLight": [
+        {
+            "isActive": true,
+            "color": [0.9, 0.1, 0.1],
+            "intensity": 8.0,
+            "pos": [-1.0, -2.0, -3.0],
+            "distance": 20.0,
+            "direction": [0.0, 0.0, -1.0],
+            "decay": 1.5,
+            "cosAngle": 0.8660254,
+            "cosFalloffStart": 0.9396926,
+            "angularRadius": 0.01,
+            "targetTransformIndex": -1,
+            "Handle": "10000000-0000-0000-0000-000000000006"
+        }
+    ],
+
+    "OutlineComponent": [
+        {
+            "isActive": true,
+            "usingMaterialHandle": "20000000-0000-0000-0000-000000000001",
+            "outlineWidth": 0.75,
+            "outlineColor": [1.0, 0.0, 0.0, 1.0],
+            "Handle": "10000000-0000-0000-0000-000000000007"
+        }
+    ],
+
+    "TextComponent": [
+        {
+            "text": "Hello, OriGine!",
+            "position": [12.0, 34.0],
+            "color": [0.1, 0.2, 0.3, 1.0],
+            "fontHandle": 5,
+            "fontSize": 32.0,
+            "maxWidth": 400.0,
+            "lineSpacing": 1.2,
+            "charSpacing": 1.0,
+            "align": 1,
+            "renderPriority": 3,
+            "visible": false,
+            "showBounds": true,
+            "Handle": "10000000-0000-0000-0000-000000000009"
+        }
+    ],
+
+    "TextStreamComponent": [
+        {
+            "charsPerSecond": 45.0,
+            "startDelay": 0.5,
+            "loop": true,
+            "playing": false,
+            "Handle": "10000000-0000-0000-0000-000000000010"
+        }
+    ],
+
+    "Rigidbody": [
+        {
+            "isActive": false,
+            "acceleration": [0.1, 0.2, 0.3],
+            "velocity": [1.0, 2.0, 3.0],
+            "maxXZSpeed": 50.0,
+            "useGravity": true,
+            "mass": 5.0,
+            "maxFallSpeed": 500.0,
+            "restitution": 0.3,
+            "isUsingLocalDeltaTime": true,
+            "localDeltaTimeName": "localSlow",
+            "Handle": "10000000-0000-0000-0000-000000000011"
+        }
+    ],
+
+    "SphereCollider": [
+        {
+            "isActive": true,
+            "collisionCategory": "GoldenTestCategory",
+            "center": [1.0, 2.0, 3.0],
+            "radius": 2.5,
+            "transform": {
+                "scale": [1.0, 1.0, 1.0],
+                "rotate": [0.0, 0.0, 0.0, 1.0],
+                "translate": [5.0, 0.0, 0.0]
+            },
+            "Handle": "10000000-0000-0000-0000-000000000012"
+        }
+    ],
+
+    "CollisionPushBackInfo": [
+        {
+            "pushBackType": 1,
+            "Handle": "10000000-0000-0000-0000-000000000013"
+        }
+    ],
+
+    "DistortionEffectParam": [
+        {
+            "isActive": true,
+            "materialIndex": 2,
+            "texturePath": "resource/effects/distortion.png",
+            "distortionBias": [0.1, 0.2],
+            "distortionStrength": [1.5, 2.5],
+            "Handle": "10000000-0000-0000-0000-000000000014"
+        }
+    ]
+}
