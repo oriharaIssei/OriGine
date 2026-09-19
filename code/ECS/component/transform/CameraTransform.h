@@ -20,9 +20,6 @@ namespace OriGine {
 /// </summary>
 class CameraTransform
     : public IComponent {
-    friend void to_json(nlohmann::json& _j, const CameraTransform& _comp);
-    friend void from_json(const nlohmann::json& _j, CameraTransform& _comp);
-
 public:
     ORIGINE_COMPONENT();
 
@@ -73,8 +70,9 @@ public:
     };
 };
 
-// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする
-// (CameraTransform.cpp の to_json/from_json は D-4 で表経由に置き換わるまでのフォールバックとして残す)。
+// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする。
+// 手書きの to_json/from_json は D-4 で削除済み(ComponentArray 経由以外の呼び出しが
+// 無いことを確認済み。docs/todo.html Phase 3 D-4 参照)。
 template <>
 inline constexpr bool kUsesDescriptorSerialization<CameraTransform> = true;
 

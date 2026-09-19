@@ -32,28 +32,3 @@ void PointLight::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const Ent
 
 #endif // _DEBUG
 }
-
-void OriGine::to_json(nlohmann::json& _j, const PointLight& _comp) {
-    _j["isActive"]      = _comp.isActive;
-    _j["color"]         = _comp.color;
-    _j["intensity"]     = _comp.intensity;
-    _j["pos"]           = _comp.pos;
-    _j["radius"]        = _comp.radius;
-    _j["decay"]         = _comp.decay;
-    _j["angularRadius"]       = _comp.angularRadius;
-    _j["targetTransformIndex"] = _comp.targetTransformIndex;
-}
-void OriGine::from_json(const nlohmann::json& _j, PointLight& _comp) {
-    _j.at("isActive").get_to(_comp.isActive);
-    _j.at("color").get_to(_comp.color);
-    _j.at("intensity").get_to(_comp.intensity);
-    _j.at("pos").get_to(_comp.pos);
-    _j.at("radius").get_to(_comp.radius);
-    _j.at("decay").get_to(_comp.decay);
-    if (_j.contains("angularRadius")) {
-        _j.at("angularRadius").get_to(_comp.angularRadius);
-    }
-    if (_j.contains("targetTransformIndex")) {
-        _j.at("targetTransformIndex").get_to(_comp.targetTransformIndex);
-    }
-}

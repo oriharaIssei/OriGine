@@ -38,24 +38,3 @@ void CameraTransform::UpdateMatrix() {
 
     projectionMat = MakeMatrix4x4::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
 }
-
-void OriGine::to_json(nlohmann::json& _j, const CameraTransform& _comp) {
-    _j = nlohmann::json{
-        {"rotate", _comp.rotate},
-        {"translate", _comp.translate},
-        {"fovAngleY", _comp.fovAngleY},
-        {"aspectRatio", _comp.aspectRatio},
-        {"nearZ", _comp.nearZ},
-        {"farZ", _comp.farZ},
-    };
-}
-
-void OriGine::from_json(const nlohmann::json& _j, CameraTransform& _comp) {
-    _j.at("rotate").get_to(_comp.rotate);
-    _j.at("translate").get_to(_comp.translate);
-    _j.at("fovAngleY").get_to(_comp.fovAngleY);
-    _j.at("aspectRatio").get_to(_comp.aspectRatio);
-    _j.at("nearZ").get_to(_comp.nearZ);
-    _j.at("farZ").get_to(_comp.farZ);
-    _comp.UpdateMatrix();
-}

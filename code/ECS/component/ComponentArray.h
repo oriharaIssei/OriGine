@@ -28,11 +28,13 @@
 namespace OriGine {
 
 /// <summary>
-/// ComponentType 1つ分を JSON へ書き出す(Phase 3 D-1)。`kUsesDescriptorSerialization<ComponentType>`
+/// ComponentType 1つ分を JSON へ書き出す(Phase 3 D-1/D-4)。`kUsesDescriptorSerialization<ComponentType>`
 /// が true の型は、型ID→ディスクリプタを引いて表経由(ToJsonViaDescriptor)で書く。それ以外は
-/// 従来どおり ADL の to_json に任せる。ディスクリプタ表経由にする型でも、型IDが未採番/
-/// ディスクリプタ未登録という想定外の順序で呼ばれた場合は、黙って空にはせずログを出したうえで
-/// 手書きの to_json へフォールバックする(D-4 で手書き版を消すまでの安全網)。
+/// 従来どおり ADL の to_json に任せる。
+/// D-4 で表経由の型の手書き to_json/from_json を削除したため、表経由の型は ADL へフォールバック
+/// できない(そもそも定義が無くコンパイルが通らない)。型IDが未採番/ディスクリプタ未登録という
+/// 想定外の順序で呼ばれた場合でも、黙って壊れたデータを返さないよう LOG_ERROR を出したうえで
+/// 空オブジェクトを返す(計測器と同じ原則: 捨てたことを数えて出す)。
 /// </summary>
 template <IsComponent ComponentType>
 inline nlohmann::json SerializeComponentValue(const ComponentType& _comp) {
@@ -44,9 +46,11 @@ inline nlohmann::json SerializeComponentValue(const ComponentType& _comp) {
             ToJsonViaDescriptor(json, &_comp, *desc);
             return json;
         }
-        LOG_ERROR("SerializeComponentValue<{}>: ディスクリプタが未登録のため手書きのto_jsonへフォールバックする", nameof<ComponentType>());
+        LOG_ERROR("SerializeComponentValue<{}>: ディスクリプタが未登録のため空オブジェクトを書き出す(手書きto_jsonはD-4で削除済み)", nameof<ComponentType>());
+        return nlohmann::json::object();
+    } else {
+        return nlohmann::json(_comp);
     }
-    return nlohmann::json(_comp);
 }
 
 /// <summary>SerializeComponentValue の読み込み版。既定構築済みの _outComp に、JSON にあるフィールドだけ上書きする。</summary>
@@ -59,9 +63,10 @@ inline void DeserializeComponentValue(const nlohmann::json& _json, ComponentType
             FromJsonViaDescriptor(_json, &_outComp, *desc);
             return;
         }
-        LOG_ERROR("DeserializeComponentValue<{}>: ディスクリプタが未登録のため手書きのfrom_jsonへフォールバックする", nameof<ComponentType>());
+        LOG_ERROR("DeserializeComponentValue<{}>: ディスクリプタが未登録のため読み込みを行わない(手書きfrom_jsonはD-4で削除済み)", nameof<ComponentType>());
+    } else {
+        _outComp = _json.get<ComponentType>();
     }
-    _outComp = _json.get<ComponentType>();
 }
 
 /// <summary>

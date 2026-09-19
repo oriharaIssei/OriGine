@@ -26,21 +26,3 @@ void DirectionalLight::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, 
 
 #endif // _DEBUG
 }
-
-void OriGine::to_json(nlohmann::json& _j, const DirectionalLight& _comp) {
-    _j["isActive"]      = _comp.isActive;
-    _j["color"]         = _comp.color;
-    _j["intensity"]     = _comp.intensity;
-    _j["direction"]     = _comp.direction;
-    _j["angularRadius"] = _comp.angularRadius;
-}
-
-void OriGine::from_json(const nlohmann::json& _j, DirectionalLight& _comp) {
-    _j.at("isActive").get_to(_comp.isActive);
-    _j.at("color").get_to(_comp.color);
-    _j.at("intensity").get_to(_comp.intensity);
-    _j.at("direction").get_to(_comp.direction);
-    if (_j.contains("angularRadius")) {
-        _j.at("angularRadius").get_to(_comp.angularRadius);
-    }
-}

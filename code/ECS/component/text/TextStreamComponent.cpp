@@ -48,18 +48,4 @@ void TextStreamComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/
 	ImGui::Text("Visible: %d", lastApplied < 0 ? 0 : lastApplied);
 }
 
-void to_json(nlohmann::json& j, const TextStreamComponent& c) {
-	j["charsPerSecond"] = c.charsPerSecond;
-	j["startDelay"]     = c.startDelay;
-	j["loop"]           = c.loop;
-	j["playing"]        = c.playing;
-}
-
-void from_json(const nlohmann::json& j, TextStreamComponent& c) {
-	if (j.contains("charsPerSecond")) j["charsPerSecond"].get_to(c.charsPerSecond);
-	if (j.contains("startDelay")) j["startDelay"].get_to(c.startDelay);
-	if (j.contains("loop")) j["loop"].get_to(c.loop);
-	if (j.contains("playing")) j["playing"].get_to(c.playing);
-}
-
 } // namespace OriGine

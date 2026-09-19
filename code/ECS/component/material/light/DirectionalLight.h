@@ -19,10 +19,6 @@ namespace OriGine {
 struct DirectionalLight
     : public IComponent {
 
-    // to_json, from_json を friend として宣言
-    friend void to_json(nlohmann::json& _j, const DirectionalLight& _comp);
-    friend void from_json(const nlohmann::json& _j, DirectionalLight& _comp);
-
 public:
     ORIGINE_COMPONENT();
 
@@ -59,8 +55,9 @@ public:
     };
 };
 
-// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする
-// (DirectionalLight.cpp の to_json/from_json は D-4 で表経由に置き換わるまでのフォールバックとして残す)。
+// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする。
+// 手書きの to_json/from_json は D-4 で削除済み(ComponentArray 経由以外の呼び出しが
+// 無いことを確認済み。docs/todo.html Phase 3 D-4 参照)。
 template <>
 inline constexpr bool kUsesDescriptorSerialization<DirectionalLight> = true;
 

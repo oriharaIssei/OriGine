@@ -84,23 +84,9 @@ public:
     };
 };
 
-/// JSON 読み取り
-inline void from_json(const nlohmann::json& _j, Transform2d& _comp) {
-    _j.at("scale").get_to(_comp.scale);
-    _j.at("rotate").get_to(_comp.rotate);
-    _j.at("translate").get_to(_comp.translate);
-}
-
-/// JSON 書き込み
-inline void to_json(nlohmann::json& _j, const Transform2d& _comp) {
-    _j = nlohmann::json{
-        {"scale", _comp.scale},
-        {"rotate", _comp.rotate},
-        {"translate", _comp.translate}};
-}
-
-// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする
-// (上の to_json/from_json は D-4 で表経由に置き換わるまでのフォールバックとして残す)。
+// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする。
+// 手書きの to_json/from_json は D-4 で削除済み(ComponentArray 経由以外の呼び出しが
+// 無いことを確認済み。docs/todo.html Phase 3 D-4 参照)。
 template <>
 inline constexpr bool kUsesDescriptorSerialization<Transform2d> = true;
 
