@@ -5,6 +5,7 @@
 #include <vector>
 
 /// engine
+#include "benchmark/BenchmarkSerializeRunner.h"
 #include "benchmark/BenchmarkTypes.h"
 
 namespace OriGine::Benchmark {
@@ -29,5 +30,21 @@ bool WriteBenchmarkCsv(
     const std::vector<BenchmarkScopeStat>& _scopes,
     const std::vector<BenchmarkFrameRecord>& _frames,
     const std::vector<BenchmarkCounterStat>& _counters);
+
+/// <summary>
+/// D-2(保存・読み込みベンチ)の結果をCSVへ出力する(1ファイルのみ。他の指標と違い
+/// 集計しないので、summary/scopes/frames/countersのような分割は不要).
+/// 出力先パスは _basePath の拡張子の手前に ".serialize" を挿入したもの
+/// (例: "out/run1.csv" -> "out/run1.serialize.csv")。
+/// label列は _basePath のファイル名(拡張子を除いた部分)から取る。bench.ps1は
+/// 常に "&lt;Label&gt;.csv" という形でbasePathを渡すため、これでLabelそのものになる
+/// (CLI側はLabel文字列自体を知らないため、ファイル名から逆算する)。
+/// </summary>
+/// <param name="_basePath">出力先のベースパス(--bench-csv で指定された値)</param>
+/// <param name="_records">save/loadの計測結果(repeat回×2件)</param>
+/// <returns>書き出せた場合はtrue</returns>
+bool WriteSerializeBenchmarkCsv(
+    const std::string& _basePath,
+    const std::vector<SerializeBenchRecord>& _records);
 
 } // namespace OriGine::Benchmark

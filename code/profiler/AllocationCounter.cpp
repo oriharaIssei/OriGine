@@ -80,6 +80,13 @@ const FrameStats& GetLastFrameStats() {
     return g_lastFrameStats;
 }
 
+CumulativeStats GetCumulativeStats() {
+    CumulativeStats stats;
+    stats.allocCount_ = g_totalAllocCount.load(std::memory_order_relaxed);
+    stats.allocBytes_ = static_cast<uint64_t>(g_totalAllocBytesAccum.load(std::memory_order_relaxed));
+    return stats;
+}
+
 const std::array<FrameStats, OriGine::Config::Profiler::kFrameHistorySize>& GetHistory() {
     return g_history;
 }

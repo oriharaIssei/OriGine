@@ -34,6 +34,24 @@ void OnFrameBegin();
 const FrameStats& GetLastFrameStats();
 
 /// <summary>
+/// 計測開始からの累積確保統計(フレーム境界に依存しない瞬時値)。
+/// フレームループの外(保存・読み込みなど、OnFrameBeginを挟まない区間)のコストを測るには、
+/// この値を区間の前後で読んで差分を取る(GetLastFrameStatsはOnFrameBeginを呼ぶフレームループ
+/// 前提のため、フレームループを回さない計測には使えない)。
+/// Release構成ではoperator new/deleteを差し替えないため常に0を返す。
+/// </summary>
+struct CumulativeStats {
+    uint64_t allocCount_ = 0; // 計測開始からの総確保回数
+    uint64_t allocBytes_ = 0; // 計測開始からの総確保バイト数(単調増加。解放では減算しない)
+};
+
+/// <summary>
+/// 現在までの累積確保統計を取得する(OnFrameBeginの呼び出しとは無関係に、いつでも呼べる)
+/// </summary>
+/// <returns>現在の累積統計値</returns>
+CumulativeStats GetCumulativeStats();
+
+/// <summary>
 /// 直近 kFrameHistorySize フレーム分の履歴を取得する(グラフ表示用のリングバッファ)
 /// </summary>
 /// <returns>履歴バッファへの参照</returns>

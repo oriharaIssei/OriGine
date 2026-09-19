@@ -2,6 +2,7 @@
 
 /// stl
 #include <algorithm>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -45,6 +46,21 @@ std::ofstream OpenCsv(const std::string& _path) {
     ofs.imbue(std::locale::classic());
     ofs << std::fixed << std::setprecision(4);
     return ofs;
+}
+
+/// <summary>
+/// 現在時刻を "yyyy-MM-ddTHH:mm:ss" (ローカル時刻、オフセット無し) で返す。
+/// このCSVの1回の実行につき1つだけ記録すればよい値なので、行ごとの計測開始時刻ではなく
+/// 書き出し時点の時刻でよい(bench.ps1のmeta.csvが実行1回につき1つのrecorded_atを持つのと
+/// 同じ考え方)。localtime_sはMSVC専用だが、このプロジェクトはMSVC限定なので問題ない。
+/// </summary>
+std::string FormatNowIso8601() {
+    const std::time_t now = std::time(nullptr);
+    std::tm tmBuf{};
+    localtime_s(&tmBuf, &now);
+    char buf[32] = {};
+    std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &tmBuf);
+    return std::string(buf);
 }
 
 } // namespace
@@ -159,6 +175,49 @@ bool WriteBenchmarkCsv(
     }
 
     LOG_INFO("WriteBenchmarkCsv: wrote '{}', '{}', '{}', '{}'.", summaryPath, scopesPath, framesPath, countersPath);
+    return true;
+}
+
+bool WriteSerializeBenchmarkCsv(
+    const std::string& _basePath,
+    const std::vector<SerializeBenchRecord>& _records) {
+
+    if (_basePath.empty()) {
+        LOG_ERROR("WriteSerializeBenchmarkCsv: base path is empty.");
+        return false;
+    }
+
+    const std::string outPath = InsertSuffixBeforeExtension(_basePath, ".serialize");
+    if (!EnsureParentDirectory(outPath)) {
+        return false;
+    }
+
+    // bench.ps1は必ず "generated/benchmark/<Label>.csv" という形でbasePathを渡す規則なので、
+    // 拡張子を除いたファイル名がそのままLabelになる(CLI側はLabel文字列自体を受け取っていない)。
+    const std::filesystem::path basePath(_basePath);
+    const std::string label = basePath.stem().string();
+    const std::string recordedAt = FormatNowIso8601();
+
+    std::ofstream ofs = OpenCsv(outPath);
+    if (!ofs.is_open()) {
+        LOG_ERROR("WriteSerializeBenchmarkCsv: failed to open '{}'.", outPath);
+        return false;
+    }
+
+    ofs << "label,repeat,case,ms,alloc_count,alloc_bytes,json_bytes,entity_count,recorded_at\n";
+    for (const SerializeBenchRecord& r : _records) {
+        ofs << label << ","
+            << r.repeat_ << ","
+            << r.case_ << ","
+            << r.ms_ << ","
+            << r.allocCount_ << ","
+            << r.allocBytes_ << ","
+            << r.jsonBytes_ << ","
+            << r.entityCount_ << ","
+            << recordedAt << "\n";
+    }
+
+    LOG_INFO("WriteSerializeBenchmarkCsv: wrote '{}' ({} rows).", outPath, _records.size());
     return true;
 }
 
