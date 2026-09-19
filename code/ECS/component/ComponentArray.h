@@ -28,6 +28,43 @@
 namespace OriGine {
 
 /// <summary>
+/// ComponentType 1つ分を JSON へ書き出す(Phase 3 D-1)。`kUsesDescriptorSerialization<ComponentType>`
+/// が true の型は、型ID→ディスクリプタを引いて表経由(ToJsonViaDescriptor)で書く。それ以外は
+/// 従来どおり ADL の to_json に任せる。ディスクリプタ表経由にする型でも、型IDが未採番/
+/// ディスクリプタ未登録という想定外の順序で呼ばれた場合は、黙って空にはせずログを出したうえで
+/// 手書きの to_json へフォールバックする(D-4 で手書き版を消すまでの安全網)。
+/// </summary>
+template <IsComponent ComponentType>
+inline nlohmann::json SerializeComponentValue(const ComponentType& _comp) {
+    if constexpr (kUsesDescriptorSerialization<ComponentType>) {
+        const uint32_t typeId = ComponentTypeIdStorage<ComponentType>::id_;
+        const TypeDesc* desc  = (typeId != kInvalidComponentTypeId) ? GetTypeDescriptor(typeId) : nullptr;
+        if (desc) {
+            nlohmann::json json = nlohmann::json::object();
+            ToJsonViaDescriptor(json, &_comp, *desc);
+            return json;
+        }
+        LOG_ERROR("SerializeComponentValue<{}>: ディスクリプタが未登録のため手書きのto_jsonへフォールバックする", nameof<ComponentType>());
+    }
+    return nlohmann::json(_comp);
+}
+
+/// <summary>SerializeComponentValue の読み込み版。既定構築済みの _outComp に、JSON にあるフィールドだけ上書きする。</summary>
+template <IsComponent ComponentType>
+inline void DeserializeComponentValue(const nlohmann::json& _json, ComponentType& _outComp) {
+    if constexpr (kUsesDescriptorSerialization<ComponentType>) {
+        const uint32_t typeId = ComponentTypeIdStorage<ComponentType>::id_;
+        const TypeDesc* desc  = (typeId != kInvalidComponentTypeId) ? GetTypeDescriptor(typeId) : nullptr;
+        if (desc) {
+            FromJsonViaDescriptor(_json, &_outComp, *desc);
+            return;
+        }
+        LOG_ERROR("DeserializeComponentValue<{}>: ディスクリプタが未登録のため手書きのfrom_jsonへフォールバックする", nameof<ComponentType>());
+    }
+    _outComp = _json.get<ComponentType>();
+}
+
+/// <summary>
 /// コンポーネント配列。
 /// ComponentType ごとに実体化されるテンプレートクラスで、実データ(vector&lt;ComponentType&gt;)を型付きのまま保持する。
 /// 外部(ComponentRepositoryなど)からは基底の IComponentArray インターフェース越しにしか触れないため、

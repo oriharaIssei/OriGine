@@ -23,6 +23,11 @@ enum class TextAlign : uint8_t {
 /// 文字列を画面に描画するテキストコンポーネント。
 /// 表示文字列・表示位置・色・フォント・サイズやレイアウト設定（揃え・行間・字間など）を保持する。
 /// </summary>
+/// <remarks>
+/// D-1: 表経由シリアライズ(kUsesDescriptorSerialization)は導入していない。
+/// fontHandle は保存対象(NoSaveでない)だが型タグが Opaque で、表には FontHandle の
+/// 中身を復元する情報が無いため、手書きの to_json/from_json のまま残す。
+/// </remarks>
 class TextComponent
 	: public IComponent {
 	friend void to_json(nlohmann::json& j,const TextComponent& c);

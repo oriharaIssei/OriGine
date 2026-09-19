@@ -34,6 +34,11 @@ struct OutlineParamData {
 /// <summary>
 /// アウトラインエフェクトコンポーネント
 /// </summary>
+/// <remarks>
+/// D-1: 表経由シリアライズ(kUsesDescriptorSerialization)は導入していない。
+/// usingMaterialHandle は保存対象(NoSaveでない)だが型タグが Opaque で、表には
+/// ComponentHandle の中身を復元する情報が無いため、手書きの to_json/from_json のまま残す。
+/// </remarks>
 struct OutlineComponent
     : public IComponent {
     friend void to_json(nlohmann::json& _j, const OutlineComponent& _comp);

@@ -59,4 +59,9 @@ public:
     };
 };
 
+// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする
+// (DirectionalLight.cpp の to_json/from_json は D-4 で表経由に置き換わるまでのフォールバックとして残す)。
+template <>
+inline constexpr bool kUsesDescriptorSerialization<DirectionalLight> = true;
+
 } // namespace OriGine

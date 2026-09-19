@@ -94,4 +94,9 @@ inline void to_json(nlohmann::json& _j, const Transform& _comp) {
     _j = nlohmann::json{{"scale", _comp.scale}, {"rotate", _comp.rotate}, {"translate", _comp.translate}};
 }
 
+// D-1: 保存対象フィールドに Opaque が無いため、表経由でシリアライズする
+// (上の to_json/from_json は D-4 で表経由に置き換わるまでのフォールバックとして残す)。
+template <>
+inline constexpr bool kUsesDescriptorSerialization<Transform> = true;
+
 } // namespace OriGine

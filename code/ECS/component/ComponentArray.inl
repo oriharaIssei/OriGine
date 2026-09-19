@@ -199,8 +199,9 @@ inline bool ComponentArray<ComponentType>::SaveComponent(ComponentHandle _compHa
     auto [slotIndex, compIndex] = itr->second;
     EntitySlot& slot            = slots_[slotIndex];
 
-    _outJson[nameof<ComponentType>()]           = slot.components[compIndex];
-    _outJson[nameof<ComponentType>()]["Handle"] = slot.components[compIndex].GetHandle();
+    nlohmann::json compJson           = SerializeComponentValue(slot.components[compIndex]);
+    compJson["Handle"]                = slot.components[compIndex].GetHandle();
+    _outJson[nameof<ComponentType>()] = compJson;
 
     return true;
 }
@@ -221,8 +222,9 @@ inline bool ComponentArray<ComponentType>::SaveComponent(const EntityHandle& _ha
         return false;
     }
 
-    _outJson[nameof<ComponentType>()]           = slot.components[_compIndex];
-    _outJson[nameof<ComponentType>()]["Handle"] = slot.components[_compIndex].GetHandle();
+    nlohmann::json compJson           = SerializeComponentValue(slot.components[_compIndex]);
+    compJson["Handle"]                = slot.components[_compIndex].GetHandle();
+    _outJson[nameof<ComponentType>()] = compJson;
 
     return true;
 }
@@ -243,7 +245,7 @@ inline bool ComponentArray<ComponentType>::SaveComponents(const EntityHandle& _h
     // コンポーネントを保存
     nlohmann::json compVecJson = nlohmann::json::array();
     for (auto& comp : slot.components) {
-        nlohmann::json compJson = comp;
+        nlohmann::json compJson = SerializeComponentValue(comp);
         compJson["Handle"]      = comp.GetHandle();
         compVecJson.emplace_back(compJson);
     }
@@ -270,7 +272,8 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
     EntitySlot& slot   = slots_[slotIndex];
 
     // コンポーネントを読み込み
-    ComponentType comp         = _inJson.get<ComponentType>();
+    ComponentType comp{};
+    DeserializeComponentValue(_inJson, comp);
     ComponentHandle compHandle = ComponentHandle();
     if (_handleMode == HandleAssignMode::UseSaved && _inJson.contains("Handle")) {
         _inJson["Handle"].get_to<ComponentHandle>(compHandle);
@@ -303,7 +306,8 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
     uint32_t slotIndex = entIt->second;
     EntitySlot& slot   = slots_[slotIndex];
     // コンポーネントを読み込み
-    ComponentType comp         = _inJson.get<ComponentType>();
+    ComponentType comp{};
+    DeserializeComponentValue(_inJson, comp);
     ComponentHandle compHandle = ComponentHandle();
     if (_handleMode == HandleAssignMode::UseSaved && _inJson.contains("Handle")) {
         _inJson["Handle"].get_to<ComponentHandle>(compHandle);
@@ -349,7 +353,8 @@ inline void ComponentArray<ComponentType>::LoadComponents(
 
     // コンポーネントを読み込み
     for (const auto& compJson : _inJson) {
-        ComponentType comp         = compJson.get<ComponentType>();
+        ComponentType comp{};
+        DeserializeComponentValue(compJson, comp);
         ComponentHandle compHandle = ComponentHandle();
         if (_handleMode == HandleAssignMode::UseSaved && compJson.contains("Handle")) {
             compJson["Handle"].get_to<ComponentHandle>(compHandle);

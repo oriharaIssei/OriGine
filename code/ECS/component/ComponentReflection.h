@@ -3,6 +3,9 @@
 /// stl
 #include <cstdint>
 
+/// externals
+#include <nlohmann/json.hpp>
+
 /// ECS
 #include "component/ComponentTypeId.h"
 
@@ -115,6 +118,45 @@ const FieldDesc* GetFieldTable();
 
 /// <summary>共有 FieldDesc 配列の要素数を取得する。</summary>
 uint32_t GetFieldTableCount();
+
+/// <summary>
+/// この型のシリアライズ(ComponentArray の Save/Load 系)をディスクリプタ表経由にするかどうかの
+/// 型ごとの切り替え(Phase 3D-1)。既定は false(従来どおり手書きの ADL to_json/from_json を使う)。
+///
+/// 「型ID→ディスクリプタが登録されていて、かつ保存対象フィールドに Opaque が無い」を満たす型を
+/// 自動的に true へ倒さない理由: その条件を満たしていても、型ごとの事情(例: SmoothingEffectParam の
+/// to_json/from_json が `namespace OriGine` の外に定義されている既知のバグにより、ADL 経由の
+/// シリアライズが元々機能していない)で手書きのままにしておきたい場合があるため。
+/// このバグを true へのオプトインで自動的に踏み越えて「直って見える」ことを避けるため、
+/// 対象は型ごとに明示的な特殊化でオプトインする方式にしてある。
+/// 各コンポーネントのヘッダ側で、`ORIGINE_COMPONENT()` を付けた型の定義の直後に
+/// `template <> inline constexpr bool kUsesDescriptorSerialization<Foo> = true;` として特殊化する
+/// (対象ヘッダは IComponent.h 経由でこのファイルを既に include している)。
+/// </summary>
+template <typename ComponentType>
+inline constexpr bool kUsesDescriptorSerialization = false;
+
+/// <summary>
+/// 型ディスクリプタ(TypeDesc/FieldDesc)を使って、保存対象のフィールドを JSON へ書き出す。
+/// `kFieldFlagNoSave` が立つフィールドは書かない。Opaque なフィールドは中身を復元する情報が
+/// 表に無いため書き出せない(呼び出し側で `kUsesDescriptorSerialization` を true にする型は
+/// 保存対象に Opaque を含めないこと。含めてしまった場合はログを出してそのフィールドだけ飛ばす、
+/// 検出用の安全網)。
+/// </summary>
+/// <param name="_outJson">書き込み先(型名キーやコンポーネント間で共有する "Handle" は呼び出し側が付ける)</param>
+/// <param name="_obj">シリアライズ対象オブジェクトの先頭アドレス</param>
+/// <param name="_desc">対象型の TypeDesc</param>
+void ToJsonViaDescriptor(nlohmann::json& _outJson, const void* _obj, const TypeDesc& _desc);
+
+/// <summary>
+/// 型ディスクリプタを使って、JSON からフィールドを読み込む。キーが無いフィールドや
+/// `kFieldFlagNoSave` が立つフィールドには一切触れない(呼び出し前にデフォルト構築済みの値を
+/// そのまま残す。手書きの from_json が `contains()` で守っている挙動と同じにするため)。
+/// </summary>
+/// <param name="_inJson">読み込み元(型ごとの1コンポーネント分のオブジェクト)</param>
+/// <param name="_obj">書き込み先オブジェクトの先頭アドレス(呼び出し前にデフォルト構築済みであること)</param>
+/// <param name="_desc">対象型の TypeDesc</param>
+void FromJsonViaDescriptor(const nlohmann::json& _inJson, void* _obj, const TypeDesc& _desc);
 
 } // namespace OriGine
 
