@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine::Benchmark {
 
 /// <summary>
@@ -31,6 +34,6 @@ namespace OriGine::Benchmark {
 /// </summary>
 /// <param name="_commandLines">main.cpp の ParseCommandLine() の戻り値</param>
 /// <returns>いずれかのベンチマークを実行した場合は true</returns>
-bool RunCliBenchmarkIfRequested(const std::vector<std::string>& _commandLines);
+ORIGINE_API bool RunCliBenchmarkIfRequested(const std::vector<std::string>& _commandLines);
 
 } // namespace OriGine::Benchmark

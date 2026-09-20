@@ -18,6 +18,9 @@
 /// util
 #include "globalVariables/SerializedField.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -45,12 +48,13 @@ struct LightCounts {
 /// <summary>
 /// ライトを管理するクラス
 /// </summary>
-class LightManager {
+class ORIGINE_API LightManager {
 public:
-    static LightManager* GetInstance() {
-        static LightManager instance;
-        return &instance;
-    }
+    /// <summary>
+    /// .cpp に出しているのは DxDebug と同じ理由(docs/plans/phase-04.md 4D 3):
+    /// inlineのままだとDLLとEXEの両方に別々の実体(関数ローカルstatic)が生まれる。
+    /// </summary>
+    static LightManager* GetInstance();
     LightManager();
     ~LightManager();
     LightManager(const LightManager&)            = delete;

@@ -10,21 +10,23 @@
 /// engine
 #include "CollisionCategory.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// 衝突カテゴリ管理クラス（シングルトン）
 /// string→bit変換、カテゴリ登録/取得を担当
 /// </summary>
-class CollisionCategoryManager {
+class ORIGINE_API CollisionCategoryManager {
 public:
     /// <summary>
-    /// シングルトンインスタンスを取得する
+    /// シングルトンインスタンスを取得する。
+    /// .cpp に出しているのは DxDebug と同じ理由(docs/plans/phase-04.md 4D 3):
+    /// inlineのままだとDLLとEXEの両方に別々の実体(関数ローカルstatic)が生まれる。
     /// </summary>
-    static CollisionCategoryManager* GetInstance() {
-        static CollisionCategoryManager instance;
-        return &instance;
-    }
+    static CollisionCategoryManager* GetInstance();
 
 private:
     static constexpr uint32_t kMaxCategories = 32; // 登録可能なカテゴリの最大数（ビットマスク32bit分）

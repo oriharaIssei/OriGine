@@ -9,12 +9,15 @@
 /// collision
 #include "SpatialHash.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// 衝突判定システム
 /// </summary>
-class CollisionCheckSystem
+class ORIGINE_API CollisionCheckSystem
     : public ISystem {
 public:
     /// <summary>

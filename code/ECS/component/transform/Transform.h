@@ -16,12 +16,15 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// Transform コンポーネント(3次元)
 /// </summary>
-struct Transform
+struct ORIGINE_API Transform
     : public IComponent {
 public:
     ORIGINE_COMPONENT();

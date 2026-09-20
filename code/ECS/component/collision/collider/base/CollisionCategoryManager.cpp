@@ -9,6 +9,11 @@ static const std::string kSceneName = "Settings";
 static const std::string kGroupName = "Collision";
 static const std::string kItemName  = "Categories";
 
+CollisionCategoryManager* CollisionCategoryManager::GetInstance() {
+    static CollisionCategoryManager instance;
+    return &instance;
+}
+
 /// <summary>
 /// シングルトンのコンストラクタ。常に存在する"Default"カテゴリを登録する
 /// </summary>

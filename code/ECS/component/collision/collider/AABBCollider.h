@@ -11,16 +11,16 @@ namespace OriGine {
 /// ローカル空間での中心(center)と各軸の半長(halfSize)を保持し、
 /// CalculateWorldShapeでTransformのワールド行列・スケールを適用したものをワールド形状として持つ。
 /// </summary>
-class AABBCollider
+class ORIGINE_API AABBCollider
     : public Collider<Bounds::AABB> {
     /// <summary>
     /// AABBColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const AABBCollider& _a);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const AABBCollider& _a);
     /// <summary>
     /// JSONからAABBColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, AABBCollider& _a);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, AABBCollider& _a);
 
 public:
     AABBCollider()

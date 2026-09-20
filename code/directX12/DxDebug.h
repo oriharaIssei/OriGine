@@ -5,22 +5,25 @@
 
 #include <d3d12.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// DirectX 12 のデバッグレイヤー、情報キュー (InfoQueue)、ライブオブジェクト報告などを管理するシングルトンクラス.
 /// 開発時のリソースリーク検出や不正な API 呼び出しのデバッグに使用される.
 /// </summary>
-class DxDebug {
+class ORIGINE_API DxDebug {
 public:
     /// <summary>
     /// インスタンスを取得する.
+    /// GetInstance()自体は関数ローカルstaticを持つため、.cppではなくここに書くと
+    /// DLLとEXEの両方にインライン展開されて実体が2つに割れる(docs/plans/phase-04.md 4D 3)。
+    /// 実体をOriGine.dllに1つだけ持たせるため.cppへ出した(非inline化)。
     /// </summary>
     /// <returns>DxDebug インスタンス</returns>
-    static DxDebug* GetInstance() {
-        static DxDebug instance;
-        return &instance;
-    }
+    static DxDebug* GetInstance();
 
     /// <summary>
     /// デバッグレイヤーを有効化し、ファクトリのデバッグフラグを設定する等の初期化を行う.

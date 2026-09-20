@@ -18,12 +18,15 @@
 /// util
 #include <util/nameof.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// Editorの制御クラス
 /// </summary>
-class EditorController {
+class ORIGINE_API EditorController {
     friend class SceneManager;
 
 public:

@@ -22,6 +22,9 @@
 /// math
 #include <Vector2.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace Editor {
 // Blenderを参考
 // https://colorful-pico.net/introduction-to-addon-development-in-blender/2.7/html/chapter_99/00_Glossary.html
@@ -207,7 +210,7 @@ public:
 /// <summary>
 /// Window.1画面の単位.
 /// </summary>
-class Window {
+class ORIGINE_API Window {
 public:
     Window(const std::string& _title)
         : title_(_title) {}

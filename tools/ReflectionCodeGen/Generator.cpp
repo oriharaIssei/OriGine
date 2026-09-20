@@ -54,6 +54,10 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
              "// 内容が変わらない限りファイルは書き換わらない(タイムスタンプも更新されない)。\n"
              "// ============================================================================\n"
              "\n"
+             "/// DLL境界(Phase 4 4D)。RegisterUsingComponents() はアプリ側(EXE)からこの関数を\n"
+             "/// 直接呼ぶため、OriGine.dll 側では実体をエクスポートする必要がある。\n"
+             "#include \"OriGineApi.h\"\n"
+             "\n"
              "namespace OriGine {\n"
              "\n"
              "/// <summary>\n"
@@ -62,7 +66,7 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
              "/// 明示的に呼ぶこと(Q16: 静的初期化子による自己登録は静的ライブラリで\n"
              "/// リンカに捨てられるため使わない)。\n"
              "/// </summary>\n"
-             "void RegisterGeneratedComponentDescriptors();\n"
+             "ORIGINE_API void RegisterGeneratedComponentDescriptors();\n"
              "\n"
              "} // namespace OriGine\n";
         out.headerText = h.str();

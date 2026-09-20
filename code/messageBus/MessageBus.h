@@ -5,18 +5,23 @@
 #include <vector>
 #include <algorithm>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 /// <summary>
 /// シングルトンのメッセージバス・エンジン.
 /// 異なるシステムやコンポーネント間で、型安全なイベントの発行（Emit）と購読（Subscribe）を可能にする.
 /// 疎結合なアーキテクチャを実現するために使用される.
 /// </summary>
-class MessageBus {
+class ORIGINE_API MessageBus {
 public:
-    /// <summary> シングルトンインスタンスの取得. </summary>
-    static MessageBus* GetInstance() {
-        static MessageBus instance;
-        return &instance;
-    }
+    /// <summary>
+    /// シングルトンインスタンスの取得。
+    /// .cpp に出しているのは DxDebug と同じ理由(docs/plans/phase-04.md 4D 3):
+    /// inlineのままだとDLLとEXEの両方に別々の実体(関数ローカルstatic)が生まれる。
+    /// MessageBus.cpp はこの関数1つのためだけに新設した(他は全部テンプレートかinlineのまま)。
+    /// </summary>
+    static MessageBus* GetInstance();
 
 public:
     /// <summary>

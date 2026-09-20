@@ -10,16 +10,16 @@ namespace OriGine {
 /// OBBコライダー（有向境界ボックス）。
 /// ローカル空間の中心(center_)・各軸の半長(halfSize_)・回転(orientations_)で形状を表す。
 /// </summary>
-class OBBCollider
+class ORIGINE_API OBBCollider
     : public Collider<Bounds::OBB> {
     /// <summary>
     /// OBBColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const OBBCollider& _o);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const OBBCollider& _o);
     /// <summary>
     /// JSONからOBBColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, OBBCollider& _o);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, OBBCollider& _o);
 
 public:
     OBBCollider() : Collider<Bounds::OBB>() {}

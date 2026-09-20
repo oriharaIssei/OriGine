@@ -16,6 +16,11 @@
 
 using namespace OriGine;
 
+DxDebug* DxDebug::GetInstance() {
+    static DxDebug instance;
+    return &instance;
+}
+
 /// <summary>
 /// デバッグレイヤーとGPUベース検証を有効化する。ID3D12Deviceの生成より前に呼び出す必要がある
 /// （デバイス生成後にレイヤーを有効化しても、生成済みデバイスには適用されないため）。

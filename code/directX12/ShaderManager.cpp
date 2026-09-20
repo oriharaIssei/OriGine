@@ -17,6 +17,11 @@
 
 using namespace OriGine;
 
+ShaderManager* ShaderManager::GetInstance() {
+    static ShaderManager instance;
+    return &instance;
+}
+
 AssetManager<ShaderAsset>* ShaderManager::GetShaderAssetManager() {
     return AssetSystem::GetInstance()->GetManager<ShaderAsset>();
 }

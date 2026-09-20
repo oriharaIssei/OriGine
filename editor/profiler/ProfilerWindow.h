@@ -14,7 +14,7 @@
 /// フレームタイムグラフ(平均/99パーセンタイル/最大)、
 /// アロケーション状況(フレームあたりの確保/解放回数・バイト数)を表示する.
 /// </summary>
-class ProfilerWindow
+class ORIGINE_API ProfilerWindow
     : public Editor::Window {
 public:
     ProfilerWindow();

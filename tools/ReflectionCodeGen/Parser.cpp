@@ -397,6 +397,15 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
     bool isStructKeyword = _c.Is("struct");
     _c.Expect(isStructKeyword ? "struct" : "class");
 
+    // OriGineApi.h の ORIGINE_API(dllexport/dllimport注釈、Phase 4 4D)は実コンパイラには
+    // 透過的なマクロだが、このパーサは実プリプロセッサを通さずトークン列をそのまま読むため、
+    // `struct ORIGINE_API Foo` の ORIGINE_API を型名と取り違えて壊れる。
+    // 対象型(targets.txtに列挙された型。今のところ Transform.h のみ)にこの注釈が付いた実例が
+    // あるため、struct/class キーワード直後の "ORIGINE_API" だけを読み飛ばす。
+    if (_c.Is("ORIGINE_API")) {
+        ++_c.pos;
+    }
+
     if (_c.Cur().kind != TokenKind::Identifier) {
         throw ParseError(_c.fileName, _c.Cur().line, "struct/class の名前が識別子ではない");
     }

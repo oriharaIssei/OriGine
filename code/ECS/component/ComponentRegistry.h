@@ -2,6 +2,9 @@
 #include "ComponentArray.h"
 #include "ComponentTypeId.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -15,7 +18,7 @@ namespace OriGine {
 /// ・ComponentRepositoryがSceneごとにComponentArray群を複製生成する
 /// といった、コンパイル時の型と実行時の文字列表現とを結びつける処理をすべてここに集約できる。
 /// </summary>
-class ComponentRegistry final {
+class ORIGINE_API ComponentRegistry final {
 public:
     /// <summary>
     /// シングルトンインスタンスを取得する

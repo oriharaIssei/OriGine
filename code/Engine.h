@@ -24,6 +24,9 @@
 #include <cstdint>
 #include <Vector2.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// engine
@@ -41,7 +44,7 @@ class DxSwapChain;
 /// OriGine エンジンの核となる統括クラス (シングルトン).
 /// ウィンドウの生成、DirectX 12 の初期化、フレームのライフサイクル管理、主要なマネージャークラスの保持を担当する.
 /// </summary>
-class Engine {
+class ORIGINE_API Engine {
 public:
     /// <summary> エンジンの唯一のインスタンスを取得する. </summary>
     static Engine* GetInstance();

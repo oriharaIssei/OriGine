@@ -2,6 +2,11 @@
 
 using namespace OriGine;
 
+SystemRegistry* SystemRegistry::GetInstance() {
+    static SystemRegistry instance;
+    return &instance;
+}
+
 /// <summary>
 /// システムの生成
 /// </summary>

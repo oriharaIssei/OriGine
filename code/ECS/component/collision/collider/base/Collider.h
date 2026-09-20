@@ -16,6 +16,9 @@
 #include "bounds/AABB.h"
 #include "bounds/base/IBounds.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 // external
 #ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"

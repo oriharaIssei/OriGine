@@ -10,16 +10,16 @@ namespace OriGine {
 /// Segmentコライダー（線分）。
 /// ローカル空間の始点(start)と終点(end)の2点で形状を表す。太さは持たない。
 /// </summary>
-class SegmentCollider
+class ORIGINE_API SegmentCollider
     : public Collider<Bounds::Segment> {
     /// <summary>
     /// SegmentColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const SegmentCollider& _s);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const SegmentCollider& _s);
     /// <summary>
     /// JSONからSegmentColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, SegmentCollider& _s);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, SegmentCollider& _s);
 
 public:
     SegmentCollider() : Collider<Bounds::Segment>() {}

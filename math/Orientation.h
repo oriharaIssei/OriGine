@@ -5,12 +5,15 @@
 #include <Quaternion.h>
 #include <Vector3.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// オリエンテーション情報
 /// </summary>
-struct Orientation {
+struct ORIGINE_API Orientation {
     Vec3f axis[3];
     Quaternion rot;
 

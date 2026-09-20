@@ -27,6 +27,9 @@
 #include "directX12/BlendMode.h"
 #include "directX12/PipelineStateObj.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 const std::string kShaderDirectory = "engine/resource/Shader";
@@ -174,15 +177,14 @@ using ShaderInfo = ShaderInformation;
 ///   - ShaderInformation から生成した PSO のキャッシュ
 /// を受け持つ.
 /// </summary>
-class ShaderManager {
+class ORIGINE_API ShaderManager {
 public:
     /// <summary>
     /// シングルトンインスタンスを取得する.
+    /// .cpp に出しているのは DxDebug と同じ理由(docs/plans/phase-04.md 4D 3):
+    /// inlineのままだとDLLとEXEの両方に別々の実体(関数ローカルstatic)が生まれる。
     /// </summary>
-    static ShaderManager* GetInstance() {
-        static ShaderManager instance;
-        return &instance;
-    }
+    static ShaderManager* GetInstance();
 
 public:
     /// <summary>

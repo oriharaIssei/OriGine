@@ -10,16 +10,16 @@ namespace OriGine {
 /// Rayコライダー（半直線）。
 /// ローカル空間の原点(origin)と正規化済み方向(direction)で形状を表す。
 /// </summary>
-class RayCollider
+class ORIGINE_API RayCollider
     : public Collider<Bounds::Ray> {
     /// <summary>
     /// RayColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const RayCollider& _r);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const RayCollider& _r);
     /// <summary>
     /// JSONからRayColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, RayCollider& _r);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, RayCollider& _r);
 
 public:
     RayCollider() : Collider<Bounds::Ray>() {}

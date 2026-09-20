@@ -7,6 +7,10 @@
 // 内容が変わらない限りファイルは書き換わらない(タイムスタンプも更新されない)。
 // ============================================================================
 
+/// DLL境界(Phase 4 4D)。RegisterUsingComponents() はアプリ側(EXE)からこの関数を
+/// 直接呼ぶため、OriGine.dll 側では実体をエクスポートする必要がある。
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -15,6 +19,6 @@ namespace OriGine {
 /// 明示的に呼ぶこと(Q16: 静的初期化子による自己登録は静的ライブラリで
 /// リンカに捨てられるため使わない)。
 /// </summary>
-void RegisterGeneratedComponentDescriptors();
+ORIGINE_API void RegisterGeneratedComponentDescriptors();
 
 } // namespace OriGine

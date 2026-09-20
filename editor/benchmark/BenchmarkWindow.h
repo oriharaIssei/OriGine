@@ -22,7 +22,7 @@ class Scene;
 /// 開いている間ずっとシーンを更新し続ける(自動終了はしない。ライブの数値は既存のProfilerWindowで
 /// 確認する想定). 現在の実行状況をCSVへスナップショット出力するボタンも備える.
 /// </summary>
-class BenchmarkWindow
+class ORIGINE_API BenchmarkWindow
     : public Editor::Window {
 public:
     BenchmarkWindow();

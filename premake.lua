@@ -32,6 +32,7 @@ end
 
 function getEngineIncludeDirs(engineRoot)
     engineRoot = engineRoot or "engine"
+
     local base = (engineRoot == "." or engineRoot == "")
         and "$(SolutionDir)"
         or  "$(SolutionDir)" .. engineRoot .. "/"
@@ -53,11 +54,16 @@ end
 function defineEngineProjects(engineRoot)
     engineRoot = engineRoot or "engine"
 
+    -- standalone(engine単体StaticLibビルド確認)では DLL 境界が存在しないため、
+    -- OriGine を StaticLib のままにし ORIGINE_BUILD_DLL も定義しない(OriGineApi.h の3分岐目)。
+    -- 通常(App workspace 経由)は SharedLib にし、ORIGINE_BUILD_DLL を定義してエクスポートする。
+    local isStandalone = (engineRoot == "." or engineRoot == "")
+
     -- ----------------------------------------------------------------------
     -- OriGine (Engine static library)
     -- ----------------------------------------------------------------------
     project "OriGine"
-        kind "StaticLib"
+        kind (isStandalone and "StaticLib" or "SharedLib")
         language "C++"
         location(engineRoot == "." and "." or engineRoot)
         targetdir "../generated/output/%{cfg.buildcfg}/"
@@ -79,7 +85,18 @@ function defineEngineProjects(engineRoot)
         links { "DirectXTex", "imgui" }
 
         defines { "_WINDOWS" }
+        if not isStandalone then
+            -- OriGine を DLL にする 4D の前提(docs/plans/phase-04.md D-1)。
+            -- OriGineApi.h の ORIGINE_API はこのマクロの有無で dllexport/dllimport/空を切り替える。
+            defines { "ORIGINE_BUILD_DLL" }
+        end
         warnings "Extra"
+        -- C4251(dllインターフェースのクラスがSTLメンバを持つ)/C4275(dllインターフェースでない
+        -- 基底クラスをdllインターフェースの派生クラスが使う。例: ICollider→Collider<T>→各Collider)を抑止する(4D D-3)。
+        -- 前提: OriGine.dll / ECS_TestGame.exe / ECS_TestEditor.exe は常に同じコンパイラ・
+        -- 同じCRT(/MD,4A)/同じ構成(Debug/Develop/Release)で一緒にビルドされる。
+        -- この前提が崩れる(片方だけ再ビルドする等)なら、この抑止は外して個別に対処すること。
+        disablewarnings { "4251", "4275" }
         multiprocessorcompile "On"
         buildoptions { "/utf-8" }
 
@@ -257,12 +274,22 @@ function defineEngineProjects(engineRoot)
             cppdialect "C++20"
             systemversion "latest"
         -- staticruntime "Off"(4A): OriGine に静的リンクされるので DirectXTex と同じ理由で揃える。
+        -- runtime も明示する(4D で発見: この指定が無いと premake は既定で Release 版の動的CRT
+        -- (MSVCRT)を選ぶらしく、Debug構成でも imgui.lib だけ MSVCRTD ではなく MSVCRT を
+        -- defaultlib指定してしまっていた。OriGine が静的ライブラリのままだった間はOriGine.lib
+        -- 自体がリンクされることが無く/WHOLEARCHIVEもリンク時のdefaultlibチェックも走らなかった
+        -- ため気づかれなかったが、OriGine が SharedLib になり実際にリンクが走るようになったことで
+        -- LNK4098(defaultlib競合)警告として顕在化した。実害(即クラッシュ等)は無かったが、
+        -- 4Aの目的(全プロジェクト/全構成でCRTリンク方式を揃える)そのものに反するため直す。
         filter "configurations:Debug"
+            runtime "Debug"
             staticruntime "Off"
         filter "configurations:Develop"
+            runtime "Release"
             optimize "Speed"
             staticruntime "Off"
         filter "configurations:Release"
+            runtime "Release"
             staticruntime "Off"
 end
 

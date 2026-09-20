@@ -17,6 +17,9 @@
 /// utility
 #include <util/nameof.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 /// 前方宣言
 class Entity;
@@ -30,7 +33,7 @@ class Scene;
 /// 実際の格納は ComponentArray<T> がテンプレートで型付きの配列を保持し、
 /// ComponentType& のまま具象型を知った状態で Initialize/Finalize を呼ぶ。
 ///</summary>
-class IComponent {
+class ORIGINE_API IComponent {
 public:
     IComponent();
     ~IComponent();

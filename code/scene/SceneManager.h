@@ -19,6 +19,9 @@
 #include <binaryIO/BinaryIO.h>
 #include <nlohmann/json.hpp>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// engine
@@ -32,7 +35,7 @@ class GamepadInput;
 /// アプリケーション全体のシーン遷移や、現在のシーンのライフサイクルを管理するクラス.
 /// シーンの切り替え、ゲーム終了フラグの管理、開発環境下でのアセット変更監視などを担当する.
 /// </summary>
-class SceneManager {
+class ORIGINE_API SceneManager {
     friend class ReplayPlayer;
 
 public:

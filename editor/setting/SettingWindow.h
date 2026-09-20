@@ -41,7 +41,7 @@ private:
 /// <summary>
 /// 設定ウィンドウ
 /// </summary>
-class SettingWindow
+class ORIGINE_API SettingWindow
     : public Editor::Window {
 public:
     /// globalVariables で 設定を保存しているシーン名

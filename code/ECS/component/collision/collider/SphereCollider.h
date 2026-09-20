@@ -10,16 +10,16 @@ namespace OriGine {
 /// Sphereコライダー。
 /// ローカル空間の中心(center_)と半径(radius_)で形状を表す。
 /// </summary>
-class SphereCollider
+class ORIGINE_API SphereCollider
     : public Collider<Bounds::Sphere> {
     /// <summary>
     /// SphereColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const SphereCollider& _s);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const SphereCollider& _s);
     /// <summary>
     /// JSONからSphereColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, SphereCollider& _s);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, SphereCollider& _s);
 
 public:
     SphereCollider() : Collider<Bounds::Sphere>() {}

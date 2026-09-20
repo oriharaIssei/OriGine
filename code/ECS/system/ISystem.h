@@ -18,6 +18,9 @@
 /// util
 #include "deltaTime/DeltaTimer.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 	class Scene;
@@ -26,7 +29,7 @@ namespace OriGine {
 	/// <summary>
 	/// システムの基底インターフェース
 	/// </summary>
-	class ISystem{
+	class ORIGINE_API ISystem{
 	public:
 		/// <summary>
 		/// コンストラクタ

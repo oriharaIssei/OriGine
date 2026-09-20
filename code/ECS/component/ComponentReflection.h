@@ -9,6 +9,9 @@
 /// ECS
 #include "component/ComponentTypeId.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -92,7 +95,7 @@ static_assert(sizeof(TypeDesc) == 24,
 /// 生成コードの RegisterGeneratedComponentDescriptors() が登録時に埋める。
 /// </summary>
 /// <returns>登録済みなら対応する TypeDesc へのポインタ、未登録なら nullptr</returns>
-const TypeDesc* GetTypeDescriptor(uint32_t _typeId);
+ORIGINE_API const TypeDesc* GetTypeDescriptor(uint32_t _typeId);
 
 /// <summary>
 /// 型IDに対応するディスクリプタを登録する。生成コードからのみ呼ばれる想定
@@ -101,7 +104,7 @@ const TypeDesc* GetTypeDescriptor(uint32_t _typeId);
 /// </summary>
 /// <param name="_typeId">ComponentTypeId(kMaxComponentTypes 未満であること)</param>
 /// <param name="_desc">登録する TypeDesc(生成コード側が所有する静的ストレージを指す)</param>
-void RegisterTypeDescriptor(uint32_t _typeId, const TypeDesc* _desc);
+ORIGINE_API void RegisterTypeDescriptor(uint32_t _typeId, const TypeDesc* _desc);
 
 /// <summary>
 /// 全型のフィールドを1本にまとめた共有配列(D2)を登録する。生成コードが1回だけ呼ぶ想定
@@ -111,13 +114,13 @@ void RegisterTypeDescriptor(uint32_t _typeId, const TypeDesc* _desc);
 /// </summary>
 /// <param name="_fields">生成コードが持つ静的な FieldDesc 配列の先頭</param>
 /// <param name="_count">配列の要素数</param>
-void RegisterFieldTable(const FieldDesc* _fields, uint32_t _count);
+ORIGINE_API void RegisterFieldTable(const FieldDesc* _fields, uint32_t _count);
 
 /// <summary>共有 FieldDesc 配列の先頭を取得する(未登録なら nullptr)。</summary>
-const FieldDesc* GetFieldTable();
+ORIGINE_API const FieldDesc* GetFieldTable();
 
 /// <summary>共有 FieldDesc 配列の要素数を取得する。</summary>
-uint32_t GetFieldTableCount();
+ORIGINE_API uint32_t GetFieldTableCount();
 
 /// <summary>
 /// この型のシリアライズ(ComponentArray の Save/Load 系)をディスクリプタ表経由にするかどうかの
@@ -146,7 +149,7 @@ inline constexpr bool kUsesDescriptorSerialization = false;
 /// <param name="_outJson">書き込み先(型名キーやコンポーネント間で共有する "Handle" は呼び出し側が付ける)</param>
 /// <param name="_obj">シリアライズ対象オブジェクトの先頭アドレス</param>
 /// <param name="_desc">対象型の TypeDesc</param>
-void ToJsonViaDescriptor(nlohmann::json& _outJson, const void* _obj, const TypeDesc& _desc);
+ORIGINE_API void ToJsonViaDescriptor(nlohmann::json& _outJson, const void* _obj, const TypeDesc& _desc);
 
 /// <summary>
 /// 型ディスクリプタを使って、JSON からフィールドを読み込む。キーが無いフィールドや
@@ -156,7 +159,7 @@ void ToJsonViaDescriptor(nlohmann::json& _outJson, const void* _obj, const TypeD
 /// <param name="_inJson">読み込み元(型ごとの1コンポーネント分のオブジェクト)</param>
 /// <param name="_obj">書き込み先オブジェクトの先頭アドレス(呼び出し前にデフォルト構築済みであること)</param>
 /// <param name="_desc">対象型の TypeDesc</param>
-void FromJsonViaDescriptor(const nlohmann::json& _inJson, void* _obj, const TypeDesc& _desc);
+ORIGINE_API void FromJsonViaDescriptor(const nlohmann::json& _inJson, void* _obj, const TypeDesc& _desc);
 
 } // namespace OriGine
 

@@ -16,12 +16,15 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// 定数値を json に保存する
 /// </summary>
-class GlobalVariables {
+class ORIGINE_API GlobalVariables {
 
 public:
     static GlobalVariables* GetInstance();

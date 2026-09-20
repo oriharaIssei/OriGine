@@ -10,21 +10,24 @@
 /// external
 #include "logger/Logger.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// 全てのシステムを管理・生成するためのレジストリクラス
 /// </summary>
-class SystemRegistry final {
+class ORIGINE_API SystemRegistry final {
 public:
     /// <summary>
-    /// シングルトンインスタンスを取得する
+    /// シングルトンインスタンスを取得する。
+    /// .cpp に出しているのは DxDebug と同じ理由(docs/plans/phase-04.md 4D 3):
+    /// inlineのままだとDLLとEXEの両方に別々の実体(関数ローカルstatic)が生まれる
+    /// (RegisterUsingSystems() がまさにこの経路でEXE側から直接呼んでいる)。
     /// </summary>
     /// <returns>SystemRegistryのインスタンス</returns>
-    static SystemRegistry* GetInstance() {
-        static SystemRegistry instance;
-        return &instance;
-    }
+    static SystemRegistry* GetInstance();
 
     /// <summary>
     /// システムをレジストリに登録する（生成関数を登録）

@@ -10,16 +10,16 @@ namespace OriGine {
 /// Capsuleコライダー。
 /// ローカル空間の線分(start-end)と半径(radius)で形状を表し、線分の周囲radius分を膨らませた形になる。
 /// </summary>
-class CapsuleCollider
+class ORIGINE_API CapsuleCollider
     : public Collider<Bounds::Capsule> {
     /// <summary>
     /// CapsuleColliderの状態をJSONへ書き出す
     /// </summary>
-    friend void to_json(nlohmann::json& _json, const CapsuleCollider& _c);
+    friend ORIGINE_API void to_json(nlohmann::json& _json, const CapsuleCollider& _c);
     /// <summary>
     /// JSONからCapsuleColliderの状態を復元する
     /// </summary>
-    friend void from_json(const nlohmann::json& _json, CapsuleCollider& _c);
+    friend ORIGINE_API void from_json(const nlohmann::json& _json, CapsuleCollider& _c);
 
 public:
     CapsuleCollider() : Collider<Bounds::Capsule>() {}

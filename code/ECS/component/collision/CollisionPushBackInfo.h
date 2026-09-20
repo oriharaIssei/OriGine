@@ -6,6 +6,9 @@
 /// math
 #include <math/Vector3.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -23,15 +26,15 @@ enum class CollisionPushBackType {
 /// </summary>
 /// <param name="_type">変換対象の種別</param>
 /// <returns>種別名の文字列</returns>
-const char* GetCollisionPushBackTypeName(CollisionPushBackType _type);
+ORIGINE_API const char* GetCollisionPushBackTypeName(CollisionPushBackType _type);
 
 /// <summary>
 /// 衝突時の押し戻し挙動と、エンティティごとの衝突情報を保持するコンポーネント。
 /// </summary>
-class CollisionPushBackInfo
+class ORIGINE_API CollisionPushBackInfo
     : public IComponent {
-    friend void to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp);
-    friend void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
+    friend ORIGINE_API void to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp);
+    friend ORIGINE_API void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
 
 public:
     void Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {}

@@ -12,6 +12,9 @@
 /// externals
 #include "spdlog/spdlog.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 /// 前方宣言
 /// engine
@@ -50,7 +53,7 @@ private:
 /// エンジン全体のロギングシステムを管理する静的クラス.
 /// コンソール出力、ファイル出力、および GuiLogger への出力を統括する.
 /// </summary>
-class Logger {
+class ORIGINE_API Logger {
     friend class GuiLogger;
 
 public:

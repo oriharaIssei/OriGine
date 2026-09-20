@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine::Test {
 
 /// <summary>
@@ -20,7 +23,7 @@ namespace OriGine::Test {
 /// </summary>
 /// <param name="_commandLines">main.cpp の ParseCommandLine() の戻り値</param>
 /// <returns>テストを実行した場合は true</returns>
-bool RunCliTestsIfRequested(const std::vector<std::string>& _commandLines);
+ORIGINE_API bool RunCliTestsIfRequested(const std::vector<std::string>& _commandLines);
 
 /// <summary>
 /// 直近の RunCliTestsIfRequested() 実行結果に基づく終了コード(0=全PASS, 1=1件以上FAIL)を返す。
@@ -35,6 +38,6 @@ bool RunCliTestsIfRequested(const std::vector<std::string>& _commandLines);
 ///  --test の結果に関わらず終了コードが常に0になり、test.ps1 側で合否判定ができない)。
 /// </summary>
 /// <returns>0 = 全ケースPASS、1 = 1件以上FAIL</returns>
-int GetLastTestExitCode();
+ORIGINE_API int GetLastTestExitCode();
 
 } // namespace OriGine::Test

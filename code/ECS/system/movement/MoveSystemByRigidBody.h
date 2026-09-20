@@ -5,12 +5,15 @@
 /// util
 #include "util/globalVariables/SerializedField.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// Rigidbodyコンポーネントによる物理挙動（移動・加速度・速度）をTransformに反映するシステム
 /// </summary>
-class MoveSystemByRigidBody
+class ORIGINE_API MoveSystemByRigidBody
     : public ISystem {
 public:
     /// <summary>

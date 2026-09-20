@@ -4,6 +4,9 @@
 #include "nlohmann/json.hpp"
 #include "uuid/uuid.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -14,8 +17,8 @@ namespace OriGine {
 /// 古いハンドルを自然に無効化できる。
 /// </summary>
 struct ComponentHandle {
-    friend void to_json(nlohmann::json& _j, const ComponentHandle& _c);
-    friend void from_json(const nlohmann::json& _j, ComponentHandle& _c);
+    friend ORIGINE_API void to_json(nlohmann::json& _j, const ComponentHandle& _c);
+    friend ORIGINE_API void from_json(const nlohmann::json& _j, ComponentHandle& _c);
 
     ComponentHandle() : uuid() {}
     ComponentHandle(const uuids::uuid& _uuid) : uuid(_uuid) {}

@@ -26,7 +26,7 @@
 /// <summary>
 /// 1つのシーンを編集するためのウィンドウ(Editor)
 /// </summary>
-class SceneEditorWindow
+class ORIGINE_API SceneEditorWindow
     : public Editor::Window {
 public:
     SceneEditorWindow() : Editor::Window(nameof<SceneEditorWindow>()) {}

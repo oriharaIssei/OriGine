@@ -13,6 +13,9 @@
 #include "directX12/DxCommand.h"
 #include "directX12/DxDescriptor.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 /// external
 #ifdef ORIGINE_EDITOR_ENABLED
 struct ImFont;
@@ -32,7 +35,7 @@ class DxCommand;
 /// ImGui のライフサイクルとリソースを管理するシングルトンクラス.
 /// エンジンの初期化・更新・描画の各フェーズで ImGui の処理を呼び出す.
 /// </summary>
-class ImGuiManager {
+class ORIGINE_API ImGuiManager {
 public:
     /// <summary> インスタンスの取得. </summary>
     static ImGuiManager* GetInstance();

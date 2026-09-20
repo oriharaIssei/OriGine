@@ -7,6 +7,11 @@
 
 namespace OriGine {
 
+LightManager* LightManager::GetInstance() {
+    static LightManager instance;
+    return &instance;
+}
+
 LightManager::LightManager() {}
 LightManager::~LightManager() {}
 

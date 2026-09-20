@@ -18,6 +18,9 @@
 /// logger
 #include <logger/Logger.h>
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// engine
@@ -38,7 +41,7 @@ class ISystem;
 /// ゲーム内の 1 つの場面 (シーン) を表すクラス.
 /// エンティティ、コンポーネント、システムなどの ECS リソースを所有し、そのライフサイクルと入出力を管理する.
 /// </summary>
-class Scene final {
+class ORIGINE_API Scene final {
     friend class SceneFactory;
 
 public:

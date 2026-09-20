@@ -6,15 +6,20 @@
 /// math
 #include "Vector3.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine {
 
 /// <summary>
 /// Rigidbody コンポーネント
 /// </summary>
-class Rigidbody
+class ORIGINE_API Rigidbody
     : public IComponent {
-    friend void to_json(nlohmann::json& _j, const Rigidbody& _comp);
-    friend void from_json(const nlohmann::json& _j, Rigidbody& _comp);
+    // friend 関数はクラス本体への ORIGINE_API では覆われない(クラスのメンバではないため)ので、
+    // 個別に注釈する。
+    friend ORIGINE_API void to_json(nlohmann::json& _j, const Rigidbody& _comp);
+    friend ORIGINE_API void from_json(const nlohmann::json& _j, Rigidbody& _comp);
 
 public:
     Rigidbody();

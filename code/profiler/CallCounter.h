@@ -8,6 +8,9 @@
 /// engine
 #include "EngineConfig.h"
 
+/// DLL境界
+#include "OriGineApi.h"
+
 namespace OriGine::CallCounter {
 
 /// <summary>
@@ -44,7 +47,7 @@ constexpr size_t kMaxCounters = 256;
 /// </summary>
 /// <param name="_name">計測点の名前(表示上は EngineConfig::Profiler::kEventNameCapacity で切り詰められる)</param>
 /// <returns>以後Incrementに渡すハンドル。上限超過時はkInvalidHandle</returns>
-Handle Register(const char* _name);
+ORIGINE_API Handle Register(const char* _name);
 
 /// <summary>
 /// Increment()がインライン展開されたホットパスから直接読み書きするための実カウンタ配列の実体。
@@ -52,7 +55,7 @@ Handle Register(const char* _name);
 /// 単一の翻訳単位にのみ置く(複数TUに実体を持たせるとODR違反になる)。
 /// Register/Increment/OnFrameBegin以外からは触らないこと。
 /// </summary>
-extern std::array<uint64_t, kMaxCounters> g_rawCounts;
+extern ORIGINE_API std::array<uint64_t, kMaxCounters> g_rawCounts;
 
 /// <summary>
 /// 登録済みハンドルの呼び出し回数を1増やす。1フレームに25万回超呼ばれるホットパスであるため、
@@ -87,14 +90,14 @@ struct FrameStat {
 /// 呼び出し回数を確定させる(AllocationCounter::OnFrameBeginと同じ「差分を取る」設計)。
 /// OriGine::Profiler::BeginFrame() から1フレームに1回呼び出される。
 /// </summary>
-void OnFrameBegin();
+ORIGINE_API void OnFrameBegin();
 
 /// <summary>
 /// 直前フレームの全カウンタの統計を取得する。
 /// </summary>
 /// <param name="_outStats">統計配列の先頭を指すポインタの出力先</param>
 /// <returns>_outStatsが指す配列の要素数(=これまでに登録されたカウンタ数)</returns>
-size_t GetLastFrameStats(const FrameStat** _outStats);
+ORIGINE_API size_t GetLastFrameStats(const FrameStat** _outStats);
 
 } // namespace OriGine::CallCounter
 
