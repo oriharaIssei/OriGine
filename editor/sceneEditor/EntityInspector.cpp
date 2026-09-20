@@ -20,6 +20,7 @@
 
 /// editor
 #include "editor/EditorController.h"
+#include "editor/sceneEditor/ComponentDescriptorDrawer.h"
 #include "editor/sceneEditor/SceneEditor.h"
 #include "editor/sceneEditor/SystemInspector.h"
 
@@ -145,8 +146,75 @@ void EntityComponentRegion::DrawGui() {
 
     ::ImGui::Spacing();
 
-    // コンポーネントの一覧と編集 UI は IComponent* 経由の Edit 呼び出しに依存していたため、
-    // IComponent の非仮想化に合わせて外している。ディスクリプタ経由の汎用ドロワーで作り直す。
+    // 型を知らずに全コンポーネント配列(型ID 0..63)を舐めて、このエンティティが実際に持つ型だけ描く。
+    // 旧 ComponentRepository::GetAllComponentsOfEntity(Phase 3の非仮想化で削除)と同じ経路を、
+    // 公開されている GetComponentArrayMap() 越しにここで組み直した。componentArrays_ 自体は
+    // private のままで、ECS 側のデータ構造には手を入れていない。エディタ専用の低頻度パスなので、
+    // 64個ぶんの線形走査(1フレームに1回、エンティティ選択中のみ)は問題にならない。
+    ComponentRepository* componentRepo = currentScene->GetComponentRepositoryRef();
+    ComponentRegistry* registry        = ComponentRegistry::GetInstance();
+    const auto& componentArrays        = componentRepo->GetComponentArrayMap();
+
+    for (uint32_t typeId = 0; typeId < static_cast<uint32_t>(componentArrays.size()); ++typeId) {
+        IComponentArray* array = componentArrays[typeId].get();
+        if (!array || !array->HasEntity(editEntityHandle)) {
+            continue;
+        }
+
+        const std::string& typeName   = registry->GetTypeName(typeId);
+        const uint32_t componentCount = array->GetComponentCount(editEntityHandle);
+        if (componentCount == 0) {
+            continue; // 実体を持たない型はヘッダごと出さない(旧実装と同じ挙動)
+        }
+
+        if (!::ImGui::CollapsingHeader(typeName.c_str())) {
+            continue;
+        }
+        ::ImGui::Indent();
+
+        // この型のディスクリプタは1回だけ引けばよい(同じ型の複数インデックスで共通)。
+        const TypeDesc* desc = GetTypeDescriptor(typeId);
+        if (desc && ::std::string(desc->typeName_) != typeName) {
+            // ここに来るのは ComponentRegistry の型名<->型ID対応と生成コードが登録した typeId_ が
+            // ずれている場合だけ(通常はあり得ない)。オフセット経由の書き込みは型の取り違えが
+            // 即クラッシュに繋がるため、疑わしい場合は編集経路ごと止める(書き込まない)。
+            LOG_ERROR("EntityComponentRegion: 型ID {} のディスクリプタ名 '{}' が ComponentRegistry の型名 '{}' と一致しません。編集を無効化します。",
+                typeId, desc->typeName_, typeName);
+            desc = nullptr;
+        }
+
+        for (uint32_t compIndex = 0; compIndex < componentCount; ++compIndex) {
+            ::std::string instanceLabel = componentCount > 1
+                ? typeName + "[" + ::std::to_string(compIndex) + "]"
+                : typeName;
+
+            if (::ImGui::Button(::std::string("X##" + instanceLabel + editEntity->GetUniqueID()).c_str())) {
+                auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, typeName, static_cast<int32_t>(compIndex));
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(removeCommand));
+                continue; // ボタンが押されたら以降は描画せず次のコンポーネントへ(旧実装と同じ)
+            }
+            ::ImGui::SameLine();
+            ::ImGui::Text("%s", instanceLabel.c_str());
+
+            if (!desc) {
+                // 10型(tools/ReflectionCodeGen/targets.txt)以外は未登録。黙って何も出さないのが
+                // 一番悪いので、削除以外は編集できないことを明示する。
+                ::ImGui::TextDisabled("  (型ディスクリプタが未登録のため値は編集できません)");
+                continue;
+            }
+
+            IComponent* comp = array->GetIComponent(editEntityHandle, compIndex);
+            if (!comp) {
+                continue; // Add直後などでインデックスがまだ実体を持たない場合の防御
+            }
+
+            ::ImGui::Indent();
+            DrawComponentFieldsViaDescriptor(static_cast<void*>(comp), *desc, editEntity->GetUniqueID() + "_" + instanceLabel);
+            ::ImGui::Unindent();
+        }
+
+        ::ImGui::Unindent();
+    }
 
     ::ImGui::Unindent();
 }
