@@ -1,6 +1,6 @@
 #include "SceneEditorMenus.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// engine
 #include "scene/SceneJsonRegistry.h"

@@ -1,6 +1,6 @@
 #include "SceneEditor.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// ECS
 // system

@@ -90,20 +90,19 @@ private:
     std::vector<std::string> idToTypeName_; // 添字 = 型ID
 
 
-#ifdef _DEBUG
-    std::vector<std::string> componentTypeNames_; // デバッグ用: 登録済みComponent型名の一覧
-#endif // _DEBUG
+    // ComponentRegistry 自身はコンポーネントではなくシングルトンなので、この配列を無条件にしても
+    // test.ps1 -Suite layout が見ているコンポーネント型の sizeof/alignof には影響しない。
+    // push_back は RegisterComponent<T>() の中(起動時に数回)でのみ呼ばれ、計測対象のフレームには乗らない。
+    std::vector<std::string> componentTypeNames_; // 登録済みComponent型名の一覧(エディタ表示用)
 
 public:
-#ifdef _DEBUG
     /// <summary>
-    /// 登録済みComponent型名の一覧を取得する(デバッグ/エディタ表示用)
+    /// 登録済みComponent型名の一覧を取得する(エディタ表示用)
     /// </summary>
     /// <returns>登録済み型名の一覧</returns>
     const std::vector<std::string>& GetComponentTypeNames() const {
         return componentTypeNames_;
     }
-#endif // _DEBUG
 
     /// <summary>
     /// 指定した型名のComponentArrayが登録済みか(型名指定版)
@@ -139,9 +138,7 @@ void ComponentRegistry::RegisterComponent(
     ComponentTypeIdStorage<ComponentType>::id_ = AcquireTypeId(typeName);
 
 
-#ifdef _DEBUG
     componentTypeNames_.push_back(typeName);
-#endif // _DEBUG
 }
 
 /// <summary>

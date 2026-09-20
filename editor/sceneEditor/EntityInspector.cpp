@@ -1,7 +1,7 @@
 #include "EntityInspector.h"
 #include "EntityInspectorCommands.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// engine
 #define RESOURCE_DIRECTORY
