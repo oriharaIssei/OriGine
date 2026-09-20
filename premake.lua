@@ -90,8 +90,15 @@ function defineEngineProjects(engineRoot)
             symbols "On"
             runtime "Debug"
             libdirs { p(engineRoot, "externals/assimp/lib/Debug") }
-            links { "assimp-vc143-mtd" }
-            staticruntime "On"
+            links { "assimp-vc143-mdd" }
+            -- staticruntime "Off"(4A): OriGine を DLL にする 4D の前提として CRT を動的リンクへ切り替える。
+            -- 静的 CRT のままモジュール境界(DLL)を跨いで new/delete すると、CRT ヒープが
+            -- モジュールごとに分かれて壊れる。4A ではまだ DLL を作らないが、CRT の差と境界の差を
+            -- 混ぜて計測しないために先に切り替えておく(docs/plans/phase-04.md Q2)。
+            -- 同一プロセスに載る全プロジェクト(OriGine / ReflectionCodeGen / DirectXTex / imgui / App)
+            -- を同じ CRT リンク方式に揃えないと LNK2038(RuntimeLibrary mismatch)で落ちるため、
+            -- assimp 非依存のプロジェクトも含め全プロジェクト・全構成で切り替える。
+            staticruntime "Off"
 
         -- AssetCooker prebuild は submodule モードのみ有効
         -- (standalone では App 側 resource が無いのでスキップ)
@@ -128,16 +135,16 @@ function defineEngineProjects(engineRoot)
             optimize "Speed"
             runtime "Release"
             libdirs { p(engineRoot, "externals/assimp/lib/Release") }
-            links { "assimp-vc143-mt" }
-            staticruntime "On"
+            links { "assimp-vc143-md" }
+            staticruntime "Off" -- 4A。理由は Debug 側のコメント参照
 
         filter "configurations:Release"
             defines { "NDEBUG", "_RELEASE", "RELEASE" }
             optimize "Full"
             runtime "Release"
             libdirs { p(engineRoot, "externals/assimp/lib/Release") }
-            links { "assimp-vc143-mt" }
-            staticruntime "On"
+            links { "assimp-vc143-md" }
+            staticruntime "Off" -- 4A。理由は Debug 側のコメント参照
 
         filter "system:windows"
             cppdialect "C++20"
@@ -174,19 +181,22 @@ function defineEngineProjects(engineRoot)
             cppdialect "C++20"
             systemversion "latest"
 
+        -- staticruntime "Off"(4A): ReflectionCodeGen は OriGine とプロセスを共有しない単独ツールだが、
+        -- 「全プロジェクト・全構成で揃える」という決定に従い、ここも静的 CRT をやめておく
+        -- (docs/plans/phase-04.md 4A-2)。
         filter "configurations:Debug"
             symbols "On"
             runtime "Debug"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Develop"
             symbols "On"
             optimize "Speed"
             runtime "Release"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Release"
             optimize "Full"
             runtime "Release"
-            staticruntime "On"
+            staticruntime "Off"
 
     -- ----------------------------------------------------------------------
     -- DirectXTex
@@ -210,19 +220,21 @@ function defineEngineProjects(engineRoot)
             cppdialect "C++20"
             systemversion "latest"
 
+        -- staticruntime "Off"(4A): OriGine に静的リンクされるので、OriGine と CRT リンク方式が
+        -- 食い違うと LNK2038(RuntimeLibrary mismatch)になる。理由の詳細は OriGine 側のコメント参照。
         filter "configurations:Debug"
             runtime "Debug"
             symbols "On"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Develop"
             runtime "Release"
             symbols "On"
             optimize "Speed"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Release"
             runtime "Release"
             optimize "Full"
-            staticruntime "On"
+            staticruntime "Off"
 
     -- ----------------------------------------------------------------------
     -- imgui
@@ -244,13 +256,14 @@ function defineEngineProjects(engineRoot)
         filter "system:windows"
             cppdialect "C++20"
             systemversion "latest"
+        -- staticruntime "Off"(4A): OriGine に静的リンクされるので DirectXTex と同じ理由で揃える。
         filter "configurations:Debug"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Develop"
             optimize "Speed"
-            staticruntime "On"
+            staticruntime "Off"
         filter "configurations:Release"
-            staticruntime "On"
+            staticruntime "Off"
 end
 
 -- ==========================================================================
