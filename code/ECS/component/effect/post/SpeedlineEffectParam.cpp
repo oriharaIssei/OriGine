@@ -11,7 +11,7 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// util
 #include "myFileSystem/MyFileSystem.h"
 
@@ -28,7 +28,7 @@ void SpeedlineEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_un
 }
 
 void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         Play();
     }

@@ -3,7 +3,7 @@
 /// engine
 #include "input/InputManager.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// externals
 #include "imgui/imgui.h"
 #endif // _DEBUG
@@ -24,7 +24,7 @@ void DebugCamera::Finalize() {
 
 /// <summary> ImGui によるデバッグ表示・操作を行う. </summary>
 void DebugCamera::DebugUpdate() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     if (ImGui::Begin("DebugCamera")) {
         ImGui::DragFloat4("Rotate", &cameraBuff_.rotate[X], 0.1f);
         ImGui::DragFloat3("Translate", &cameraBuff_.translate[X], 0.1f);

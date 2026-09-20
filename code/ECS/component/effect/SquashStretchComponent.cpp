@@ -1,6 +1,6 @@
 #include "SquashStretchComponent.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -14,7 +14,7 @@ void SquashStretchComponent::Finalize() {}
 /// このコンポーネントを参照するシステム側で行われ、ここではパラメータの調整のみを行う
 /// </summary>
 void SquashStretchComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     DragGuiVectorCommand("Base Scale##" + _parentLabel, baseScale_, 0.01f);
 

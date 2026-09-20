@@ -213,7 +213,7 @@ static ::std::unordered_map<EaseType, ::std::string> EasingNames = {
     {EaseType::EaseInOutBounce, "EaseInOutBounce"},
 };
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// <summary>
 /// イージング設定用GUIを表示
 /// </summary>

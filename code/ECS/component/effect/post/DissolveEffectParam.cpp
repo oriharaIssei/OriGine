@@ -14,7 +14,7 @@
 /// util
 #include "myFileSystem/MyFileSystem.h"
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -56,7 +56,7 @@ void DissolveEffectParam::Play() {
 }
 
 void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
         // パラメータバッファの作成

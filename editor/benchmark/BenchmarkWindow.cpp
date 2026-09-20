@@ -1,6 +1,6 @@
 #include "editor/benchmark/BenchmarkWindow.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// stl
 #include <algorithm>

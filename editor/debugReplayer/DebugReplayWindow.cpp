@@ -1,6 +1,6 @@
 #include "DebugReplayWindow.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// engine
 #include "scene/Scene.h"

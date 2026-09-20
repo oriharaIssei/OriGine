@@ -1,6 +1,6 @@
 #include "MyGui.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// engine
 #include "asset/AssetSystem.h"

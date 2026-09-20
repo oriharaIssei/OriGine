@@ -6,7 +6,7 @@
 #include "directX12/DxDevice.h"
 
 /// editor
-#ifdef DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // DEBUG
 
@@ -17,7 +17,7 @@ void SmoothingEffectParam::Initialize(Scene* /*_scene,*/, const EntityHandle& /*
 }
 
 void SmoothingEffectParam::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("isActive##" + _parentLabel, isActive_);
 
     DragGuiVectorCommand("BoxFilter Size##" + _parentLabel, boxFilterSize_->size, 0.01f, 0.0f);

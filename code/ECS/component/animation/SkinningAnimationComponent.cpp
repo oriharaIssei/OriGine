@@ -19,7 +19,7 @@
 /// util
 #include "myFileSystem/MyFileSystem.h"
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -133,7 +133,7 @@ void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, const EntityHandl
 
 void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     auto& modelMeshes = _scene->GetComponents<ModelMeshRenderer>(entityHandle_);
     InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index##" + _parentLabel, bindModeMeshRendererIndex_, "%d",

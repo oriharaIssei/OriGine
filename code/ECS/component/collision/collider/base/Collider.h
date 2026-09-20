@@ -17,7 +17,7 @@
 #include "bounds/base/IBounds.h"
 
 // external
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG

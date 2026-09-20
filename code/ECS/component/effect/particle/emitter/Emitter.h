@@ -39,7 +39,7 @@ class Emitter {
     friend class EntitySpawner;
 
     // エディタ：ImGui / SetterCommand でフィールドの生ポインタが必要なため
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     friend class EmitterEditor;
 #endif
     friend class EmitterShapeRenderingSystem;

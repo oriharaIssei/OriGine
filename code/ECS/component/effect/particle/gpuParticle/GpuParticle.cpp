@@ -13,7 +13,7 @@
 #include "component/renderer/primitive/shape/Plane.h"
 
 #include "util/myFileSystem/MyFileSystem.h"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -33,7 +33,7 @@ void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unus
 }
 
 void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     if (CheckBoxCommand("IsActive##" + _parentLabel, isActive_)) {
         // CheckBoxCommand は 1フレーム後に 値が変更されるため, 本来と逆の bool で if文を書く

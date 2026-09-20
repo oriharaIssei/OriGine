@@ -10,7 +10,7 @@
 #include "directX12/DxDevice.h"
 
 /// util
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myFileSystem/MyFileSystem.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
@@ -57,7 +57,7 @@ void GradationComponent::Initialize(Scene* /*_scene*/, const EntityHandle& /*_ow
 }
 
 void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     auto& materials = _scene->GetComponents<Material>(_owner);
     if (!materials.empty()) {
         int32_t maxMaterialIndex = static_cast<int32_t>(materials.size()) - 1;

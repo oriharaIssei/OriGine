@@ -5,7 +5,7 @@
 #include "directX12/DxDevice.h"
 #include "EngineInclude.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
@@ -22,7 +22,7 @@ void VignetteParam::Finalize() {
 
 void VignetteParam::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     ImGui::Text("VignettePow");
     DragGuiCommand("##VignettePow" + _parentLabel, paramBuffer.openData_.vignettePow, 0.01f, 0.0f);

@@ -1,5 +1,5 @@
 #pragma once
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// parent
 #include "editor/IEditor.h"

@@ -1,6 +1,6 @@
 #include "Transform2d.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -30,7 +30,7 @@ void Transform2d::UpdateMatrix() {
 /// エディタ表示
 /// </summary>
 void Transform2d::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     DragGuiVectorCommand("Scale##" + _parentLabel, scale, 0.01f);
     DragGuiCommand("Rotate##" + _parentLabel, rotate, 0.01f);
     DragGuiVectorCommand("Translate##" + _parentLabel, translate, 0.01f);

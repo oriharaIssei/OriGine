@@ -11,7 +11,7 @@
 #include "directX12/ResourceStateTracker.h"
 
 /// editor
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
@@ -38,7 +38,7 @@ void Material::Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
 }
 
 void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     constexpr float kCustomTextureSize = 32.f;
 
     if (customTexture_.has_value()) {

@@ -1,6 +1,6 @@
 #include "TransformRateAnimation.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// engine
 #include "scene/Scene.h"
@@ -35,7 +35,7 @@ void TransformRateAnimation::Edit(
     [[maybe_unused]] const EntityHandle& _entity,
     [[maybe_unused]] const ::std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     ::std::string label;
 

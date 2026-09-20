@@ -1,6 +1,6 @@
 #include "SubScene.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// engine
 #define RESOURCE_DIRECTORY
 #include <EngineInclude.h>
@@ -23,7 +23,7 @@ void SubScene:: Initialize(Scene* /*_scene*/, const EntityHandle& /*_owner*/) {
 }
 
 void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const ::std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);
 

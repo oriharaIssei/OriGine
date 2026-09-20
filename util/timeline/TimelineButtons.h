@@ -3,7 +3,7 @@
 /// @file TimelineButtons.h
 /// @brief タイムラインボタン（シンプルなノード表示）のテンプレート実装
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 #include "TimelineConfig.h"
 #include "TimelineCore.h"

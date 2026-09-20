@@ -14,7 +14,7 @@
 #include "directX12/DxDescriptor.h"
 
 /// external
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 struct ImFont;
 #endif // _DEBUG
 
@@ -70,7 +70,7 @@ private:
     ~ImGuiManager()                                    = default;
     ImGuiManager(const ImGuiManager&)                  = delete;
     const ImGuiManager& operator=(const ImGuiManager&) = delete;
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 private:
     // SRV用ヒープ（ImGui がテクスチャ描画に使用する）
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_ = nullptr;

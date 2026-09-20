@@ -22,7 +22,7 @@
 /// util
 #include "logger/Logger.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// editor
 #include "editor/EditorController.h"
 
@@ -298,7 +298,7 @@ void OriGine::InitializeMaterialFromModelFile(
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     std::string label = "isRender##" + _parentLabel;
     CheckBoxCommand(label, isRender_);
 

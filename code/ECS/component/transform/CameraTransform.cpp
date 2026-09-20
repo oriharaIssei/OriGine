@@ -1,7 +1,7 @@
 #include "CameraTransform.h"
 
 /// editor
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include <myGui/myGui.h>
 #endif
 
@@ -12,7 +12,7 @@ void CameraTransform::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entit
 }
 
 void CameraTransform::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);
     DragGuiVectorCommand("Translate##" + _parentLabel, translate, 0.01f);

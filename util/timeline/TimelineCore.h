@@ -3,7 +3,7 @@
 /// @file TimelineCore.h
 /// @brief タイムラインエディタの共通処理
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"

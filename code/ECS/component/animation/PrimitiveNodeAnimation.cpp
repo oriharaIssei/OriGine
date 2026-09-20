@@ -11,7 +11,7 @@
 using namespace OriGine;
 
 /// gui
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
@@ -132,7 +132,7 @@ void PrimitiveNodeAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /
 }
 
 void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     std::string label = "duration##" + _parentLabel;
     ImGui::InputFloat(label.c_str(), &duration_);

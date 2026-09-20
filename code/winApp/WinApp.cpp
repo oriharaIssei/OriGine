@@ -24,7 +24,7 @@
 /// external
 #include "logger/Logger.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include <imgui/imgui_impl_dx12.h>
 #include <imgui/imgui_impl_win32.h>
@@ -39,7 +39,7 @@ using namespace OriGine;
 /// OS から通知される各種イベント (リサイズ、終了要求、システムコマンド等) をハンドリングする.
 /// </summary>
 LRESULT WinApp::WindowProc(HWND _hwnd,UINT _msg,WPARAM _wparam,LPARAM _lparam){
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 	// ImGui の入力を優先的に処理
 	if(ImGui_ImplWin32_WndProcHandler(_hwnd,_msg,_wparam,_lparam)){
 		return true;

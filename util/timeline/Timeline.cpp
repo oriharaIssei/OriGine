@@ -1,7 +1,7 @@
 #include "Timeline.h"
 
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// stl
 #include <algorithm>

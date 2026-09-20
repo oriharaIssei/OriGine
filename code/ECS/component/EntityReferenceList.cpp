@@ -33,7 +33,7 @@ void EntityReferenceList:: Initialize(Scene* /*_scene*/, const EntityHandle& /*_
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void EntityReferenceList::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     std::string label = "##" + _parentLabel;
 

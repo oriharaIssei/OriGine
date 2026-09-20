@@ -15,7 +15,7 @@
 
 /// externals
 #include "logger/Logger.h"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif
@@ -298,7 +298,7 @@ void Audio::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
 /// <param name="_entity">所有者エンティティ（未使用）</param>
 /// <param name="_parentLabel">ImGui のウィジェット ID 重複を避けるための親ラベル</param>
 void Audio::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory;

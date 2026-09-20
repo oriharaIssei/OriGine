@@ -1,6 +1,6 @@
 #include "EditorWindowMenu.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 EditorWindowMenu::EditorWindowMenu() : Editor::Menu(nameof<EditorWindowMenu>()) {}
 EditorWindowMenu::~EditorWindowMenu() {}

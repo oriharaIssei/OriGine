@@ -10,7 +10,7 @@
 /// util
 #include "myFileSystem/MyFileSystem.h"
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -36,7 +36,7 @@ void DistortionEffectParam::LoadTexture(const std::string& _path) {
 
 void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
 
     ImGui::Spacing();

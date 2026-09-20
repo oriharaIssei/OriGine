@@ -16,7 +16,7 @@
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #include <imgui/imgui.h>
 #endif // _DEBUG
@@ -46,7 +46,7 @@ void SphereRenderer::Initialize(Scene* _scene, const EntityHandle& _entity) {
 }
 
 void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
 

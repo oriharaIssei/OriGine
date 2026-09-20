@@ -2,7 +2,7 @@
 
 #include "CollisionCategoryManager.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -13,7 +13,7 @@ using namespace OriGine;
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void OriGine::ICollider::Edit(Scene* /*_scene*/, const EntityHandle& /*_handle*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // エディタ専用のUIコードなので、リリースビルドには含めない
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);

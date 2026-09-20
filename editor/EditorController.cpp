@@ -1,6 +1,6 @@
 #include "EditorController.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// engine
 
 #include "input/InputManager.h"

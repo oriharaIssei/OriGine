@@ -5,7 +5,7 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -20,7 +20,7 @@ void OriGine::GrayscaleComponent::Initialize(Scene* /*_scene*/, const EntityHand
 void OriGine::GrayscaleComponent::Finalize() {}
 
 void OriGine::GrayscaleComponent::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("Is Enabled##" + _parentLabel, isEnabled_);
     DragGuiCommand("Amount##" + _parentLabel, constantBuffer_.openData_.amount, 0.01f, 0.0f, 1.0f);
 #endif // _DEBUG

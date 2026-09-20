@@ -12,7 +12,7 @@
 
 /// externals
 // imgui
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
@@ -25,7 +25,7 @@ void SceneChanger::Initialize(Scene* /*_scene*/, const EntityHandle& /* _handle 
 
 void SceneChanger::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     ImGui::Text("Next Scene Name :");
     ImGui::SameLine();

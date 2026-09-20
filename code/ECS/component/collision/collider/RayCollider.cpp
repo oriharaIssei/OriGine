@@ -23,7 +23,7 @@ void from_json(const nlohmann::json& _json, RayCollider& _r) {
 }
 
 void RayCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     ICollider::Edit(_scene, _handle, _parentLabel);
 

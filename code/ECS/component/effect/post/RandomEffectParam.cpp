@@ -6,7 +6,7 @@
 #include "directX12/DxDevice.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -18,7 +18,7 @@ void RandomEffectParam::Initialize(Scene* /*_scene*/, const EntityHandle& /*_ent
 
 void RandomEffectParam::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
 
     ImGui::Spacing();

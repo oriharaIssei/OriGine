@@ -1,7 +1,7 @@
 #include "Rigidbody.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 
@@ -20,7 +20,7 @@ void Rigidbody::Initialize(Scene* /*_scene*/, const EntityHandle& /*_entity*/) {
 /// </summary>
 void Rigidbody::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("isActive##" + _parentLabel, isActive_);
 
     DragGuiVectorCommand("acceleration##" + _parentLabel, acceleration_);
@@ -54,7 +54,7 @@ void Rigidbody::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe
 /// 現在の速度・加速度などを読み取り専用で表示するデバッグ表示
 /// </summary>
 void Rigidbody::Debug() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     ImGui::DragFloat3("acceleration", acceleration_.v, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
     ImGui::Text("acceleration Speed : %.3f", acceleration_.length());
     ImGui::DragFloat3("velocity", velocity_.v, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);

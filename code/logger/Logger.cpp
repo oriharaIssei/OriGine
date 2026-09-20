@@ -12,7 +12,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "ImGuiLogSink.h"
 #endif //_DEBUG
@@ -260,7 +260,7 @@ void GuiLogger::Initialize() {
 /// ロガーの各シンクから ImGuiLogSink を探し、蓄積されたログメッセージを解析してテーブル表示する.
 /// </summary>
 void GuiLogger::Update() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     if (ImGui::Begin("Log Window", nullptr, ImGuiWindowFlags_MenuBar)) {
 
         logger_ = Logger::logger_;

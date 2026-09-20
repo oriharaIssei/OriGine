@@ -13,7 +13,7 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// editor
 #include "editor/EditorController.h"
 
@@ -75,7 +75,7 @@ void LineRenderer::Finalize() {
 // LineRenderer - Editor (Debug Only)
 //==============================================================================
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// <summary>
 /// LineRendererにラインを追加するコマンド
 /// </summary>
@@ -145,7 +145,7 @@ private:
 #endif // _DEBUG
 
 void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     std::string label;
     int32_t meshIndex = 0;

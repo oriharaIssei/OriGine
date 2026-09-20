@@ -43,7 +43,7 @@
 /// util
 #include "util/StringUtil.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
@@ -193,7 +193,7 @@ void Engine::Finalize() {
     CameraManager::GetInstance()->Finalize();
     lightManager_->Finalize();
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     ImGuiManager::GetInstance()->Finalize();
 #endif // _DEBUG
     ModelManager::GetInstance()->Finalize();

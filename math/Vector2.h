@@ -59,7 +59,7 @@ struct Vector2 final
     /// <returns>外積(行列式)</returns>
     static constexpr valueType Cross(const Vector2& v, const Vector2& another) { return (v.v[X] * another.v[Y]) - (v.v[Y] * another.v[X]); }
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     constexpr Vector2& operator=(const ImVec2& another) {
         this->v[X] = another.x;
         this->v[Y] = another.y;

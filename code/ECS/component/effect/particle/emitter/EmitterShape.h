@@ -51,7 +51,7 @@ struct EmitterShape {
         : type(_shapeType) {}
 
 public: // メンバ関数
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     virtual void Debug([[maybe_unused]] const std::string& _parentLabel);
 #endif // _DEBUG
 
@@ -84,7 +84,7 @@ struct EmitterSphere
         : EmitterShape(EmitterShapeType::SPHERE) {}
 
 public: // メンバ関数
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
     Vec3f GetSpawnPos() override;
@@ -120,7 +120,7 @@ struct EmitterBox
         : EmitterShape(EmitterShapeType::BOX) {}
 
 // メンバ関数
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 
@@ -160,7 +160,7 @@ struct EmitterCapsule
         : EmitterShape(EmitterShapeType::CAPSULE) {}
 
 public: // メンバ関数
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
     Vec3f GetSpawnPos() override;
@@ -199,7 +199,7 @@ struct EmitterCone
         : EmitterShape(EmitterShapeType::CONE) {}
 
 public: // メンバ関数
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 

@@ -3,7 +3,7 @@
 /// @file TimelineEditor.h
 /// @brief タイムラインエディタのテンプレート実装
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 #include "component/animation/AnimationData.h"
 #include "TimelineConfig.h"

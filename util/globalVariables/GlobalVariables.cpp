@@ -14,7 +14,7 @@
 #include "EngineInclude.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #endif // _DEBUG
 

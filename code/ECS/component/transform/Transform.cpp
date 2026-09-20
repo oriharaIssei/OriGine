@@ -3,7 +3,7 @@
 /// engine
 #include <Engine.h>
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 // camera
 #include "camera/CameraManager.h"
 
@@ -49,7 +49,7 @@ Quaternion Transform::CalculateWorldRotate() const {
 }
 
 void Transform::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     // --------------------------- scale --------------------------- //
     DragGuiVectorCommand<3, float>("Scale##" + _parentLabel, this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->UpdateMatrix(); });

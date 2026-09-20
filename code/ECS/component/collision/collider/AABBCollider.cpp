@@ -39,7 +39,7 @@ void from_json(const nlohmann::json& _json, AABBCollider& _a) {
 /// <param name="_handle">対象エンティティ</param>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _handle, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // エディタ専用のUIコードなので、リリースビルドには含めない
 
     ICollider::Edit(_scene, _handle, _parentLabel);

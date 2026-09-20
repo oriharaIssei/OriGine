@@ -15,7 +15,7 @@
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // DEBUG
 
@@ -36,7 +36,7 @@ void OutlineComponent::Finalize() {
 }
 
 void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _owner, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     CheckBoxCommand("Is Active##" + _parentLabel, isActive);
 
     ImGui::Spacing();

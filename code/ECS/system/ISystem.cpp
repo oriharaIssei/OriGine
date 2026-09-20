@@ -14,7 +14,7 @@
 #include "profiler/Profiler.h"
 
 /// gui
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -159,7 +159,7 @@ void ISystem::Update() {
 /// GUI編集処理
 /// </summary>
 void ISystem::Edit() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // GUI表示
     ::ImGui::Separator();
     ::ImGui::Text("SystemCategory: %s", kSystemCategoryString[static_cast<int>(category_)].c_str());

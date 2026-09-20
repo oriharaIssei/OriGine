@@ -15,7 +15,7 @@
 #include "directX12/DxSwapChain.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx12.h>
 #include <imgui/imgui_impl_win32.h>
@@ -36,7 +36,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 /// SRV ヒープの取得、コマンド管理の初期化、ImGui コンテキストの作成、Win32/DX12 実裝の初期化を行う.
 /// </summary>
 void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_unused]] const DxDevice* _dxDevice, [[maybe_unused]] const DxSwapChain* _dxSwapChain) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // エンジンから SRV ヒープを取得
     srvHeap_ = Engine::GetInstance()->GetSrvHeap()->GetHeap();
 
@@ -86,7 +86,7 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_un
 /// ImGui の終了処理. バックエンドのシャットダウンとリソースの解放を行う.
 /// </summary>
 void ImGuiManager::Finalize() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     dxCommand_->Finalize();
 
     ImGui_ImplDx12_Shutdown();
@@ -103,7 +103,7 @@ void ImGuiManager::Finalize() {
 /// 新しい ImGui フレームを開始する.
 /// </summary>
 void ImGuiManager::Begin() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     ImGui_ImplDx12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -114,7 +114,7 @@ void ImGuiManager::Begin() {
 /// フレームの終了処理（現在は何も行わない）.
 /// </summary>
 void ImGuiManager::End() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #endif
 }
 
@@ -122,7 +122,7 @@ void ImGuiManager::End() {
 /// 生成された描画データを DX12 コマンドリストに発行する.
 /// </summary>
 void ImGuiManager::Draw() {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // 描画データの生成
     ImGui::Render();
 

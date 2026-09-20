@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 /// 分離したテンプレート実装をinclude
 #include "MyGuiBase.h"

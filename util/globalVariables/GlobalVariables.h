@@ -167,7 +167,7 @@ public:
         data_[scene][groupName].erase(valueName);
     }
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // Editor用の関数
     void ChangeGroupName(const std::string& scene, const std::string& oldGroupName, const std::string& newGroupName) {
         data_[scene][newGroupName] = std::move(data_[scene][oldGroupName]);

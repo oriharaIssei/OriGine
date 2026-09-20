@@ -5,13 +5,13 @@
 /// math
 #include "Matrix4x4.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
 using namespace OriGine;
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
     ImGui::Text("SpawnType : %s", kParticleSpawnLocationTypeWord[int(spawnType)].c_str());
     std::string label = kParticleSpawnLocationTypeWord[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
@@ -26,7 +26,7 @@ void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
 #endif // _DEBUG
 
 #pragma region "Sphere"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 void EmitterSphere::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("radius");
@@ -65,7 +65,7 @@ Vec3f EmitterSphere::GetSpawnPos() {
 #pragma endregion
 
 #pragma region "Box"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 void EmitterBox::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("min");
@@ -124,7 +124,7 @@ Vec3f EmitterBox::GetSpawnPos() {
 #pragma endregion
 
 #pragma region "Capsule"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 void EmitterCapsule::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");
@@ -169,7 +169,7 @@ Vec3f EmitterCapsule::GetSpawnPos() {
 #pragma endregion
 
 #pragma region "Cone"
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 void EmitterCone::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");

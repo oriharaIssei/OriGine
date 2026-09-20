@@ -1,6 +1,6 @@
 #include "DebugReplayControlArea.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 #include "DebugReplayWindow.h"
 

@@ -14,7 +14,7 @@
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -104,7 +104,7 @@ void SkyboxRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
 }
 
 void SkyboxRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     ImGui::Text("FilePath : %s", filePath_.c_str());
     std::string label = "Load##" + _parentLabel;

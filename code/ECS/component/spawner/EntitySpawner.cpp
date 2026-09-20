@@ -1,6 +1,6 @@
 #include "EntitySpawner.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 
@@ -19,7 +19,7 @@ void EntitySpawner::Initialize(Scene* _scene, const EntityHandle& /*_entity*/) {
 void EntitySpawner::Finalize() {}
 
 void EntitySpawner::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // ── テンプレート選択 ──────────────────────────────────────
     ImGui::SeparatorText("Entity Template");
     ImGui::Text("%s", templateTypeName_.empty() ? "(none)" : templateTypeName_.c_str());

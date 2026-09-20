@@ -84,7 +84,9 @@ function defineEngineProjects(engineRoot)
         buildoptions { "/utf-8" }
 
         filter "configurations:Debug"
-            defines { "DEBUG", "_DEBUG" }
+            -- ORIGINE_EDITOR_ENABLED: エディタUIの条件は `_DEBUG` から独立させる(4B B-2)。
+            -- Debug/Develop 両方で定義し、Release では未定義のまま(ORIGINE_CALL_COUNTER_ENABLED と同じ命名規則)。
+            defines { "DEBUG", "_DEBUG", "ORIGINE_EDITOR_ENABLED" }
             symbols "On"
             runtime "Debug"
             libdirs { p(engineRoot, "externals/assimp/lib/Debug") }
@@ -117,7 +119,8 @@ function defineEngineProjects(engineRoot)
             end
 
         filter "configurations:Develop"
-            defines { "DEVELOP", "_DEVELOP" }
+            -- ORIGINE_EDITOR_ENABLED: Develop でもエディタを有効にする(Editor.exe を Develop で動かすため)。
+            defines { "DEVELOP", "_DEVELOP", "ORIGINE_EDITOR_ENABLED" }
             symbols "On"
             -- 計測用の構成。エンジン側が /Od だと計測対象そのものが実際の
             -- 実行コードと違うものになり、Release で消えるはずの呼び出しコストが

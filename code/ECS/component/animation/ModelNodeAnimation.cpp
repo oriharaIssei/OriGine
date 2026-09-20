@@ -14,7 +14,7 @@
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 #include <imgui/imgui.h>
@@ -122,7 +122,7 @@ void ModelNodeAnimation::Initialize(Scene* /*_scene*/, const EntityHandle& /*_en
 }
 
 void ModelNodeAnimation::Edit(Scene* _scene, const EntityHandle& _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     std::string label = "Load File##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory, filename;

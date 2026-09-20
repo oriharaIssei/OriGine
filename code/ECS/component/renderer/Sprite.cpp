@@ -21,7 +21,7 @@
 /// math
 #include "math/Matrix4x4.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
@@ -78,7 +78,7 @@ void SpriteRenderer::Initialize(Scene* _scene, const EntityHandle& _hostEntity) 
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void SpriteRenderer::Edit(Scene* /*_scene*/, const EntityHandle& /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // エディタ専用のUIコードなので、リリースビルドには含めない
 
     // px値を編集したときは比率側を、比率を編集したときはpx値側を再計算する

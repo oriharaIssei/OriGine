@@ -1,4 +1,4 @@
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
 #include "SettingWindow.h"
 

@@ -1,6 +1,6 @@
 #include "CollisionPushBackInfo.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
@@ -18,7 +18,7 @@ void CollisionPushBackInfo::Finalize() {
 /// </summary>
 /// <param name="_parentLabel">ImGuiのID衝突を避けるための親ラベル</param>
 void CollisionPushBackInfo::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
     // エディタ専用のUIコードなので、リリースビルドには含めない
 
     // 選択結果を直接代入せずSetterCommand経由にすることで、エディタのUndo/Redoに対応させる

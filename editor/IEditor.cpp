@@ -1,6 +1,6 @@
 #include "IEditor.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "EditorController.h"
 #include "imGuiManager/ImGuiManager.h"
 #include <imgui/imgui_internal.h>

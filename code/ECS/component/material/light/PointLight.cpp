@@ -1,6 +1,6 @@
 #include "PointLight.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// externals
 #include "imgui/imgui.h"
 /// util
@@ -10,7 +10,7 @@
 using namespace OriGine;
 
 void PointLight::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] const EntityHandle& _entity, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     CheckBoxCommand("Active##" + _parentLabel, isActive);
 

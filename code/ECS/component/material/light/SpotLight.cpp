@@ -1,6 +1,6 @@
 #include "SpotLight.h"
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 /// externals
 #include "imgui/imgui.h"
 /// util
@@ -10,7 +10,7 @@
 using namespace OriGine;
 
 void SpotLight::Edit(Scene* /*_scene*/, const EntityHandle& /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 
     CheckBoxCommand("Active##" + _parentLabel, isActive);
 

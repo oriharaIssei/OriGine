@@ -222,7 +222,7 @@ float EaseInOutBounce(float t) {
 
 } // namespace OriGine
 
-#ifdef _DEBUG
+#ifdef ORIGINE_EDITOR_ENABLED
 #include "editor/EditorController.h"
 #include <cstdint>
 #include <editor/IEditor.h>
