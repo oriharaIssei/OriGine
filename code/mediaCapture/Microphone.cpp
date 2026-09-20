@@ -252,6 +252,11 @@ void Microphone::SetDataCallback(MicrophoneDataCallback callback) {
     dataCallback_ = std::move(callback);
 }
 
+void Microphone::SetTapCallback(MicrophoneDataCallback callback) {
+    std::lock_guard<std::mutex> lock(callbackMutex_);
+    tapCallback_ = std::move(callback);
+}
+
 MicrophoneCaptureStats Microphone::GetStats() const {
     std::lock_guard<std::mutex> lock(statsMutex_);
     return stats_;
@@ -377,6 +382,9 @@ void Microphone::CaptureThread() {
                 std::lock_guard<std::mutex> lock(callbackMutex_);
                 if (dataCallback_ && !convertedBuffer.empty()) {
                     dataCallback_(floatData, numFrames, format_.channels);
+                }
+                if (tapCallback_ && !convertedBuffer.empty()) {
+                    tapCallback_(floatData, numFrames, format_.channels);
                 }
             }
 

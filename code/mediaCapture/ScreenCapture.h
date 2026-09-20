@@ -83,6 +83,11 @@ public:
 
     void SetFrameCallback(ScreenFrameCallback callback);
 
+    // frameCallback_ とは別に、同じフレームを受け取る副次コールバック。
+    // ScreenRecorder が SetFrameCallback を専有するため、解析など録画と併走する
+    // 用途はこちらを使う。frameCallback_ の直後に同じスレッドから呼ばれる。
+    void SetTapCallback(ScreenFrameCallback callback);
+
     bool IsCapturing() const { return isCapturing_; }
     uint32_t GetWidth() const { return width_; }
     uint32_t GetHeight() const { return height_; }
@@ -120,6 +125,7 @@ private:
     std::thread captureThread_;
 
     ScreenFrameCallback frameCallback_;
+    ScreenFrameCallback tapCallback_;
     std::mutex callbackMutex_;
 
     std::mutex frameMutex_;

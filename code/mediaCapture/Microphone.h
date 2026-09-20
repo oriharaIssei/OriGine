@@ -92,6 +92,11 @@ public:
 
     void SetDataCallback(MicrophoneDataCallback callback);
 
+    // 録画用 dataCallback_ とは独立に同じ音声を受け取る第 2 のコールバック。
+    // MediaRecorder が SetDataCallback を専有するため、解析など別用途への
+    // 音声分岐はこちらを使う（キャプチャスレッドから呼ばれる点は同じ）。
+    void SetTapCallback(MicrophoneDataCallback callback);
+
     bool IsCapturing() const { return isCapturing_; }
     bool IsRecording() const { return isRecording_; }
     const MicrophoneFormat& GetFormat() const { return format_; }
@@ -128,6 +133,7 @@ private:
     std::thread captureThread_;
 
     MicrophoneDataCallback dataCallback_;
+    MicrophoneDataCallback tapCallback_;
     std::mutex callbackMutex_;
 
     mutable std::mutex statsMutex_;

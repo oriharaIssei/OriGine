@@ -180,6 +180,11 @@ void SystemAudioCapture::SetDataCallback(SystemAudioDataCallback callback) {
     dataCallback_ = std::move(callback);
 }
 
+void SystemAudioCapture::SetTapCallback(SystemAudioDataCallback callback) {
+    std::lock_guard<std::mutex> lock(callbackMutex_);
+    tapCallback_ = std::move(callback);
+}
+
 void SystemAudioCapture::ConvertCaptureData(BYTE* data, UINT32 frameCount, DWORD flags, std::vector<float>& outBuffer) const {
     const uint32_t sampleCount = frameCount * format_.channels;
     outBuffer.assign(sampleCount, 0.0f);
@@ -266,6 +271,9 @@ void SystemAudioCapture::CaptureThread() {
         std::lock_guard<std::mutex> lock(callbackMutex_);
         if (dataCallback_ && frames > 0) {
             dataCallback_(data, frames, channels);
+        }
+        if (tapCallback_ && frames > 0) {
+            tapCallback_(data, frames, channels);
         }
     };
 

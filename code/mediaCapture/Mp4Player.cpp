@@ -263,9 +263,15 @@ void Mp4Player::DecodeThread() {
         if (seek >= 0) {
             ApplySeekLocked(seek);
             if (state_ == State::Finished) state_ = State::Paused;
+            // 一時停止中のシークは、目標時刻のフレームを 1 枚だけ出す（プレビュー）。
+            if (state_ != State::Playing) {
+                seekPreviewTarget_.store(seek);
+                seekPreviewPending_.store(true);
+            }
         }
 
-        if (state_ != State::Playing) {
+        // 再生中でなくても、シークプレビュー中はフレーム取得のためにループを回す。
+        if (state_ != State::Playing && !seekPreviewPending_.load()) {
             Sleep(5);
             continue;
         }
@@ -302,9 +308,11 @@ void Mp4Player::DecodeThread() {
             static_cast<DWORD>(MF_SOURCE_READER_ANY_STREAM), 0,
             &actualIndex, &flags, &ts, &sample);
         if (FAILED(hr)) {
+            dbgReadFailed_.fetch_add(1);
             Sleep(5);
             continue;
         }
+        dbgLastStreamIndex_.store(actualIndex);
 
         if (flags & MF_SOURCE_READERF_ENDOFSTREAM) {
             if (loop_) {
@@ -318,7 +326,10 @@ void Mp4Player::DecodeThread() {
         if (!sample) continue;
 
         if (hasAudio_ && actualIndex == audioStreamIndex_) {
-            SubmitAudio(sample);
+            // プレビュー（ポーズ中）では音声を鳴らさない。映像フレームだけ欲しい。
+            if (!seekPreviewPending_.load()) {
+                SubmitAudio(sample);
+            }
         } else if (actualIndex == videoStreamIndex_) {
             PushVideo(sample, ts);
         }
@@ -344,6 +355,7 @@ void Mp4Player::SubmitAudio(const ComPtr<IMFSample>& sample) {
     xb.pAudioData = owned->data();
     if (SUCCEEDED(sourceVoice_->SubmitSourceBuffer(&xb))) {
         audioBuffers_.push_back(std::move(owned));
+        dbgAudioSubmitted_.fetch_add(1);
     }
 
     // 消費済みバッファを解放（FIFO 消費なので先頭から安全に破棄できる）
@@ -384,6 +396,8 @@ void Mp4Player::PushVideo(const ComPtr<IMFSample>& sample, LONGLONG pts) {
     }
     buffer->Unlock();
 
+    dbgVideoPushed_.fetch_add(1);
+
     std::lock_guard<std::mutex> lock(frameQueueMutex_);
     frameQueue_.push_back(std::move(frame));
 }
@@ -408,14 +422,18 @@ LONGLONG Mp4Player::GetMasterPts100ns() {
 
 void Mp4Player::PresentThread() {
     while (running_) {
-        if (state_ != State::Playing) {
+        const bool preview = seekPreviewPending_.load();
+        // 再生中でなく、シークプレビューも無ければ何もしない。
+        if (state_ != State::Playing && !preview) {
             Sleep(5);
             continue;
         }
 
-        const LONGLONG master = GetMasterPts100ns();
+        // プレビュー中は「シーク目標時刻」を基準にして、その時刻のフレームを選ぶ。
+        const LONGLONG master = preview ? seekPreviewTarget_.load() : GetMasterPts100ns();
 
         bool present = false;
+        bool reachedTarget = false;
         DecodedFrame chosen;
         {
             std::lock_guard<std::mutex> lock(frameQueueMutex_);
@@ -425,6 +443,10 @@ void Mp4Player::PresentThread() {
                 frameQueue_.pop_front();
                 present = true;
             }
+            // キューに master 超えのフレームが残っている＝目標をまたいだ（目標到達）。
+            if (present && !frameQueue_.empty() && frameQueue_.front().pts100ns > master) {
+                reachedTarget = true;
+            }
         }
 
         if (present) {
@@ -432,18 +454,29 @@ void Mp4Player::PresentThread() {
                 std::lock_guard<std::mutex> lock(frameMutex_);
                 latestFrame_ = chosen.bgra;
             }
-            std::lock_guard<std::mutex> lock(callbackMutex_);
-            if (frameCallback_) {
-                frameCallback_(chosen.bgra.data(), width_, height_);
+            {
+                std::lock_guard<std::mutex> lock(callbackMutex_);
+                if (frameCallback_) {
+                    frameCallback_(chosen.bgra.data(), width_, height_);
+                }
+            }
+            // 目標フレームを提示できたらプレビュー完了（またはデコード終端で打ち切り）。
+            if (preview && (reachedTarget || decodeFinished_)) {
+                seekPreviewPending_.store(false);
             }
         } else {
+            // プレビュー中にデコードが終端まで達したら、これ以上フレームは来ないので打ち切る。
+            if (preview && decodeFinished_) {
+                seekPreviewPending_.store(false);
+            }
             // 再生完了判定: デコード終了かつ供給待ちのフレームが無い
             bool empty;
             {
                 std::lock_guard<std::mutex> lock(frameQueueMutex_);
                 empty = frameQueue_.empty();
             }
-            if (decodeFinished_ && empty && !loop_) {
+            // 再生完了への遷移は再生中のみ（プレビュー＝ポーズ中に Finished 化させない）。
+            if (state_ == State::Playing && decodeFinished_ && empty && !loop_) {
                 if (sourceVoice_) {
                     XAUDIO2_VOICE_STATE vs = {};
                     sourceVoice_->GetState(&vs, 0);
@@ -516,4 +549,9 @@ void Mp4Player::Close() {
     audioRate_ = audioChannels_ = 0;
     decodeFinished_ = false;
     pendingSeek100ns_ = -1;
+
+    dbgVideoPushed_.store(0);
+    dbgAudioSubmitted_.store(0);
+    dbgReadFailed_.store(0);
+    dbgLastStreamIndex_.store(0xFFFFFFFF);
 }

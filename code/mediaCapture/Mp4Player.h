@@ -138,6 +138,10 @@ private:
     std::atomic<bool>  loop_{false};
     std::atomic<bool>  decodeFinished_{false};
     std::atomic<LONGLONG> pendingSeek100ns_{-1};
+    // 一時停止中のシーク時、目標時刻のフレームを 1 枚だけデコード＆提示するためのフラグ。
+    // これが無いと、ポーズ中は DecodeThread/PresentThread が動かず画面が更新されない。
+    std::atomic<bool>     seekPreviewPending_{false};
+    std::atomic<LONGLONG> seekPreviewTarget_{0};
 
     // 基準クロック
     std::mutex clockMutex_;
@@ -159,6 +163,34 @@ private:
     Mp4VideoFrameCallback frameCallback_;
 
     std::string lastError_;
+
+    // ---- 診断用カウンタ(映像が出ない原因切り分け) ----
+    std::atomic<uint64_t> dbgVideoPushed_{0};    // PushVideo に到達した映像サンプル数
+    std::atomic<uint64_t> dbgAudioSubmitted_{0}; // XAudio2 に submit できた音声バッファ数
+    std::atomic<uint64_t> dbgReadFailed_{0};     // ReadSample が FAILED を返した回数
+    std::atomic<uint32_t> dbgLastStreamIndex_{0xFFFFFFFF}; // 最後に ReadSample が返したストリーム番号
+
+public:
+    struct DebugStats {
+        uint64_t videoPushed    = 0;
+        uint64_t audioSubmitted = 0;
+        uint64_t readFailed     = 0;
+        uint32_t lastStreamIndex = 0xFFFFFFFF;
+        uint32_t videoStreamIndex = 0;
+        uint32_t audioStreamIndex = 0;
+        double   positionSeconds  = 0.0;
+    };
+    DebugStats GetDebugStats() const {
+        DebugStats s;
+        s.videoPushed      = dbgVideoPushed_.load();
+        s.audioSubmitted   = dbgAudioSubmitted_.load();
+        s.readFailed       = dbgReadFailed_.load();
+        s.lastStreamIndex  = dbgLastStreamIndex_.load();
+        s.videoStreamIndex = videoStreamIndex_;
+        s.audioStreamIndex = audioStreamIndex_;
+        s.positionSeconds  = const_cast<Mp4Player*>(this)->GetPosition();
+        return s;
+    }
 };
 
 } // namespace OriGine

@@ -293,6 +293,11 @@ void ScreenCapture::SetFrameCallback(ScreenFrameCallback callback) {
     frameCallback_ = std::move(callback);
 }
 
+void ScreenCapture::SetTapCallback(ScreenFrameCallback callback) {
+    std::lock_guard<std::mutex> lock(callbackMutex_);
+    tapCallback_ = std::move(callback);
+}
+
 /// <summary>
 /// 最新の映像フレームをコピー取得する（ポーリング用）。
 /// </summary>
@@ -369,6 +374,9 @@ void ScreenCapture::CaptureThreadDuplication() {
                 if (frameCallback_) {
                     frameCallback_(frame);
                 }
+                if (tapCallback_) {
+                    tapCallback_(frame);
+                }
             }
         }
     }
@@ -429,6 +437,9 @@ void ScreenCapture::CaptureThreadGDI() {
             std::lock_guard<std::mutex> lock(callbackMutex_);
             if (frameCallback_) {
                 frameCallback_(frame);
+            }
+            if (tapCallback_) {
+                tapCallback_(frame);
             }
         }
 

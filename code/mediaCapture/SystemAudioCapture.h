@@ -67,6 +67,10 @@ public:
 
     void SetDataCallback(SystemAudioDataCallback callback);
 
+    // 録画用 dataCallback_ とは独立に同じ音声を受け取る第 2 のコールバック。
+    // ScreenRecorder が SetDataCallback を専有するため、解析への音声分岐はこちらを使う。
+    void SetTapCallback(SystemAudioDataCallback callback);
+
     bool IsCapturing() const { return isCapturing_; }
     const SystemAudioFormat& GetFormat() const { return format_; }
 
@@ -87,6 +91,7 @@ private:
     std::thread captureThread_;
 
     SystemAudioDataCallback dataCallback_;
+    SystemAudioDataCallback tapCallback_;
     std::mutex callbackMutex_;
 };
 
