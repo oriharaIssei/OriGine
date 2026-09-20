@@ -130,6 +130,51 @@ std::set<std::pair<size_t, size_t>> ComputeOraclePairs(const std::vector<Synthet
 }
 
 /// <summary>
+/// 2つのAABBが幾何学的に実際に重なっているかどうかを判定する(セルの概念は一切登場しない)。
+/// x/y/z各軸で区間[min,max]が重なっていれば全体として重なっている、という標準的な
+/// AABB-AABB重なり判定をそのまま書く(SpatialHashのどの関数も呼ばない独立実装)。
+///
+/// これは SharesCellIndependent とは判定基準そのものが別物である点が重要:
+/// 「幾何学的に重なっているペアは、必ずセルを共有する」(重なった領域の1点が属するセルは、
+/// floorが単調非減少関数である以上、両方のAABBが覆うセル範囲に必ず含まれるため)が、
+/// 逆は成り立たない(セルを共有していても実際には重なっていないペアはいくらでもある)。
+/// つまりこちらのほうが判定基準として厳しく、「これが候補集合から漏れたら実際の衝突を
+/// 取りこぼす」という、内部実装(全破棄・全再構築でも差分更新でも階層グリッドでも)に
+/// よらず常に成り立つべき最低限の安全性契約になる。
+/// </summary>
+bool GeometricallyOverlapsIndependent(const SyntheticEntity& _a, const SyntheticEntity& _b) {
+    const Vec3f aMin = _a.center - Vec3f(_a.halfExtent, _a.halfExtent, _a.halfExtent);
+    const Vec3f aMax = _a.center + Vec3f(_a.halfExtent, _a.halfExtent, _a.halfExtent);
+    const Vec3f bMin = _b.center - Vec3f(_b.halfExtent, _b.halfExtent, _b.halfExtent);
+    const Vec3f bMax = _b.center + Vec3f(_b.halfExtent, _b.halfExtent, _b.halfExtent);
+
+    if (aMax[X] < bMin[X] || bMax[X] < aMin[X]) {
+        return false;
+    }
+    if (aMax[Y] < bMin[Y] || bMax[Y] < aMin[Y]) {
+        return false;
+    }
+    return !(aMax[Z] < bMin[Z] || bMax[Z] < aMin[Z]);
+}
+
+/// <summary>
+/// O(N^2)の総当たりで「実際に幾何学的に重なっているペア」の集合を作る(セル共有オラクルの
+/// ComputeOraclePairsとは別物。こちらは「絶対に見逃してはいけない集合」を作るためのもの)。
+/// </summary>
+std::set<std::pair<size_t, size_t>> ComputeGeometricOverlapPairs(const std::vector<SyntheticEntity>& _entities) {
+    std::set<std::pair<size_t, size_t>> pairs;
+    const size_t n = _entities.size();
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = i + 1; j < n; ++j) {
+            if (GeometricallyOverlapsIndependent(_entities[i], _entities[j])) {
+                pairs.emplace(i, j);
+            }
+        }
+    }
+    return pairs;
+}
+
+/// <summary>
 /// 実際のSpatialHash::GetAllPairsを呼んだ結果。unknownHandleCount_は、登録した覚えのない
 /// EntityHandleを含むペアが返ってきた回数(本来0であるべき。0でなければテストを黙って
 /// 通さず、それ自体を不具合として報告する)。
@@ -260,6 +305,80 @@ TestCaseResult RunOracleComparison(const std::string& _scenarioLabel, const std:
     const SpatialHashOracleRun actual                      = ComputeSpatialHashPairs(_entities, _cellSize);
 
     CompareAndReport(result, _scenarioLabel, _entities, oraclePairs, actual);
+    return result;
+}
+
+/// <summary>
+/// 「幾何学的に重なっているペアは、SpatialHashの候補集合に必ず含まれていなければならない」
+/// という包含契約を検査する。セル共有オラクル(CompareAndReport)とは別の契約であり、
+/// あえて別関数として分けている: SpatialHash側に「セルは共有しているが実際には重なっていない」
+/// 余分な候補が混ざるのは正常(ブロードフェーズが候補を広げに絞り込むのは仕様どおり)なので
+/// 余剰側は一切見ず、見逃し(false negative)だけを検出する。
+/// </summary>
+void CompareSubsetAndReport(
+    TestCaseResult& _result,
+    const std::string& _scenarioLabel,
+    const std::vector<SyntheticEntity>& _entities,
+    const std::set<std::pair<size_t, size_t>>& _geometricPairs,
+    const SpatialHashOracleRun& _actual,
+    size_t _maxSamples = 8) {
+
+    std::vector<std::pair<size_t, size_t>> missed;
+    std::set_difference(_geometricPairs.begin(), _geometricPairs.end(), _actual.pairs.begin(), _actual.pairs.end(), std::back_inserter(missed));
+
+    const bool handlesOk = (_actual.unknownHandleCount == 0);
+    const bool noMisses  = missed.empty();
+    const bool ok        = handlesOk && noMisses;
+    _result.passed &= ok;
+
+    _result.diagnosticLines.push_back(std::format(
+        "[{}] {}: entities={} geometricOverlapPairs={} spatialHashPairs={} unknownHandles={}",
+        ok ? "ok  " : "FAIL", _scenarioLabel, _entities.size(), _geometricPairs.size(), _actual.pairs.size(), _actual.unknownHandleCount));
+
+    if (!handlesOk) {
+        _result.diagnosticLines.push_back(std::format(
+            "  SpatialHash::GetAllPairsが登録していないEntityHandleを含むペアを{}組返した(対応関係が取れない)",
+            _actual.unknownHandleCount));
+    }
+
+    if (!missed.empty()) {
+        _result.diagnosticLines.push_back(std::format(
+            "  見逃されたペア(幾何学的に接触しているのにSpatialHashの候補集合に無い): {}件", missed.size()));
+        size_t shown = 0;
+        for (const auto& [i, j] : missed) {
+            if (shown >= _maxSamples) {
+                _result.diagnosticLines.push_back(std::format("    ...他 {} 件省略", missed.size() - shown));
+                break;
+            }
+            _result.diagnosticLines.push_back(std::format("    {}  <->  {}", DescribeEntity(_entities, i), DescribeEntity(_entities, j)));
+            ++shown;
+        }
+    }
+}
+
+/// <summary>
+/// 1シナリオぶんの包含契約チェックを実行する共通ドライバ。RunOracleComparisonと違い、
+/// SpatialHash側の余剰候補は見ない(見逃しの有無だけを判定する)。
+/// </summary>
+TestCaseResult RunSubsetInclusionCheck(const std::string& _scenarioLabel, const std::vector<SyntheticEntity>& _entities, float _cellSize) {
+    TestCaseResult result;
+    result.passed = true;
+
+    const std::set<std::pair<size_t, size_t>> geometricPairs = ComputeGeometricOverlapPairs(_entities);
+    const SpatialHashOracleRun actual                         = ComputeSpatialHashPairs(_entities, _cellSize);
+
+    CompareSubsetAndReport(result, _scenarioLabel, _entities, geometricPairs, actual);
+
+    // 陽性対照: この契約チェックは「実際に接触しているペアが1組も無い」場合は何も検証していない
+    // ことになり(空虚な成功)、意味を持たない。シナリオ側が意図どおり接触を生んでいるかを
+    // ここで別途確認する(具体的な期待件数はシナリオごとに違うので、0件でないことだけ見る)。
+    const bool hasAtLeastOneContact = !geometricPairs.empty();
+    result.passed &= hasAtLeastOneContact;
+    if (!hasAtLeastOneContact) {
+        result.diagnosticLines.push_back(
+            "  [FAIL] 配置に幾何学的な接触が1組も無い(この契約チェックが陽性対照になっていない。座標を見直すこと)");
+    }
+
     return result;
 }
 
@@ -436,6 +555,48 @@ TestCaseResult BroadphaseOracle_BenchScale() {
     return RunOracleComparison("BenchScale_2000Entities", entities, 100.0f);
 }
 
+/// <summary>
+/// ケース8: 「幾何学的に重なっているペアは、SpatialHashの候補集合に必ず含まれていなければ
+/// ならない」という包含契約を検査する。ケース1〜7(セル共有オラクル)とは別の契約であり、
+/// SpatialHashの内部設計が全破棄・全再構築から差分更新へ変わっても(Phase 6でユーザーが
+/// 行う予定の変更そのもの)成り立ち続けるべき最低限の安全網になる
+/// (差分更新は「更新漏れで本来重なっているペアが候補から落ちる」事故が定番のため)。
+///
+/// 接触がほとんど無いcellSizeに対して半径が小さい配置(ケース1〜7の一部)では、この契約は
+/// ほぼ何も検証しない空虚なチェックになってしまう。そのためここでは意図的に:
+///  - 1体のAABBが複数セルにまたがり、かつ実際に隣のセルにいる相手と接触する配置
+///    (spanning_big <-> neighbor_edge: 半径5と半径2、cellSize2に対してどちらも複数セルにまたがる)
+///  - 同じ構図をもっと小さいスケールでも1組(boundary_pair_a <-> boundary_pair_b:
+///    片方がセル境界をまたぎ、もう片方は隣のセルの中に収まっている)
+///  - 別軸(y軸)でも同じ構図を1組(y_axis_spanning <-> y_axis_neighbor)、
+///    x軸側の配置と絶対に混ざらない位置に置いて独立に確認する
+/// という3系統の「実際に接触するペア」を用意し、いずれもSpatialHashの候補集合から
+/// 取りこぼされていないかを見る。
+/// </summary>
+TestCaseResult BroadphaseOracle_GeometricOverlapMustBeCandidate() {
+    EntityRepository repo;
+    repo.Initialize();
+    std::vector<SyntheticEntity> entities;
+    const float cellSize = 2.0f;
+
+    // 系統1: 半径がcellSizeよりずっと大きく、どちらも複数セルにまたがったうえで接触する。
+    // spanning_big: x=[-5,5] (cellSize2で cell -3..2 の6セルにまたがる)
+    // neighbor_edge: x=[4,8] (cell 2..4 の3セルにまたがる)。4<=5 なので x=[4,5] の範囲で実際に重なる。
+    entities.push_back(MakeSyntheticEntity(repo, "spanning_big", Vec3f(0.0f, 0.0f, 0.0f), 5.0f));
+    entities.push_back(MakeSyntheticEntity(repo, "neighbor_edge", Vec3f(6.0f, 0.0f, 0.0f), 2.0f));
+
+    // 系統2: 小さいスケール版。boundary_pair_aはセル境界(x=20)をまたぎ、
+    // boundary_pair_bは隣のセルの中に収まっている。それでも0.1単位だけ実際に重なる。
+    entities.push_back(MakeSyntheticEntity(repo, "boundary_pair_a", Vec3f(20.0f, 0.0f, 0.0f), 0.3f)); // x=[19.7,20.3]
+    entities.push_back(MakeSyntheticEntity(repo, "boundary_pair_b", Vec3f(20.5f, 0.0f, 0.0f), 0.3f)); // x=[20.2,20.8]
+
+    // 系統3: y軸方向で同じ構図をもう1組。x軸側の2組とは座標が大きく離れているため干渉しない。
+    entities.push_back(MakeSyntheticEntity(repo, "y_axis_spanning", Vec3f(0.0f, 20.0f, 0.0f), 1.5f)); // y=[18.5,21.5]
+    entities.push_back(MakeSyntheticEntity(repo, "y_axis_neighbor", Vec3f(0.0f, 23.0f, 0.0f), 1.6f)); // y=[21.4,24.6]
+
+    return RunSubsetInclusionCheck("GeometricOverlapMustBeCandidate", entities, cellSize);
+}
+
 std::vector<TestCaseEntry> MakeBroadphaseOracleTestCases() {
     return {
         {"BroadphaseOracle_Empty", BroadphaseOracle_Empty},
@@ -445,6 +606,7 @@ std::vector<TestCaseEntry> MakeBroadphaseOracleTestCases() {
         {"BroadphaseOracle_Degenerate", BroadphaseOracle_Degenerate},
         {"BroadphaseOracle_BoundaryStraddle", BroadphaseOracle_BoundaryStraddle},
         {"BroadphaseOracle_BenchScale", BroadphaseOracle_BenchScale},
+        {"BroadphaseOracle_GeometricOverlapMustBeCandidate", BroadphaseOracle_GeometricOverlapMustBeCandidate},
     };
 }
 
