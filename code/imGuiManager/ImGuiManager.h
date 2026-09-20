@@ -38,6 +38,25 @@ public:
     static ImGuiManager* GetInstance();
 
     /// <summary>
+    /// ImGui を実際に動かすかどうかを設定する（実行時フラグ）.
+    /// コンパイル時マクロ(ORIGINE_EDITOR_ENABLED)ではなくここで切り替える理由は2つ:
+    /// (1) Phase 4D で Game/Editor が同じ OriGine.dll を共有する計画のため、
+    ///     いずれコンパイル時に処理を分けること自体ができなくなる。
+    /// (2) Game.exe のベンチマークに ImGui の毎フレームコストを混ぜないため
+    ///     （4B で ORIGINE_EDITOR_ENABLED を Debug/Develop 双方に広げた結果、
+    ///     ガード無しで呼ばれていた Initialize/Begin/End/Draw が実際に動き出し、
+    ///     ベンチが対照群でなくなっていた）。
+    /// 呼び出しは ECS_TestGame::Initialize() / ECS_TestEditor::Initialize() の
+    /// 先頭（Engine::Initialize() より前）に1箇所ずつだけ置く想定で、
+    /// それ以外の場所から書き換えないこと。
+    /// </summary>
+    /// <param name="_enabled">true なら ImGui を初期化・実行する</param>
+    void SetEnabled(bool _enabled) { enabled_ = _enabled; }
+
+    /// <summary> ImGui が実行時に有効化されているかどうか. </summary>
+    bool IsEnabled() const { return enabled_; }
+
+    /// <summary>
     /// ImGuiContext の作成、Win32/DX12 実装の初期化、フォントのセットアップを行う.
     /// </summary>
     /// <param name="_window">メインウィンドウのインスタンス</param>
@@ -70,6 +89,13 @@ private:
     ~ImGuiManager()                                    = default;
     ImGuiManager(const ImGuiManager&)                  = delete;
     const ImGuiManager& operator=(const ImGuiManager&) = delete;
+
+    // ORIGINE_EDITOR_ENABLED が未定義のビルド(Release)では Initialize/Begin/End/Draw の
+    // 中身自体が #ifdef で消えるため、この値を読むコードが存在しなくなる。
+    // それでもメンバ自体は常にコンパイルする ―― SetEnabled() を呼ぶ側
+    // (ECS_TestGame.cpp / ECS_TestEditor.cpp)がマクロの有無を意識せずに済むようにするため。
+    bool enabled_ = false;
+
 #ifdef ORIGINE_EDITOR_ENABLED
 private:
     // SRV用ヒープ（ImGui がテクスチャ描画に使用する）

@@ -37,6 +37,12 @@ ImGuiManager* ImGuiManager::GetInstance() {
 /// </summary>
 void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_unused]] const DxDevice* _dxDevice, [[maybe_unused]] const DxSwapChain* _dxSwapChain) {
 #ifdef ORIGINE_EDITOR_ENABLED
+    // SetEnabled(false) の場合(Game.exe)はマクロが有効なビルドでも何もしない。
+    // マクロが無かった頃の空スタブと同じ挙動にするための早期 return。
+    if (!enabled_) {
+        return;
+    }
+
     // エンジンから SRV ヒープを取得
     srvHeap_ = Engine::GetInstance()->GetSrvHeap()->GetHeap();
 
@@ -87,6 +93,12 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_un
 /// </summary>
 void ImGuiManager::Finalize() {
 #ifdef ORIGINE_EDITOR_ENABLED
+    // Initialize() が enabled_ == false で早期 return していれば dxCommand_ 等は
+    // 一度も生成されていないので、ここでも同じ条件で早期 return する(未初期化アクセス防止)。
+    if (!enabled_) {
+        return;
+    }
+
     dxCommand_->Finalize();
 
     ImGui_ImplDx12_Shutdown();
@@ -104,6 +116,10 @@ void ImGuiManager::Finalize() {
 /// </summary>
 void ImGuiManager::Begin() {
 #ifdef ORIGINE_EDITOR_ENABLED
+    if (!enabled_) {
+        return;
+    }
+
     ImGui_ImplDx12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -115,6 +131,9 @@ void ImGuiManager::Begin() {
 /// </summary>
 void ImGuiManager::End() {
 #ifdef ORIGINE_EDITOR_ENABLED
+    if (!enabled_) {
+        return;
+    }
 #endif
 }
 
@@ -123,6 +142,10 @@ void ImGuiManager::End() {
 /// </summary>
 void ImGuiManager::Draw() {
 #ifdef ORIGINE_EDITOR_ENABLED
+    if (!enabled_) {
+        return;
+    }
+
     // 描画データの生成
     ImGui::Render();
 
