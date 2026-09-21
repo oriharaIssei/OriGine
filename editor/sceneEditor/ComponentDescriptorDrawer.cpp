@@ -210,10 +210,24 @@ void DrawComponentFieldsViaDescriptor(void* _obj, const TypeDesc& _desc, const s
                 drewEditableWidget = CheckFieldSize<Quaternion>(f);
                 if (drewEditableWidget) {
                     // Quaternion は Vector<4,float> を直接継承しているのでそのまま渡せる。
-                    // ドラッグ操作は正規化しないため、手書きの Transform::Edit のように毎回
-                    // Normalize() する補正はここでは行わない(型を知らない汎用パスであり、
-                    // 「Quaternionという名前だけ知っていて中身の意味は知らない」ことを崩したくないため)。
-                    DragGuiVectorCommand<4, float>(label, *reinterpret_cast<Quaternion*>(fieldPtr));
+                    // 編集を確定したところで単位長へ戻す。単位長でないクォータニオンを行列に
+                    // すると意図しない拡大縮小が混ざるため。Transform::UpdateMatrix() が同じ
+                    // 補正を持っているが、それを毎フレーム呼ぶ経路がエディタ側に無く、
+                    // 編集した値がそのまま残って壊れる(2026-09-21 にユーザーが踏んだ)。
+                    // afterFunc は SetterCommand から呼ばれるので Undo / Redo でも同じ補正がかかる。
+                    DragGuiVectorCommand<4, float>(
+                        label,
+                        *reinterpret_cast<Quaternion*>(fieldPtr),
+                        0.01f,
+                        0.0f,
+                        0.0f,
+                        "%.3f",
+                        [](Vector<4, float>* _value) {
+                            // 全成分を 0 までドラッグしても、Quaternion::Normalize が長さ 0 のとき
+                            // 単位クォータニオンを返すので NaN にはならない。
+                            Quaternion* q = static_cast<Quaternion*>(_value);
+                            *q            = Quaternion::Normalize(*q);
+                        });
                 }
                 break;
             case FieldTypeTag::String:
