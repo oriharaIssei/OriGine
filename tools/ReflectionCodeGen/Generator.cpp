@@ -6,24 +6,6 @@ namespace ReflectionCodeGen {
 
 namespace {
 
-const char* TagName(FieldTypeTag _tag) {
-    switch (_tag) {
-        case FieldTypeTag::Bool: return "Bool";
-        case FieldTypeTag::Int32: return "Int32";
-        case FieldTypeTag::UInt32: return "UInt32";
-        case FieldTypeTag::Float: return "Float";
-        case FieldTypeTag::Vec2f: return "Vec2f";
-        case FieldTypeTag::Vec3f: return "Vec3f";
-        case FieldTypeTag::Vec4f: return "Vec4f";
-        case FieldTypeTag::Quaternion: return "Quaternion";
-        case FieldTypeTag::Matrix4x4: return "Matrix4x4";
-        case FieldTypeTag::String: return "String";
-        case FieldTypeTag::Enum: return "Enum";
-        case FieldTypeTag::Opaque: return "Opaque";
-    }
-    return "Opaque";
-}
-
 /// <summary>C++ 文字列リテラルとして安全な形にする(対象10型の識別子・キー名はASCIIのみ)。</summary>
 std::string Escape(const std::string& _s) {
     std::string out;
@@ -83,6 +65,9 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
              "\n"
              "#include \"component/ComponentReflection.h\"\n"
              "#include \"component/ComponentRegistry.h\"\n"
+             // kFieldTagOf<decltype(...)> はここで解決する(D3: switch/if連鎖の廃止。
+             // このツールはもう型を判定しない。component/FieldStrategy.h 参照)。
+             "#include \"component/FieldStrategy.h\"\n"
              "\n";
         for (const auto& t : _types) {
             c << "#include \"" << t.headerIncludePath << "\"\n";
@@ -112,21 +97,16 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
         for (const auto& t : _types) {
             c << "    // " << t.name << "\n";
             for (const auto& f : t.fields) {
-                size_t enumIdx = static_cast<size_t>(-1);
-                if (f.typeTag == FieldTypeTag::Enum) {
-                    for (size_t i = 0; i < _enums.size(); ++i) {
-                        if (_enums[i].name == f.enumName) {
-                            enumIdx = i;
-                            break;
-                        }
-                    }
-                }
+                // typeTag_ はもうこのツールが決めない。`kFieldTagOf<decltype(OriGine::Type::field)>`
+                // という式をそのまま出力し、実際にコンパイルする側(3構成それぞれ)に判定させる
+                // (D3: switch/if連鎖の廃止。書き忘れた型は component/FieldStrategy.cpp の
+                // FieldStrategy<T> 特殊化が無いままインスタンス化されコンパイルエラーになる)。
                 c << "    { \"" << Escape(f.name) << "\", \"" << Escape(f.jsonKey) << "\", "
                   << "static_cast<uint32_t>(offsetof(OriGine::" << t.name << ", " << f.name << ")), "
                   << "static_cast<uint32_t>(sizeof(OriGine::" << t.name << "::" << f.name << ")), "
-                  << "static_cast<uint8_t>(FieldTypeTag::" << TagName(f.typeTag) << "), "
+                  << "OriGine::kFieldTagOf<decltype(OriGine::" << t.name << "::" << f.name << ")>, "
                   << (f.noSave ? "kFieldFlagNoSave" : "0") << ", "
-                  << (enumIdx == static_cast<size_t>(-1) ? "kInvalidEnumIndex" : std::to_string(enumIdx))
+                  << (f.enumIndex < 0 ? "kInvalidEnumIndex" : std::to_string(f.enumIndex))
                   << ", 0u },\n";
             }
         }

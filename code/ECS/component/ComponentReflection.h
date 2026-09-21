@@ -14,28 +14,6 @@
 
 namespace OriGine {
 
-/// <summary>
-/// フィールドの値の種類を表す閉じた列挙(Phase 3C D3)。
-/// int32 に畳まない理由: エディタでは列挙型は Combo、数値は Slider / Input / Drag と
-/// ウィジェットが変わるため、値の種類ごとに区別できる形で持つ。コンテナ・入れ子コンポーネント・
-/// GPU バッファ等、ここに挙げた具体型に当てはまらないものはすべて Opaque にまとめる
-/// (今は「保存しない/カスタム扱い」の目印として使うだけで、中身までは覗かない)。
-/// </summary>
-enum class FieldTypeTag : uint8_t {
-    Bool,
-    Int32,
-    UInt32,
-    Float,
-    Vec2f,
-    Vec3f,
-    Vec4f,
-    Quaternion,
-    Matrix4x4,
-    String,
-    Enum,
-    Opaque,
-};
-
 /// <summary>FieldDesc::flags_ のビット。保存対象から外すフィールドに立てる(D4)。</summary>
 inline constexpr uint8_t kFieldFlagNoSave = 1u << 0;
 
@@ -63,9 +41,9 @@ struct FieldDesc {
     const char* jsonKey_; // 保存時に使うキー名(注釈が無ければメンバ名から末尾の '_' を除いた名前)
     uint32_t offset_; // オーナー型の先頭からのバイトオフセット(offsetof)
     uint32_t size_; // フィールド自身のバイト数(sizeof)
-    uint8_t typeTag_; // FieldTypeTag の値
+    uint8_t typeTag_; // component/FieldStrategy.h の kFieldTagOf<T> が返す値(GetFieldStrategy() への添字)
     uint8_t flags_; // kFieldFlagNoSave 等
-    uint16_t enumIndex_; // typeTag_ == Enum のときだけ有効。EnumDesc 表への添字
+    uint16_t enumIndex_; // typeTag_ == kFieldTagEnum のときだけ有効。EnumDesc 表への添字
     uint32_t reserved_; // 32バイトへの詰め物。将来の属性追加用に予約(常に0)
 };
 static_assert(sizeof(FieldDesc) == 32,

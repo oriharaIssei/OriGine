@@ -137,15 +137,11 @@ bool RunGeneration(const fs::path& _codeRoot, const fs::path& _manifestPath, con
         ct.headerIncludePath = t.headerIncludePath;
         ct.fields.reserve(t.fields.size());
         for (const auto& f : t.fields) {
-            size_t enumIdx = 0;
             ClassifiedField cf;
-            cf.name    = f.name;
-            cf.jsonKey = f.jsonKey;
-            cf.noSave  = f.noSave;
-            cf.typeTag = ClassifyFieldType(f.typeSignature, allEnums, enumIdx);
-            if (cf.typeTag == FieldTypeTag::Enum) {
-                cf.enumName = allEnums[enumIdx].name;
-            }
+            cf.name      = f.name;
+            cf.jsonKey   = f.jsonKey;
+            cf.noSave    = f.noSave;
+            cf.enumIndex = FindEnumIndex(f.typeSignature, allEnums);
             ct.fields.push_back(cf);
         }
         classified.push_back(ct);

@@ -6,22 +6,6 @@
 
 namespace ReflectionCodeGen {
 
-/// <summary>フィールドの値の種類。OriGine::FieldTypeTag と1対1で対応させること。</summary>
-enum class FieldTypeTag : uint8_t {
-    Bool,
-    Int32,
-    UInt32,
-    Float,
-    Vec2f,
-    Vec3f,
-    Vec4f,
-    Quaternion,
-    Matrix4x4,
-    String,
-    Enum,
-    Opaque,
-};
-
 /// <summary>enum class NAME : underlying { ... }; から拾った情報。</summary>
 struct EnumInfo {
     std::string name;
@@ -31,9 +15,11 @@ struct EnumInfo {
 /// <summary>
 /// 1フィールド分の解析結果。typeSignature は宣言から拾った「型」部分のトークンを
 /// 詰めた文字列(例: "Vec3f", "std::string", "IConstantBuffer<OutlineParamData>",
-/// "Transform*")で、FieldTypeTag への分類は全ファイルを読み終えて enum registry が
-/// 揃ってから Classifier.h が行う(同じファイル内で enum の宣言がフィールドより後に
-/// 来る場合にも対応できるようにするため)。
+/// "Transform*")。このツールはもう typeSignature から FieldTypeTag(具体型の判定)を
+/// 行わない(生成した .cpp の中で `kFieldTagOf<decltype(OriGine::Type::field)>` として
+/// コンパイラに判定させる。Classifier.h のコメント参照)。typeSignature を全ファイル分
+/// 読み終えたあとまで残しておくのは、enum の名前一致だけを見る FindEnumIndex のため
+/// (同じファイル内で enum の宣言がフィールドより後に来る場合にも対応できるように)。
 /// </summary>
 struct FieldInfo {
     std::string name; // C++ 上のメンバ名
@@ -56,12 +42,17 @@ struct FileParseResult {
     std::vector<EnumInfo> enums; // このファイル内で見つけた enum class 定義
 };
 
-/// <summary>分類済みのフィールド(Generator が使う最終形)。</summary>
+/// <summary>
+/// 分類済みのフィールド(Generator が使う最終形)。FieldTypeTag は持たない
+/// (タグは生成した .cpp の中で kFieldTagOf<decltype(...)> としてコンパイラが決めるため、
+/// このツール側で判定・保持する必要が無い)。enumIndex だけは、列挙型の名前一致という
+/// コンパイラ側では引けない情報(同じ下地整数型を使う enum が複数あっても区別する必要がある)
+/// なので、ここで確定させて Generator にそのまま渡す。
+/// </summary>
 struct ClassifiedField {
     std::string name;
     std::string jsonKey;
-    FieldTypeTag typeTag = FieldTypeTag::Opaque;
-    std::string enumName; // typeTag == Enum のときだけ使う
+    int enumIndex = -1; // -1 なら enum ではない。0以上なら Generator.h の kEnums 配列への添字
     bool noSave = false;
 };
 
