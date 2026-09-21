@@ -35,9 +35,8 @@ namespace OriGine {
 /// 「エディタ用に付け外しできるようにするだけの登録」という役割が同じだからで、
 /// 必然ではなく整理のための移動。
 ///
-/// SmoothingEffectParam はここでも登録しない。DLL の内側に置いても解消しない、別の既知の
-/// バグ(to_json/from_json が namespace OriGine の外に定義されている)があるため、
-/// 実装の .cpp 側で報告のみに留めている(EngineEditorComponents.cpp 参照)。
+/// SmoothingEffectParam は 2026-09-22 に to_json/from_json を namespace OriGine 内へ移し、
+/// friend 宣言と ADL が一致するよう修正したため、他の型と同様にここへ登録する。
 /// </summary>
 ORIGINE_API void RegisterEngineEditorComponents();
 

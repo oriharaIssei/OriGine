@@ -10,12 +10,8 @@
         "CameraTransform: rotateは既に正規化した値を使う(from_jsonがUpdateMatrix()内でnormalize()するため、非正規化値だと往復で値が変わってしまう)。",
         "DirectionalLight/PointLight/SpotLight: isActive/色/強度/向き等の全保存フィールドを非既定値に。PointLight/SpotLightはtargetTransformIndexも含む。",
         "OutlineComponent: isActive/usingMaterialHandle(別コンポーネントを指すComponentHandle)/outlineWidth/outlineColorを非既定値に。",
-        "SmoothingEffectParam: 対象から除外した。理由は project/engine/code/ECS/component/effect/post/SmoothingEffectParam.cpp の",
-        "  to_json/from_json が namespace OriGine{} の外(グローバル名前空間)に定義されており、",
-        "  ADLでOriGine::to_json/OriGine::from_jsonとして解決できずLNK2019になる既存のバグのため",
-        "  (friend宣言はOriGine名前空間内でOriGine::to_jsonを宣言するが、.cpp側の定義はそれと別のシンボルになる)。",
-        "  このバグはこれまでSmoothingEffectParamがシリアライズ経路を一度も通っていなかったため気づかれていなかった。",
-        "  修正はしていない(シリアライズ本体の書き換えは3Dの範囲であり、このタスクでは行わない)。",
+        "SmoothingEffectParam: 2026-09-22にバグ修正(to_json/from_jsonをnamespace OriGine{}の内側へ移動し、",
+        "  friend宣言とADLが一致するようにした)。isActive/boxFilterSize_.openData_.sizeを非既定値にして往復を確認する。",
         "TextComponent: text/position/color/fontHandle/fontSize/maxWidth/lineSpacing/charSpacing/align/renderPriority/visible/showBoundsを全て非既定値に。",
         "TextStreamComponent: charsPerSecond/startDelay/loop/playingを非既定値に。",
         "Rigidbody(手書きのまま残る型の代表): 12フィールド中保存対象10個すべてを非既定値に。",
@@ -180,6 +176,14 @@
             "distortionBias": [0.1, 0.2],
             "distortionStrength": [1.5, 2.5],
             "Handle": "10000000-0000-0000-0000-000000000014"
+        }
+    ],
+
+    "SmoothingEffectParam": [
+        {
+            "isActive": false,
+            "boxFilterSize": [3.0, 4.0],
+            "Handle": "10000000-0000-0000-0000-000000000015"
         }
     ]
 }

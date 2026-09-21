@@ -31,10 +31,11 @@ public:
 
 /// <remarks>
 /// D-1: 保存対象フィールドだけを見ると表経由にできる型だが、kUsesDescriptorSerialization は
-/// 導入していない。SmoothingEffectParam.cpp の to_json/from_json は `namespace OriGine` の外に
-/// 定義されており ADL 経由のシリアライズが元々機能しない既知のバグがある(SerializeGoldenTests.cpp
-/// 末尾のコメント参照)。表経由への切り替えでこのバグを迂回して「直って見える」ことを避けるため、
-/// この既知の問題の修正と切り離して手書きのまま残す(Phase 3 では修正しない。報告のみ)。
+/// 導入していない。to_json/from_json が `namespace OriGine` の外(グローバル名前空間)に
+/// 定義されていて ADL 経由のシリアライズが機能しない既知のバグが以前あったが、
+/// 2026-09-22 に SmoothingEffectParam.cpp 側を修正済み(friend 宣言と同じ名前空間に移動)。
+/// 表経由への切り替えでこのバグを迂回して「直って見える」ことを避けるため、バグ修正後も
+/// 手書きの to_json/from_json のまま残している(表経由への移行自体は別スコープ)。
 /// </remarks>
 struct SmoothingEffectParam
     : public IComponent {

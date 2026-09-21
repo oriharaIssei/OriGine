@@ -21,6 +21,7 @@
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
 #include "component/effect/post/OutlineComponent.h"
+#include "component/effect/post/SmoothingEffectParam.h"
 #include "component/text/TextComponent.h"
 #include "component/text/TextStreamComponent.h"
 
@@ -225,10 +226,11 @@ void CheckRoundTrip(const std::string& _typeLabel, const nlohmann::json& _inputR
 
 /// <summary>
 /// ケース1: golden-current.json を使い、「読む→書く→一致」(1番)と「型名キー・Handle保持」(3番)を、
-/// 3Dでディスクリプタ経由に変える型(3Cで注釈を付けたpublicのみの10型のうち9型。SmoothingEffectParamは
-/// 既存バグにより対象外。本ファイル末尾のコメント、および golden-current.json の "_readme" を参照)と、
+/// 3Dでディスクリプタ経由に変える型(3Cで注釈を付けたpublicのみの10型。SmoothingEffectParamは
+/// 2026-09-22 に to_json/from_json の名前空間バグを修正するまで対象外だった。本ファイル末尾の
+/// コメント、および golden-current.json の "_readme" を参照)と、
 /// 手書きのまま残る型の代表4つ(Rigidbody/SphereCollider/CollisionPushBackInfo/DistortionEffectParam)の
-/// 計13型で確認する。
+/// 計14型で確認する。
 /// </summary>
 TestCaseResult RoundTrip_CurrentTypes() {
     TestCaseResult result;
@@ -246,8 +248,8 @@ TestCaseResult RoundTrip_CurrentTypes() {
     // なってしまうため)。テスト側で明示的に登録してから読み込む。
     CollisionCategoryManager::GetInstance()->GetOrRegisterCategory("GoldenTestCategory");
 
-    // 3Dでディスクリプタ経由に変える型(3Cで注釈を付けたpublicのみの10型のうち9型。
-    // SmoothingEffectParamは対象外。理由はこのファイル末尾のコメントを参照)
+    // 3Dでディスクリプタ経由に変える型(3Cで注釈を付けたpublicのみの10型。SmoothingEffectParamは
+    // 2026-09-22 の名前空間バグ修正まで対象外だった。理由はこのファイル末尾のコメントを参照)
     CheckRoundTrip<Transform>("Transform", golden, golden, result);
     CheckRoundTrip<Transform2d>("Transform2d", golden, golden, result);
     CheckRoundTrip<CameraTransform>("CameraTransform", golden, golden, result);
@@ -257,6 +259,7 @@ TestCaseResult RoundTrip_CurrentTypes() {
     CheckRoundTrip<OutlineComponent>("OutlineComponent", golden, golden, result);
     CheckRoundTrip<TextComponent>("TextComponent", golden, golden, result);
     CheckRoundTrip<TextStreamComponent>("TextStreamComponent", golden, golden, result);
+    CheckRoundTrip<SmoothingEffectParam>("SmoothingEffectParam", golden, golden, result);
 
     // 手書きのまま残る型の代表4つ
     CheckRoundTrip<Rigidbody>("Rigidbody", golden, golden, result);
@@ -304,12 +307,13 @@ std::vector<TestCaseEntry> MakeSerializeGoldenTestCases() {
 
 } // namespace OriGine::Test
 
-// SmoothingEffectParam を対象から外した理由(golden-current.json の "_readme" にも同じ内容を記載):
-// project/engine/code/ECS/component/effect/post/SmoothingEffectParam.cpp の to_json/from_json は
-// `namespace OriGine { ... }` の外(グローバル名前空間)に定義されている。クラス内の friend 宣言は
+// SmoothingEffectParam を当初このスイートの対象から外していた理由(修正済み。2026-09-22):
+// project/engine/code/ECS/component/effect/post/SmoothingEffectParam.cpp の to_json/from_json が
+// `namespace OriGine { ... }` の外(グローバル名前空間)に定義されていた。クラス内の friend 宣言は
 // OriGine 名前空間内で OriGine::to_json/OriGine::from_json を宣言するが、.cpp 側の定義はそれとは
 // 別のシンボル(::to_json/::from_json)になるため、ADL 経由で SmoothingEffectParam をシリアライズ
-// しようとするコード(nlohmann::json への代入や get<T>())はリンクできない(LNK2019)。
+// しようとするコード(nlohmann::json への代入や get<T>())はリンクできなかった(LNK2019)。
 // このスイートを実装するまで SmoothingEffectParam は一度もシリアライズ経路を通っていなかった
 // (登録済み9型に含まれず、他のテストもsizeofしか見ていない)ため、これまで気づかれていなかった。
-// シリアライズ本体の書き換えは3Dの範囲であり、このタスク(A-5)では修正しない(報告のみ)。
+// 修正は SmoothingEffectParam.cpp の2関数を namespace OriGine {} の中へ移すだけ(friend 宣言と
+// 実体の名前空間を一致させる)で、シリアライズ本体(表経由への移行)には手を付けていない。
