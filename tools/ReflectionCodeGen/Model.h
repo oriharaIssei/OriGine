@@ -32,6 +32,10 @@ struct FieldInfo {
     // 別の型名が偶然部分一致してしまう事故を防げないため、トークン単位で保持しておく。
     std::vector<std::string> typeTokens;
     bool noSave = false;
+    // no_save(保存しない)とは独立したビット。エディタで灰色にする条件は本来こちら側の
+    // 意味(システムが書き換える/計算し直す値かどうか)であって、保存するかどうかとは別の質問
+    // なので、パーサ段階から別フィールドとして持つ(ドロワー側でnoSaveから読み替えない)。
+    bool readOnly = false;
     int sourceLine = 0;
 };
 
@@ -68,6 +72,7 @@ struct ClassifiedField {
     // 一覧」への添字(Generatorが組む入れ子構造体専用TypeDesc表と同じ並び順。main.cppのFindNestedStructIndex参照)。
     int nestedStructIndex = -1;
     bool noSave = false;
+    bool readOnly = false;
 };
 
 struct ClassifiedType {

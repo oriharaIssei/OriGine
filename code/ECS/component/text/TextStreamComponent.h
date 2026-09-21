@@ -43,16 +43,16 @@ public:
 	bool loop            = false;  ///< 完了後に先頭から繰り返す
 	bool playing         = true;   ///< 再生中か
 
-	// --- ランタイム状態（保存しない） ---
-	ORIGINE_FIELD(no_save);
+	// --- ランタイム状態（保存しない・TextStreamSystem.cpp が全て書き込むため編集不可） ---
+	ORIGINE_FIELD(no_save, read_only);
 	float revealed     = 0.0f;          ///< これまでに表示したコードポイント数（小数）
-	ORIGINE_FIELD(no_save);
+	ORIGINE_FIELD(no_save, read_only);
 	float elapsedDelay = 0.0f;          ///< 経過した開始遅延
-	ORIGINE_FIELD(no_save);
+	ORIGINE_FIELD(no_save, read_only);
 	bool finished      = false;         ///< 末尾まで表示済みか
-	ORIGINE_FIELD(no_save);
+	ORIGINE_FIELD(no_save, read_only);
 	int lastApplied    = -1;            ///< 直近で TextComponent に設定した visibleCharCount
-	ORIGINE_FIELD(no_save);
+	ORIGINE_FIELD(no_save, read_only);
 	size_t textHash    = 0;             ///< TextComponent.text の変化検出用ハッシュ
 };
 

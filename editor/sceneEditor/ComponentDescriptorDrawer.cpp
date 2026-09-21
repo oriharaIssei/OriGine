@@ -65,7 +65,10 @@ void DrawComponentFieldsViaDescriptor(void* _obj, const TypeDesc& _desc, const s
         const FieldDesc& f = fields[_desc.fieldStart_ + i];
         void* fieldPtr           = base + f.offset_;
         const std::string label = std::string(f.name_) + "##" + _idSuffix + "_" + f.name_;
-        const bool noSave       = (f.flags_ & kFieldFlagNoSave) != 0;
+        // B: 灰色にする/しないは「保存するか」(kFieldFlagNoSave)ではなく「編集して良いか」
+        // (kFieldFlagReadOnly)で決める。両者は独立したビットなので、no_saveだが編集可能な
+        // フィールド(例: OutlineComponent::paramData)がここで初めて素通しできるようになる。
+        const bool readOnly = (f.flags_ & kFieldFlagReadOnly) != 0;
 
         const IFieldStrategy* strategy = GetFieldStrategy(f.typeTag_);
         if (!strategy) {
@@ -79,17 +82,17 @@ void DrawComponentFieldsViaDescriptor(void* _obj, const TypeDesc& _desc, const s
         // (理由表示のみ)のような「編集ウィジェットを描かない」型は、Edit()の戻り値契約
         // (描けたかどうか)に従って自分でfalseを返す(component/FieldStrategy.cpp)。
         // 呼び出し側はその戻り値だけを見るので、読み取り専用の型を1つ増やしてもここは変わらない。
-        // no_saveのときにMatrix/OpaqueもDisabledScopeで薄く表示されるようになるのは許容する
+        // read_onlyのときにMatrix/OpaqueもDisabledScopeで薄く表示されるようになるのは許容する
         // (以前は特別扱いで素通ししていたが、その分岐自体が「型を知っている」状態だった)。
         bool drewEditableWidget = false;
         {
-            DisabledScope disabledGuard(noSave);
+            DisabledScope disabledGuard(readOnly);
             drewEditableWidget = strategy->Edit(f, label, fieldPtr);
         }
 
-        if (noSave && drewEditableWidget) {
+        if (readOnly && drewEditableWidget) {
             ::ImGui::SameLine();
-            ::ImGui::TextDisabled("(保存対象外につき読み取り専用)");
+            ::ImGui::TextDisabled("(読み取り専用)");
         }
     }
 }

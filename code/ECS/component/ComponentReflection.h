@@ -17,6 +17,14 @@ namespace OriGine {
 /// <summary>FieldDesc::flags_ のビット。保存対象から外すフィールドに立てる(D4)。</summary>
 inline constexpr uint8_t kFieldFlagNoSave = 1u << 0;
 
+/// <summary>
+/// FieldDesc::flags_ のビット。エディタで編集不可(灰色表示)にするフィールドに立てる。
+/// no_save とは独立: no_save は「保存するかどうか」、read_only は「エディタで書き換えて良いか」
+/// という別の質問で、片方だけが真になる組み合わせがある(例: OutlineComponent::paramData は
+/// no_save だが read_only ではない = 保存はしないが編集はできる、入れ子の中身を反映するため)。
+/// </summary>
+inline constexpr uint8_t kFieldFlagReadOnly = 1u << 1;
+
 /// <summary>FieldDesc::enumIndex_ の無効値(Enum 以外のフィールドはこの値を持つ)。</summary>
 inline constexpr uint16_t kInvalidEnumIndex = 0xFFFFu;
 
@@ -171,10 +179,15 @@ ORIGINE_API void FromJsonViaDescriptor(const nlohmann::json& _inJson, void* _obj
 ///     (可視性に印は無く、public 全部が既定で対象。docs/plans/phase-03c-design.md 決定4/8)。
 ///
 ///   ORIGINE_FIELD(no_save);
+///   ORIGINE_FIELD(read_only);
 ///   ORIGINE_FIELD(json = "customKey");
 ///   ORIGINE_FIELD(json = "customKey", no_save);
+///   ORIGINE_FIELD(no_save, read_only);
 ///     直後の1フィールド宣言だけに効く例外指定。json= は保存キー名の上書き、no_save は
-///     保存対象から外す指定(既定は保存する・キーはメンバ名から末尾の '_' を除いた名前)。
+///     保存対象から外す指定、read_only はエディタで編集不可(灰色表示)にする指定
+///     (既定は保存する・編集できる・キーはメンバ名から末尾の '_' を除いた名前)。
+///     no_save と read_only は独立したビットで、併記できる。知らない引数は生成ツールが
+///     エラーで止める。
 ///
 ///   ORIGINE_STRUCT();
 ///     コンポーネントではない、入れ子専用の構造体に付ける印(ORIGINE_COMPONENT()の代わりに

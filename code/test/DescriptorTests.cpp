@@ -477,6 +477,124 @@ TestCaseResult NestedStrategyRoundTrip() {
     return result;
 }
 
+/// <summary>_desc から _fieldName を探し、no_save/read_only のビットが期待どおりかを見る。</summary>
+void CheckFieldFlags(const TypeDesc* _desc, const char* _typeLabel, const char* _fieldName,
+    bool _expectNoSave, bool _expectReadOnly, TestCaseResult& _result) {
+    if (!_desc) {
+        _result.passed = false;
+        _result.diagnosticLines.push_back(std::format("[FAIL] {}: TypeDesc が見つからない", _typeLabel));
+        return;
+    }
+    const FieldDesc* f = FindFieldByName(*_desc, _fieldName);
+    if (!f) {
+        _result.passed = false;
+        _result.diagnosticLines.push_back(std::format("[FAIL] {}::{} の FieldDesc が見つからない", _typeLabel, _fieldName));
+        return;
+    }
+    bool noSave   = (f->flags_ & kFieldFlagNoSave) != 0;
+    bool readOnly = (f->flags_ & kFieldFlagReadOnly) != 0;
+    bool ok       = (noSave == _expectNoSave) && (readOnly == _expectReadOnly);
+    _result.passed &= ok;
+    _result.diagnosticLines.push_back(std::format(
+        "[{}] {}::{} no_save={} (expected {}) read_only={} (expected {})",
+        ok ? "ok  " : "FAIL", _typeLabel, _fieldName, noSave, _expectNoSave, readOnly, _expectReadOnly));
+}
+
+/// <summary>
+/// ケース7: no_save と read_only の分離(B)が分類どおりに反映されていることを確認する。
+/// 期待値の根拠(どのシステムが書き込むか)は各フィールドの ORIGINE_FIELD コメントと、
+/// タスクの報告に書いた分類表を参照。ここでは反映結果だけを機械的に見る。
+///
+/// Matrix3x3/Matrix4x4 と Opaque(生ポインタ)は FieldStrategy 側で常に読み取り専用になるため、
+/// read_only フラグは立てていない(付けても実害は無いが、既に別経路で保証されているものに
+/// 冗長な注釈を重ねない、という判断)。worldMat/viewMat/projectionMat/parent がこれに当たる。
+/// </summary>
+TestCaseResult FieldFlagClassification() {
+    TestCaseResult result;
+    result.passed = true;
+
+    // no_saveのみ(read_onlyではない) = 保存しないが編集は可能。入れ子の中身を編集させるための核心。
+    CheckFieldFlags(GetTypeDescriptor(GetComponentTypeId<OutlineComponent>()), "OutlineComponent", "paramData", true, false, result);
+    CheckFieldFlags(GetTypeDescriptor(GetComponentTypeId<SmoothingEffectParam>()), "SmoothingEffectParam", "boxFilterSize_", true, false, result);
+
+    // no_save かつ read_only = システムが実行時に書き換えるランタイム状態。
+    const TypeDesc* textDesc = GetTypeDescriptor(GetComponentTypeId<TextComponent>());
+    CheckFieldFlags(textDesc, "TextComponent", "visibleCharCount", true, true, result);
+    CheckFieldFlags(textDesc, "TextComponent", "dirty", true, true, result);
+
+    const TypeDesc* streamDesc = GetTypeDescriptor(GetComponentTypeId<TextStreamComponent>());
+    CheckFieldFlags(streamDesc, "TextStreamComponent", "revealed", true, true, result);
+    CheckFieldFlags(streamDesc, "TextStreamComponent", "elapsedDelay", true, true, result);
+    CheckFieldFlags(streamDesc, "TextStreamComponent", "finished", true, true, result);
+    CheckFieldFlags(streamDesc, "TextStreamComponent", "lastApplied", true, true, result);
+    CheckFieldFlags(streamDesc, "TextStreamComponent", "textHash", true, true, result);
+
+    // no_saveのみ(read_onlyではない) = ユーザーが設定する値だが保存対象外(理由は各フィールドの
+    // コメント参照)。canUseMainCamera はどのシステムからも書き込まれていない(grep で確認済み)。
+    // viewMat/projectionMat/worldMat/parent は Matrix/Opaque ストラテジー側で読み取り専用になる
+    // ため、read_only フラグ自体は立てない。
+    const TypeDesc* cameraDesc = GetTypeDescriptor(GetComponentTypeId<CameraTransform>());
+    CheckFieldFlags(cameraDesc, "CameraTransform", "canUseMainCamera", true, false, result);
+    CheckFieldFlags(cameraDesc, "CameraTransform", "viewMat", true, false, result);
+    CheckFieldFlags(cameraDesc, "CameraTransform", "projectionMat", true, false, result);
+
+    const TypeDesc* transformDesc = GetTypeDescriptor(GetComponentTypeId<Transform>());
+    CheckFieldFlags(transformDesc, "Transform", "worldMat", true, false, result);
+    CheckFieldFlags(transformDesc, "Transform", "parent", true, false, result);
+
+    const TypeDesc* transform2dDesc = GetTypeDescriptor(GetComponentTypeId<Transform2d>());
+    CheckFieldFlags(transform2dDesc, "Transform2d", "worldMat", true, false, result);
+    CheckFieldFlags(transform2dDesc, "Transform2d", "parent", true, false, result);
+
+    return result;
+}
+
+/// <summary>
+/// ケース8: A(DLLの中でのコンポーネント登録)の検証。Transform2d/OutlineComponent が
+/// ComponentRegistry へ実際に登録され(ComponentArray を作れる状態)、名前引きの経路
+/// (ComponentRegistry::FindTypeId)とテンプレートキャッシュの経路(GetComponentTypeId&lt;T&gt;())が
+/// 同じ型IDに収束することを見る(docs/plans/phase-04.md: 関数ローカル static がモジュールごとに
+/// 別実体になる問題への確認)。
+///
+/// SmoothingEffectParam は対象外: RegisterEngineEditorComponents() が意図的に登録していない
+/// (to_json/from_jsonの名前空間バグにより、DLLの内側であってもLNK2019になるため。報告参照)。
+///
+/// 注記(スコープの限界): このテストスイート自体が OriGine.dll 側(code/test/)にリンクされて
+/// いるため、ここでの確認は「DLL 内の複数翻訳単位間で一致する」ことまでしか見られない。
+/// EXE 側(FrameWork.cpp)はこの2型について意図的に RegisterComponent&lt;T&gt;()/
+/// GetComponentTypeId&lt;T&gt;() を一切呼ばない(それ自体が LNK2019 を避ける設計)ため、
+/// EXE 側との厳密な意味でのモジュール跨ぎ確認にはならない。実際に EXE 側で
+/// RegisterComponent&lt;T&gt;() を呼び、DLL 側の生成コードで GetComponentTypeId&lt;T&gt;() を
+/// 呼ぶという組み合わせは、Transform で DescriptorPerTypeConsistency(CheckType&lt;Transform&gt;)
+/// が既にカバーしている。
+/// </summary>
+void CheckEngineEditorComponentRegistered(const char* _typeName, uint32_t _typeIdFromTemplate, bool _hasArray, TestCaseResult& _result) {
+    uint32_t typeIdFromName = ComponentRegistry::GetInstance()->FindTypeId(_typeName);
+    const TypeDesc* desc     = GetTypeDescriptor(_typeIdFromTemplate);
+
+    bool idOk   = (typeIdFromName != kInvalidComponentTypeId) && (typeIdFromName == _typeIdFromTemplate);
+    bool descOk = desc && (desc->typeId_ == _typeIdFromTemplate);
+    bool ok     = idOk && descOk && _hasArray;
+
+    _result.passed &= ok;
+    _result.diagnosticLines.push_back(std::format(
+        "[{}] {}: RegisterComponent済み={} typeId(template)={} typeId(name)={} typeId(desc)={}",
+        ok ? "ok  " : "FAIL", _typeName, _hasArray, _typeIdFromTemplate, typeIdFromName,
+        desc ? desc->typeId_ : kInvalidComponentTypeId));
+}
+
+TestCaseResult EngineEditorComponentRegistration() {
+    TestCaseResult result;
+    result.passed = true;
+
+    CheckEngineEditorComponentRegistered("Transform2d", GetComponentTypeId<Transform2d>(),
+        ComponentRegistry::GetInstance()->HasComponentArray<Transform2d>(), result);
+    CheckEngineEditorComponentRegistered("OutlineComponent", GetComponentTypeId<OutlineComponent>(),
+        ComponentRegistry::GetInstance()->HasComponentArray<OutlineComponent>(), result);
+
+    return result;
+}
+
 } // namespace
 
 std::vector<TestCaseEntry> MakeDescriptorTestCases() {
@@ -487,6 +605,8 @@ std::vector<TestCaseEntry> MakeDescriptorTestCases() {
         {"NestedStructDescriptor", NestedStructDescriptor},
         {"NestedFieldOffsetOracle", NestedFieldOffsetOracle},
         {"NestedStrategyRoundTrip", NestedStrategyRoundTrip},
+        {"FieldFlagClassification", FieldFlagClassification},
+        {"EngineEditorComponentRegistration", EngineEditorComponentRegistration},
     };
 }
 

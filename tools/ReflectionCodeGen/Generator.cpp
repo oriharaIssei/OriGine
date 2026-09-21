@@ -20,6 +20,29 @@ std::string Escape(const std::string& _s) {
     return out;
 }
 
+/// <summary>
+/// FieldDesc::flags_ に書く式を組み立てる。no_save/read_only は独立したビットなので
+/// 両方立つ場合は '|' で連結する(単一の三項演算子では両立を表せないため)。
+/// どちらも立たない場合は "0" を返す(既存の出力と同じ形を保つ)。
+/// </summary>
+std::string BuildFlagsExpr(bool _noSave, bool _readOnly) {
+    std::vector<std::string> bits;
+    if (_noSave) {
+        bits.push_back("kFieldFlagNoSave");
+    }
+    if (_readOnly) {
+        bits.push_back("kFieldFlagReadOnly");
+    }
+    if (bits.empty()) {
+        return "0";
+    }
+    std::string expr = bits[0];
+    for (size_t i = 1; i < bits.size(); ++i) {
+        expr += " | " + bits[i];
+    }
+    return expr;
+}
+
 } // namespace
 
 GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::vector<EnumInfo>& _enums) {
@@ -152,7 +175,7 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
                       // (テンプレート定義の外でtypenameを書くと構文エラーになるため付けない)。
                       << "static_cast<uint32_t>(sizeof(OriGine::FieldUnwrap<" << declType << ">::Type)), "
                       << "OriGine::kFieldTagNestedStruct, "
-                      << (f.noSave ? "kFieldFlagNoSave" : "0") << ", "
+                      << BuildFlagsExpr(f.noSave, f.readOnly) << ", "
                       << "kInvalidEnumIndex, "
                       << f.nestedStructIndex << "u },\n";
                 } else {
@@ -163,7 +186,7 @@ GeneratedFiles Generate(const std::vector<ClassifiedType>& _types, const std::ve
                       << "static_cast<uint32_t>(offsetof(OriGine::" << t.name << ", " << f.name << ")), "
                       << "static_cast<uint32_t>(sizeof(" << ownerField << ")), "
                       << "OriGine::kFieldTagOf<" << declType << ">, "
-                      << (f.noSave ? "kFieldFlagNoSave" : "0") << ", "
+                      << BuildFlagsExpr(f.noSave, f.readOnly) << ", "
                       << (f.enumIndex < 0 ? "kInvalidEnumIndex" : std::to_string(f.enumIndex))
                       << ", 0u },\n";
                 }

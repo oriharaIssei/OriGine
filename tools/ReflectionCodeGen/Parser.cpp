@@ -107,6 +107,7 @@ void CheckNoConditionalDirectives(const TokenVec& _tokens, size_t _from, size_t 
 struct PendingFieldAttr {
     std::optional<std::string> jsonKeyOverride;
     bool noSave = false;
+    bool readOnly = false;
     int sourceLine = 0;
 };
 
@@ -116,12 +117,15 @@ PendingFieldAttr ParseFieldAttrArgs(Cursor& _c) {
     attr.sourceLine = _c.Cur().line;
 
     if (_c.Is(")")) {
-        throw ParseError(_c.fileName, _c.Cur().line, "ORIGINE_FIELD() の引数が空。no_save か json=\"...\" を指定すること");
+        throw ParseError(_c.fileName, _c.Cur().line, "ORIGINE_FIELD() の引数が空。no_save / read_only か json=\"...\" を指定すること");
     }
 
     while (true) {
         if (_c.IsIdent("no_save")) {
             attr.noSave = true;
+            ++_c.pos;
+        } else if (_c.IsIdent("read_only")) {
+            attr.readOnly = true;
             ++_c.pos;
         } else if (_c.IsIdent("json")) {
             ++_c.pos;
@@ -617,7 +621,8 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
         field.typeTokens     = stmt.typeTokens;
         field.sourceLine     = stmt.sourceLine;
         if (pendingAttr) {
-            field.noSave = pendingAttr->noSave;
+            field.noSave   = pendingAttr->noSave;
+            field.readOnly = pendingAttr->readOnly;
             field.jsonKey = pendingAttr->jsonKeyOverride
                                 ? *pendingAttr->jsonKeyOverride
                                 : stmt.name;

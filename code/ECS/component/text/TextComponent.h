@@ -52,9 +52,9 @@ public:
 	float charSpacing = 0.0f;   ///< 字間（各文字の送り幅に加算するピクセル量、負値で詰める）
 	TextAlign align = TextAlign::Left;
 	int32_t renderPriority = 10;
-	ORIGINE_FIELD(no_save); // TextStreamSystem が実行時に制御するランタイム状態
+	ORIGINE_FIELD(no_save, read_only); // TextStreamSystem が書き込む(TextStreamSystem.cpp:110)
 	int32_t visibleCharCount = -1; ///< 表示するコードポイント数。-1 で全文表示（TextStreamSystem が制御）
-	ORIGINE_FIELD(no_save); // 再レイアウトが必要かを示すランタイム状態
+	ORIGINE_FIELD(no_save, read_only); // TextStreamSystem/TextLayoutSystem が書き込む(再レイアウト要求フラグ)
 	bool dirty = true;
 	bool visible = true;
 	bool showBounds = false; ///< TextBoundsRenderSystem でレイアウト枠をデバッグ描画するか

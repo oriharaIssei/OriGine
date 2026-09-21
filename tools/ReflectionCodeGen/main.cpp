@@ -152,6 +152,7 @@ bool RunGeneration(const fs::path& _codeRoot, const fs::path& _manifestPath, con
             cf.name              = f.name;
             cf.jsonKey           = f.jsonKey;
             cf.noSave            = f.noSave;
+            cf.readOnly          = f.readOnly;
             cf.enumIndex         = FindEnumIndex(f.typeSignature, allEnums);
             cf.nestedStructIndex = FindNestedStructIndex(f.typeTokens, structNames, t.headerIncludePath, f.sourceLine);
             if (cf.enumIndex >= 0 && cf.nestedStructIndex >= 0) {
