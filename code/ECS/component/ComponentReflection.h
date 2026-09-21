@@ -44,7 +44,10 @@ struct FieldDesc {
     uint8_t typeTag_; // component/FieldStrategy.h の kFieldTagOf<T> が返す値(GetFieldStrategy() への添字)
     uint8_t flags_; // kFieldFlagNoSave 等
     uint16_t enumIndex_; // typeTag_ == kFieldTagEnum のときだけ有効。EnumDesc 表への添字
-    uint32_t reserved_; // 32バイトへの詰め物。将来の属性追加用に予約(常に0)
+    // typeTag_ == kFieldTagNestedStruct(component/FieldStrategy.h)のときだけ有効。
+    // GetNestedTypeTable() への添字(入れ子の注釈付き構造体、ORIGINE_STRUCT() の TypeDesc を指す)。
+    // それ以外の型では常に0(旧 reserved_ と同じ「32バイトへの詰め物」の役割を兼ねる)。
+    uint32_t nestedTypeIndex_;
 };
 static_assert(sizeof(FieldDesc) == 32,
     "FieldDesc は32バイト1行の表として設計されている(docs/plans/phase-03c-design.md D1/D2)。"
@@ -99,6 +102,22 @@ ORIGINE_API const FieldDesc* GetFieldTable();
 
 /// <summary>共有 FieldDesc 配列の要素数を取得する。</summary>
 ORIGINE_API uint32_t GetFieldTableCount();
+
+/// <summary>
+/// 入れ子の注釈付き構造体(ORIGINE_STRUCT())専用の TypeDesc 表を登録する。コンポーネント用の
+/// 表(g_typeDescriptors、型IDを添字にした kMaxComponentTypes 要素の固定配列)とは別に持つ理由:
+/// 入れ子構造体は ComponentTypeId を持たない(コンポーネントではないため、その配列に混ぜられない)。
+/// RegisterFieldTable と同じ「生成コードが1回だけ呼ぶ、最後に登録した表を使う」流儀にしてある。
+/// </summary>
+/// <param name="_types">生成コードが持つ静的な TypeDesc 配列の先頭(並び順が FieldDesc::nestedTypeIndex_ の意味を決める)</param>
+/// <param name="_count">配列の要素数</param>
+ORIGINE_API void RegisterNestedTypeTable(const TypeDesc* _types, uint32_t _count);
+
+/// <summary>入れ子構造体専用 TypeDesc 表の先頭を取得する(未登録なら nullptr)。</summary>
+ORIGINE_API const TypeDesc* GetNestedTypeTable();
+
+/// <summary>入れ子構造体専用 TypeDesc 表の要素数を取得する。</summary>
+ORIGINE_API uint32_t GetNestedTypeTableCount();
 
 /// <summary>
 /// この型のシリアライズ(ComponentArray の Save/Load 系)をディスクリプタ表経由にするかどうかの
@@ -156,6 +175,15 @@ ORIGINE_API void FromJsonViaDescriptor(const nlohmann::json& _inJson, void* _obj
 ///   ORIGINE_FIELD(json = "customKey", no_save);
 ///     直後の1フィールド宣言だけに効く例外指定。json= は保存キー名の上書き、no_save は
 ///     保存対象から外す指定(既定は保存する・キーはメンバ名から末尾の '_' を除いた名前)。
+///
+///   ORIGINE_STRUCT();
+///     コンポーネントではない、入れ子専用の構造体に付ける印(ORIGINE_COMPONENT()の代わりに
+///     1つだけ付ける。両方付けるとエラーで止まる)。この構造体を指すフィールドが
+///     コンポーネント側にあると、生成ツールはフィールドの型トークンにこの構造体の名前が
+///     含まれることを見て「入れ子フィールド」として扱い、実行時に FieldStrategy.h の
+///     NestedStructTag ストラテジー経由でこの構造体自身の TypeDesc を再帰的にたどって
+///     Save/Load/Edit する(スイッチ文を増やさずに済ませるため)。
 /// ==========================================================================
 #define ORIGINE_COMPONENT()
+#define ORIGINE_STRUCT()
 #define ORIGINE_FIELD(...)

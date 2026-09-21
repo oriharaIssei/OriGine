@@ -155,6 +155,7 @@ struct StatementResult {
     bool isField = false;
     std::string name;
     std::string typeSignature;
+    std::vector<std::string> typeTokens;
     int sourceLine = 0;
 };
 
@@ -169,6 +170,16 @@ std::string JoinTokens(const TokenVec& _tokens, size_t _from, size_t _to) {
         s += _tokens[i].text;
     }
     return s;
+}
+
+/// <summary>[_from, _to) の個々のトークンのテキストを、連結せずそのまま並べて返す。</summary>
+std::vector<std::string> TokenTexts(const TokenVec& _tokens, size_t _from, size_t _to) {
+    std::vector<std::string> out;
+    out.reserve(_to - _from);
+    for (size_t i = _from; i < _to; ++i) {
+        out.push_back(_tokens[i].text);
+    }
+    return out;
 }
 
 /// <summary>
@@ -315,6 +326,7 @@ StatementResult ScanMemberStatement(Cursor& _c) {
     r.isField       = true;
     r.name           = name;
     r.typeSignature  = JoinTokens(tokens, typeFrom, typeTo);
+    r.typeTokens     = TokenTexts(tokens, typeFrom, typeTo);
     r.sourceLine     = startLine;
     return r;
 }
@@ -440,7 +452,15 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
     size_t bodyOpen  = _c.pos;
     size_t bodyClose = FindMatchingBrace(tokens, bodyOpen, _c.fileName);
 
-    bool annotated = ContainsIdentifier(tokens, bodyOpen, bodyClose, "ORIGINE_COMPONENT");
+    bool hasComponentAnnotation = ContainsIdentifier(tokens, bodyOpen, bodyClose, "ORIGINE_COMPONENT");
+    bool hasStructAnnotation    = ContainsIdentifier(tokens, bodyOpen, bodyClose, "ORIGINE_STRUCT");
+
+    if (hasComponentAnnotation && hasStructAnnotation) {
+        throw ParseError(_c.fileName, tokens[bodyOpen].line,
+            "型 '" + className + "' に ORIGINE_COMPONENT() と ORIGINE_STRUCT() の両方が付いている"
+            "(コンポーネントであると同時に入れ子専用の構造体、という状態は無い)");
+    }
+    bool annotated = hasComponentAnnotation || hasStructAnnotation;
 
     if (!annotated) {
         // 反映対象外の型。中身は一切解釈せず、対応する '}' の次まで読み飛ばすだけにする。
@@ -459,6 +479,7 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
     TypeInfo typeInfo;
     typeInfo.name               = className;
     typeInfo.headerIncludePath = _headerIncludePath;
+    typeInfo.isComponent        = hasComponentAnnotation;
 
     bool currentAccessIsPublic = isStructKeyword; // struct既定はpublic、classは既定private
     std::optional<PendingFieldAttr> pendingAttr;
@@ -547,6 +568,17 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
             continue;
         }
 
+        if (t.kind == TokenKind::Identifier && t.text == "ORIGINE_STRUCT") {
+            if (pendingAttr) {
+                throw ParseError(_c.fileName, t.line, "ORIGINE_FIELD の直後が ORIGINE_STRUCT() だった");
+            }
+            ++_c.pos;
+            _c.Expect("(");
+            _c.Expect(")");
+            _c.Expect(";");
+            continue;
+        }
+
         if (t.kind == TokenKind::Identifier && t.text == "ORIGINE_FIELD") {
             if (pendingAttr) {
                 throw ParseError(_c.fileName, t.line, "ORIGINE_FIELD が連続している(1フィールドにつき1回まで)");
@@ -582,6 +614,7 @@ void ParseClassOrStruct(Cursor& _c, const std::string& _headerIncludePath, FileP
         FieldInfo field;
         field.name          = stmt.name;
         field.typeSignature  = stmt.typeSignature;
+        field.typeTokens     = stmt.typeTokens;
         field.sourceLine     = stmt.sourceLine;
         if (pendingAttr) {
             field.noSave = pendingAttr->noSave;
@@ -665,7 +698,8 @@ FileParseResult ParseFile(const std::string& _src, const std::string& _fileName,
             SkipToSemicolon(c);
             continue;
         }
-        if (t.kind == TokenKind::Identifier && (t.text == "ORIGINE_COMPONENT" || t.text == "ORIGINE_FIELD")) {
+        if (t.kind == TokenKind::Identifier
+            && (t.text == "ORIGINE_COMPONENT" || t.text == "ORIGINE_STRUCT" || t.text == "ORIGINE_FIELD")) {
             throw ParseError(_fileName, t.line, t.text + " が型定義の外で使われている");
         }
 

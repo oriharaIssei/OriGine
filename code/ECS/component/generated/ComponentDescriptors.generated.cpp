@@ -7,6 +7,7 @@
 #include "component/ComponentReflection.h"
 #include "component/ComponentRegistry.h"
 #include "component/FieldStrategy.h"
+#include "util/FieldUnwrap.h"
 
 #include "component/transform/Transform.h"
 #include "component/transform/Transform2d.h"
@@ -21,6 +22,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 namespace OriGine {
 namespace {
@@ -30,7 +32,8 @@ const EnumDesc kEnums[] = {
     { "TextAlign", static_cast<uint32_t>(sizeof(uint8_t)) },
 };
 
-// フィールドテーブル(D2)。型ごとの範囲は下の kTypes の fieldStart_/fieldCount_ が指す。
+// フィールドテーブル(D2)。型ごとの範囲は下の g_componentTypes/g_structTypes の
+// fieldStart_/fieldCount_ が指す。
 const FieldDesc kFields[] = {
     // Transform
     { "scale", "scale", static_cast<uint32_t>(offsetof(OriGine::Transform, scale)), static_cast<uint32_t>(sizeof(OriGine::Transform::scale)), OriGine::kFieldTagOf<decltype(OriGine::Transform::scale)>, 0, kInvalidEnumIndex, 0u },
@@ -81,13 +84,18 @@ const FieldDesc kFields[] = {
     { "cosFalloffStart", "cosFalloffStart", static_cast<uint32_t>(offsetof(OriGine::SpotLight, cosFalloffStart)), static_cast<uint32_t>(sizeof(OriGine::SpotLight::cosFalloffStart)), OriGine::kFieldTagOf<decltype(OriGine::SpotLight::cosFalloffStart)>, 0, kInvalidEnumIndex, 0u },
     { "angularRadius", "angularRadius", static_cast<uint32_t>(offsetof(OriGine::SpotLight, angularRadius)), static_cast<uint32_t>(sizeof(OriGine::SpotLight::angularRadius)), OriGine::kFieldTagOf<decltype(OriGine::SpotLight::angularRadius)>, 0, kInvalidEnumIndex, 0u },
     { "targetTransformIndex", "targetTransformIndex", static_cast<uint32_t>(offsetof(OriGine::SpotLight, targetTransformIndex)), static_cast<uint32_t>(sizeof(OriGine::SpotLight::targetTransformIndex)), OriGine::kFieldTagOf<decltype(OriGine::SpotLight::targetTransformIndex)>, 0, kInvalidEnumIndex, 0u },
+    // OutlineParamData (入れ子構造体)
+    { "outlineWidth", "outlineWidth", static_cast<uint32_t>(offsetof(OriGine::OutlineParamData, outlineWidth)), static_cast<uint32_t>(sizeof(OriGine::OutlineParamData::outlineWidth)), OriGine::kFieldTagOf<decltype(OriGine::OutlineParamData::outlineWidth)>, 0, kInvalidEnumIndex, 0u },
+    { "outlineColor", "outlineColor", static_cast<uint32_t>(offsetof(OriGine::OutlineParamData, outlineColor)), static_cast<uint32_t>(sizeof(OriGine::OutlineParamData::outlineColor)), OriGine::kFieldTagOf<decltype(OriGine::OutlineParamData::outlineColor)>, 0, kInvalidEnumIndex, 0u },
     // OutlineComponent
     { "isActive", "isActive", static_cast<uint32_t>(offsetof(OriGine::OutlineComponent, isActive)), static_cast<uint32_t>(sizeof(OriGine::OutlineComponent::isActive)), OriGine::kFieldTagOf<decltype(OriGine::OutlineComponent::isActive)>, 0, kInvalidEnumIndex, 0u },
     { "usingMaterialHandle", "usingMaterialHandle", static_cast<uint32_t>(offsetof(OriGine::OutlineComponent, usingMaterialHandle)), static_cast<uint32_t>(sizeof(OriGine::OutlineComponent::usingMaterialHandle)), OriGine::kFieldTagOf<decltype(OriGine::OutlineComponent::usingMaterialHandle)>, 0, kInvalidEnumIndex, 0u },
-    { "paramData", "paramData", static_cast<uint32_t>(offsetof(OriGine::OutlineComponent, paramData)), static_cast<uint32_t>(sizeof(OriGine::OutlineComponent::paramData)), OriGine::kFieldTagOf<decltype(OriGine::OutlineComponent::paramData)>, kFieldFlagNoSave, kInvalidEnumIndex, 0u },
+    { "paramData", "paramData", static_cast<uint32_t>(offsetof(OriGine::OutlineComponent, paramData) + OriGine::FieldUnwrap<decltype(OriGine::OutlineComponent::paramData)>::kOffset), static_cast<uint32_t>(sizeof(OriGine::FieldUnwrap<decltype(OriGine::OutlineComponent::paramData)>::Type)), OriGine::kFieldTagNestedStruct, kFieldFlagNoSave, kInvalidEnumIndex, 0u },
+    // BoxFilterSize (入れ子構造体)
+    { "size", "size", static_cast<uint32_t>(offsetof(OriGine::BoxFilterSize, size)), static_cast<uint32_t>(sizeof(OriGine::BoxFilterSize::size)), OriGine::kFieldTagOf<decltype(OriGine::BoxFilterSize::size)>, 0, kInvalidEnumIndex, 0u },
     // SmoothingEffectParam
     { "isActive_", "isActive", static_cast<uint32_t>(offsetof(OriGine::SmoothingEffectParam, isActive_)), static_cast<uint32_t>(sizeof(OriGine::SmoothingEffectParam::isActive_)), OriGine::kFieldTagOf<decltype(OriGine::SmoothingEffectParam::isActive_)>, 0, kInvalidEnumIndex, 0u },
-    { "boxFilterSize_", "boxFilterSize", static_cast<uint32_t>(offsetof(OriGine::SmoothingEffectParam, boxFilterSize_)), static_cast<uint32_t>(sizeof(OriGine::SmoothingEffectParam::boxFilterSize_)), OriGine::kFieldTagOf<decltype(OriGine::SmoothingEffectParam::boxFilterSize_)>, kFieldFlagNoSave, kInvalidEnumIndex, 0u },
+    { "boxFilterSize_", "boxFilterSize", static_cast<uint32_t>(offsetof(OriGine::SmoothingEffectParam, boxFilterSize_) + OriGine::FieldUnwrap<decltype(OriGine::SmoothingEffectParam::boxFilterSize_)>::kOffset), static_cast<uint32_t>(sizeof(OriGine::FieldUnwrap<decltype(OriGine::SmoothingEffectParam::boxFilterSize_)>::Type)), OriGine::kFieldTagNestedStruct, kFieldFlagNoSave, kInvalidEnumIndex, 1u },
     // TextComponent
     { "text", "text", static_cast<uint32_t>(offsetof(OriGine::TextComponent, text)), static_cast<uint32_t>(sizeof(OriGine::TextComponent::text)), OriGine::kFieldTagOf<decltype(OriGine::TextComponent::text)>, 0, kInvalidEnumIndex, 0u },
     { "position", "position", static_cast<uint32_t>(offsetof(OriGine::TextComponent, position)), static_cast<uint32_t>(sizeof(OriGine::TextComponent::position)), OriGine::kFieldTagOf<decltype(OriGine::TextComponent::position)>, 0, kInvalidEnumIndex, 0u },
@@ -168,9 +176,12 @@ static_assert(offsetof(OriGine::SpotLight, cosAngle) == offsetof(OriGine::SpotLi
 static_assert(offsetof(OriGine::SpotLight, cosFalloffStart) == offsetof(OriGine::SpotLight, cosFalloffStart), "SpotLight::cosFalloffStart offset self-check");
 static_assert(offsetof(OriGine::SpotLight, angularRadius) == offsetof(OriGine::SpotLight, angularRadius), "SpotLight::angularRadius offset self-check");
 static_assert(offsetof(OriGine::SpotLight, targetTransformIndex) == offsetof(OriGine::SpotLight, targetTransformIndex), "SpotLight::targetTransformIndex offset self-check");
+static_assert(offsetof(OriGine::OutlineParamData, outlineWidth) == offsetof(OriGine::OutlineParamData, outlineWidth), "OutlineParamData::outlineWidth offset self-check");
+static_assert(offsetof(OriGine::OutlineParamData, outlineColor) == offsetof(OriGine::OutlineParamData, outlineColor), "OutlineParamData::outlineColor offset self-check");
 static_assert(offsetof(OriGine::OutlineComponent, isActive) == offsetof(OriGine::OutlineComponent, isActive), "OutlineComponent::isActive offset self-check");
 static_assert(offsetof(OriGine::OutlineComponent, usingMaterialHandle) == offsetof(OriGine::OutlineComponent, usingMaterialHandle), "OutlineComponent::usingMaterialHandle offset self-check");
 static_assert(offsetof(OriGine::OutlineComponent, paramData) == offsetof(OriGine::OutlineComponent, paramData), "OutlineComponent::paramData offset self-check");
+static_assert(offsetof(OriGine::BoxFilterSize, size) == offsetof(OriGine::BoxFilterSize, size), "BoxFilterSize::size offset self-check");
 static_assert(offsetof(OriGine::SmoothingEffectParam, isActive_) == offsetof(OriGine::SmoothingEffectParam, isActive_), "SmoothingEffectParam::isActive_ offset self-check");
 static_assert(offsetof(OriGine::SmoothingEffectParam, boxFilterSize_) == offsetof(OriGine::SmoothingEffectParam, boxFilterSize_), "SmoothingEffectParam::boxFilterSize_ offset self-check");
 static_assert(offsetof(OriGine::TextComponent, text) == offsetof(OriGine::TextComponent, text), "TextComponent::text offset self-check");
@@ -203,49 +214,64 @@ static_assert(sizeof(OriGine::CameraTransform) == sizeof(OriGine::CameraTransfor
 static_assert(sizeof(OriGine::DirectionalLight) == sizeof(OriGine::DirectionalLight), "DirectionalLight size self-check");
 static_assert(sizeof(OriGine::PointLight) == sizeof(OriGine::PointLight), "PointLight size self-check");
 static_assert(sizeof(OriGine::SpotLight) == sizeof(OriGine::SpotLight), "SpotLight size self-check");
+static_assert(sizeof(OriGine::OutlineParamData) == sizeof(OriGine::OutlineParamData), "OutlineParamData size self-check");
 static_assert(sizeof(OriGine::OutlineComponent) == sizeof(OriGine::OutlineComponent), "OutlineComponent size self-check");
+static_assert(sizeof(OriGine::BoxFilterSize) == sizeof(OriGine::BoxFilterSize), "BoxFilterSize size self-check");
 static_assert(sizeof(OriGine::SmoothingEffectParam) == sizeof(OriGine::SmoothingEffectParam), "SmoothingEffectParam size self-check");
 static_assert(sizeof(OriGine::TextComponent) == sizeof(OriGine::TextComponent), "TextComponent size self-check");
 static_assert(sizeof(OriGine::TextStreamComponent) == sizeof(OriGine::TextStreamComponent), "TextStreamComponent size self-check");
 
-// 型テーブル(D2)。typeId_ は起動時に RegisterGeneratedComponentDescriptors() が埋める。
-TypeDesc g_types[] = {
+// 入れ子フィールドの型整合性チェック(トークン一致 vs 実際のFieldUnwrap<...>::Type)。
+static_assert(std::is_same_v<OriGine::FieldUnwrap<decltype(OriGine::OutlineComponent::paramData)>::Type, OriGine::OutlineParamData>, "OutlineComponent::paramData は入れ子構造体として判定されたが、実際の中身の型が一致しない");
+static_assert(std::is_same_v<OriGine::FieldUnwrap<decltype(OriGine::SmoothingEffectParam::boxFilterSize_)>::Type, OriGine::BoxFilterSize>, "SmoothingEffectParam::boxFilterSize_ は入れ子構造体として判定されたが、実際の中身の型が一致しない");
+
+// コンポーネント用の TypeDesc 表(型IDを添字にしたコンポーネント表へ登録する対象)。
+TypeDesc g_componentTypes[] = {
     { "Transform", 0u, 5u, static_cast<uint32_t>(sizeof(OriGine::Transform)), kInvalidComponentTypeId },
     { "Transform2d", 5u, 5u, static_cast<uint32_t>(sizeof(OriGine::Transform2d)), kInvalidComponentTypeId },
     { "CameraTransform", 10u, 9u, static_cast<uint32_t>(sizeof(OriGine::CameraTransform)), kInvalidComponentTypeId },
     { "DirectionalLight", 19u, 5u, static_cast<uint32_t>(sizeof(OriGine::DirectionalLight)), kInvalidComponentTypeId },
     { "PointLight", 24u, 8u, static_cast<uint32_t>(sizeof(OriGine::PointLight)), kInvalidComponentTypeId },
     { "SpotLight", 32u, 11u, static_cast<uint32_t>(sizeof(OriGine::SpotLight)), kInvalidComponentTypeId },
-    { "OutlineComponent", 43u, 3u, static_cast<uint32_t>(sizeof(OriGine::OutlineComponent)), kInvalidComponentTypeId },
-    { "SmoothingEffectParam", 46u, 2u, static_cast<uint32_t>(sizeof(OriGine::SmoothingEffectParam)), kInvalidComponentTypeId },
-    { "TextComponent", 48u, 14u, static_cast<uint32_t>(sizeof(OriGine::TextComponent)), kInvalidComponentTypeId },
-    { "TextStreamComponent", 62u, 9u, static_cast<uint32_t>(sizeof(OriGine::TextStreamComponent)), kInvalidComponentTypeId },
+    { "OutlineComponent", 45u, 3u, static_cast<uint32_t>(sizeof(OriGine::OutlineComponent)), kInvalidComponentTypeId },
+    { "SmoothingEffectParam", 49u, 2u, static_cast<uint32_t>(sizeof(OriGine::SmoothingEffectParam)), kInvalidComponentTypeId },
+    { "TextComponent", 51u, 14u, static_cast<uint32_t>(sizeof(OriGine::TextComponent)), kInvalidComponentTypeId },
+    { "TextStreamComponent", 65u, 9u, static_cast<uint32_t>(sizeof(OriGine::TextStreamComponent)), kInvalidComponentTypeId },
+};
+
+// 入れ子構造体(ORIGINE_STRUCT())専用の TypeDesc 表。typeId_は常にkInvalidComponentTypeId
+// (コンポーネントではないため型IDを持たない)。ここでの並び順が
+// FieldDesc::nestedTypeIndex_(GetNestedTypeTable()への添字)の意味を決める。
+const TypeDesc g_structTypes[] = {
+    { "OutlineParamData", 43u, 2u, static_cast<uint32_t>(sizeof(OriGine::OutlineParamData)), kInvalidComponentTypeId },
+    { "BoxFilterSize", 48u, 1u, static_cast<uint32_t>(sizeof(OriGine::BoxFilterSize)), kInvalidComponentTypeId },
 };
 
 } // namespace
 
 void RegisterGeneratedComponentDescriptors() {
     RegisterFieldTable(kFields, static_cast<uint32_t>(sizeof(kFields) / sizeof(kFields[0])));
-    g_types[0].typeId_ = GetComponentTypeId<OriGine::Transform>();
-    RegisterTypeDescriptor(g_types[0].typeId_, &g_types[0]);
-    g_types[1].typeId_ = GetComponentTypeId<OriGine::Transform2d>();
-    RegisterTypeDescriptor(g_types[1].typeId_, &g_types[1]);
-    g_types[2].typeId_ = GetComponentTypeId<OriGine::CameraTransform>();
-    RegisterTypeDescriptor(g_types[2].typeId_, &g_types[2]);
-    g_types[3].typeId_ = GetComponentTypeId<OriGine::DirectionalLight>();
-    RegisterTypeDescriptor(g_types[3].typeId_, &g_types[3]);
-    g_types[4].typeId_ = GetComponentTypeId<OriGine::PointLight>();
-    RegisterTypeDescriptor(g_types[4].typeId_, &g_types[4]);
-    g_types[5].typeId_ = GetComponentTypeId<OriGine::SpotLight>();
-    RegisterTypeDescriptor(g_types[5].typeId_, &g_types[5]);
-    g_types[6].typeId_ = GetComponentTypeId<OriGine::OutlineComponent>();
-    RegisterTypeDescriptor(g_types[6].typeId_, &g_types[6]);
-    g_types[7].typeId_ = GetComponentTypeId<OriGine::SmoothingEffectParam>();
-    RegisterTypeDescriptor(g_types[7].typeId_, &g_types[7]);
-    g_types[8].typeId_ = GetComponentTypeId<OriGine::TextComponent>();
-    RegisterTypeDescriptor(g_types[8].typeId_, &g_types[8]);
-    g_types[9].typeId_ = GetComponentTypeId<OriGine::TextStreamComponent>();
-    RegisterTypeDescriptor(g_types[9].typeId_, &g_types[9]);
+    RegisterNestedTypeTable(g_structTypes, 2u);
+    g_componentTypes[0].typeId_ = GetComponentTypeId<OriGine::Transform>();
+    RegisterTypeDescriptor(g_componentTypes[0].typeId_, &g_componentTypes[0]);
+    g_componentTypes[1].typeId_ = GetComponentTypeId<OriGine::Transform2d>();
+    RegisterTypeDescriptor(g_componentTypes[1].typeId_, &g_componentTypes[1]);
+    g_componentTypes[2].typeId_ = GetComponentTypeId<OriGine::CameraTransform>();
+    RegisterTypeDescriptor(g_componentTypes[2].typeId_, &g_componentTypes[2]);
+    g_componentTypes[3].typeId_ = GetComponentTypeId<OriGine::DirectionalLight>();
+    RegisterTypeDescriptor(g_componentTypes[3].typeId_, &g_componentTypes[3]);
+    g_componentTypes[4].typeId_ = GetComponentTypeId<OriGine::PointLight>();
+    RegisterTypeDescriptor(g_componentTypes[4].typeId_, &g_componentTypes[4]);
+    g_componentTypes[5].typeId_ = GetComponentTypeId<OriGine::SpotLight>();
+    RegisterTypeDescriptor(g_componentTypes[5].typeId_, &g_componentTypes[5]);
+    g_componentTypes[6].typeId_ = GetComponentTypeId<OriGine::OutlineComponent>();
+    RegisterTypeDescriptor(g_componentTypes[6].typeId_, &g_componentTypes[6]);
+    g_componentTypes[7].typeId_ = GetComponentTypeId<OriGine::SmoothingEffectParam>();
+    RegisterTypeDescriptor(g_componentTypes[7].typeId_, &g_componentTypes[7]);
+    g_componentTypes[8].typeId_ = GetComponentTypeId<OriGine::TextComponent>();
+    RegisterTypeDescriptor(g_componentTypes[8].typeId_, &g_componentTypes[8]);
+    g_componentTypes[9].typeId_ = GetComponentTypeId<OriGine::TextStreamComponent>();
+    RegisterTypeDescriptor(g_componentTypes[9].typeId_, &g_componentTypes[9]);
 }
 
 } // namespace OriGine

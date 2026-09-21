@@ -15,6 +15,8 @@ namespace OriGine {
 /// アウトラインエフェクト用パラメータデータ
 /// </summary>
 struct OutlineParamData {
+    ORIGINE_STRUCT();
+
     float outlineWidth = 0.3f; // アウトラインの太さ
     Vec4f outlineColor = kWhite; // アウトラインの色
 

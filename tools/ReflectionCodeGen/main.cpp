@@ -114,7 +114,7 @@ bool RunGeneration(const fs::path& _codeRoot, const fs::path& _manifestPath, con
 
         FileParseResult r = ParseFile(src, headerPath.string(), includePath);
         if (r.types.empty()) {
-            throw std::runtime_error(headerPath.string() + ": ORIGINE_COMPONENT() が付いた型が見つからない(manifest に載せる意味が無い)");
+            throw std::runtime_error(headerPath.string() + ": ORIGINE_COMPONENT()/ORIGINE_STRUCT() が付いた型が見つからない(manifest に載せる意味が無い)");
         }
         for (auto& t : r.types) {
             allTypes.push_back(std::move(t));
@@ -128,20 +128,39 @@ bool RunGeneration(const fs::path& _codeRoot, const fs::path& _manifestPath, con
         }
     }
 
-    // 分類(enum registry が全ファイル分揃ってから行う)
+    // 入れ子構造体(ORIGINE_STRUCT())の名前一覧。発見順(=ファイルをmanifest順に読み、
+    // 各ファイル内は上から)で並べる。この並び順が、Generatorが組む入れ子構造体専用の
+    // TypeDesc表の並び順、ひいてはFieldDesc::nestedTypeIndex_の意味そのものになる。
+    std::vector<std::string> structNames;
+    for (const auto& t : allTypes) {
+        if (!t.isComponent) {
+            structNames.push_back(t.name);
+        }
+    }
+
+    // 分類(enum registry / structNames が全ファイル分揃ってから行う)
     std::vector<ClassifiedType> classified;
     classified.reserve(allTypes.size());
     for (const auto& t : allTypes) {
         ClassifiedType ct;
         ct.name               = t.name;
         ct.headerIncludePath = t.headerIncludePath;
+        ct.isComponent        = t.isComponent;
         ct.fields.reserve(t.fields.size());
         for (const auto& f : t.fields) {
             ClassifiedField cf;
-            cf.name      = f.name;
-            cf.jsonKey   = f.jsonKey;
-            cf.noSave    = f.noSave;
-            cf.enumIndex = FindEnumIndex(f.typeSignature, allEnums);
+            cf.name              = f.name;
+            cf.jsonKey           = f.jsonKey;
+            cf.noSave            = f.noSave;
+            cf.enumIndex         = FindEnumIndex(f.typeSignature, allEnums);
+            cf.nestedStructIndex = FindNestedStructIndex(f.typeTokens, structNames, t.headerIncludePath, f.sourceLine);
+            if (cf.enumIndex >= 0 && cf.nestedStructIndex >= 0) {
+                // enum名一致(完全一致)と構造体名一致(トークン一致)が同じフィールドで
+                // 両方成立することは対象型では起こらない想定。起きたら「なんとなくどちらかを
+                // 採用する」のではなく、想定外の入力として止める。
+                throw std::runtime_error(t.headerIncludePath + ": フィールド '" + f.name +
+                    "' が enum 判定と入れ子構造体判定の両方に一致した(想定外の型名の衝突)");
+            }
             ct.fields.push_back(cf);
         }
         classified.push_back(ct);

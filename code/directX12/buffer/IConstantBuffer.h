@@ -11,6 +11,7 @@
 #include "directX12/DxResource.h"
 
 /// util
+#include "util/FieldUnwrap.h"
 #include <logger/Logger.h>
 
 namespace OriGine {
@@ -123,5 +124,18 @@ template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const {
     _cmdList->SetComputeRootConstantBufferView(_rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
+
+/// <summary>
+/// IConstantBuffer&lt;X&gt; の実データは openData_(型 X)にある。GPU用の mappingData_/buff_ は
+/// CPU側のオープンデータの写像先でしかなく、型ディスクリプタが表現すべき対象ではない。
+/// この特殊化により、フィールドが IConstantBuffer&lt;X&gt; で宣言されていても、生成ツールは
+/// 「IConstantBuffer」という名前を一切知らないまま、offsetof(Owner, field) + kOffset で
+/// 実データ(X)の先頭を指せる(util/FieldUnwrap.h のコメント参照)。
+/// </summary>
+template <typename X>
+struct FieldUnwrap<IConstantBuffer<X>> {
+    using Type                      = X;
+    static constexpr size_t kOffset = offsetof(IConstantBuffer<X>, openData_);
+};
 
 } // namespace OriGine

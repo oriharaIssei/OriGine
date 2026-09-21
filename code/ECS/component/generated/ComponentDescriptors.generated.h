@@ -15,9 +15,9 @@ namespace OriGine {
 
 /// <summary>
 /// targets.txt に列挙された型の TypeDesc/FieldDesc を、ComponentReflection.h の
-/// 64要素の型IDテーブルへ登録する。FrameWork.cpp の RegisterUsingComponents() から
-/// 明示的に呼ぶこと(Q16: 静的初期化子による自己登録は静的ライブラリで
-/// リンカに捨てられるため使わない)。
+/// 64要素の型IDテーブル(コンポーネント)、および入れ子構造体専用テーブルへ登録する。
+/// FrameWork.cpp の RegisterUsingComponents() から明示的に呼ぶこと(Q16: 静的初期化子に
+/// よる自己登録は静的ライブラリでリンカに捨てられるため使わない)。
 /// </summary>
 ORIGINE_API void RegisterGeneratedComponentDescriptors();
 

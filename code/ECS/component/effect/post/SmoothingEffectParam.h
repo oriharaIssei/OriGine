@@ -15,6 +15,8 @@ namespace OriGine {
 /// Smoothing に 使用する BoxFilter のサイズ
 /// </summary>
 struct BoxFilterSize {
+    ORIGINE_STRUCT();
+
     Vec2f size = Vec2f();
 
 public:

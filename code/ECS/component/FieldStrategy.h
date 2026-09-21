@@ -41,6 +41,18 @@ template <typename U>
 struct EnumAs {};
 
 /// <summary>
+/// 「このフィールドは入れ子の注釈付き構造体(ORIGINE_STRUCT())を指している」という指定だけを
+/// 表す印。EnumAs&lt;U&gt;と同じ役割で、実際のC++型(例: IConstantBuffer&lt;OutlineParamData&gt;)を
+/// このリストに書けないのは、入れ子構造体が何十種類あっても同じ1つのタグ値(kFieldTagNestedStruct)
+/// で表せ、個々の区別は FieldDesc::nestedTypeIndex_(GetNestedTypeTable()への添字)が担うため。
+/// 生成ツール(ReflectionCodeGen)はフィールドがこのタグに該当するかを decltype では判定しない
+/// (=このタグは kFieldTagOf&lt;decltype(...)&gt; の結果として出てこない)。フィールドの型トークンに
+/// 登録済みの構造体名が含まれるかという、生成ツール側の文字列照合で決め、生成物には
+/// `OriGine::kFieldTagNestedStruct` を直接書く(component/FieldStrategy.h 参照)。
+/// </summary>
+struct NestedStructTag {};
+
+/// <summary>
 /// 表経由で Save/Load/Edit できる具体型の一覧(旧 FieldTypeTag switch を置き換えるストラテジー
 /// パターンの唯一の型定義場所)。このリストの並び順がそのままタグの値になるため、
 /// 型とタグの対応をここ以外に書かない(FieldTypeTag のような enum との二重管理をしない)。
@@ -57,7 +69,8 @@ using FieldTypeList = TypeList<
     bool, int32_t, uint32_t, uint64_t, float,
     Vec2f, Vec3f, Vec4f, Quaternion, Matrix3x3, Matrix4x4, std::string,
     std::vector<float>, std::vector<int32_t>, std::vector<Vec2f>, std::vector<Vec3f>, std::vector<Vec4f>,
-    EnumAs<uint8_t>, EnumAs<uint16_t>, EnumAs<uint32_t>, EnumAs<uint64_t>>;
+    EnumAs<uint8_t>, EnumAs<uint16_t>, EnumAs<uint32_t>, EnumAs<uint64_t>,
+    NestedStructTag>;
 
 namespace FieldTypeListDetail {
 
@@ -128,6 +141,14 @@ constexpr uint8_t ComputeFieldTag() {
 /// </summary>
 template <typename T>
 inline constexpr uint8_t kFieldTagOf = FieldTypeListDetail::ComputeFieldTag<T>();
+
+/// <summary>
+/// 入れ子の注釈付き構造体(ORIGINE_STRUCT())用のタグ値。kFieldTagOf&lt;NestedStructTag&gt;と
+/// 同じ値だが、生成ツールはこの名前で直接参照する(NestedStructTagという印の型そのものを
+/// 生成物に書く必要をなくすため。EnumAsの各特殊化と違い、フィールドの実際のC++型が
+/// NestedStructTagになることは無い=kFieldTagOfの通常の推論経路には乗らないタグのため)。
+/// </summary>
+inline constexpr uint8_t kFieldTagNestedStruct = kFieldTagOf<NestedStructTag>;
 
 /// <summary>
 /// フィールド1個分の Save/Load/Edit をまとめたインターフェース(旧 FieldTypeTag switch の

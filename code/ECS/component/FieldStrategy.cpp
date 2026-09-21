@@ -15,6 +15,14 @@
 /// Transform.cpp 等、editor/ 以外の.cppからも同じ形でeditor専用ヘッダを取り込む前例がある
 /// (ORIGINE_EDITOR_ENABLEDがDebug/Develop/Releaseの全プロジェクトで揃っているため安全)。
 #include "myGui/MyGui.h"
+
+/// 入れ子構造体(NestedStructTag)のEditは「もう1段中身を描く」だけなので、既存の汎用ドロワー
+/// (DrawComponentFieldsViaDescriptor)をそのまま再帰的に呼ぶ。ECS/component から
+/// editor/sceneEditor のヘッダへ依存する向きは通常と逆(層としては editor 側が ECS に依存する
+/// のが自然)だが、ここは「ループを書き直さず再利用する」ことを優先した割り切りで、
+/// 呼び出しは常に相互再帰(外側→ここ→DrawComponentFieldsViaDescriptor→(入れ子があれば)ここ…)
+/// になる。ORIGINE_EDITOR_ENABLED で両者とも丸ごと消えるため、非エディタ構成には影響しない。
+#include "editor/sceneEditor/ComponentDescriptorDrawer.h"
 #endif
 
 namespace OriGine {
@@ -458,6 +466,97 @@ public:
 };
 
 // ============================================================================
+// NestedStructTag(入れ子の注釈付き構造体、ORIGINE_STRUCT() を指すフィールド用)
+// ============================================================================
+
+namespace {
+
+/// <summary>
+/// _field.nestedTypeIndex_ から入れ子の TypeDesc を引く。添字が範囲外/未登録、または
+/// フィールド自身の size_ と入れ子型の typeSize_ が食い違っていれば理由をログに出して
+/// nullptr を返す(黙って書き込まない安全網。他の型の CheckFieldSize と同じ役割だが、
+/// Save/Load はエディタ専用ではない(JSON往復は非エディタ構成でも起きる)ため
+/// ORIGINE_EDITOR_ENABLED の外に置く)。
+/// </summary>
+const TypeDesc* ResolveNestedTypeDesc(const FieldDesc& _field) {
+    const TypeDesc* table = GetNestedTypeTable();
+    uint32_t count         = GetNestedTypeTableCount();
+    if (!table || _field.nestedTypeIndex_ >= count) {
+        LOG_ERROR("入れ子フィールド '{}' の nestedTypeIndex_({}) が範囲外(登録数{})です。",
+            _field.name_, _field.nestedTypeIndex_, count);
+        return nullptr;
+    }
+    const TypeDesc& nested = table[_field.nestedTypeIndex_];
+    if (nested.typeSize_ != _field.size_) {
+        LOG_ERROR("入れ子フィールド '{}' はサイズ不一致(フィールド{}バイト, 入れ子型'{}'{}バイト)のため扱いません。",
+            _field.name_, _field.size_, nested.typeName_, nested.typeSize_);
+        return nullptr;
+    }
+    return &nested;
+}
+
+} // namespace
+
+/// <summary>
+/// 入れ子の注釈付き構造体(ORIGINE_STRUCT())用。フィールドの実際のC++型が何であるかは問わない
+/// (どの型でも常にこの1つのタグ・この1つのストラテジーで表す)。どの入れ子 TypeDesc を指すかは
+/// FieldDesc::nestedTypeIndex_(GetNestedTypeTable() への添字)が持つ。Save/Load は
+/// ToJsonViaDescriptor/FromJsonViaDescriptor をオブジェクト1段ネストして再利用するだけで、
+/// 入れ子の中身の型ごとの分岐はここに書かない(switchを使わないという設計方針を、再帰の中でも保つ)。
+/// </summary>
+template <>
+class FieldStrategy<NestedStructTag> final : public IFieldStrategy {
+public:
+    void Save(nlohmann::json& j, const FieldDesc& f, const void* p) const override {
+        const TypeDesc* nested = ResolveNestedTypeDesc(f);
+        if (!nested) {
+            return; // 理由はResolveNestedTypeDesc内でログ済み
+        }
+        nlohmann::json nestedJson = nlohmann::json::object();
+        ToJsonViaDescriptor(nestedJson, p, *nested);
+        j[f.jsonKey_] = std::move(nestedJson);
+    }
+
+    void Load(const nlohmann::json& v, const FieldDesc& f, void* p) const override {
+        if (!v.is_object()) {
+            LOG_ERROR("FromJsonViaDescriptor: フィールド '{}' は入れ子オブジェクトを期待したが、"
+                       "オブジェクトではない値だったため読み込みません。",
+                f.name_);
+            return;
+        }
+        const TypeDesc* nested = ResolveNestedTypeDesc(f);
+        if (!nested) {
+            return;
+        }
+        FromJsonViaDescriptor(v, p, *nested);
+    }
+#ifdef ORIGINE_EDITOR_ENABLED
+    bool Edit(const FieldDesc& f, const std::string& label, void* p) const override {
+        const TypeDesc* nested = ResolveNestedTypeDesc(f);
+        if (!nested) {
+            DrawFieldNote(f, "入れ子型の解決に失敗したため編集不可");
+            return false;
+        }
+        // labelは呼び出し元(DrawComponentFieldsViaDescriptor)が既に
+        // "フィールド名##idSuffix_フィールド名" の形で組み立てた、この呼び出し1回分の
+        // 一意なIDを持つ文字列。これをそのまま次のDrawComponentFieldsViaDescriptor呼び出しの
+        // idSuffixとして渡せば、入れ子側のフィールドのIDも自動的に一意になる
+        // (idSuffixが積み重なっていくだけで、新しい採番の仕組みを足す必要が無い)。
+        //
+        // 親フィールドがno_saveでBeginDisabled中にこのEdit()が呼ばれている場合、ImGuiの
+        // 無効化はスタック(カウンタ)で効くため、ここで改めてDisabledScopeを重ねなくても
+        // この再帰の中で描く全ウィジェットは自動的に無効化された状態になる。
+        bool open = ::ImGui::TreeNode(label.c_str());
+        if (open) {
+            DrawComponentFieldsViaDescriptor(p, *nested, label);
+            ::ImGui::TreePop();
+        }
+        return true;
+    }
+#endif
+};
+
+// ============================================================================
 // Opaque(FieldTypeListに載らない、型を1つに絞れない残り全部用の唯一のタグ)
 // ============================================================================
 
@@ -484,10 +583,11 @@ public:
 namespace {
 
 /// <summary>
-/// FieldTypeList<Ts...> を畳み込み、Ts それぞれの FieldStrategy<Ts> ひとつずつ(EnumAs<U> 込み)+
-/// Opaque用の合計 sizeof...(Ts)+1 個を、タグ値=配列添字の順で積んだ表を作る。Enum専用の
-/// タグ・専用ストラテジーは無い(EnumAs<uint8_t/16/32/64> が FieldTypeList の通常のエントリとして
-/// 畳み込まれるため、他の型と同じ経路でテーブルに入る)。
+/// FieldTypeList<Ts...> を畳み込み、Ts それぞれの FieldStrategy<Ts> ひとつずつ
+/// (EnumAs<U>・NestedStructTag 込み)+ Opaque用の合計 sizeof...(Ts)+1 個を、タグ値=配列添字の
+/// 順で積んだ表を作る。Enum/入れ子構造体専用のタグ・専用ストラテジーを別枠で持たないのは、
+/// EnumAs<uint8_t/16/32/64>・NestedStructTag が FieldTypeList の通常のエントリとして
+/// 畳み込まれるため、他の型と同じ経路でテーブルに入るから。
 /// </summary>
 template <typename... Ts>
 std::array<std::unique_ptr<IFieldStrategy>, sizeof...(Ts) + 1> MakeStrategyTable(TypeList<Ts...>) {

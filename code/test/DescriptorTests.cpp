@@ -261,6 +261,222 @@ TestCaseResult FieldStrategyRoundTrip() {
     return result;
 }
 
+/// <summary>
+/// 入れ子構造体(ORIGINE_STRUCT())専用テーブルは ComponentTypeId を持たないため、
+/// GetTypeDescriptor(typeId) では引けない。名前で舐めて探す(登録数は数個なので線形探索で十分)。
+/// </summary>
+const TypeDesc* FindNestedTypeDescByName(const char* _name) {
+    const TypeDesc* table = GetNestedTypeTable();
+    uint32_t count         = GetNestedTypeTableCount();
+    for (uint32_t i = 0; i < count; ++i) {
+        if (std::string(table[i].typeName_) == _name) {
+            return &table[i];
+        }
+    }
+    return nullptr;
+}
+
+/// <summary>_desc の中から名前が一致する FieldDesc を探す。無ければ nullptr。</summary>
+const FieldDesc* FindFieldByName(const TypeDesc& _desc, const char* _name) {
+    const FieldDesc* fields = GetFieldTable();
+    for (uint32_t i = 0; i < _desc.fieldCount_; ++i) {
+        const FieldDesc& f = fields[_desc.fieldStart_ + i];
+        if (std::string(f.name_) == _name) {
+            return &f;
+        }
+    }
+    return nullptr;
+}
+
+/// <summary>
+/// ケース4: 入れ子構造体(OutlineParamData/BoxFilterSize)専用の TypeDesc が正しく登録されて
+/// いること・フィールド数と型タグが期待どおりであることを確認する(型ディスクリプタに
+/// 入れ子構造体を追加したタスクの検証手順3番)。
+/// </summary>
+TestCaseResult NestedStructDescriptor() {
+    TestCaseResult result;
+    result.passed = true;
+
+    const TypeDesc* outlineParam = FindNestedTypeDescByName("OutlineParamData");
+    if (!outlineParam) {
+        result.passed = false;
+        result.diagnosticLines.push_back("[FAIL] OutlineParamData: 入れ子構造体専用テーブルに見つからない");
+    } else {
+        bool sizeOk  = outlineParam->typeSize_ == static_cast<uint32_t>(sizeof(OutlineParamData));
+        bool countOk = outlineParam->fieldCount_ == 2; // outlineWidth, outlineColor
+        result.passed &= sizeOk && countOk;
+        result.diagnosticLines.push_back(std::format(
+            "[{}] OutlineParamData fields={} (expected 2) sizeof={} (desc={})",
+            (sizeOk && countOk) ? "ok  " : "FAIL", outlineParam->fieldCount_, sizeof(OutlineParamData), outlineParam->typeSize_));
+
+        const FieldDesc* width = FindFieldByName(*outlineParam, "outlineWidth");
+        const FieldDesc* color = FindFieldByName(*outlineParam, "outlineColor");
+        bool tagOk = width && color && width->typeTag_ == kFieldTagOf<float> && color->typeTag_ == kFieldTagOf<Vec4f>;
+        result.passed &= tagOk;
+        result.diagnosticLines.push_back(std::format("[{}] OutlineParamData のフィールド型タグが期待どおり", tagOk ? "ok  " : "FAIL"));
+    }
+
+    const TypeDesc* boxFilterSize = FindNestedTypeDescByName("BoxFilterSize");
+    if (!boxFilterSize) {
+        result.passed = false;
+        result.diagnosticLines.push_back("[FAIL] BoxFilterSize: 入れ子構造体専用テーブルに見つからない");
+    } else {
+        bool sizeOk  = boxFilterSize->typeSize_ == static_cast<uint32_t>(sizeof(BoxFilterSize));
+        bool countOk = boxFilterSize->fieldCount_ == 1; // size
+        result.passed &= sizeOk && countOk;
+        result.diagnosticLines.push_back(std::format(
+            "[{}] BoxFilterSize fields={} (expected 1) sizeof={} (desc={})",
+            (sizeOk && countOk) ? "ok  " : "FAIL", boxFilterSize->fieldCount_, sizeof(BoxFilterSize), boxFilterSize->typeSize_));
+
+        const FieldDesc* size = FindFieldByName(*boxFilterSize, "size");
+        bool tagOk = size && size->typeTag_ == kFieldTagOf<Vec2f>;
+        result.passed &= tagOk;
+        result.diagnosticLines.push_back(std::format("[{}] BoxFilterSize::size の型タグが期待どおり", tagOk ? "ok  " : "FAIL"));
+    }
+
+    return result;
+}
+
+/// <summary>
+/// ケース5: 入れ子フィールドのオフセット計算の正解照合。OutlineComponent/SmoothingEffectParam を
+/// スタックに1つ作り(Initialize()は呼ばない。GPUバッファを作らないためGPUデバイス不要)、
+/// ディスクリプタ(FieldDesc::offset_ を辿って入れ子TypeDescへ入り、さらにそのFieldDesc::offset_
+/// を辿る)経由で計算したアドレスが、実際のC++メンバのアドレス(&comp.paramData.openData_.
+/// outlineWidth 等)と一致することを確認する。これが「FieldUnwrap&lt;IConstantBuffer&lt;X&gt;&gt;の
+/// オフセット計算が正しいこと」の正解オラクルになる。
+/// </summary>
+TestCaseResult NestedFieldOffsetOracle() {
+    TestCaseResult result;
+    result.passed = true;
+
+    // --- OutlineComponent::paramData -> OutlineParamData::outlineWidth/outlineColor ---
+    {
+        OutlineComponent outline; // Initialize()は呼ばない(paramData.CreateBufferがGPUを要求するため)
+
+        const TypeDesc* outlineDesc = GetTypeDescriptor(GetComponentTypeId<OutlineComponent>());
+        const FieldDesc* paramDataField = outlineDesc ? FindFieldByName(*outlineDesc, "paramData") : nullptr;
+        if (!paramDataField) {
+            result.passed = false;
+            result.diagnosticLines.push_back("[FAIL] OutlineComponent::paramData の FieldDesc が見つからない");
+        } else {
+            const std::byte* base    = reinterpret_cast<const std::byte*>(&outline);
+            const void* paramDataPtr = base + paramDataField->offset_; // FieldUnwrap込みで openData_ の先頭を指すはず
+
+            bool baseOk = (paramDataPtr == static_cast<const void*>(&outline.paramData.openData_));
+            result.passed &= baseOk;
+            result.diagnosticLines.push_back(std::format(
+                "[{}] OutlineComponent::paramData の offset_ が &paramData.openData_ と一致", baseOk ? "ok  " : "FAIL"));
+
+            const TypeDesc* nestedTable = GetNestedTypeTable();
+            uint32_t nestedCount         = GetNestedTypeTableCount();
+            if (paramDataField->nestedTypeIndex_ >= nestedCount) {
+                result.passed = false;
+                result.diagnosticLines.push_back("[FAIL] OutlineComponent::paramData の nestedTypeIndex_ が範囲外");
+            } else {
+                const TypeDesc& nestedDesc  = nestedTable[paramDataField->nestedTypeIndex_];
+                const std::byte* nestedBase = reinterpret_cast<const std::byte*>(paramDataPtr);
+
+                const FieldDesc* width = FindFieldByName(nestedDesc, "outlineWidth");
+                const FieldDesc* color = FindFieldByName(nestedDesc, "outlineColor");
+                bool widthOk = width && (nestedBase + width->offset_ == reinterpret_cast<const std::byte*>(&outline.paramData.openData_.outlineWidth));
+                bool colorOk = color && (nestedBase + color->offset_ == reinterpret_cast<const std::byte*>(&outline.paramData.openData_.outlineColor));
+                result.passed &= widthOk && colorOk;
+                result.diagnosticLines.push_back(std::format("[{}] OutlineParamData::outlineWidth のアドレスが一致", widthOk ? "ok  " : "FAIL"));
+                result.diagnosticLines.push_back(std::format("[{}] OutlineParamData::outlineColor のアドレスが一致", colorOk ? "ok  " : "FAIL"));
+            }
+        }
+    }
+
+    // --- SmoothingEffectParam::boxFilterSize_ -> BoxFilterSize::size ---
+    {
+        SmoothingEffectParam smoothing; // Initialize()は呼ばない(boxFilterSize_.CreateBufferがGPUを要求するため)
+
+        const TypeDesc* smoothingDesc = GetTypeDescriptor(GetComponentTypeId<SmoothingEffectParam>());
+        const FieldDesc* boxFilterSizeField = smoothingDesc ? FindFieldByName(*smoothingDesc, "boxFilterSize_") : nullptr;
+        if (!boxFilterSizeField) {
+            result.passed = false;
+            result.diagnosticLines.push_back("[FAIL] SmoothingEffectParam::boxFilterSize_ の FieldDesc が見つからない");
+        } else {
+            const std::byte* base   = reinterpret_cast<const std::byte*>(&smoothing);
+            const void* boxSizePtr = base + boxFilterSizeField->offset_;
+
+            bool baseOk = (boxSizePtr == static_cast<const void*>(&smoothing.boxFilterSize_.openData_));
+            result.passed &= baseOk;
+            result.diagnosticLines.push_back(std::format(
+                "[{}] SmoothingEffectParam::boxFilterSize_ の offset_ が &boxFilterSize_.openData_ と一致", baseOk ? "ok  " : "FAIL"));
+
+            const TypeDesc* nestedTable = GetNestedTypeTable();
+            uint32_t nestedCount         = GetNestedTypeTableCount();
+            if (boxFilterSizeField->nestedTypeIndex_ >= nestedCount) {
+                result.passed = false;
+                result.diagnosticLines.push_back("[FAIL] SmoothingEffectParam::boxFilterSize_ の nestedTypeIndex_ が範囲外");
+            } else {
+                const TypeDesc& nestedDesc  = nestedTable[boxFilterSizeField->nestedTypeIndex_];
+                const std::byte* nestedBase = reinterpret_cast<const std::byte*>(boxSizePtr);
+
+                const FieldDesc* size = FindFieldByName(nestedDesc, "size");
+                bool sizeOk = size && (nestedBase + size->offset_ == reinterpret_cast<const std::byte*>(&smoothing.boxFilterSize_.openData_.size));
+                result.passed &= sizeOk;
+                result.diagnosticLines.push_back(std::format("[{}] BoxFilterSize::size のアドレスが一致", sizeOk ? "ok  " : "FAIL"));
+            }
+        }
+    }
+
+    return result;
+}
+
+/// <summary>
+/// ケース6: 入れ子構造体用ストラテジー(FieldStrategy&lt;NestedStructTag&gt;)のSave/Load往復確認。
+/// OutlineComponent::paramData を対象に、Saveすると入れ子オブジェクト({"outlineWidth":...,
+/// "outlineColor":[...]})になること、Loadで元の値がそのまま復元できることを見る。
+/// </summary>
+TestCaseResult NestedStrategyRoundTrip() {
+    TestCaseResult result;
+    result.passed = true;
+
+    const TypeDesc* outlineDesc = GetTypeDescriptor(GetComponentTypeId<OutlineComponent>());
+    const FieldDesc* paramDataField = outlineDesc ? FindFieldByName(*outlineDesc, "paramData") : nullptr;
+    if (!paramDataField) {
+        result.passed = false;
+        result.diagnosticLines.push_back("[FAIL] OutlineComponent::paramData の FieldDesc が見つからない");
+        return result;
+    }
+
+    const IFieldStrategy* strategy = GetFieldStrategy(paramDataField->typeTag_);
+    if (!strategy) {
+        result.passed = false;
+        result.diagnosticLines.push_back(std::format("[FAIL] GetFieldStrategy(tag={}) が nullptr", paramDataField->typeTag_));
+        return result;
+    }
+
+    OutlineComponent src;
+    src.paramData.openData_.outlineWidth = 1.25f;
+    src.paramData.openData_.outlineColor = Vec4f(0.1f, 0.2f, 0.3f, 0.4f);
+
+    nlohmann::json j;
+    strategy->Save(j, *paramDataField, &src.paramData.openData_);
+
+    bool isNestedObject = j.contains(paramDataField->jsonKey_) && j.at(paramDataField->jsonKey_).is_object();
+    result.passed &= isNestedObject;
+    result.diagnosticLines.push_back(std::format("[{}] Save結果がキー'{}'の入れ子オブジェクトになっている",
+        isNestedObject ? "ok  " : "FAIL", paramDataField->jsonKey_));
+
+    if (!isNestedObject) {
+        return result;
+    }
+
+    OutlineComponent dst; // 既定値(src とは異なる)から始める
+    strategy->Load(j.at(paramDataField->jsonKey_), *paramDataField, &dst.paramData.openData_);
+
+    bool widthOk = (dst.paramData.openData_.outlineWidth == src.paramData.openData_.outlineWidth);
+    bool colorOk = (dst.paramData.openData_.outlineColor == src.paramData.openData_.outlineColor);
+    result.passed &= widthOk && colorOk;
+    result.diagnosticLines.push_back(std::format("[{}] Load後にoutlineWidthが往復して一致", widthOk ? "ok  " : "FAIL"));
+    result.diagnosticLines.push_back(std::format("[{}] Load後にoutlineColorが往復して一致", colorOk ? "ok  " : "FAIL"));
+
+    return result;
+}
+
 } // namespace
 
 std::vector<TestCaseEntry> MakeDescriptorTestCases() {
@@ -268,6 +484,9 @@ std::vector<TestCaseEntry> MakeDescriptorTestCases() {
         {"DescriptorTableShape", DescriptorTableShape},
         {"DescriptorPerTypeConsistency", DescriptorPerTypeConsistency},
         {"FieldStrategyRoundTrip", FieldStrategyRoundTrip},
+        {"NestedStructDescriptor", NestedStructDescriptor},
+        {"NestedFieldOffsetOracle", NestedFieldOffsetOracle},
+        {"NestedStrategyRoundTrip", NestedStrategyRoundTrip},
     };
 }
 

@@ -8,7 +8,8 @@
 namespace ReflectionCodeGen {
 
 /// <summary>
-/// ヘッダ1本分のソースを解析し、ORIGINE_COMPONENT() が付いた型(通常1個)と
+/// ヘッダ1本分のソースを解析し、ORIGINE_COMPONENT() または ORIGINE_STRUCT() が付いた型
+/// (0個以上。同じヘッダに入れ子専用の構造体とそれを使うコンポーネントが両方いてもよい)と
 /// enum class の一覧を返す。
 ///
 /// 対応する構文(docs/plans/phase-03.md 6章15番の一覧に対応):

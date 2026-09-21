@@ -20,6 +20,11 @@ const TypeDesc* g_typeDescriptors[kMaxComponentTypes] = {};
 
 const FieldDesc* g_fieldTable      = nullptr;
 uint32_t g_fieldTableCount = 0;
+
+// 入れ子構造体(ORIGINE_STRUCT())専用の TypeDesc 表。コンポーネント表と違い
+// ComponentTypeId を添字にしないので、単純な(先頭ポインタ, 個数)で持つ(RegisterFieldTableと同じ形)。
+const TypeDesc* g_nestedTypeTable      = nullptr;
+uint32_t g_nestedTypeTableCount = 0;
 } // namespace
 
 const TypeDesc* GetTypeDescriptor(uint32_t _typeId) {
@@ -47,6 +52,19 @@ const FieldDesc* GetFieldTable() {
 
 uint32_t GetFieldTableCount() {
     return g_fieldTableCount;
+}
+
+void RegisterNestedTypeTable(const TypeDesc* _types, uint32_t _count) {
+    g_nestedTypeTable      = _types;
+    g_nestedTypeTableCount = _count;
+}
+
+const TypeDesc* GetNestedTypeTable() {
+    return g_nestedTypeTable;
+}
+
+uint32_t GetNestedTypeTableCount() {
+    return g_nestedTypeTableCount;
 }
 
 void ToJsonViaDescriptor(nlohmann::json& _outJson, const void* _obj, const TypeDesc& _desc) {
