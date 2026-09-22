@@ -127,10 +127,8 @@ void SceneEditorWindow::FinalizeScene() {
 }
 
 void AddComponentCommand::Execute() {
-    auto sceneEditorWindow        = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
-    auto currentScene             = sceneEditorWindow->GetCurrentScene();
-    auto inspectorArea            = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    EntityHandle editEntityHandle = inspectorArea->GetEditEntityHandle();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto currentScene      = sceneEditorWindow->GetCurrentScene();
 
     for (auto entityId : entityHandles_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
@@ -139,13 +137,14 @@ void AddComponentCommand::Execute() {
             return;
         }
 
-        // コンポーネントの追加
+        // 追加先は対象として渡されたエンティティ。以前は編集中のエンティティへ追加しており、
+        // 複数選択で同じエンティティに重複して付く一方、Undo は entityId 側から外そうとして食い違っていた。
         IComponentArray* compArray = currentScene->GetComponentRepositoryRef()->GetComponentArray(componentTypeName_);
-        compArray->AddComponent(currentScene, editEntityHandle);
         if (!compArray) {
             LOG_ERROR("Failed to add component '{}'. \n ", componentTypeName_);
             return;
         }
+        compArray->AddComponent(currentScene, entityId);
     }
 }
 
@@ -167,7 +166,13 @@ void AddComponentCommand::Undo() {
             LOG_ERROR("ComponentArray '{}' not found.", componentTypeName_);
             return;
         }
-        compArray->RemoveComponent(entityId, compArray->GetComponentCount(entityId));
+        // Execute で末尾に足した1個を外す。添字は要素数ではなく要素数 - 1(要素数を渡すと範囲外で何もしない)。
+        const uint32_t count = compArray->GetComponentCount(entityId);
+        if (count == 0) {
+            LOG_ERROR("AddComponentCommand::Undo: '{}' has no component to remove.", componentTypeName_);
+            continue;
+        }
+        compArray->RemoveComponent(entityId, count - 1);
     }
 }
 
